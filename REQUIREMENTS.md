@@ -83,7 +83,7 @@ Oliver Ernster as author and decision owner; contributors to the open source pro
 ### 1.5 References
 
 - `TimeStrip-SPEC.md`: the initial product specification.
-- `ARCHITECTURE.md` (to be written): the layering invariants and the tests that enforce them.
+- `ARCHITECTURE.md`: the layering invariants and the tests that enforce them.
 - IANA tz database, as embedded by Go's `time/tzdata` package.
 - ISO/IEC/IEEE 29148 for requirement quality; EARS for requirement syntax.
 - WCAG 2.2, success criterion 1.4.3 (contrast minimum) and 1.4.1 (use of colour).

@@ -20,6 +20,9 @@ type Rect struct {
 	Left, Top, Right, Bottom int
 }
 
+// Width answers the rectangle's width.
+func (r Rect) Width() int { return r.Right - r.Left }
+
 // Height answers the rectangle's height.
 func (r Rect) Height() int { return r.Bottom - r.Top }
 

@@ -1,0 +1,62 @@
+package application
+
+import (
+	"fmt"
+
+	"github.com/oernster/timestrip/internal/domain/clock"
+	"github.com/oernster/timestrip/internal/domain/settings"
+)
+
+// SetStyle chooses digital or analogue presentation (FR-601 to FR-604).
+func (s *Service) SetStyle(style settings.Style) error {
+	return choose(s, style, func(c *settings.Settings) *settings.Style { return &c.Style })
+}
+
+// SetFormat chooses 12-hour or 24-hour time (FR-206).
+func (s *Service) SetFormat(format clock.Format) error {
+	return choose(s, format, func(c *settings.Settings) *clock.Format { return &c.Format })
+}
+
+// SetOrientation chooses horizontal or vertical (FR-103). Arranging the window afterwards keeps
+// it on screen (FR-104).
+func (s *Service) SetOrientation(orientation settings.Orientation) error {
+	return choose(s, orientation, func(c *settings.Settings) *settings.Orientation { return &c.Orientation })
+}
+
+// SetTheme chooses system, light or dark (FR-606).
+func (s *Service) SetTheme(theme settings.Theme) error {
+	return choose(s, theme, func(c *settings.Settings) *settings.Theme { return &c.Theme })
+}
+
+// SetAlwaysOnTop turns Always on Top on or off (FR-505).
+func (s *Service) SetAlwaysOnTop(on bool) error {
+	return choose(s, on, func(c *settings.Settings) *bool { return &c.AlwaysOnTop })
+}
+
+// choose sets the field field picks to value and saves; a value the setting does not offer, which
+// normalising would replace, is refused and nothing changes (FR-602).
+func choose[T comparable](s *Service, value T, field func(*settings.Settings) *T) error {
+	return s.change(func(current settings.Settings) (settings.Settings, error) {
+		next := current.Normalised()
+		*field(&next) = value
+		normalised := next.Normalised()
+		if *field(&normalised) != value {
+			return current, fmt.Errorf("%w: %v", ErrUnknownChoice, value)
+		}
+		return next, nil
+	})
+}
+
+// StartWithWindows answers whether the Start with Windows value is present. Windows holds the
+// answer, not the settings file, so the setting and setup cannot disagree (FR-605, FR-805).
+func (s *Service) StartWithWindows() (bool, error) {
+	return s.ports.Startup.Enabled()
+}
+
+// SetStartWithWindows writes or removes the Start with Windows value (FR-605).
+func (s *Service) SetStartWithWindows(on bool) error {
+	if on {
+		return s.ports.Startup.Enable()
+	}
+	return s.ports.Startup.Disable()
+}

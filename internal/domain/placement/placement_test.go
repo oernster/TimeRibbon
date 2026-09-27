@@ -114,6 +114,13 @@ func TestPrimaryIsTheFirstWhenNoneIsMarked(t *testing.T) {
 	}
 }
 
+func TestARectangleMeasuresItsOwnSides(t *testing.T) {
+	t.Parallel()
+	if w, h := secondary.Work.Width(), secondary.Work.Height(); w != 2560 || h != 1392 {
+		t.Errorf("got %d by %d", w, h)
+	}
+}
+
 func TestAStripLargerThanTheWorkAreaAlignsToItsStart(t *testing.T) {
 	t.Parallel()
 	got := Clamp(Point{X: 500, Y: 500}, Size{Width: 3000, Height: 2000}, primary.Work)

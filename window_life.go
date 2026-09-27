@@ -93,10 +93,16 @@ func (a *App) act(action application.MenuAction) {
 		a.hide()
 	case application.ActionAddClock:
 		a.show()
-		a.emit(eventOpenSettings, openAtAddClock)
+		a.emit(eventOpenPanel, openAtAddClock)
 	case application.ActionSettings:
 		a.show()
-		a.emit(eventOpenSettings, openAtSettings)
+		a.emit(eventOpenPanel, openAtSettings)
+	case application.ActionAbout:
+		a.show()
+		a.emit(eventOpenPanel, openAtAbout)
+	case application.ActionLicence:
+		a.show()
+		a.emit(eventOpenPanel, openAtLicence)
 	case application.ActionAlwaysOnTop:
 		a.report("changing Always on top", a.SetAlwaysOnTop(!a.service.Settings().AlwaysOnTop))
 		a.emit(eventRefresh)
@@ -109,9 +115,9 @@ func (a *App) act(action application.MenuAction) {
 }
 
 // moved records where a drag left the strip, putting it back onto a display if the drag left part
-// of it off every one (FR-404, FR-406). A move of the Settings surface is not the strip's.
+// of it off every one (FR-404, FR-406). A move of a panel is not the strip's.
 func (a *App) moved() {
-	if a.settingsOpen.Load() {
+	if a.panelOpen.Load() {
 		return
 	}
 	at, err := desktop.Position(a.strip)
@@ -129,7 +135,7 @@ func (a *App) moved() {
 
 // rearrange fits the strip where it stands (FR-104, FR-406).
 func (a *App) rearrange() {
-	if a.settingsOpen.Load() {
+	if a.panelOpen.Load() {
 		return
 	}
 	at, err := desktop.Position(a.strip)

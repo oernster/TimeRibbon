@@ -4,9 +4,9 @@
 // Every call that Go can refuse takes a refusal handler as its last argument and answers null
 // rather than rejecting, so a call without a handler does not compile (ported from Bridge Talk).
 
-import type { Place, Snapshot } from './wire'
+import type { About, Place, Snapshot } from './wire'
 
-export type { Cell, Layout, Place, Size, Snapshot } from './wire'
+export type { About, Cell, Credit, Layout, Place, Size, Snapshot } from './wire'
 
 /** A handler told, in words, why a call was refused. */
 export type Refused = (reason: string) => void
@@ -28,10 +28,12 @@ interface Bridge {
   SetStartWithWindows(on: boolean): Promise<void>
   DismissNotices(): Promise<void>
   ShowContextMenu(): Promise<void>
-  OpenSettings(): Promise<void>
-  CloseSettings(): Promise<void>
+  OpenPanel(): Promise<void>
+  ClosePanel(): Promise<void>
   Hide(): Promise<void>
   OpenDonation(): Promise<void>
+  About(): Promise<About>
+  Licence(): Promise<string>
 }
 
 interface Runtime {
@@ -80,10 +82,12 @@ export const api = {
   setStartWithWindows: (on: boolean, refused: Refused) => call((b) => b.SetStartWithWindows(on), refused),
   dismissNotices: (refused: Refused) => call((b) => b.DismissNotices(), refused),
   showContextMenu: (refused: Refused) => call((b) => b.ShowContextMenu(), refused),
-  openSettings: (refused: Refused) => call((b) => b.OpenSettings(), refused),
-  closeSettings: (refused: Refused) => call((b) => b.CloseSettings(), refused),
+  openPanel: (refused: Refused) => call((b) => b.OpenPanel(), refused),
+  closePanel: (refused: Refused) => call((b) => b.ClosePanel(), refused),
   hide: (refused: Refused) => call((b) => b.Hide(), refused),
   openDonation: (refused: Refused) => call((b) => b.OpenDonation(), refused),
+  about: (refused: Refused) => call((b) => b.About(), refused),
+  licence: (refused: Refused) => call((b) => b.Licence(), refused),
 }
 
 /** on listens for a Go event, answering the call that stops listening. Outside Wails it hears nothing. */

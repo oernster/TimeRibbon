@@ -109,11 +109,14 @@ body {
 
 /* -------------------------------------------------------------- body */
 
+/* Safe centring: a short screen sits in the middle, while one holding more than fits starts at its
+   top. Plain centring pushed the head of an overflowing screen above the scroll's reach, measured
+   in Edge on 2026-09-27 as 1878 of a licence's 4059 pixels that no scroll could bring back. */
 .body {
     flex: 1 1 auto;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: safe center;
     min-height: 0;
     overflow-y: auto;
 }

@@ -15,6 +15,9 @@ let logPath = ''
 // lastView is the screen showing with its actions, so the Licence screen can hand it back.
 let lastView = null
 
+// stopReading ends the Licence screen reading itself (FR-811); null while it is not.
+let stopReading = null
+
 function backend() {
     return window.go && window.go.main && window.go.main.App
 }
@@ -63,6 +66,10 @@ $('theme').onclick = () => applyTheme(currentTheme() === 'dark' ? 'light' : 'dar
 // list every time, never relabelled, so no button remembers what it used to mean. The progress
 // screen is given no actions; the Licence button leaves the header while work runs.
 function showView(name, actions) {
+    if (stopReading !== null) {
+        stopReading()
+        stopReading = null
+    }
     document.querySelectorAll('.screen').forEach((el) => el.classList.remove('active'))
     $('screen-' + name).classList.add('active')
     $('licence').hidden = name === 'progress'
@@ -107,7 +114,9 @@ function settleKeyboard() {
     }, keyboardSettleMs)
 }
 
-// showLicence shows the licence setup carries, with Back returning to the screen it came from.
+// showLicence shows the licence setup carries, with Back returning to the screen it came from. The
+// body it scrolls in reads it from the top, afresh each time the screen opens (FR-811); showView
+// ends that the moment another screen shows.
 async function showLicence() {
     const back = lastView
     try {
@@ -116,6 +125,9 @@ async function showLicence() {
         $('licence-text').textContent = String(e)
     }
     showView('licence', [{ label: 'Back', kind: 'primary', onClick: () => showView(back.name, back.actions) }])
+    const body = document.querySelector('.body')
+    body.scrollTop = 0
+    stopReading = window.AutoScroll.attach(body)
 }
 
 $('licence').onclick = showLicence

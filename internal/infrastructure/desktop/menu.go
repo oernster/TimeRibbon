@@ -39,17 +39,10 @@ func (d *Desktop) track(items []application.MenuItem) {
 	if menu == 0 {
 		return
 	}
+	// Destroying a menu destroys every submenu attached to it.
 	defer func() { _, _, _ = procDestroyMenu.Call(menu) }()
-	for index, item := range items {
-		if item.Action == application.ActionExit {
-			_, _, _ = procAppendMenu.Call(menu, mfSeparator, 0, 0)
-		}
-		flags := uintptr(mfString)
-		if item.Checkable && item.Checked {
-			flags |= mfChecked
-		}
-		_, _, _ = procAppendMenu.Call(menu, flags, uintptr(menuIDBase+index), utf16Pointer(item.Label))
-	}
+	next := 0
+	fill(menu, items, &next)
 	var cursor point
 	_, _, _ = procGetCursorPos.Call(uintptr(unsafe.Pointer(&cursor)))
 	// A popup menu dismisses on a click elsewhere only when its owner is foreground first; it closes
@@ -63,11 +56,51 @@ func (d *Desktop) track(items []application.MenuItem) {
 	}
 }
 
+// fill appends items to menu, a submenu for each item holding children (FR-508). Identifiers are
+// given out depth first from next, the order numbered answers them in.
+func fill(menu uintptr, items []application.MenuItem, next *int) {
+	for _, item := range items {
+		if item.Action == application.ActionExit {
+			_, _, _ = procAppendMenu.Call(menu, mfSeparator, 0, 0)
+		}
+		if len(item.Children) > 0 {
+			sub, _, _ := procCreatePopupMenu.Call()
+			if sub == 0 {
+				continue
+			}
+			fill(sub, item.Children, next)
+			_, _, _ = procAppendMenu.Call(menu, mfPopup, sub, utf16Pointer(item.Label))
+			continue
+		}
+		flags := uintptr(mfString)
+		if item.Checkable && item.Checked {
+			flags |= mfChecked
+		}
+		_, _, _ = procAppendMenu.Call(menu, flags, uintptr(menuIDBase+*next), utf16Pointer(item.Label))
+		*next++
+	}
+}
+
+// numbered answers the action of every item that carries an identifier, in the order fill gives
+// them out: depth first, so a submenu's items follow every item before it.
+func numbered(items []application.MenuItem) []application.MenuAction {
+	var out []application.MenuAction
+	for _, item := range items {
+		if len(item.Children) > 0 {
+			out = append(out, numbered(item.Children)...)
+			continue
+		}
+		out = append(out, item.Action)
+	}
+	return out
+}
+
 // chosenAction answers the action of the menu identifier Windows answered; false for none.
 func chosenAction(items []application.MenuItem, id int) (application.MenuAction, bool) {
+	actions := numbered(items)
 	index := id - menuIDBase
-	if index < 0 || index >= len(items) {
+	if index < 0 || index >= len(actions) {
 		return "", false
 	}
-	return items[index].Action, true
+	return actions[index], true
 }

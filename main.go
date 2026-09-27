@@ -33,8 +33,8 @@ var layout = application.Layout{
 	Padding:  6,
 }
 
-// settingsSize is the Settings surface in DIP (CON-6).
-var settingsSize = placement.Size{Width: 560, Height: 760}
+// panelSize is the window in DIP while it shows a panel: Settings, About or Licence (CON-6).
+var panelSize = placement.Size{Width: 560, Height: 760}
 
 func main() {
 	if generatingBindings {
@@ -105,7 +105,7 @@ func run(log io.Writer) error {
 	}
 	var app *App
 	desk := desktop.New(func() []application.MenuItem { return service.TrayMenu(app.visible.Load()) }, log)
-	app = newApp(service, desk, log, settingsSize)
+	app = newApp(service, desk, log, panelSize)
 	if err := desk.Start(); err != nil {
 		fmt.Fprintf(log, "starting the tray icon: %v; closing the strip will exit\n", err)
 	} else {

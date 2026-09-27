@@ -1,0 +1,83 @@
+/* About and Licence (FR-607, FR-608): the heading and Close stay in view while the body beneath
+   them reads itself (FR-609), so Close never drifts away with the text. */
+
+.panel {
+  box-sizing: border-box;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 20px 0;
+  font-size: 14px;
+  user-select: text;
+}
+
+.panel header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex: none;
+}
+
+.panel h1 {
+  font-size: 20px;
+  margin: 0;
+}
+
+.panel h2 {
+  font-size: 15px;
+  margin: 18px 0 8px;
+}
+
+.panel-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  margin-top: 12px;
+  padding-bottom: 16px;
+}
+
+/* The body is a keyboard stop because it scrolls; its ring is drawn inside its edge. */
+.panel-body:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+
+.about-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* 128 DIP, the height tools/genicons.py renders app-icon.png for at four times. */
+.about-head img {
+  width: 128px;
+  height: 128px;
+}
+
+.about-head h2 {
+  margin: 12px 0 4px;
+}
+
+.about-head p {
+  margin: 2px 0;
+}
+
+.credits {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.credits li {
+  margin: 4px 0;
+}
+
+.credit-name {
+  font-weight: 600;
+}
+
+.licence-text {
+  font: 13px/1.45 Consolas, 'Cascadia Mono', monospace;
+  white-space: pre-wrap;
+  margin: 0;
+}

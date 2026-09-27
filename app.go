@@ -21,35 +21,38 @@ import (
 
 // Events the page listens for.
 const (
-	eventRefresh      = "refresh"
-	eventOpenSettings = "open-settings"
+	eventRefresh   = "refresh"
+	eventOpenPanel = "open-panel"
 )
 
-// Which part of Settings an open-settings event asks for.
+// Which panel an open-panel event asks for: Settings, Settings opened on the place search, About
+// or Licence (CON-6, FR-508).
 const (
 	openAtSettings = "settings"
 	openAtAddClock = "add-clock"
+	openAtAbout    = "about"
+	openAtLicence  = "licence"
 )
 
 // App is the facade Wails binds.
 type App struct {
-	service  *application.Service
-	desktop  *desktop.Desktop
-	log      io.Writer
-	settings placement.Size
+	service *application.Service
+	desktop *desktop.Desktop
+	log     io.Writer
+	panel   placement.Size
 
-	ctx          context.Context
-	strip        windows.HWND
-	trayUp       atomic.Bool
-	visible      atomic.Bool
-	quitting     atomic.Bool
-	settingsOpen atomic.Bool
-	scrolls      atomic.Bool
+	ctx       context.Context
+	strip     windows.HWND
+	trayUp    atomic.Bool
+	visible   atomic.Bool
+	quitting  atomic.Bool
+	panelOpen atomic.Bool
+	scrolls   atomic.Bool
 }
 
-// newApp answers the facade over service, reporting on desktop, with Settings drawn at settings DIP.
-func newApp(service *application.Service, desk *desktop.Desktop, log io.Writer, settingsSize placement.Size) *App {
-	return &App{service: service, desktop: desk, log: log, settings: settingsSize}
+// newApp answers the facade over service, reporting on desktop, with every panel drawn at panel DIP.
+func newApp(service *application.Service, desk *desktop.Desktop, log io.Writer, panelSize placement.Size) *App {
+	return &App{service: service, desktop: desk, log: log, panel: panelSize}
 }
 
 // Snapshot answers what the strip shows now.
@@ -122,23 +125,24 @@ func (a *App) DismissNotices() { a.service.DismissNotices() }
 // ShowContextMenu shows the strip's right-click menu as a native menu at the cursor (FR-108).
 func (a *App) ShowContextMenu() { a.desktop.ShowMenu(a.service.ContextMenu()) }
 
-// OpenSettings turns the window into the Settings surface, centred on the strip's display (CON-6).
-func (a *App) OpenSettings() error {
-	a.settingsOpen.Store(true)
+// OpenPanel turns the window into a panel (Settings, About or Licence), centred on the strip's
+// display (CON-6).
+func (a *App) OpenPanel() error {
+	a.panelOpen.Store(true)
 	at, err := desktop.Position(a.strip)
 	if err != nil {
 		return err
 	}
-	arranged, err := a.service.Centred(at, a.settings)
+	arranged, err := a.service.Centred(at, a.panel)
 	if err != nil {
 		return err
 	}
 	return desktop.Place(a.strip, arranged.At, arranged.Size)
 }
 
-// CloseSettings returns the window to the strip, where it was last left (CON-6, FR-405).
-func (a *App) CloseSettings() error {
-	a.settingsOpen.Store(false)
+// ClosePanel returns the window to the strip, where it was last left (CON-6, FR-405).
+func (a *App) ClosePanel() error {
+	a.panelOpen.Store(false)
 	return a.placeLaunched()
 }
 
@@ -153,10 +157,10 @@ func (a *App) OpenDonation() {
 // Hide hides the strip (FR-504).
 func (a *App) Hide() { a.hide() }
 
-// contentChanged fits the strip to what it now holds, keeping its corner (FR-104, FR-105). While
-// Settings is open the window is Settings, so the strip is fitted when it closes instead.
+// contentChanged fits the strip to what it now holds, keeping its corner (FR-104, FR-105). While a
+// panel is open the window is that panel, so the strip is fitted when it closes instead.
 func (a *App) contentChanged() {
-	if a.settingsOpen.Load() || a.strip == 0 {
+	if a.panelOpen.Load() || a.strip == 0 {
 		return
 	}
 	a.rearrange()

@@ -20,7 +20,7 @@ func TestTrayMenuNamesTheOppositeOfTheVisibility(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, settings.Defaults())
 	shown := r.service.TrayMenu(true)
-	if !slices.Equal(labels(shown), []string{"Hide strip", "Add clock", "Settings", "Always on top", "Exit"}) ||
+	if !slices.Equal(labels(shown), []string{"Hide strip", "Add clock", "Settings", "Always on top", "Help", "Exit"}) ||
 		shown[0].Action != ActionHide {
 		t.Errorf("visible: %+v", shown)
 	}
@@ -50,8 +50,25 @@ func TestAlwaysOnTopItemShowsItsState(t *testing.T) {
 func TestContextMenuOffersTheStripsActions(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, settings.Defaults())
-	if got := labels(r.service.ContextMenu()); !slices.Equal(got, []string{"Add clock", "Settings", "Always on top", "Hide strip"}) {
+	if got := labels(r.service.ContextMenu()); !slices.Equal(got, []string{"Add clock", "Settings", "Always on top", "Help", "Hide strip"}) {
 		t.Errorf("got %v", got)
+	}
+}
+
+// FR-508: Help is a submenu with no action of its own, holding About and Licence, in both menus.
+func TestBothMenusOfferHelpWithAboutAndLicence(t *testing.T) {
+	t.Parallel()
+	r := newRig(t, settings.Defaults())
+	for name, menu := range map[string][]MenuItem{"tray": r.service.TrayMenu(true), "context": r.service.ContextMenu()} {
+		index := slices.IndexFunc(menu, func(item MenuItem) bool { return item.Label == "Help" })
+		if index < 0 {
+			t.Fatalf("%s: no Help in %v", name, labels(menu))
+		}
+		help := menu[index]
+		if help.Action != "" || !slices.Equal(labels(help.Children), []string{"About", "Licence"}) ||
+			help.Children[0].Action != ActionAbout || help.Children[1].Action != ActionLicence {
+			t.Errorf("%s: %+v", name, help)
+		}
 	}
 }
 

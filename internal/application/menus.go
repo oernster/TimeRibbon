@@ -11,6 +11,8 @@ const (
 	ActionAddClock    MenuAction = "add-clock"
 	ActionSettings    MenuAction = "settings"
 	ActionAlwaysOnTop MenuAction = "always-on-top"
+	ActionAbout       MenuAction = "about"
+	ActionLicence     MenuAction = "licence"
 	ActionExit        MenuAction = "exit"
 )
 
@@ -21,6 +23,8 @@ type MenuItem struct {
 	// Checkable items show Checked beside their label.
 	Checkable bool
 	Checked   bool
+	// Children makes the item a submenu holding them; such an item has no action of its own.
+	Children []MenuItem
 }
 
 // Item words, one home each.
@@ -30,6 +34,9 @@ const (
 	labelAddClock    = "Add clock"
 	labelSettings    = "Settings"
 	labelAlwaysOnTop = "Always on top"
+	labelHelp        = "Help"
+	labelAbout       = "About"
+	labelLicence     = "Licence"
 	labelExit        = "Exit"
 )
 
@@ -40,12 +47,20 @@ func (s *Service) TrayMenu(visible bool) []MenuItem {
 	if visible {
 		toggle = MenuItem{Action: ActionHide, Label: labelHide}
 	}
-	return []MenuItem{toggle, addClockItem(), settingsItem(), s.alwaysOnTopItem(), {Action: ActionExit, Label: labelExit}}
+	return []MenuItem{toggle, addClockItem(), settingsItem(), s.alwaysOnTopItem(), helpItem(), {Action: ActionExit, Label: labelExit}}
 }
 
 // ContextMenu answers the menu the strip offers when right-clicked (FR-108).
 func (s *Service) ContextMenu() []MenuItem {
-	return []MenuItem{addClockItem(), settingsItem(), s.alwaysOnTopItem(), {Action: ActionHide, Label: labelHide}}
+	return []MenuItem{addClockItem(), settingsItem(), s.alwaysOnTopItem(), helpItem(), {Action: ActionHide, Label: labelHide}}
+}
+
+// helpItem is the Help submenu both menus hold (FR-508).
+func helpItem() MenuItem {
+	return MenuItem{Label: labelHelp, Children: []MenuItem{
+		{Action: ActionAbout, Label: labelAbout},
+		{Action: ActionLicence, Label: labelLicence},
+	}}
 }
 
 // CloseRequested answers what a request to close the strip does, such as Alt+F4: it hides the

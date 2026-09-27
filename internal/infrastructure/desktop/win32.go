@@ -32,6 +32,7 @@ const (
 	nifTip            = 0x04
 	mfString          = 0x0000
 	mfChecked         = 0x0008
+	mfPopup           = 0x0010
 	mfSeparator       = 0x0800
 	tpmRightButton    = 0x0002
 	tpmNonotify       = 0x0080

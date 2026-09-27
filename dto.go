@@ -58,6 +58,22 @@ type placeDTO struct {
 	Country string `json:"country"`
 }
 
+// aboutDTO is what the About panel shows (FR-607).
+type aboutDTO struct {
+	Name      string      `json:"name"`
+	Version   string      `json:"version"`
+	Author    string      `json:"author"`
+	Copyright string      `json:"copyright"`
+	Credits   []creditDTO `json:"credits"`
+}
+
+// creditDTO is one component the application ships.
+type creditDTO struct {
+	Name    string `json:"name"`
+	Licence string `json:"licence"`
+	Role    string `json:"role"`
+}
+
 func sizeOf(size placement.Size) sizeDTO { return sizeDTO{Width: size.Width, Height: size.Height} }
 
 // snapshotOf answers the wire form of a snapshot.

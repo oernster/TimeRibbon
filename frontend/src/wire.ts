@@ -44,3 +44,17 @@ export interface Place {
   label: string
   country: string
 }
+
+export interface About {
+  name: string
+  version: string
+  author: string
+  copyright: string
+  credits: Credit[]
+}
+
+export interface Credit {
+  name: string
+  licence: string
+  role: string
+}

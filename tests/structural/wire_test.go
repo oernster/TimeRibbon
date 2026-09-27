@@ -22,10 +22,11 @@ import (
 // wirePairs names each Go wire type with the TypeScript interface stating it again.
 var wirePairs = map[string]string{
 	"sizeDTO": "Size", "layoutDTO": "Layout", "cellDTO": "Cell", "snapshotDTO": "Snapshot", "placeDTO": "Place",
+	"aboutDTO": "About", "creditDTO": "Credit",
 }
 
 // eventWords are the constants in app.go the page must name.
-var eventWords = []string{"eventRefresh", "eventOpenSettings", "openAtAddClock"}
+var eventWords = []string{"eventRefresh", "eventOpenPanel", "openAtSettings", "openAtAddClock", "openAtAbout", "openAtLicence"}
 
 var (
 	tsInterface = regexp.MustCompile(`(?s)export interface (\w+) \{(.*?)\n\}`)

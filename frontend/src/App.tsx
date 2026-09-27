@@ -1,12 +1,16 @@
 import { useCallback, useEffect, useState } from 'react'
 import { api, on, type Snapshot } from './api'
+import { About, Licence } from './Help'
 import { Settings } from './Settings'
 import { Strip } from './Strip'
 
-type View = 'strip' | 'settings'
+/** The panels the window can become (CON-6); app.go names each in its open-panel event. */
+type Panel = 'settings' | 'about' | 'licence'
+type View = 'strip' | Panel
 
-/** The open-settings event's word for opening straight onto the place search; app.go names it too. */
+/** The open-panel event's words, each naming the panel it opens; add-clock opens Settings on the place search. */
 const addClock = 'add-clock'
+const panelFor: Record<string, Panel> = { settings: 'settings', [addClock]: 'settings', about: 'about', licence: 'licence' }
 
 /**
  * App holds the snapshot and which surface the window shows. The snapshot is taken again at each
@@ -28,26 +32,26 @@ export function App() {
     })
   }, [])
 
-  const openSettings = useCallback((at?: unknown) => {
+  const openPanel = useCallback((at?: unknown) => {
     setAdding(at === addClock)
-    setView('settings')
-    void api.openSettings(setProblem)
+    setView(panelFor[String(at)] ?? 'settings')
+    void api.openPanel(setProblem)
   }, [])
 
-  const closeSettings = useCallback(() => {
+  const closePanel = useCallback(() => {
     setView('strip')
-    void api.closeSettings(setProblem).then(load)
+    void api.closePanel(setProblem).then(load)
   }, [load])
 
   useEffect(() => {
     load()
     const stopRefresh = on('refresh', load)
-    const stopSettings = on('open-settings', openSettings)
+    const stopPanel = on('open-panel', openPanel)
     return () => {
       stopRefresh()
-      stopSettings()
+      stopPanel()
     }
-  }, [load, openSettings])
+  }, [load, openPanel])
 
   useEffect(() => {
     if (snapshot == null) {
@@ -70,7 +74,13 @@ export function App() {
     return <div className="problem">{problem}</div>
   }
   if (view === 'settings') {
-    return <Settings snapshot={snapshot} startAdding={adding} reload={load} onClose={closeSettings} />
+    return <Settings snapshot={snapshot} startAdding={adding} reload={load} onClose={closePanel} />
   }
-  return <Strip snapshot={snapshot} onAddClock={() => openSettings(addClock)} refused={setProblem} />
+  if (view === 'about') {
+    return <About onClose={closePanel} />
+  }
+  if (view === 'licence') {
+    return <Licence onClose={closePanel} />
+  }
+  return <Strip snapshot={snapshot} onAddClock={() => openPanel(addClock)} refused={setProblem} />
 }

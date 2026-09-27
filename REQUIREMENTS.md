@@ -3,6 +3,9 @@
 Status: baselined by Oliver on 2026-09-27. Section 11 records the rulings that closed its open
 questions; it holds none at present. Later changes arrive as dated amendments.
 
+Amendment 2 (Oliver, 2026-09-27): Help, About and Licence (FR-508, FR-607 to FR-609) plus the
+self-reading licence in setup (FR-811); CON-6, FR-108 and FR-502 carry notes of it.
+
 Source: `TimeStrip-SPEC.md` (the initial product specification, 2026-09-27), plus Oliver's rulings
 of 2026-09-27: the stack is Go with Wails; orientation is a setting offering both horizontal and
 vertical, both in the first release; a setup program ships with the first release; this document is
@@ -139,7 +142,7 @@ recorded at the first measured build.
 | CON-3 | The coverage floor over `internal/domain` and `internal/application` stays at 100 percent. |
 | CON-4 | `VERSION` is the single source of truth for the version. No version literal elsewhere. |
 | CON-5 | Zones resolve through Go's `time.LoadLocation` with the `time/tzdata` package embedded, so no rule depends on files present on the machine. Measured 2026-09-27 with `ZONEINFO` pointed at a missing path: `America/New_York` answered EST in January and EDT in July; `Not/AZone` answered an error. No DST rule is written by hand. |
-| CON-6 | The strip, its context menu and the Settings surface share one window, since Wails v2 offers one. Settings is shown by resizing that window to a settings layout and returning it to the strip afterwards. |
+| CON-6 | The strip, its context menu and the Settings surface share one window, since Wails v2 offers one. Settings is shown by resizing that window to a settings layout and returning it to the strip afterwards. Amendment 2: About and Licence (FR-607, FR-608) are shown the same way, as panels of that one window. |
 | CON-7 | Monitor enumeration, work areas, monitor identity and window placement go through Win32 (`EnumDisplayMonitors`, `GetMonitorInfoW`, `SetWindowPos`) in infrastructure, never through Wails' position calls. |
 | CON-8 | Everything written stays per user: the settings file under `%APPDATA%` and the Start with Windows value under `HKCU`. Windows never asks for administrator rights. |
 
@@ -213,7 +216,8 @@ Verified by: `strip.test.tsx`.
 Priority: Should.
 When the strip is right-clicked, the application shall offer `Add clock`, `Settings`, `Always on top`
 (showing its state) and `Hide strip`.
-Verified by: `contextMenu.test.tsx`.
+Amendment 2 (Oliver, 2026-09-27): a `Help` submenu (FR-508) sits after `Always on top`.
+Verified by: `TestContextMenuOffersTheStripsActions` (application).
 
 ### 3.2 Time and date
 
@@ -404,7 +408,8 @@ Verified by: check M-4.
 Priority: Must.
 When the tray icon is right-clicked, the application shall offer `Show strip` or `Hide strip`
 (whichever applies), `Add clock`, `Settings`, `Always on top` (showing its state) and `Exit`.
-Verified by: planned `TestTrayMenuNamesTheOppositeOfTheVisibility` (application); check M-4.
+Amendment 2 (Oliver, 2026-09-27): a `Help` submenu (FR-508) sits after `Always on top`.
+Verified by: `TestTrayMenuNamesTheOppositeOfTheVisibility` (application); check M-4.
 
 **FR-503 Tray click**
 Priority: Should.
@@ -422,6 +427,13 @@ When `Alt+F4` is pressed while the strip has focus, the application shall hide t
 `Hide strip` does and keep running.
 Rationale: ruled on OQ-4 by Oliver, 2026-09-27; `Exit` stays in the tray alone.
 Verified by: planned `TestCloseRequestHidesRatherThanQuits` (application); check M-4.
+
+**FR-508 Help submenu**
+Priority: Must (Amendment 2, Oliver, 2026-09-27).
+The tray menu and the strip's right-click menu shall each hold a `Help` submenu offering `About`
+(FR-607) and `Licence` (FR-608). Choosing either shall show the strip's window as that panel.
+Verified by: `TestBothMenusOfferHelpWithAboutAndLicence` (application);
+`TestASubmenuIsNumberedAfterEveryItemBeforeIt` (infrastructure, desktop); check M-10.
 
 **FR-505 Always on Top**
 Priority: Must.
@@ -475,6 +487,31 @@ Priority: Should.
 Where the theme is system, the strip shall follow the Windows app theme as it changes; light and dark
 shall hold regardless of Windows.
 Verified by: `theme.test.tsx`; check M-7.
+
+**FR-607 About**
+Priority: Must (Amendment 2, Oliver, 2026-09-27).
+The About panel shall show, in this order: the application icon; the product name with the version
+this build carries; `by Oliver Ernster`; `© Oliver Ernster`; then a credit for every component the
+application ships, each naming the component, its licence and what it does here. Close and Escape
+return the window to the strip.
+Verified by: `about.test.tsx`; `TestEveryLinkedModuleIsCredited` (structural).
+
+**FR-608 Licence**
+Priority: Must (Amendment 2, Oliver, 2026-09-27).
+The Licence panel shall show the whole of the `LICENSE` file the application was built with, as
+embedded in the binary. Close and Escape return the window to the strip.
+Verified by: `about.test.tsx`.
+
+**FR-609 Help content reads itself**
+Priority: Must (Amendment 2, Oliver, 2026-09-27).
+While the About or Licence panel holds more than fits, its body shall read itself in the house
+auto-scroll cycle: still for 5 s on opening; down 1 DIP every 80 ms; still for 5 s at the end;
+back to the top at 15 DIP every 40 ms; still for 2 s; repeat. A wheel, a press, a touch, a key or
+focus arriving in the body shall suspend the cycle for 2.5 s of stillness, after which it resumes
+from where the reader left it. Focus arriving while the opening 5 s still run shall not shorten
+them. While a dialog marked modal stands above the body, the cycle shall stand frozen in place. The
+cycle is one script, shared with the setup program (FR-811).
+Verified by: `autoScroll.test.ts`; `about.test.tsx`.
 
 ### 3.7 Persistence and recovery
 
@@ -631,6 +668,12 @@ Setup shall write only under `%LOCALAPPDATA%`, `%APPDATA%` (the Start Menu and t
 the user's Desktop and `HKCU`, so Windows never asks for administrator rights (CON-8).
 Verified by: inspection of `internal/infrastructure/setup`; check M-9.
 
+**FR-811 Setup's licence reads itself**
+Priority: Must (Amendment 2, Oliver, 2026-09-27).
+While setup's Licence screen is shown and holds more than fits, it shall read itself in the cycle
+of FR-609, from the same script, starting afresh each time the screen opens.
+Verified by: `setupScreens.test.ts`.
+
 ---
 
 ## 6. Architecture sketch
@@ -686,7 +729,7 @@ recover, snapshot) is executable from a Go test with no window open before the f
 
 | Priority | Content |
 |---|---|
-| **Must** | FR-101 to FR-107, FR-201 to FR-209, FR-301 to FR-306, FR-401 to FR-407, FR-501, FR-502, FR-504 to FR-507, FR-601 to FR-604, FR-701 to FR-707, FR-801 to FR-810, NFR-P-1 to NFR-P-4, NFR-U-1 to NFR-U-5, NFR-S-1 to NFR-S-3, NFR-M-1, NFR-M-2, NFR-O-1 |
+| **Must** | FR-101 to FR-107, FR-201 to FR-209, FR-301 to FR-306, FR-401 to FR-407, FR-501, FR-502, FR-504 to FR-508, FR-601 to FR-604, FR-607 to FR-609, FR-701 to FR-707, FR-801 to FR-811, NFR-P-1 to NFR-P-4, NFR-U-1 to NFR-U-5, NFR-S-1 to NFR-S-3, NFR-M-1, NFR-M-2, NFR-O-1 |
 | **Should** | FR-108, FR-307, FR-503, FR-605, FR-606 |
 | **Could** | FR-308 |
 | **Won't this time** | Everything in the out-of-scope table of section 1.3 |
@@ -747,3 +790,4 @@ There are no open questions. The five raised while drafting were ruled by Oliver
 | M-7 | Switching the Windows theme while on system theme recolours the strip. |
 | M-8 | Settings and the place search can be driven entirely from the keyboard. |
 | M-9 | Setup installs, updates, repairs and uninstalls on a real machine without asking for administrator rights, closing a running copy first. |
+| M-10 | Both menus open a Help submenu whose About and Licence each show their panel; the licence reads itself down after 5 s, a wheel stops it and it resumes; setup's Licence screen does the same. |

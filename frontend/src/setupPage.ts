@@ -6,6 +6,7 @@
 
 import page from '../../installer/frontend/dist/index.html?raw'
 import ring from '../../installer/frontend/dist/setup-ring.js?raw'
+import reading from '../../installer/frontend/dist/auto-scroll.js?raw'
 import shell from '../../installer/frontend/dist/setup-shell.js?raw'
 import routes from '../../installer/frontend/dist/setup-routes.js?raw'
 
@@ -134,6 +135,7 @@ export function layPage(setup: FakeSetup | null): SetupPage {
   const evaluate = eval
   if (!ringLoaded) {
     evaluate(ring)
+    evaluate(reading)
     ringLoaded = true
   }
   evaluate(shell + '\n' + routes)

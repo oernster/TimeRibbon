@@ -1,7 +1,15 @@
 // A stand-in for the Go facade in tests: every call is recorded, every answer is canned.
 
 import { vi } from 'vitest'
-import type { Cell, Place, Snapshot } from './wire'
+import type { About, Cell, Place, Snapshot } from './wire'
+
+export const about: About = {
+  name: 'Product', version: '0.1.0', author: 'The Author', copyright: '© The Author',
+  credits: [
+    { name: 'Go standard library', licence: 'BSD-3-Clause', role: 'the language and its runtime' },
+    { name: 'Wails v2', licence: 'MIT', role: 'the desktop shell' },
+  ],
+}
 
 export function cell(overrides: Partial<Cell> = {}): Cell {
   return {
@@ -44,10 +52,12 @@ export function installBridge() {
     SetStartWithWindows: vi.fn(async () => undefined),
     DismissNotices: vi.fn(async () => undefined),
     ShowContextMenu: vi.fn(async () => undefined),
-    OpenSettings: vi.fn(async () => undefined),
-    CloseSettings: vi.fn(async () => undefined),
+    OpenPanel: vi.fn(async () => undefined),
+    ClosePanel: vi.fn(async () => undefined),
     Hide: vi.fn(async () => undefined),
     OpenDonation: vi.fn(async () => undefined),
+    About: vi.fn(async () => about),
+    Licence: vi.fn(async () => 'GNU GENERAL PUBLIC LICENSE\nVersion 3'),
   }
   window.go = { main: { App: bridge } }
   window.WailsInvoke = vi.fn()

@@ -10,6 +10,7 @@ What comes out, every file from one of the masters so the masters stay the one h
                                        the setup window's theme toggle: the sun and the moon
   frontend/src/assets/donate.png       the donate mark at the foot of Settings
   frontend/src/assets/add-clock.png    the Add clock button's artwork
+  frontend/src/assets/app-icon.png     the application icon at the head of About
 
 The setup page has no build step, so it loads each file as it finds it; shipping the masters there
 would put megabytes behind a badge. Each is written at about twice the size it is drawn at, crisp on
@@ -60,6 +61,11 @@ RENDER_SCALE = 4
 PAGE_ASSETS = REPO / "frontend" / "src" / "assets"
 BUTTON_MASTERS = {"donate.png": 32, "add-clock.png": 128}
 
+# ABOUT_ICON_DRAWN is the application icon's size at the head of About (.about-head img in the
+# page's help.css); it is rendered RENDER_SCALE times that, square.
+ABOUT_ICON_DRAWN = 128
+ABOUT_ICON_TARGET = PAGE_ASSETS / "app-icon.png"
+
 ICO_TARGET = REPO / "build" / "windows" / "icon.ico"
 APPICON_TARGET = REPO / "build" / "appicon.png"
 SETUP = REPO / "installer" / "frontend" / "dist"
@@ -108,6 +114,7 @@ def main() -> int:
     print(f"{ICO_TARGET.relative_to(REPO).as_posix():<42} {sizes} {ICO_TARGET.stat().st_size:>9,} bytes")
     write_png(app, APPICON_SIZE, APPICON_TARGET)
     write_png(app, HEADER_SIZE, HEADER_TARGET)
+    write_png(app, RENDER_SCALE * ABOUT_ICON_DRAWN, ABOUT_ICON_TARGET)
     for name in TOGGLE_MASTERS:
         write_png(squared(MASTERS / name), TOGGLE_SIZE, SETUP / name)
     for name, drawn in BUTTON_MASTERS.items():

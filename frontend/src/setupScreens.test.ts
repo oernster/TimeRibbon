@@ -3,7 +3,7 @@
 // focus and the calls made: FR-801 (the route), FR-805 (the boxes), FR-806 (uninstall), FR-808 (a
 // failure says why) and the opening focus of FR-809.
 
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   activeScreen,
   boxes,
@@ -203,6 +203,36 @@ describe('the header', () => {
     footerButton('Back').click()
     expect(activeScreen()).toBe('screen-manage')
     expect(footerLabels()).toEqual(['Uninstall', 'Close', 'Reinstall', 'Repair'])
+  })
+
+  it('reads the licence to itself from the top, stopping once another screen shows (FR-811)', async () => {
+    vi.useFakeTimers()
+    try {
+      const body = document.querySelector('.body') as HTMLElement
+      let top = 0
+      Object.defineProperty(body, 'scrollTop', { get: () => top, set: (value: number) => (top = value) })
+      Object.defineProperty(body, 'scrollHeight', { get: () => 1000 })
+      Object.defineProperty(body, 'clientHeight', { get: () => 0 })
+      const { START_HOLD_MS, TICK_MS } = (window as unknown as { AutoScroll: { START_HOLD_MS: number; TICK_MS: number } }).AutoScroll
+      setupPage.route(installed)
+      top = 400
+      pageElement('licence').click()
+      await vi.advanceTimersByTimeAsync(0)
+      expect(top).toBe(0)
+      await vi.advanceTimersByTimeAsync(START_HOLD_MS - TICK_MS)
+      expect(top).toBe(0)
+      await vi.advanceTimersByTimeAsync(TICK_MS * 20)
+      expect(top).toBeGreaterThan(0)
+      footerButton('Back').click()
+      // Back ends the reading: nothing moves the body again and no timer is left running. (The
+      // page's own one-shot timers are still pending straight after Back, so the count is read later.)
+      const left = top
+      await vi.advanceTimersByTimeAsync(START_HOLD_MS * 4)
+      expect(top).toBe(left)
+      expect(vi.getTimerCount()).toBe(0)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('faces the theme toggle with the appearance it switches to', () => {

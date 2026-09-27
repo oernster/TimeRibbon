@@ -25,6 +25,26 @@ func TestTheChosenIdentifierNamesItsItem(t *testing.T) {
 	}
 }
 
+// FR-508: a submenu takes no identifier of its own; its items are numbered after every item before
+// it and before every item after it.
+func TestASubmenuIsNumberedAfterEveryItemBeforeIt(t *testing.T) {
+	t.Parallel()
+	items := []application.MenuItem{
+		{Action: application.ActionSettings},
+		{Label: "Help", Children: []application.MenuItem{{Action: application.ActionAbout}, {Action: application.ActionLicence}}},
+		{Action: application.ActionExit},
+	}
+	want := []application.MenuAction{application.ActionSettings, application.ActionAbout, application.ActionLicence, application.ActionExit}
+	for offset, action := range want {
+		if got, ok := chosenAction(items, menuIDBase+offset); !ok || got != action {
+			t.Errorf("id %d: got %q %v, want %q", menuIDBase+offset, got, ok, action)
+		}
+	}
+	if _, ok := chosenAction(items, menuIDBase+len(want)); ok {
+		t.Error("an identifier past the last item named one")
+	}
+}
+
 // FR-401: the threshold is Windows' own drag rectangle at 100 percent, which is never zero.
 func TestTheDragThresholdIsWindowsOwn(t *testing.T) {
 	t.Parallel()

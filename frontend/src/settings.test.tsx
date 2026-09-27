@@ -79,6 +79,14 @@ describe('Settings', () => {
     expect(onClose).toHaveBeenCalled()
   })
 
+  it('offers a donation that says it opens the browser and hands the page to Go', async () => {
+    const { bridge } = await open()
+    const donate = screen.getByLabelText('Buy the author a drink (opens your browser)')
+    expect(donate.getAttribute('title')).toBe('Buy the author a drink (opens your browser)')
+    await act(async () => fireEvent.click(donate))
+    expect(bridge.OpenDonation).toHaveBeenCalledTimes(1)
+  })
+
   it('says why when a call is refused', async () => {
     const { bridge } = await open()
     bridge.SetTheme.mockRejectedValueOnce('settings could not be saved')

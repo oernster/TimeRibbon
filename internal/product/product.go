@@ -9,6 +9,11 @@ const Name = "TimeStrip"
 // Setup looks for it to know the strip is up before it closes.
 const StripClass = Name + "Strip"
 
+// DonateURL is where the donate button at the foot of Settings sends a browser: the only address
+// TimeStrip knows. It is handed to the desktop to open rather than fetched, so the application
+// itself still makes no request (NFR-S-1).
+const DonateURL = "https://www.paypal.com/ncp/payment/THUS4KZ5GECH8"
+
 // Version is the version this build carries. build.ps1 stamps it from VERSION into both
 // executables with -ldflags -X, which reaches only a var, never a const (CON-4). A build made any
 // other way says so by carrying this placeholder.

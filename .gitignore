@@ -44,3 +44,4 @@ installer/frontend/wailsjs/
 installer/payload.zip.packing
 dist-installer/
 
+frontend/package.json.md5

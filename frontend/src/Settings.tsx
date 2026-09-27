@@ -2,6 +2,10 @@ import { useCallback, useEffect, useState, type KeyboardEvent } from 'react'
 import { api, type Cell, type Place, type Snapshot } from './api'
 import { ClockList } from './ClockList'
 import { PlaceSearch } from './PlaceSearch'
+import donateMark from './assets/donate.png'
+
+/** The picture alone does not say pressing it leaves the application, so the tip does. */
+export const donateTip = 'Buy the author a drink (opens your browser)'
 
 interface Props {
   snapshot: Snapshot
@@ -139,6 +143,13 @@ export function Settings({ snapshot, startAdding, reload, onClose }: Props) {
           Start with Windows
         </label>
       </fieldset>
+
+      <footer className="settings-foot">
+        <button type="button" className="donate" title={donateTip} aria-label={donateTip} onClick={() => void api.openDonation(setProblem)}>
+          <img src={donateMark} alt="" draggable={false} />
+        </button>
+        <p className="muted">Free to use and staying free: nothing is held back behind a donation.</p>
+      </footer>
     </main>
   )
 }

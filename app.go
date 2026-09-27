@@ -8,6 +8,7 @@ import (
 	"io"
 	"sync/atomic"
 
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"golang.org/x/sys/windows"
 
 	"github.com/oernster/timestrip/internal/application"
@@ -15,6 +16,7 @@ import (
 	"github.com/oernster/timestrip/internal/domain/placement"
 	"github.com/oernster/timestrip/internal/domain/settings"
 	"github.com/oernster/timestrip/internal/infrastructure/desktop"
+	"github.com/oernster/timestrip/internal/product"
 )
 
 // Events the page listens for.
@@ -138,6 +140,14 @@ func (a *App) OpenSettings() error {
 func (a *App) CloseSettings() error {
 	a.settingsOpen.Store(false)
 	return a.placeLaunched()
+}
+
+// OpenDonation hands the donation page to the desktop's browser. The application never fetches it,
+// so the button's existence leaves the no-network guarantee as it was (NFR-S-1).
+func (a *App) OpenDonation() {
+	if a.ctx != nil {
+		runtime.BrowserOpenURL(a.ctx, product.DonateURL)
+	}
 }
 
 // Hide hides the strip (FR-504).

@@ -31,6 +31,7 @@ interface Bridge {
   OpenSettings(): Promise<void>
   CloseSettings(): Promise<void>
   Hide(): Promise<void>
+  OpenDonation(): Promise<void>
 }
 
 interface Runtime {
@@ -82,6 +83,7 @@ export const api = {
   openSettings: (refused: Refused) => call((b) => b.OpenSettings(), refused),
   closeSettings: (refused: Refused) => call((b) => b.CloseSettings(), refused),
   hide: (refused: Refused) => call((b) => b.Hide(), refused),
+  openDonation: (refused: Refused) => call((b) => b.OpenDonation(), refused),
 }
 
 /** on listens for a Go event, answering the call that stops listening. Outside Wails it hears nothing. */

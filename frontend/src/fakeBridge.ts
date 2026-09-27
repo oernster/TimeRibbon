@@ -47,6 +47,7 @@ export function installBridge() {
     OpenSettings: vi.fn(async () => undefined),
     CloseSettings: vi.fn(async () => undefined),
     Hide: vi.fn(async () => undefined),
+    OpenDonation: vi.fn(async () => undefined),
   }
   window.go = { main: { App: bridge } }
   window.WailsInvoke = vi.fn()

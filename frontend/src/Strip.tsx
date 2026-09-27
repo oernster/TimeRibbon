@@ -1,5 +1,7 @@
 import { useRef, type CSSProperties, type PointerEvent } from 'react'
 import { api, startDrag, type Refused, type Snapshot } from './api'
+import { ArtButton, addClockTip } from './ArtButton'
+import addClockArt from './assets/add-clock.png'
 import { Cell } from './Cell'
 
 interface Props {
@@ -19,7 +21,7 @@ export function Strip({ snapshot, onAddClock, refused }: Props) {
   const pressed = useRef<{ x: number; y: number } | null>(null)
   const vertical = snapshot.orientation === 'vertical'
   const analogue = snapshot.style === 'analogue'
-  const cell = analogue ? snapshot.layout.analogue : snapshot.layout.digital
+  const cell = snapshot.cells.length === 0 ? snapshot.layout.prompt : analogue ? snapshot.layout.analogue : snapshot.layout.digital
   const sizing = {
     '--cell-w': `${cell.width}px`,
     '--cell-h': `${cell.height}px`,
@@ -69,9 +71,7 @@ export function Strip({ snapshot, onAddClock, refused }: Props) {
       {snapshot.cells.length === 0 && (
         <div className="cell prompt">
           <div className="date">No clocks yet</div>
-          <button type="button" onClick={onAddClock}>
-            Add clock
-          </button>
+          <ArtButton art={addClockArt} label={addClockTip} large onClick={onAddClock} />
         </div>
       )}
       {snapshot.cells.map((each) => (

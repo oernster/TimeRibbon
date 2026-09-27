@@ -2,7 +2,7 @@
   box-sizing: border-box;
   height: 100%;
   overflow-y: auto;
-  padding: 16px 20px 24px;
+  padding: 16px 20px 0;
   font-size: 14px;
   user-select: text;
 }
@@ -139,30 +139,23 @@
   margin-left: auto;
 }
 
+/* The foot stays in view at the bottom of the window however many clocks the list above holds, so
+   the donate button is always seen rather than waiting below the fold. */
 .settings-foot {
+  position: sticky;
+  bottom: 0;
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: 18px;
-  padding-top: 12px;
+  margin: 18px -20px 0;
+  padding: 10px 20px 12px;
   border-top: 1px solid var(--divider);
+  background: var(--surface);
 }
 
 .settings-foot p {
   margin: 0;
   font-size: 13px;
-}
-
-.donate {
-  padding: 4px 8px;
-}
-
-/* Drawn at DONATE_DRAWN in tools/genicons.py, which renders it at four times this height.
-   display: block drops the inline descender space under the picture. */
-.donate img {
-  display: block;
-  height: 32px;
-  width: auto;
 }
 
 .dialog {

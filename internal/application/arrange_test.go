@@ -8,9 +8,11 @@ import (
 	"github.com/oernster/timestrip/internal/domain/settings"
 )
 
-// clocks answers settings holding n London clocks.
+// clocks answers horizontal settings holding n London clocks; the arithmetic below is worked for
+// horizontal cells, whatever the default orientation is.
 func clocks(n int) settings.Settings {
 	s := settings.Defaults()
+	s.Orientation = settings.Horizontal
 	for range n {
 		s = s.WithClockAdded(settings.Entry{ID: "x", Zone: "Europe/London"})
 	}
@@ -60,6 +62,16 @@ func TestVerticalStripsStackTheirCells(t *testing.T) {
 	got, _ := r.service.Launch()
 	if got.Size != (placement.Size{Width: 176, Height: 466}) || got.Scrolls {
 		t.Errorf("got %+v", got)
+	}
+}
+
+// FR-107: an empty strip is sized for its prompt, whatever the style: 160 + 16 by 190 + 16.
+func TestAnEmptyStripIsSizedForItsPrompt(t *testing.T) {
+	t.Parallel()
+	r := newRig(t, clocks(0))
+	got, _ := r.service.Launch()
+	if got.Size != (placement.Size{Width: 176, Height: 206}) {
+		t.Errorf("got %+v", got.Size)
 	}
 }
 
@@ -146,6 +158,10 @@ func TestSettingsOpenCentredOnTheStripsDisplay(t *testing.T) {
 	}
 	if len(r.store.saved) != 0 {
 		t.Error("centring saved something")
+	}
+	tall, _ := r.service.Centred(placement.Point{X: 10, Y: 10}, placement.Size{Width: 400, Height: 2000})
+	if tall.Size.Height != 1032 || tall.At.Y != 0 {
+		t.Errorf("a surface taller than the work area is not capped to it: %+v", tall)
 	}
 }
 

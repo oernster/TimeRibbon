@@ -26,7 +26,9 @@ const saveFailedPrefix = "Settings could not be saved: "
 type Layout struct {
 	Digital  placement.Size
 	Analogue placement.Size
-	Padding  int
+	// Prompt is the one cell an empty strip shows, holding the large Add clock button (FR-107).
+	Prompt  placement.Size
+	Padding int
 }
 
 // Service runs every use case over the current settings. It is safe to call from several

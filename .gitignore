@@ -45,3 +45,6 @@ installer/payload.zip.packing
 dist-installer/
 
 frontend/package.json.md5
+
+# Session resume snapshot written by /ox and the oxygen protocol
+.claude/resume.md

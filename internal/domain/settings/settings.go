@@ -72,13 +72,13 @@ type Settings struct {
 	Clocks []Entry
 }
 
-// Defaults answers the settings of a first run (FR-703): digital, 24-hour, horizontal, system
-// theme, not on top, not yet placed, no clocks.
+// Defaults answers the settings of a first run (FR-703): digital, 24-hour, vertical (FR-103, amended
+// by Oliver on 2026-09-27), system theme, not on top, not yet placed, no clocks.
 func Defaults() Settings {
 	return Settings{
 		Style:       Digital,
 		Format:      clock.TwentyFourHour,
-		Orientation: Horizontal,
+		Orientation: Vertical,
 		Theme:       System,
 	}
 }

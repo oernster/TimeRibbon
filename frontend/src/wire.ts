@@ -9,6 +9,7 @@ export interface Size {
 export interface Layout {
   digital: Size
   analogue: Size
+  prompt: Size
   padding: number
 }
 

@@ -27,6 +27,32 @@ button:focus-visible {
   outline-offset: 1px;
 }
 
+/* A button whose face is artwork. The picture is drawn at BUTTON_DRAWN in tools/genicons.py, which
+   renders it at four times this height; display: block drops the descender space under it. */
+.art {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+}
+
+.art img {
+  display: block;
+  height: 32px;
+  width: auto;
+}
+
+/* Large artwork stands above its caption rather than beside it. */
+.art.large {
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 12px;
+}
+
+.art.large img {
+  height: 128px;
+}
+
 .strip {
   display: flex;
   box-sizing: border-box;
@@ -119,5 +145,6 @@ button:focus-visible {
 }
 
 .prompt {
-  align-items: flex-start;
+  align-items: center;
+  gap: 6px;
 }

@@ -63,11 +63,12 @@ func (s *Service) Centred(at placement.Point, size placement.Size) (Arrangement,
 		return Arrangement{}, ErrNoMonitors
 	}
 	monitor := mostOverlapped(monitors, at)
-	pixels := placement.Size{
-		Width:  placement.Scale(size.Width, placement.BaseDPI, monitor.DPI),
-		Height: placement.Scale(size.Height, placement.BaseDPI, monitor.DPI),
-	}
 	work := monitor.Work
+	// Never larger than the work area, so a short display still shows the whole surface.
+	pixels := placement.Size{
+		Width:  min(placement.Scale(size.Width, placement.BaseDPI, monitor.DPI), work.Width()),
+		Height: min(placement.Scale(size.Height, placement.BaseDPI, monitor.DPI), work.Height()),
+	}
 	centre := placement.Point{X: work.Left + (work.Width()-pixels.Width)/2, Y: work.Top + (work.Height()-pixels.Height)/2}
 	return Arrangement{At: placement.Clamp(centre, pixels, work), Size: pixels, DPI: monitor.DPI}, nil
 }
@@ -113,7 +114,10 @@ func (s *Service) arrange(
 // fitted along the orientation within the work area; one cell plus padding across it.
 func (s *Service) stripSize(current settings.Settings, monitor placement.Monitor) (placement.Size, bool) {
 	cell := s.layout.Digital
-	if current.Style == settings.Analogue {
+	switch {
+	case len(current.Clocks) == 0:
+		cell = s.layout.Prompt
+	case current.Style == settings.Analogue:
 		cell = s.layout.Analogue
 	}
 	along, across := cell.Width, cell.Height

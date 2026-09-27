@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState, type KeyboardEvent } from 'react'
 import { api, type Cell, type Place, type Snapshot } from './api'
 import { ClockList } from './ClockList'
 import { PlaceSearch } from './PlaceSearch'
+import { ArtButton, addClockTip } from './ArtButton'
+import addClockArt from './assets/add-clock.png'
 import donateMark from './assets/donate.png'
 
 /** The picture alone does not say pressing it leaves the application, so the tip does. */
@@ -90,9 +92,7 @@ export function Settings({ snapshot, startAdding, reload, onClose }: Props) {
         onRemove={(id) => void api.removeClock(id, setProblem).then(then)}
       />
       {search == null ? (
-        <button type="button" onClick={() => setSearch({ mode: 'add' })}>
-          Add clock
-        </button>
+        <ArtButton art={addClockArt} label={addClockTip} large onClick={() => setSearch({ mode: 'add' })} />
       ) : (
         <PlaceSearch
           heading={search.mode === 'rezone' ? `Change the place of ${search.cell.label}` : 'Add a clock'}
@@ -145,9 +145,7 @@ export function Settings({ snapshot, startAdding, reload, onClose }: Props) {
       </fieldset>
 
       <footer className="settings-foot">
-        <button type="button" className="donate" title={donateTip} aria-label={donateTip} onClick={() => void api.openDonation(setProblem)}>
-          <img src={donateMark} alt="" draggable={false} />
-        </button>
+        <ArtButton art={donateMark} label={donateTip} onClick={() => void api.openDonation(setProblem)} />
         <p className="muted">Free to use and staying free: nothing is held back behind a donation.</p>
       </footer>
     </main>

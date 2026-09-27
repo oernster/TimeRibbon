@@ -25,10 +25,10 @@ func order(s Settings) []string {
 }
 
 // FR-703, FR-103, FR-505.
-func TestDefaultsAreDigitalTwentyFourHourHorizontalAndNotOnTop(t *testing.T) {
+func TestDefaultsAreDigitalTwentyFourHourVerticalAndNotOnTop(t *testing.T) {
 	t.Parallel()
 	got := Defaults()
-	if got.Style != Digital || got.Format != clock.TwentyFourHour || got.Orientation != Horizontal ||
+	if got.Style != Digital || got.Format != clock.TwentyFourHour || got.Orientation != Vertical ||
 		got.Theme != System || got.AlwaysOnTop || got.Placement != nil || len(got.Clocks) != 0 {
 		t.Errorf("got %+v", got)
 	}

@@ -87,6 +87,7 @@ func (f *fakeStartup) Disable() error {
 var testLayout = Layout{
 	Digital:  placement.Size{Width: 160, Height: 90},
 	Analogue: placement.Size{Width: 160, Height: 150},
+	Prompt:   placement.Size{Width: 160, Height: 190},
 	Padding:  8,
 }
 

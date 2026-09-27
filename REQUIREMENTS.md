@@ -176,9 +176,11 @@ Verified by: planned `TestSnapshotFollowsClockOrder` (application); `strip.test.
 
 **FR-103 Orientation setting**
 Priority: Must (OQ-5, Oliver, 2026-09-27).
-The strip shall lay its cells out in the orientation held in settings; horizontal when none is held.
+The strip shall lay its cells out in the orientation held in settings; vertical when none is held.
 Rationale: Oliver, 2026-09-27: both orientations, as a setting.
-Verified by: planned `TestOrientationDefaultsToHorizontal` (domain); `strip.test.tsx`.
+Amendment 1 (Oliver, 2026-09-27, after the first build): the default changed from horizontal to
+vertical.
+Verified by: `TestDefaultsAreDigitalTwentyFourHourVerticalAndNotOnTop` (domain); `strip.test.tsx`.
 
 **FR-104 Changing orientation keeps the strip on screen**
 Priority: Must.

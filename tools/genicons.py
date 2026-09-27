@@ -8,7 +8,8 @@ What comes out, every file from one of the masters so the masters stay the one h
   installer/frontend/dist/icon.png     the setup window's header mark
   installer/frontend/dist/light-mode.png, dark-mode.png
                                        the setup window's theme toggle: the sun and the moon
-  frontend/src/assets/donate.png       the donate mark at the foot of Settings, from donate.png
+  frontend/src/assets/donate.png       the donate mark at the foot of Settings
+  frontend/src/assets/add-clock.png    the Add clock button's artwork
 
 The setup page has no build step, so it loads each file as it finds it; shipping the masters there
 would put megabytes behind a badge. Each is written at about twice the size it is drawn at, crisp on
@@ -51,13 +52,13 @@ APPICON_SIZE = 1024
 HEADER_SIZE = 256
 TOGGLE_SIZE = 96
 
-# The donate mark is wide artwork drawn at a button's height, not an icon: it is cropped to its
-# artwork and scaled by height alone. DONATE_DRAWN is the height the Settings foot draws it at;
-# the render is four times that, so it stays crisp under display scaling.
-DONATE_MASTER = MASTERS / "donate.png"
-DONATE_DRAWN = 32
-DONATE_HEIGHT = 4 * DONATE_DRAWN
-DONATE_TARGETS = (REPO / "frontend" / "src" / "assets" / "donate.png",)
+# Button artwork is drawn at a button's height, not as an icon: each is cropped to its artwork and
+# scaled by height alone. BUTTON_MASTERS names each master with the height the page draws it at
+# (.art img and .art.large img in the page's CSS); the render is RENDER_SCALE times that, so it
+# stays crisp under display scaling. Add clock is drawn large at Oliver's request (2026-09-27).
+RENDER_SCALE = 4
+PAGE_ASSETS = REPO / "frontend" / "src" / "assets"
+BUTTON_MASTERS = {"donate.png": 32, "add-clock.png": 128}
 
 ICO_TARGET = REPO / "build" / "windows" / "icon.ico"
 APPICON_TARGET = REPO / "build" / "appicon.png"
@@ -84,18 +85,19 @@ def write_png(image: Image.Image, size: int, target: pathlib.Path) -> None:
     print(f"{target.relative_to(REPO).as_posix():<42} {size:>5} px {target.stat().st_size:>9,} bytes")
 
 
-def donate_mark() -> Image.Image:
-    """The donate artwork cropped to its pixels and scaled to DONATE_HEIGHT, keeping its shape."""
-    image = Image.open(DONATE_MASTER).convert("RGBA")
+def button_art(master: pathlib.Path, height: int) -> Image.Image:
+    """Button artwork cropped to its pixels and scaled to height, keeping its shape."""
+    image = Image.open(master).convert("RGBA")
     box = image.getbbox()
     if box is not None:
         image = image.crop(box)
-    width = round(image.width * DONATE_HEIGHT / image.height)
-    return image.resize((width, DONATE_HEIGHT), Image.LANCZOS)
+    width = round(image.width * height / image.height)
+    return image.resize((width, height), Image.LANCZOS)
 
 
 def main() -> int:
-    for master in (APP_MASTER, DONATE_MASTER, *(MASTERS / name for name in TOGGLE_MASTERS)):
+    names = (*TOGGLE_MASTERS, *BUTTON_MASTERS)
+    for master in (APP_MASTER, *(MASTERS / name for name in names)):
         if not master.exists():
             sys.exit(f"no master artwork at {master}")
 
@@ -108,12 +110,12 @@ def main() -> int:
     write_png(app, HEADER_SIZE, HEADER_TARGET)
     for name in TOGGLE_MASTERS:
         write_png(squared(MASTERS / name), TOGGLE_SIZE, SETUP / name)
-    # One render written to every destination, so no two copies can drift.
-    mark = donate_mark()
-    for target in DONATE_TARGETS:
+    for name, drawn in BUTTON_MASTERS.items():
+        art = button_art(MASTERS / name, RENDER_SCALE * drawn)
+        target = PAGE_ASSETS / name
         target.parent.mkdir(parents=True, exist_ok=True)
-        mark.save(target, "PNG", optimize=True)
-        print(f"{target.relative_to(REPO).as_posix():<42} {mark.width}x{mark.height} {target.stat().st_size:>9,} bytes")
+        art.save(target, "PNG", optimize=True)
+        print(f"{target.relative_to(REPO).as_posix():<42} {art.width}x{art.height} {target.stat().st_size:>9,} bytes")
     return 0
 
 

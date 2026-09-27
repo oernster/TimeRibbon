@@ -29,11 +29,12 @@ import (
 var layout = application.Layout{
 	Digital:  placement.Size{Width: 176, Height: 92},
 	Analogue: placement.Size{Width: 176, Height: 176},
+	Prompt:   placement.Size{Width: 176, Height: 184},
 	Padding:  6,
 }
 
 // settingsSize is the Settings surface in DIP (CON-6).
-var settingsSize = placement.Size{Width: 560, Height: 620}
+var settingsSize = placement.Size{Width: 560, Height: 760}
 
 func main() {
 	if generatingBindings {

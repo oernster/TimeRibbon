@@ -25,6 +25,7 @@ func (a *App) startup(ctx context.Context) {
 	}
 	a.strip = strip
 	a.report("hiding the taskbar button", desktop.HideFromTaskbar(strip))
+	a.report("keeping the strip on its displays", desktop.KeepOnDisplays(strip, a.log))
 	a.desktop.Watch(strip)
 	a.report("placing the strip", a.placeLaunched())
 	a.applyAlwaysOnTop()

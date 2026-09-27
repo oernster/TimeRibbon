@@ -4,8 +4,9 @@
 #   ./build.ps1 -SkipInstaller  build only the application
 #
 # Outputs:
-#   build/bin/TimeStrip.exe                        the application
-#   dist-installer/TimeStrip-Setup-<version>.exe   the setup program, carrying the application
+#   build/bin/TimeStrip.exe            the application
+#   dist-installer/TimeStripSetup.exe  the setup program, carrying the application; named by
+#                                      outputfilename in installer/wails.json, with no version
 #
 # The version is read from VERSION and stamped into both executables with -ldflags -X, so no
 # version literal lives anywhere in the source (CON-4). -X reaches only a var; against a const it
@@ -80,7 +81,7 @@ try {
 
     $distDir = Join-Path $root 'dist-installer'
     New-Item -ItemType Directory -Force -Path $distDir | Out-Null
-    $distributable = Join-Path $distDir "$appName-Setup-$version.exe"
+    $distributable = Join-Path $distDir "$setupName.exe"
     Copy-Item (Join-Path $setupBuild "bin/$setupName.exe") $distributable -Force
 } finally {
     # The empty-zip placeholder goes back whether or not the setup program built, so go build and

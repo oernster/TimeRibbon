@@ -35,7 +35,9 @@ does not exist.
 | No setup page file spells the product's name, which the setup program hands it | `TestTheSetupPageNeverWritesTheProductsName` | `setup_test.go` |
 | About credits exactly the modules the application and the setup program link (FR-607) | `TestEveryLinkedModuleIsCredited` | `credits_test.go` |
 | The wire is stated identically in `dto.go` and `frontend/src/wire.ts` | `TestTheWireIsStatedAlikeOnBothSides` | `wire_test.go` |
-| The page names every event word `app.go` emits | `TestThePageNamesEveryEventGoEmits` | `wire_test.go` |
+| The page listens for every event `app.go` emits and keys every panel it names | `TestThePageNamesEveryEventGoEmits` | `wire_test.go` |
+| The setup page listens for every event `installer/app.go` emits | `TestTheSetupPageNamesEveryEventSetupEmits` | `wire_test.go` |
+| Each `wails.json` names its executable as `internal/product` does | `TestEachWailsConfigNamesItsExecutableAsTheProductDoes` | `names_test.go` |
 
 ## Layers
 
@@ -63,9 +65,9 @@ does not exist.
   `setup` (the install policy behind the setup program).
 - **UI**: the React front end plus the Wails facade in package `main`, which calls the service and
   maps what it answers into the shapes in `dto.go`.
-- **Outside the layers**: `internal/product` holds the product's name, the window class, the
-  donation address, the version `build.ps1` stamps, the author, the copyright line and the credits.
-  Every layer reads it, so it belongs to none.
+- **Outside the layers**: `internal/product` holds the product's name, the setup program's name, the
+  window class, the donation address, the version `build.ps1` stamps, the author, the copyright line
+  and the credits. Every layer reads it, so it belongs to none.
 - **Tools**, never shipped: `tools/genplaces` writes the place catalogue from the tz database's
   `zone.tab` and `iso3166.tab`; `tools/payload` packs the built application for the setup program;
   `tools/versioninfo` writes each executable's Windows version resource from `VERSION` and
@@ -82,7 +84,10 @@ one home there. No service is held in a package-level variable and there is no s
 
 The facade is `app.go` (the calls the page makes) and `window_life.go` (startup, showing, hiding,
 closing and the desktop's events), split only to keep each file small; the structural whitelist names
-all three files. `identity.go` answers About and Licence; `dto.go` holds the wire; `launch.go` holds
+all three files. The facade holds the service through `stripService`, an interface in `app.go`. It
+holds each call into Wails and the desktop as a field, pointed by `newApp` at the real calls in
+`wails_calls.go` and `window_life.go`. That is what lets the facade's tests stand in for all three
+and read what it decided. `identity.go` answers About and Licence; `dto.go` holds the wire; `launch.go` holds
 the window's options; `bindings_on.go` and `bindings_off.go` tell the run `wails build` makes to
 generate bindings, which carries the `bindings` build tag, not to write the log, read the settings or
 show a tray icon.

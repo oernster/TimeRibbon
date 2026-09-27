@@ -3,9 +3,10 @@ package structural
 // The wire is stated twice: Go structs with json tags in dto.go and TypeScript interfaces in
 // frontend/src/wire.ts. The type checker sees only the TypeScript and the marshaller sees only the
 // Go, so this test compares them, field for field in both directions. It also holds the event words
-// app.go emits to the page, which the page must name exactly.
+// app.go and installer/app.go emit to their pages, which each page must name exactly.
 
 import (
+	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -25,8 +26,26 @@ var wirePairs = map[string]string{
 	"aboutDTO": "About", "creditDTO": "Credit",
 }
 
-// eventWords are the constants in app.go the page must name.
-var eventWords = []string{"eventRefresh", "eventOpenPanel", "openAtSettings", "openAtAddClock", "openAtAbout", "openAtLicence"}
+// windowWords names each constant app.go sends the page with the shape the page must state its value
+// in: a listener for an event and a key of panelFor for a panel. setupWords does the same for
+// installer/app.go and the setup page. The shape rather than the bare quoted word, since a view, a
+// panel or a test may share the word and would hide a listener or a key that no longer matches.
+var (
+	windowWords = map[string]string{
+		"eventRefresh":   heardByTheWindow,
+		"eventOpenPanel": heardByTheWindow,
+		"openAtSettings": panelKey,
+		"openAtAddClock": "const addClock = '%s'",
+		"openAtAbout":    panelKey,
+		"openAtLicence":  panelKey,
+	}
+	setupWords = map[string]string{"progressEvent": "EventsOn('%s'"}
+)
+
+const (
+	heardByTheWindow = "on('%s'"
+	panelKey         = "'%s': "
+)
 
 var (
 	tsInterface = regexp.MustCompile(`(?s)export interface (\w+) \{(.*?)\n\}`)
@@ -95,25 +114,37 @@ func TestTheWireIsStatedAlikeOnBothSides(t *testing.T) {
 }
 
 func TestThePageNamesEveryEventGoEmits(t *testing.T) {
-	root := repoRoot(t)
-	parsed, err := parser.ParseFile(token.NewFileSet(), filepath.Join(root, "app.go"), nil, 0)
+	requirePageNamesEveryWord(t, "app.go", windowWords, frontendFiles(t))
+}
+
+// The setup program's progress bar moves only on the word installer/app.go emits.
+func TestTheSetupPageNamesEveryEventSetupEmits(t *testing.T) {
+	requirePageNamesEveryWord(t, filepath.Join("installer", "app.go"), setupWords, setupFrontendFiles(t))
+}
+
+// requirePageNamesEveryWord fails for each string constant in goFile whose value no file of the
+// page states in the shape given for it, since a word one side alone renames reaches nothing and
+// nothing fails.
+func requirePageNamesEveryWord(t *testing.T, goFile string, words map[string]string, pageFiles []string) {
+	t.Helper()
+	parsed, err := parser.ParseFile(token.NewFileSet(), filepath.Join(repoRoot(t), goFile), nil, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
 	var page strings.Builder
-	for _, file := range frontendFiles(t) {
+	for _, file := range pageFiles {
 		raw, _ := os.ReadFile(file)
 		page.Write(raw)
 	}
-	for _, word := range eventWords {
+	for word, shape := range words {
 		object := parsed.Scope.Lookup(word)
 		if object == nil {
-			t.Fatalf("app.go has no constant %s", word)
+			t.Fatalf("%s has no constant %s", filepath.ToSlash(goFile), word)
 		}
 		literal := object.Decl.(*ast.ValueSpec).Values[0].(*ast.BasicLit).Value
 		value, _ := strconv.Unquote(literal)
-		if !strings.Contains(page.String(), "'"+value+"'") {
-			t.Errorf("app.go emits %q (%s) but the page never names it", value, word)
+		if !strings.Contains(page.String(), fmt.Sprintf(shape, value)) {
+			t.Errorf("%s emits %q (%s) but the page never names it", filepath.ToSlash(goFile), value, word)
 		}
 	}
 }

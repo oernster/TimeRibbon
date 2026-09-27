@@ -32,21 +32,27 @@ const (
 // Processes finds and ends the running copies of one executable, by its image name alone. Setup
 // never ends a process TREE: descent is read from recorded parent ids, which churn, so setup could
 // find itself counted a descendant and end itself.
-type Processes struct{ image string }
+type Processes struct {
+	image string
+	// end ends one process; terminate, unless a test stands in for a copy that will not go.
+	end func(pid uint32)
+	// wait is how long a copy is given to go once asked; closeTimeout, unless a test shortens it.
+	wait time.Duration
+}
 
 // AppProcesses answers the running copies of TimeStrip.
-func AppProcesses() Processes { return Processes{image: ExeName} }
+func AppProcesses() Processes { return Processes{image: ExeName, end: terminate, wait: closeTimeout} }
 
 // Running reports whether any copy is running.
 func (p Processes) Running() bool { return len(p.ids()) > 0 }
 
 // Close ends every running copy and waits for them to go, answering ErrStillRunning when one is
-// still there after closeTimeout (FR-807).
+// still there once its wait runs out (FR-807).
 func (p Processes) Close() error {
 	for _, pid := range p.ids() {
-		terminate(pid)
+		p.end(pid)
 	}
-	deadline := time.Now().Add(closeTimeout)
+	deadline := time.Now().Add(p.wait)
 	for p.Running() {
 		if time.Now().After(deadline) {
 			return ErrStillRunning

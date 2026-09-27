@@ -8,7 +8,6 @@ import (
 	"io"
 	"sync/atomic"
 
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"golang.org/x/sys/windows"
 
 	"github.com/oernster/timestrip/internal/application"
@@ -34,12 +33,54 @@ const (
 	openAtLicence  = "licence"
 )
 
+// stripService is what the facade asks of the application layer: application.Service in
+// production, a scripted stand-in in the facade's tests, which read what the facade decided with
+// each answer.
+type stripService interface {
+	Snapshot() application.Snapshot
+	Settings() settings.Settings
+	AddClock(zone string) (string, error)
+	RenameClock(id, label string) error
+	RezoneClock(id, zone string) error
+	RemoveClock(id string) error
+	MoveClock(id string, steps int) error
+	SearchPlaces(query string) []application.Place
+	SetStyle(style settings.Style) error
+	SetFormat(format clock.Format) error
+	SetOrientation(orientation settings.Orientation) error
+	SetTheme(theme settings.Theme) error
+	SetAlwaysOnTop(on bool) error
+	StartWithWindows() (bool, error)
+	SetStartWithWindows(on bool) error
+	DismissNotices()
+	SetScrollbar(dip int) error
+	ContextMenu() []application.MenuItem
+	CloseRequested() application.MenuAction
+	Launch() (application.Arrangement, error)
+	Rearrange(at placement.Point) (application.Arrangement, error)
+	Moved(at placement.Point) (application.Arrangement, error)
+	Centred(at placement.Point, size placement.Size) (application.Arrangement, error)
+}
+
 // App is the facade Wails binds.
 type App struct {
-	service *application.Service
+	service stripService
 	desktop *desktop.Desktop
 	log     io.Writer
 	panel   placement.Size
+
+	// The facade's calls into Wails and the desktop. Each is a field so a test can stand in for it
+	// and read what the facade did; newApp points them at the real calls in wails_calls.go and
+	// window_life.go.
+	emit       func(event string, data ...any)
+	showWindow func()
+	hideWindow func()
+	quit       func()
+	setOnTop   func(on bool)
+	browse     func(address string)
+	showMenu   func(items []application.MenuItem)
+	position   func() (placement.Point, error)
+	place      func(at placement.Point, size placement.Size) error
 
 	ctx       context.Context
 	strip     windows.HWND
@@ -51,8 +92,18 @@ type App struct {
 }
 
 // newApp answers the facade over service, reporting on desktop, with every panel drawn at panel DIP.
-func newApp(service *application.Service, desk *desktop.Desktop, log io.Writer, panelSize placement.Size) *App {
-	return &App{service: service, desktop: desk, log: log, panel: panelSize}
+func newApp(service stripService, desk *desktop.Desktop, log io.Writer, panelSize placement.Size) *App {
+	built := &App{service: service, desktop: desk, log: log, panel: panelSize}
+	built.emit = built.emitToWails
+	built.showWindow = built.showInWails
+	built.hideWindow = built.hideInWails
+	built.quit = built.quitWails
+	built.setOnTop = built.setOnTopInWails
+	built.browse = built.browseInWails
+	built.showMenu = desk.ShowMenu
+	built.position = built.stripPosition
+	built.place = built.placeStrip
+	return built
 }
 
 // Snapshot answers what the strip shows now.
@@ -138,13 +189,13 @@ func (a *App) DismissNotices() {
 func (a *App) SetScrollbar(dip int) error { return a.refitted(a.service.SetScrollbar(dip)) }
 
 // ShowContextMenu shows the strip's right-click menu as a native menu at the cursor (FR-108).
-func (a *App) ShowContextMenu() { a.desktop.ShowMenu(a.service.ContextMenu()) }
+func (a *App) ShowContextMenu() { a.showMenu(a.service.ContextMenu()) }
 
 // OpenPanel turns the window into a panel (Settings, About or Licence), centred on the strip's
 // display (CON-6).
 func (a *App) OpenPanel() error {
 	a.panelOpen.Store(true)
-	at, err := desktop.Position(a.strip)
+	at, err := a.position()
 	if err != nil {
 		return err
 	}
@@ -152,7 +203,7 @@ func (a *App) OpenPanel() error {
 	if err != nil {
 		return err
 	}
-	return desktop.Place(a.strip, arranged.At, arranged.Size)
+	return a.place(arranged.At, arranged.Size)
 }
 
 // ClosePanel returns the window to the strip, where it was last left (CON-6, FR-405).
@@ -165,7 +216,7 @@ func (a *App) ClosePanel() error {
 // so the button's existence leaves the no-network guarantee as it was (NFR-S-1).
 func (a *App) OpenDonation() {
 	if a.ctx != nil {
-		runtime.BrowserOpenURL(a.ctx, product.DonateURL)
+		a.browse(product.DonateURL)
 	}
 }
 

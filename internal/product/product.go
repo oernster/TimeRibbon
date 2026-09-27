@@ -5,6 +5,10 @@ package product
 // Name is the product's name as a reader sees it.
 const Name = "TimeStrip"
 
+// SetupName is the setup program's name: its executable, its window class, its web view cache and
+// its step log.
+const SetupName = Name + "Setup"
+
 // StripClass is the class the strip's window is created with, so it can be found by it (CON-7).
 // Setup looks for it to know the strip is up before it closes.
 const StripClass = Name + "Strip"

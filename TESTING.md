@@ -40,25 +40,22 @@ and what stops it. An unexplained shortfall cannot be told from an oversight.
 | `internal/infrastructure/system` | 100% | 100% | `test.ps1` |
 | `internal/infrastructure/zones` | 100% | 100% | `test.ps1` |
 | `internal/infrastructure/store` | 92.7% | 92% | `test.ps1` |
-| `internal/infrastructure/setup` | 83.2% | 83% | `test.ps1` |
+| `internal/infrastructure/setup` | 84.0% | 84% | `test.ps1` |
 | `tools/versioninfo` | 86.7% | 86% | `test.ps1` |
 | `tools/payload` | 82.8% | 82% | `test.ps1` |
 | `internal/infrastructure/monitors` | 82.6% | 82% | `test.ps1` |
 | `internal/infrastructure/startup` | 80.6% | 80% | `test.ps1` |
 | `tools/genplaces` | 38.8% | 38% | `test.ps1` |
-| `internal/infrastructure/appdata` | 100% | none | not gated |
-| `internal/infrastructure/runlog` | 76.5% | none | not gated |
-| `internal/infrastructure/desktop` | 12.0% | none | not gated |
-| the root package (the Wails facade) | 0%, no tests | none | not gated |
+| `internal/infrastructure/appdata` | 100% | 100% | `test.ps1` |
+| `internal/infrastructure/runlog` | 76.5% | 76% | `test.ps1` |
+| the root package (the Wails facade) | 68.1% | 68% | `test.ps1` |
+| `internal/infrastructure/desktop` | 12.0% | 12% | `test.ps1` |
 | `installer` | 0%, no tests | none | not gated |
 | `internal/product` | no statements | none | not gated |
 
-The three measured packages without a floor are an open item in [TECH_DEBT.md](TECH_DEBT.md); so is
-the facade without tests.
-
-164 Go test functions, each run once with no subtests (an uncached `go test -count=1 -json` over the
+192 Go test functions, each run once with no subtests (an uncached `go test -count=1 -json` over the
 packages `go list ./...` gives outside `node_modules`), plus one `TestMain` in
-`internal/infrastructure/setup`. Sixteen of them are the structural tests in `tests/structural`,
+`internal/infrastructure/setup`. Eighteen of them are the structural tests in `tests/structural`,
 which read the source rather than run it; [ARCHITECTURE.md](ARCHITECTURE.md) lists each against the
 rule it holds. One more holds a promise rather than a rule of structure:
 `TestA1Point0SettingsFileIsReadWhole` reads a frozen 1.0.0 settings file (NFR-C-1); see
@@ -77,6 +74,7 @@ front end has no coverage figure: no coverage provider is installed, so none is 
 | `internal/domain` | pure unit, over fixed instants and zones from the embedded tz database | nothing |
 | `internal/application` | unit, over hand-written fakes of the six ports | nothing |
 | `internal/infrastructure` | integration, over temporary folders and scratch registry keys | the filesystem, `HKCU` under a scratch key, child processes |
+| the root package | unit, over a scripted service with Wails and the desktop stood in for by the facade's own fields | nothing |
 | `tests/structural` | source and AST scans, plus one `go list` | reads files |
 | the front end | component tests under jsdom | nothing |
 
@@ -100,8 +98,12 @@ under scratch keys beneath `HKCU`.
 - **`internal/infrastructure/runlog` (76.5%).** Opening the log and pointing standard error at it are
   tested; making the folder failing, the start line failing to write and `SetStdHandle` refusing only
   fail inside the system.
-- **The root package (0%).** The facade has no tests; see TECH_DEBT.md. What it calls is tested in
-  the application layer; what the page does with its answers is tested in the front-end suites.
+- **The root package (68.1%).** The facade's decisions are tested: which calls fit the strip, that a
+  drag whose save failed is still fitted, the panel state, the menu actions, the close and the
+  recover round each desktop event. Not reached: the composition root (`main.go`, `launch.go`),
+  `startup`, `listen` and `shutdown`, which need the real strip window and the tray's message loop.
+  Nor are the one-line calls in `wails_calls.go` and `window_life.go` that hand a request to Wails
+  or Win32 and do nothing else.
 
 ### It would change the machine
 
@@ -110,12 +112,13 @@ under scratch keys beneath `HKCU`.
   application; it drives the window. The policy beneath it is tested in
   `internal/infrastructure/setup`. The page is tested in `setupScreens.test.ts`, `setupRing.test.ts`
   and `setupUnreachable.test.ts`.
-- **`internal/infrastructure/setup` (83.2%).** Tested over temporary folders and a scratch registry
-  key. Not reached: the real Apps list record (`AppsList`), deleting the install folder after the real
-  setup exits (`DeleteAfterExit`; the PowerShell hand-off itself is tested against a stand-in
-  process), COM refusing to start or a shortcut refusing to save, a copy or removal failing part way,
-  giving the setup window the keyboard (`TakeFocus`), finding the strip's own window after a launch
-  and a running copy that is still there 5 seconds after being asked to close (FR-807).
+- **`internal/infrastructure/setup` (84.0%).** Tested over temporary folders and a scratch registry
+  key. A running copy still there when the wait runs out (FR-807) is tested against a real stand-in
+  process whose ending is refused, as it is for a copy setup cannot open. Not reached: the real Apps
+  list record (`AppsList`), deleting the install folder after the real setup exits
+  (`DeleteAfterExit`; the PowerShell hand-off itself is tested against a stand-in process), COM
+  refusing to start or a shortcut refusing to save, a copy or removal failing part way, giving the
+  setup window the keyboard (`TakeFocus`) and finding the strip's own window after a launch.
 - **`internal/infrastructure/startup` (80.6%).** Written, read and removed under a scratch key; the
   registry refusing to open or write the key is not reached.
 - **`internal/infrastructure/store` (92.7%).** Not reached: the folder or temporary file refusing to

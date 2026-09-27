@@ -179,12 +179,13 @@ Apps list records to choose between Install, Update, Go back and the Installed s
 |---|---|
 | `main.go` | the composition root and the cell and panel sizes |
 | `app.go`, `window_life.go` | the facade: the calls the page makes; the window's own life with the desktop's events |
+| `wails_calls.go` | the facade's calls into Wails, held as fields so its tests can stand in for them |
 | `identity.go`, `dto.go`, `launch.go` | About and Licence, the wire, the window's options |
 | `bindings_on.go`, `bindings_off.go` | keep the binding-generation run from writing the log or showing a tray icon |
 | `internal/domain` | clock readings, placement and the settings value; no I/O |
 | `internal/application` | the use cases over their ports |
 | `internal/infrastructure` | appdata, desktop, monitors, runlog, setup, startup, store, system, zones |
-| `internal/product` | the name, the window class, the donation address, the version, the author and the credits |
+| `internal/product` | the name, the setup program's name, the window class, the donation address, the version, the author and the credits |
 | `frontend/src` | the React front end |
 | `installer/` | the setup program, a Wails application of its own; its page in `installer/frontend/dist` has no build step |
 | `tests/structural` | the tests that hold the architecture in place |
@@ -202,7 +203,8 @@ Apps list records to choose between Install, Update, Go back and the Installed s
 - **No magic numbers.** A literal that needs a comment to say what it represents is a named constant
   or is derived from data.
 - **The product is named once**, in `internal/product/product.go`. The setup page must never write
-  it: it is handed the name.
+  it: it is handed the name. The two `wails.json` files must spell it, since Wails reads the
+  executable's name from there; a structural test holds them to `internal/product`.
 - **The wire is written twice**, in `dto.go` and `frontend/src/wire.ts`. Change both; the
   structural test fails otherwise.
 - **A call the page makes that Go can refuse takes a refusal handler.** It answers null rather than

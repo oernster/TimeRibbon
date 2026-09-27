@@ -6,9 +6,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/wailsapp/wails/v2/pkg/runtime"
-
 	"github.com/oernster/timestrip/internal/application"
+	"github.com/oernster/timestrip/internal/domain/placement"
 	"github.com/oernster/timestrip/internal/infrastructure/desktop"
 	"github.com/oernster/timestrip/internal/product"
 )
@@ -109,7 +108,7 @@ func (a *App) act(action application.MenuAction) {
 	case application.ActionExit:
 		a.quitting.Store(true)
 		if a.ctx != nil {
-			runtime.Quit(a.ctx)
+			a.quit()
 		}
 	}
 }
@@ -120,7 +119,7 @@ func (a *App) moved() {
 	if a.panelOpen.Load() {
 		return
 	}
-	at, err := desktop.Position(a.strip)
+	at, err := a.position()
 	if err != nil {
 		a.report("reading where the strip was left", err)
 		return
@@ -134,7 +133,7 @@ func (a *App) moved() {
 		return
 	}
 	a.scrolls.Store(arranged.Scrolls)
-	a.report("placing the strip", desktop.Place(a.strip, arranged.At, arranged.Size))
+	a.report("placing the strip", a.place(arranged.At, arranged.Size))
 }
 
 // rearrange fits the strip where it stands (FR-104, FR-406).
@@ -142,7 +141,7 @@ func (a *App) rearrange() {
 	if a.panelOpen.Load() {
 		return
 	}
-	at, err := desktop.Position(a.strip)
+	at, err := a.position()
 	if err != nil {
 		a.report("reading where the strip is", err)
 		return
@@ -153,7 +152,7 @@ func (a *App) rearrange() {
 		return
 	}
 	a.scrolls.Store(arranged.Scrolls)
-	a.report("placing the strip", desktop.Place(a.strip, arranged.At, arranged.Size))
+	a.report("placing the strip", a.place(arranged.At, arranged.Size))
 }
 
 // placeLaunched puts the strip where it was last left (FR-405).
@@ -163,12 +162,20 @@ func (a *App) placeLaunched() error {
 		return err
 	}
 	a.scrolls.Store(arranged.Scrolls)
-	return desktop.Place(a.strip, arranged.At, arranged.Size)
+	return a.place(arranged.At, arranged.Size)
+}
+
+// stripPosition and placeStrip are the production position and place: the strip's window as the
+// desktop reports and moves it.
+func (a *App) stripPosition() (placement.Point, error) { return desktop.Position(a.strip) }
+
+func (a *App) placeStrip(at placement.Point, size placement.Size) error {
+	return desktop.Place(a.strip, at, size)
 }
 
 func (a *App) applyAlwaysOnTop() {
 	if a.ctx != nil {
-		runtime.WindowSetAlwaysOnTop(a.ctx, a.service.Settings().AlwaysOnTop)
+		a.setOnTop(a.service.Settings().AlwaysOnTop)
 	}
 }
 
@@ -176,7 +183,7 @@ func (a *App) show() {
 	if a.ctx == nil {
 		return
 	}
-	runtime.WindowShow(a.ctx)
+	a.showWindow()
 	a.visible.Store(true)
 	a.emit(eventRefresh)
 }
@@ -185,7 +192,7 @@ func (a *App) hide() {
 	if a.ctx == nil {
 		return
 	}
-	runtime.WindowHide(a.ctx)
+	a.hideWindow()
 	a.visible.Store(false)
 }
 
@@ -195,12 +202,6 @@ func (a *App) toggle() {
 		return
 	}
 	a.show()
-}
-
-func (a *App) emit(event string, data ...any) {
-	if a.ctx != nil {
-		runtime.EventsEmit(a.ctx, event, data...)
-	}
 }
 
 // report writes a failure to the log; nothing when there was none.

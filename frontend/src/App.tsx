@@ -9,9 +9,12 @@ import { Strip } from './Strip'
 type Panel = 'settings' | 'about' | 'licence'
 type View = 'strip' | Panel
 
-/** The open-panel event's words, each naming the panel it opens; add-clock opens Settings on the place search. */
+/**
+ * The open-panel event's words, each naming the panel it opens; add-clock opens Settings on the place
+ * search. The keys are quoted so the structural test can find each word app.go sends.
+ */
 const addClock = 'add-clock'
-const panelFor: Record<string, Panel> = { settings: 'settings', [addClock]: 'settings', about: 'about', licence: 'licence' }
+const panelFor: Record<string, Panel> = { 'settings': 'settings', [addClock]: 'settings', 'about': 'about', 'licence': 'licence' }
 
 /**
  * App holds the snapshot and which surface the window shows. The snapshot is taken again at each

@@ -13,43 +13,7 @@ are deliberately unnumbered and are not open items.
 History is not recorded here. A resolved item is deleted outright, never rewritten as done and never
 archived. A resolution worth remembering belongs in the release notes.
 
-## 1. The product's name has homes outside `internal/product`
-
-`wails.json` and `installer/wails.json` spell `TimeStrip` and `TimeStripSetup` as each executable's
-name, which `build.ps1` then reads back. A rename would have to reach both files by hand; the
-structural test holding the setup page to naming nothing does not look at them. The cost is small
-while the name is settled, which is why this is open rather than urgent. Blocked on nothing.
-
-## 2. The setup program's progress event word is stated twice
-
-`installer/app.go` emits `progress` and `setup-routes.js` listens for `'progress'`, with no test
-pairing the two as `TestThePageNamesEveryEventGoEmits` pairs the application's words with its page. A
-rename on one side alone would leave the progress bar standing still with nothing failing. Blocked on
-nothing.
-
-## 3. The Wails facade has no tests
-
-The root package measures 0%: `app.go`, `window_life.go` and `identity.go` have no tests of their
-own. What they call is tested in the application layer and what the page does with the answers in the
-front-end suites. The facade's own decisions are not: which calls refit the strip, that a drag
-whose save failed is still fitted, the panel state and the menu actions. Each reaches Wails and Win32
-directly rather than through a field a test could replace, which is what has to change first.
-Blocked on nothing.
-
-## 4. Three measured packages carry no floor
-
-`internal/infrastructure/appdata` (100%), `internal/infrastructure/runlog` (76.5%) and
-`internal/infrastructure/desktop` (12.0%) are measured by any coverage run but are missing from the
-floors in `test.ps1`, so losing their cover fails nothing. Each needs a floor at what it reaches.
-Blocked on nothing.
-
-## 5. The running copy that will not close is untested
-
-FR-807 says that a copy still running 5 seconds after setup asked it to close is reported, asking for
-it to be closed by hand. `setup.AppProcesses().Close` holds that deadline; no test reaches it.
-Closing is forced, so a stand-in that refuses to go is needed. Blocked on nothing.
-
-## 6. A donation page the desktop refused to open cannot be reported
+## 1. A donation page the desktop refused to open cannot be reported
 
 `OpenDonation` hands the address to Wails' `BrowserOpenURL`, which answers no error. Where no browser
 is registered, nothing happens and nothing says why. Blocked on Wails: the call would have to answer

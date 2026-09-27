@@ -22,7 +22,8 @@ const deletionDeadline = 30 * time.Second
 func TestARunningCopyIsFoundAndClosedByItsImageName(t *testing.T) {
 	program := standInCopy(t)
 	startStandIn(t, program)
-	copies := Processes{image: strings.ToUpper(filepath.Base(program))}
+	copies := AppProcesses()
+	copies.image = strings.ToUpper(filepath.Base(program))
 	if !copies.Running() {
 		t.Fatal("the running stand-in was not found by its name in upper case")
 	}
@@ -35,8 +36,30 @@ func TestARunningCopyIsFoundAndClosedByItsImageName(t *testing.T) {
 	if (Processes{image: "no-process-is-named-" + rand.Text() + ".exe"}).Running() {
 		t.Error("a name nothing carries was found running")
 	}
-	if AppProcesses().image != ExeName {
-		t.Error("setup looks for another program")
+	if AppProcesses().image != ExeName || AppProcesses().wait != closeTimeout {
+		t.Error("setup looks for another program or gives it another wait")
+	}
+}
+
+// FR-807: a copy still running when the wait runs out is reported, asking for it to be closed by
+// hand. The stand-in really runs; ending it is refused, as it is for a copy another account or an
+// elevated one is running, which setup cannot open.
+func TestACopyThatWillNotCloseIsReported(t *testing.T) {
+	program := standInCopy(t)
+	startStandIn(t, program)
+	copies := AppProcesses()
+	copies.image = filepath.Base(program)
+	copies.end = func(uint32) {}
+	copies.wait = pollStep
+	started := time.Now()
+	if err := copies.Close(); !errors.Is(err, ErrStillRunning) {
+		t.Fatalf("Close answered %v, want ErrStillRunning", err)
+	}
+	if waited := time.Since(started); waited < copies.wait {
+		t.Errorf("reported after %v, before the wait of %v ran out", waited, copies.wait)
+	}
+	if !copies.Running() {
+		t.Error("the stand-in went, so nothing refused to close")
 	}
 }
 

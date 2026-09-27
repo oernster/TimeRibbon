@@ -40,7 +40,7 @@ var payload string
 
 const (
 	// setupID names what is setup's own: its window class, its web view cache and its step log.
-	setupID = product.Name + "Setup"
+	setupID = product.SetupName
 	// windowTitle is the setup window's title.
 	windowTitle = product.Name + " Setup"
 	// windowWidth and windowHeight fit the tallest screen at the sheet's type sizes (DIP). Measured

@@ -63,7 +63,7 @@ ARCHITECTURE.md, The settings file.
 
 ### The front end
 
-71 tests across 7 files, under Vitest with jsdom: the strip, Settings, About and Licence, the
+72 tests across 7 files, under Vitest with jsdom: the strip, Settings, About and Licence, the
 self-reading cycle, then the setup page's screens, keyboard ring and unreachable-program cases. The
 front end has no coverage figure: no coverage provider is installed, so none is measured or claimed.
 

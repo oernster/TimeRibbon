@@ -119,19 +119,6 @@ func (s Settings) WithoutClock(id string) (Settings, error) {
 	return s, nil
 }
 
-// WithClockMoved answers the settings with the clock id moved by steps places, negative towards
-// the start, stopping at either end (FR-306).
-func (s Settings) WithClockMoved(id string, steps int) (Settings, error) {
-	from := s.indexOf(id)
-	if from < 0 {
-		return s, ErrNoSuchClock
-	}
-	to := min(max(from+steps, 0), len(s.Clocks)-1)
-	moved := slices.Delete(slices.Clone(s.Clocks), from, from+1)
-	s.Clocks = slices.Insert(moved, to, s.Clocks[from])
-	return s, nil
-}
-
 // WithClockReplaced answers the settings with the clock of entry's id replaced by entry, keeping
 // its place in the order (FR-303, FR-304).
 func (s Settings) WithClockReplaced(entry Entry) (Settings, error) {

@@ -81,36 +81,30 @@ function showView(name, actions) {
         el.className = 'btn' + (spec.kind ? ' ' + spec.kind : '')
         el.textContent = spec.label
         el.onclick = spec.onClick
-        if (spec.lead || spec.kind === 'primary') el.dataset.lead = 'true'
         footer.appendChild(el)
     })
-    focusLead()
+    startNeutral()
 }
 
-// focusLead puts focus on the action the screen leads with, so Enter does the obvious thing
-// (FR-809): the primary button unless a screen marks another as its lead, as the Uninstall screen
-// does with its danger button.
-function focusLead() {
-    const footer = $('footer')
-    const lead = footer.querySelector('.btn[data-lead]') || footer.querySelector('.btn')
-    if (lead) lead.focus()
+// startNeutral leaves a screen opening with nothing focused (FR-809): no control wears a ring until
+// the keyboard asks for one. The first Tab or Right enters the ring at its first stop, since the
+// ring forgets where it stood on the last screen, whose footer has gone.
+function startNeutral() {
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
+    forgetRingMark()
 }
 
 // keyboardSettleMs is how long the web view is given to come up holding the keyboard before the
 // page decides it has not.
 const keyboardSettleMs = 400
 
-// settleKeyboard repairs a launch that came up with no keyboard at all: focusing a button is not
-// the same as the document having focus. Only the page can tell the difference.
+// settleKeyboard repairs a launch that came up with no keyboard at all, so the first Tab reaches the
+// ring even though nothing starts focused. Only the page can tell whether the document holds it.
 function settleKeyboard() {
     window.focus()
-    focusLead()
     window.setTimeout(() => {
         if (document.hasFocus()) return
-        void backend().TakeKeyboard().then(() => {
-            window.focus()
-            focusLead()
-        })
+        void backend().TakeKeyboard().then(() => window.focus())
     }, keyboardSettleMs)
 }
 

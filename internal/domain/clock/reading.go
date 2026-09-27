@@ -52,6 +52,9 @@ type Reading struct {
 	HourAngle float64
 	// MinuteAngle is the minute hand's angle in degrees clockwise from twelve.
 	MinuteAngle float64
+	// OffsetSeconds is the zone's offset from UTC at the instant, daylight saving included: what
+	// the strip is ordered by, earliest local time first (FR-102).
+	OffsetSeconds int
 }
 
 // Read answers what a cell shows at instant in location, writing times in format.
@@ -64,11 +67,12 @@ func Read(instant time.Time, location *time.Location, format Format) Reading {
 	}
 	minutes := float64(local.Minute())
 	return Reading{
-		Time:        local.Format(layout),
-		Date:        local.Format(layoutDate),
-		ZoneMark:    ZoneMark(abbreviation, offset),
-		HourAngle:   float64(local.Hour()%hoursPerDial)*degreesPerTurn/hoursPerDial + minutes*degreesPerTurn/(hoursPerDial*minutesPerHour),
-		MinuteAngle: minutes * degreesPerTurn / minutesPerHour,
+		Time:          local.Format(layout),
+		Date:          local.Format(layoutDate),
+		ZoneMark:      ZoneMark(abbreviation, offset),
+		HourAngle:     float64(local.Hour()%hoursPerDial)*degreesPerTurn/hoursPerDial + minutes*degreesPerTurn/(hoursPerDial*minutesPerHour),
+		MinuteAngle:   minutes * degreesPerTurn / minutesPerHour,
+		OffsetSeconds: offset,
 	}
 }
 

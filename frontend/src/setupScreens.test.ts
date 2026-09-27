@@ -1,7 +1,7 @@
 // The setup page's screens, laid out from the very files it ships with a fake setup program behind
-// it (setupPage.ts). What is asserted is the screen shown, the words on it, the button holding
-// focus and the calls made: FR-801 (the route), FR-805 (the boxes), FR-806 (uninstall), FR-808 (a
-// failure says why) and the opening focus of FR-809.
+// it (setupPage.ts). What is asserted is the screen shown, the words on it, what holds focus and the
+// calls made: FR-801 (the route), FR-805 (the boxes), FR-806 (uninstall), FR-808 (a failure says
+// why) and the neutral start of FR-809.
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
@@ -13,8 +13,10 @@ import {
   footerLabels,
   fresh,
   installed,
+  layOutByParent,
   layPage,
   pageElement,
+  pressTab,
   settle,
   type SetupPage,
   type State,
@@ -28,19 +30,35 @@ beforeEach(() => {
   setupPage = layPage(setup)
 })
 
-describe('each screen opens on the action it leads with (FR-801, FR-809)', () => {
-  const screens: [string, State, string, string[], string][] = [
-    ['Install', fresh, 'screen-install', ['Cancel', 'Install'], 'Install'],
-    ['Update', { ...installed, route: 'update', installedVersion: '0.0.9' }, 'screen-update', ['Uninstall', 'Close', 'Update'], 'Update'],
-    ['Go back', { ...installed, route: 'downgrade', installedVersion: '0.2.0' }, 'screen-update', ['Uninstall', 'Close', 'Go back'], 'Go back'],
-    ['Installed', installed, 'screen-manage', ['Uninstall', 'Close', 'Reinstall', 'Repair'], 'Repair'],
-    ['Uninstall', { ...installed, uninstall: true }, 'screen-uninstall', ['Cancel', 'Uninstall'], 'Uninstall'],
+describe('each screen opens on its route with nothing focused (FR-801, FR-809)', () => {
+  const screens: [string, State, string, string[]][] = [
+    ['Install', fresh, 'screen-install', ['Cancel', 'Install']],
+    ['Update', { ...installed, route: 'update', installedVersion: '0.0.9' }, 'screen-update', ['Uninstall', 'Close', 'Update']],
+    ['Go back', { ...installed, route: 'downgrade', installedVersion: '0.2.0' }, 'screen-update', ['Uninstall', 'Close', 'Go back']],
+    ['Installed', installed, 'screen-manage', ['Uninstall', 'Close', 'Reinstall', 'Repair']],
+    ['Uninstall', { ...installed, uninstall: true }, 'screen-uninstall', ['Cancel', 'Uninstall']],
   ]
-  it.each(screens)('the %s screen', (_name, state, screen, actions, lead) => {
+  it.each(screens)('the %s screen', (_name, state, screen, actions) => {
     setupPage.route(state)
     expect(activeScreen()).toBe(screen)
     expect(footerLabels()).toEqual(actions)
-    expect(focusedLabel()).toBe(lead)
+    expect(focusedLabel()).toBe('')
+  })
+
+  it('enters the ring at its first stop on the first Tab, wherever the last screen left it', () => {
+    const restoreLayout = layOutByParent()
+    try {
+      setupPage.route(installed)
+      footerButton('Repair').focus()
+      pressTab()
+      expect(focusedLabel()).not.toBe('')
+      setupPage.route({ ...installed, uninstall: true })
+      expect(focusedLabel()).toBe('')
+      pressTab()
+      expect(document.activeElement).toBe(pageElement('licence'))
+    } finally {
+      restoreLayout()
+    }
   })
 
   it('the screen that offers to close a running copy, before any file is touched (FR-807)', async () => {
@@ -50,7 +68,7 @@ describe('each screen opens on the action it leads with (FR-801, FR-809)', () =>
     await settle()
     expect(activeScreen()).toBe('screen-running')
     expect(footerLabels()).toEqual(['Cancel', 'Close it and continue'])
-    expect(focusedLabel()).toBe('Close it and continue')
+    expect(focusedLabel()).toBe('')
     expect(setup.repairs).toBe(0)
     footerButton('Close it and continue').click()
     await settle()
@@ -131,7 +149,7 @@ describe('the progress screen offers nothing', () => {
     await settle()
     expect(activeScreen()).toBe('screen-done')
     expect(footerLabels()).toEqual(['Close'])
-    expect(focusedLabel()).toBe('Close')
+    expect(focusedLabel()).toBe('')
     expect(pageElement('licence').hidden).toBe(false)
   })
 })

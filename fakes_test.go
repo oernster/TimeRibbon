@@ -53,8 +53,6 @@ func (s *scriptedService) RezoneClock(string, string) error { return s.change("R
 
 func (s *scriptedService) RemoveClock(string) error { return s.change("RemoveClock") }
 
-func (s *scriptedService) MoveClock(string, int) error { return s.change("MoveClock") }
-
 func (s *scriptedService) SearchPlaces(string) []application.Place { return s.places }
 
 func (s *scriptedService) SetStyle(settings.Style) error { return s.change("SetStyle") }

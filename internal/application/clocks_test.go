@@ -76,17 +76,14 @@ func TestChangingZoneKeepsACustomLabelAndRepairsAnInvalidClock(t *testing.T) {
 	}
 }
 
-// FR-305, FR-306.
-func TestRemovingAndMovingPersistTheOrder(t *testing.T) {
+// FR-305.
+func TestRemovingPersistsTheRest(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, withEntries(
 		settings.Entry{ID: "a", Zone: "Europe/London"},
 		settings.Entry{ID: "b", Zone: "Asia/Kolkata"},
 		settings.Entry{ID: "c", Zone: "America/New_York"},
 	))
-	if err := r.service.MoveClock("c", -2); err != nil {
-		t.Fatal(err)
-	}
 	if err := r.service.RemoveClock("a"); err != nil {
 		t.Fatal(err)
 	}
@@ -94,7 +91,7 @@ func TestRemovingAndMovingPersistTheOrder(t *testing.T) {
 	for _, entry := range r.store.last(t).Clocks {
 		ids = append(ids, entry.ID)
 	}
-	if !slices.Equal(ids, []string{"c", "b"}) {
+	if !slices.Equal(ids, []string{"b", "c"}) {
 		t.Errorf("got %v", ids)
 	}
 }
@@ -106,7 +103,6 @@ func TestAnUnknownClockIdChangesNothing(t *testing.T) {
 		"rename": r.service.RenameClock("z", "x"),
 		"rezone": r.service.RezoneClock("z", "Asia/Kolkata"),
 		"remove": r.service.RemoveClock("z"),
-		"move":   r.service.MoveClock("z", 1),
 	} {
 		if !errors.Is(err, settings.ErrNoSuchClock) {
 			t.Errorf("%s: got %v", name, err)

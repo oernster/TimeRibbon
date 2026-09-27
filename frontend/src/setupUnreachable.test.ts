@@ -37,7 +37,7 @@ describe('a page that never reaches the setup program', () => {
     expect(activeScreen()).toBe('screen-error')
     expect(pageElement('error-msg').textContent).toBe(unreachable)
     expect(footerLabels()).toEqual(['Close'])
-    expect(focusedLabel()).toBe('Close')
+    expect(focusedLabel()).toBe('')
     footerButton('Close').click()
     expect(quit).toHaveBeenCalledTimes(1)
   })

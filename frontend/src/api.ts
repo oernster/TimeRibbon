@@ -17,7 +17,6 @@ interface Bridge {
   RenameClock(id: string, label: string): Promise<void>
   RezoneClock(id: string, zone: string): Promise<void>
   RemoveClock(id: string): Promise<void>
-  MoveClock(id: string, steps: number): Promise<void>
   SearchPlaces(query: string): Promise<Place[]>
   SetStyle(style: string): Promise<void>
   SetFormat(format: string): Promise<void>
@@ -72,7 +71,6 @@ export const api = {
   renameClock: (id: string, label: string, refused: Refused) => call((b) => b.RenameClock(id, label), refused),
   rezoneClock: (id: string, zone: string, refused: Refused) => call((b) => b.RezoneClock(id, zone), refused),
   removeClock: (id: string, refused: Refused) => call((b) => b.RemoveClock(id), refused),
-  moveClock: (id: string, steps: number, refused: Refused) => call((b) => b.MoveClock(id, steps), refused),
   searchPlaces: (query: string, refused: Refused) => call((b) => b.SearchPlaces(query), refused),
   setStyle: (style: string, refused: Refused) => call((b) => b.SetStyle(style), refused),
   setFormat: (format: string, refused: Refused) => call((b) => b.SetFormat(format), refused),

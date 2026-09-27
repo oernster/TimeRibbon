@@ -7,8 +7,15 @@
 // already answers to both.
 
 // setupRing holds the stop the ring last stood on, so a press made while focus rests on no stop,
-// as it does while a footer is being rebuilt, carries on from there rather than from the first.
+// as it does once the focused control is disabled or hidden, carries on from there rather than from
+// the first. Each screen opens with none (setup-shell.js), so its first press enters at an end.
 const setupRing = { mark: null }
+
+// forgetRingMark lets a new screen open with the ring standing nowhere. A function rather than a
+// reach into setupRing, since a script's const is its own and a function it declares is the page's.
+function forgetRingMark() {
+    setupRing.mark = null
+}
 
 // ringStops lists what the keyboard can reach in the order it is drawn: every button and box that
 // can be used, plus the body while it holds more than fits, since a screen running past the window

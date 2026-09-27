@@ -59,13 +59,6 @@ func (s *Service) RemoveClock(id string) error {
 	})
 }
 
-// MoveClock moves the clock steps places, negative towards the start (FR-306).
-func (s *Service) MoveClock(id string, steps int) error {
-	return s.change(func(current settings.Settings) (settings.Settings, error) {
-		return current.WithClockMoved(id, steps)
-	})
-}
-
 // SearchPlaces answers the places whose default label, zone id or country contains query, ignoring
 // case, ordered by label then zone (FR-302). An empty query answers every place.
 func (s *Service) SearchPlaces(query string) []Place {

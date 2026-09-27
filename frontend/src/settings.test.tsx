@@ -39,12 +39,12 @@ describe('Settings', () => {
     expect(bridge.RemoveClock).toHaveBeenCalledWith('syd')
   })
 
-  it('moves a clock from the keyboard reachable buttons, which stop at the ends (FR-306)', async () => {
-    const { bridge } = await open()
-    expect((screen.getByLabelText('Move New York up') as HTMLButtonElement).disabled).toBe(true)
-    expect((screen.getByLabelText('Move Sydney down') as HTMLButtonElement).disabled).toBe(true)
-    await act(async () => fireEvent.click(screen.getByLabelText('Move Sydney up')))
-    expect(bridge.MoveClock).toHaveBeenCalledWith('syd', -1)
+  it('lists the clocks in the order the strip shows them, with nothing to move them by hand (FR-102)', async () => {
+    await open()
+    const rows = screen.getByRole('list', { name: 'Clocks' }).querySelectorAll('li')
+    expect(Array.from(rows, (row) => (row.querySelector('input') as HTMLInputElement).value)).toEqual(['New York', 'Sydney'])
+    expect(screen.queryByLabelText(/^Move /)).toBeNull()
+    expect(Array.from(rows).some((row) => row.draggable)).toBe(false)
   })
 
   it('renames a clock when its label is left (FR-303)', async () => {

@@ -82,11 +82,6 @@
   border-bottom: 1px solid var(--divider);
 }
 
-.clocks .grip {
-  cursor: grab;
-  color: var(--text-muted);
-}
-
 .row-main {
   flex: 1;
   display: flex;

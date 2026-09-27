@@ -1,6 +1,7 @@
 package application
 
 import (
+	"slices"
 	"testing"
 	"time"
 
@@ -35,15 +36,36 @@ func TestOneBadClockLeavesTheOthersWorking(t *testing.T) {
 		settings.Entry{ID: "c", Zone: "Asia/Kolkata", Label: "Kolkata"},
 		settings.Entry{ID: "d", Unreadable: "zone is not text", Original: `{"zone":7}`},
 	))
+	// The working clocks come first by time; the two that cannot be shown follow as stored.
 	cells := r.service.Snapshot().Cells
-	if cells[0].Time != "21:37" || cells[2].Time != "02:07" {
-		t.Errorf("working clocks: %+v %+v", cells[0], cells[2])
+	if cells[0].Time != "21:37" || cells[1].Time != "02:07" {
+		t.Errorf("working clocks: %+v %+v", cells[0], cells[1])
 	}
-	if cells[1].Problem != "Unknown time zone: Not/AZone" || cells[1].Label != "Not/AZone" {
-		t.Errorf("unknown zone: %+v", cells[1])
+	if cells[2].Problem != "Unknown time zone: Not/AZone" || cells[2].Label != "Not/AZone" {
+		t.Errorf("unknown zone: %+v", cells[2])
 	}
 	if cells[3].Problem != "This clock could not be read: zone is not text" {
 		t.Errorf("unreadable: %+v", cells[3])
+	}
+}
+
+// FR-102: the strip runs by local time, earliest first, whatever order the clocks were added in;
+// two zones keeping the same time stay in the order they were added.
+func TestTheStripRunsEarliestLocalTimeFirst(t *testing.T) {
+	t.Parallel()
+	r := newRig(t, withEntries(
+		settings.Entry{ID: "kol", Zone: "Asia/Kolkata"},
+		settings.Entry{ID: "syd", Zone: "Australia/Sydney"},
+		settings.Entry{ID: "lon", Zone: "Europe/London"},
+		settings.Entry{ID: "ny", Zone: "America/New_York"},
+		settings.Entry{ID: "lis", Zone: "Europe/Lisbon"},
+	))
+	var ids []string
+	for _, cell := range r.service.Snapshot().Cells {
+		ids = append(ids, cell.ID)
+	}
+	if want := []string{"ny", "lon", "lis", "kol", "syd"}; !slices.Equal(ids, want) {
+		t.Errorf("order %v, want %v", ids, want)
 	}
 }
 

@@ -50,8 +50,11 @@ func TestAlwaysOnTopItemShowsItsState(t *testing.T) {
 func TestContextMenuOffersTheStripsActions(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, settings.Defaults())
-	if got := labels(r.service.ContextMenu()); !slices.Equal(got, []string{"Add clock", "Settings", "Always on top", "Help", "Hide strip"}) {
+	if got := labels(r.service.ContextMenu()); !slices.Equal(got, []string{"Add clock", "Settings", "Always on top", "Help", "Hide strip", "Exit"}) {
 		t.Errorf("got %v", got)
+	}
+	if last := r.service.ContextMenu()[len(r.service.ContextMenu())-1]; last.Action != ActionExit {
+		t.Errorf("the last item acts as %q, want exit", last.Action)
 	}
 }
 

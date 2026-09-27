@@ -44,7 +44,6 @@ type stripService interface {
 	RenameClock(id, label string) error
 	RezoneClock(id, zone string) error
 	RemoveClock(id string) error
-	MoveClock(id string, steps int) error
 	SearchPlaces(query string) []application.Place
 	SetStyle(style settings.Style) error
 	SetFormat(format clock.Format) error
@@ -132,11 +131,6 @@ func (a *App) RemoveClock(id string) error {
 	err := a.service.RemoveClock(id)
 	a.contentChanged()
 	return err
-}
-
-// MoveClock moves a clock steps places (FR-306).
-func (a *App) MoveClock(id string, steps int) error {
-	return a.refitted(a.service.MoveClock(id, steps))
 }
 
 // SearchPlaces answers the places matching query (FR-302).

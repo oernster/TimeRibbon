@@ -79,35 +79,6 @@ func TestRemovingAClockClosesTheGap(t *testing.T) {
 	}
 }
 
-// FR-306.
-func TestMovingAClockStopsAtEitherEnd(t *testing.T) {
-	t.Parallel()
-	start := withClocks("a", "b", "c")
-	cases := []struct {
-		id    string
-		steps int
-		want  []string
-	}{
-		{"a", 1, []string{"b", "a", "c"}},
-		{"c", -1, []string{"a", "c", "b"}},
-		{"a", -1, []string{"a", "b", "c"}},
-		{"c", 5, []string{"a", "b", "c"}},
-		{"b", -9, []string{"b", "a", "c"}},
-	}
-	for _, each := range cases {
-		got, err := start.WithClockMoved(each.id, each.steps)
-		if err != nil || !slices.Equal(order(got), each.want) {
-			t.Errorf("move %s by %d: got %v (%v), want %v", each.id, each.steps, order(got), err, each.want)
-		}
-	}
-	if !slices.Equal(order(start), []string{"a", "b", "c"}) {
-		t.Errorf("the original moved: %v", order(start))
-	}
-	if _, err := start.WithClockMoved("z", 1); !errors.Is(err, ErrNoSuchClock) {
-		t.Errorf("moving an unknown id: got %v", err)
-	}
-}
-
 // FR-303.
 func TestReplacingKeepsThePlaceInTheOrder(t *testing.T) {
 	t.Parallel()

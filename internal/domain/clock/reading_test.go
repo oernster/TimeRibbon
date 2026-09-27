@@ -55,14 +55,19 @@ func TestLocalDateCrossesMidnightByZone(t *testing.T) {
 func TestDaylightSavingTransitionIsFollowed(t *testing.T) {
 	t.Parallel()
 	newYork := zone(t, "America/New_York")
-	cases := []struct{ at, time, mark string }{
-		{"2026-03-08T06:59:00Z", "01:59", "EST"},
-		{"2026-03-08T07:00:00Z", "03:00", "EDT"},
+	// The offset follows the transition too, which is why the strip's order is worked out afresh
+	// at each snapshot rather than stored (FR-102).
+	cases := []struct {
+		at, time, mark string
+		offset         time.Duration
+	}{
+		{"2026-03-08T06:59:00Z", "01:59", "EST", -5 * time.Hour},
+		{"2026-03-08T07:00:00Z", "03:00", "EDT", -4 * time.Hour},
 	}
 	for _, each := range cases {
 		got := Read(instant(t, each.at), newYork, TwentyFourHour)
-		if got.Time != each.time || got.ZoneMark != each.mark {
-			t.Errorf("%s: got %s %s, want %s %s", each.at, got.Time, got.ZoneMark, each.time, each.mark)
+		if got.Time != each.time || got.ZoneMark != each.mark || got.OffsetSeconds != int(each.offset.Seconds()) {
+			t.Errorf("%s: got %s %s %d, want %s %s %v", each.at, got.Time, got.ZoneMark, got.OffsetSeconds, each.time, each.mark, each.offset)
 		}
 	}
 }

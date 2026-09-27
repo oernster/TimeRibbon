@@ -80,7 +80,7 @@ function routeUninstall(state) {
     showView('uninstall', [
         { label: 'Cancel', onClick: () => state.uninstall ? closeSetup() : route(state) },
         {
-            label: 'Uninstall', kind: 'danger', lead: true,
+            label: 'Uninstall', kind: 'danger',
             onClick: () => {
                 const forget = read('forget')
                 return withAppClosed(() => run(() => backend().Uninstall(forget),

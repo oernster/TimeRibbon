@@ -10,6 +10,12 @@ Amendment 3 (Oliver, 2026-09-27): the web view's data moves inside `%APPDATA%\Ti
 
 Amendment 4 (Oliver, 2026-09-27): with 1.0.0 the settings file becomes a contract (NFR-C-1).
 
+Amendment 5 (Oliver, 2026-09-27): the right-click menu gains `Exit` (FR-108); each setup screen opens
+with nothing focused rather than on its lead action (FR-809).
+
+Amendment 6 (Oliver, 2026-09-27): the strip runs in time order, earliest local time first, worked
+out at each snapshot (FR-102); ordering by hand is withdrawn (FR-306).
+
 Source: `TimeStrip-SPEC.md` (the initial product specification, 2026-09-27), plus Oliver's rulings
 of 2026-09-27: the stack is Go with Wails; orientation is a setting offering both horizontal and
 vertical, both in the first release; a setup program ships with the first release; this document is
@@ -37,7 +43,8 @@ Oliver Ernster as author and decision owner; contributors to the open source pro
 - A frameless strip of clocks, horizontal by default, vertical as a setting.
 - Each clock showing its place, its local time, its local weekday and date plus a zone
   abbreviation or UTC offset, all derived from real time zone rules.
-- Adding, editing, removing and reordering clocks, with a searchable list of places.
+- Adding, editing and removing clocks, with a searchable list of places; the strip keeps them in
+  time order.
 - Digital and analogue presentation; 12-hour and 24-hour time.
 - Dragging the whole strip anywhere, including onto another monitor; restoring its monitor and
   position at the next launch; recovering it onto a visible display when its place has gone.
@@ -179,7 +186,11 @@ The strip shall show one cell per clock in ascending order of position, left to 
 horizontal and top to bottom when vertical.
 Acceptance: Given clocks Sydney at position 0 and New York at position 1, when the strip is shown
 horizontally, then Sydney's cell is left of New York's.
-Verified by: planned `TestSnapshotFollowsClockOrder` (application); `strip.test.tsx`.
+Amendment 6 (Oliver, 2026-09-27): the cells run by local time, earliest first: ascending offset
+from UTC at the moment shown, daylight saving included, so the order is worked out at each
+snapshot. Clocks keeping the same time keep their stored order; a clock that cannot be shown goes
+last. Acceptance: given Sydney added before New York, New York's cell is shown first.
+Verified by: `TestTheStripRunsEarliestLocalTimeFirst`, `TestSnapshotFollowsClockOrderWithEachZonesDate` (application); `strip.test.tsx`.
 
 **FR-103 Orientation setting**
 Priority: Must (OQ-5, Oliver, 2026-09-27).
@@ -221,6 +232,8 @@ Priority: Should.
 When the strip is right-clicked, the application shall offer `Add clock`, `Settings`, `Always on top`
 (showing its state) and `Hide strip`.
 Amendment 2 (Oliver, 2026-09-27): a `Help` submenu (FR-508) sits after `Always on top`.
+Amendment 5 (Oliver, 2026-09-27): `Exit` follows `Hide strip` and ends the application as the tray's
+does (FR-502).
 Verified by: `TestContextMenuOffersTheStripsActions` (application).
 
 ### 3.2 Time and date
@@ -335,7 +348,8 @@ The Clocks list in Settings shall reorder clocks by dragging a row and by `Move 
 controls reachable from the keyboard; the new order shall be persisted.
 Rationale: dragging on the strip itself moves the window (FR-401), so reordering lives where a drag
 cannot be mistaken for a move; the spec's section 10.
-Verified by: planned `TestMovingAClockPersistsTheOrder` (application); `clocks.test.tsx`.
+Withdrawn by Amendment 6 (Oliver, 2026-09-27): the order follows the time (FR-102), so there is
+nothing to order by hand. The number is kept so references to it still resolve.
 
 **FR-307 Label length**
 Priority: Should.
@@ -457,7 +471,7 @@ Verified by: check M-6.
 Priority: Must.
 Settings shall offer: style (digital, analogue); format (12-hour, 24-hour); orientation
 (horizontal, vertical); theme (system, light, dark); Always on Top; Start with Windows; the Clocks
-list of FR-306. Nothing else.
+list of FR-303 to FR-305, in the strip's order. Nothing else.
 Verified by: `settings.test.tsx`.
 
 **FR-602 Settings apply at once**
@@ -666,8 +680,9 @@ Verified by: `setupScreens.test.ts`.
 Priority: Must.
 Setup shall move focus forward on Tab and Right, back on Shift+Tab and Left, wrapping at both ends and
 passing over disabled or hidden controls; Enter on a focused box shall toggle it as Space does; each
-screen shall open with focus on the action it leads with.
-Verified by: `setupRing.test.ts`.
+screen shall open with nothing focused, the first Tab or Right entering at the first control and the
+first Shift+Tab or Left at the last.
+Verified by: `setupRing.test.ts`, `setupScreens.test.ts`.
 
 **FR-810 Per user, no elevation**
 Priority: Must.
@@ -692,7 +707,7 @@ Proposed, to be fixed in ARCHITECTURE.md:
 | Domain | `internal/domain/clock` | Clock, zone mark rule, time and date formatting, hand angles; takes an instant |
 | Domain | `internal/domain/placement` | Monitors as rectangles, default placement, DPI scaling, recovery by clamping |
 | Domain | `internal/domain/settings` | Settings value, defaults, clock order operations |
-| Application | `internal/application` | Use cases: snapshot, add, edit, remove, move, change setting, place, recover; ports for store, monitors, startup entry, zone catalogue |
+| Application | `internal/application` | Use cases: snapshot (in time order), add, edit, remove, change setting, place, recover; ports for store, monitors, startup entry, zone catalogue |
 | Infrastructure | `internal/infrastructure/store` | JSON settings file, atomic write, tolerant clock decoding |
 | Infrastructure | `internal/infrastructure/zones` | Zone resolution through `time/tzdata`; the place catalogue |
 | Infrastructure | `internal/infrastructure/windows` | Monitors, `SetWindowPos`, drag, tray, Run key, time change and resume messages |
@@ -720,7 +735,7 @@ Proposed, to be fixed in ARCHITECTURE.md:
 ## 8. Build order
 
 Built inside out: domain, then application, then infrastructure, then the user interface. Every
-action that changes what the application does (add, edit, remove, move, change a setting, place,
+action that changes what the application does (add, edit, remove, change a setting, place,
 recover, snapshot) is executable from a Go test with no window open before the front end is built.
 
 1. Domain: clock formatting and zone marks against fixed instants; placement recovery.
@@ -736,7 +751,7 @@ recover, snapshot) is executable from a Go test with no window open before the f
 
 | Priority | Content |
 |---|---|
-| **Must** | FR-101 to FR-107, FR-201 to FR-209, FR-301 to FR-306, FR-401 to FR-407, FR-501, FR-502, FR-504 to FR-508, FR-601 to FR-604, FR-607 to FR-609, FR-701 to FR-707, FR-801 to FR-811, NFR-P-1 to NFR-P-4, NFR-U-1 to NFR-U-5, NFR-S-1 to NFR-S-3, NFR-M-1, NFR-M-2, NFR-C-1, NFR-O-1 |
+| **Must** | FR-101 to FR-107, FR-201 to FR-209, FR-301 to FR-305, FR-401 to FR-407, FR-501, FR-502, FR-504 to FR-508, FR-601 to FR-604, FR-607 to FR-609, FR-701 to FR-707, FR-801 to FR-811, NFR-P-1 to NFR-P-4, NFR-U-1 to NFR-U-5, NFR-S-1 to NFR-S-3, NFR-M-1, NFR-M-2, NFR-C-1, NFR-O-1 |
 | **Should** | FR-108, FR-307, FR-503, FR-605, FR-606 |
 | **Could** | FR-308 |
 | **Won't this time** | Everything in the out-of-scope table of section 1.3 |
@@ -758,7 +773,7 @@ The spec's first-useful-release criteria, mapped:
 | 7 Drag anywhere | FR-401, FR-402 |
 | 8 Onto another monitor | FR-401, FR-407 |
 | 9 Restart restores clocks, order, display, position | FR-404, FR-405, FR-701 |
-| 10 Add, edit, remove, reorder | FR-301, FR-303 to FR-306 |
+| 10 Add, edit, remove, reorder | FR-301, FR-303 to FR-305; reordering withdrawn (FR-306), FR-102 orders by time |
 | 11 Digital or analogue | FR-603, FR-604 |
 | 12 12-hour or 24-hour | FR-206 |
 | 13 Optional Always on Top | FR-505 |

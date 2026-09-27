@@ -149,7 +149,8 @@ func TestOneBadClockLeavesTheOthersWorking(t *testing.T) {
 	}
 }
 
-// FR-306: the stored position decides the order; an entry with none keeps its place.
+// The stored position keeps the order clocks were added in, which settles ties in the strip's time
+// order (FR-102) and is part of the file's contract (NFR-C-1); an entry with none keeps its place.
 func TestOrderingPersistsByPosition(t *testing.T) {
 	t.Parallel()
 	dir := t.TempDir()

@@ -142,9 +142,35 @@ export function layPage(setup: FakeSetup | null): SetupPage {
   return window as unknown as SetupPage
 }
 
-/** focusedLabel names what holds focus. */
+/** focusedLabel names what holds focus; empty when nothing does and the page itself holds it. */
 export function focusedLabel(): string {
-  return document.activeElement?.textContent ?? ''
+  const focused = document.activeElement
+  return focused === null || focused === document.body ? '' : (focused.textContent ?? '')
+}
+
+/**
+ * layOutByParent stands in for layout, which jsdom does not perform: every element would report no
+ * offset parent, so the ring, which passes over what is not on screen, would find no stops at all.
+ * An attached element's offset parent becomes its parent. Answers the function that puts it back.
+ */
+export function layOutByParent(): () => void {
+  const original = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetParent')
+  Object.defineProperty(HTMLElement.prototype, 'offsetParent', {
+    configurable: true,
+    get(this: HTMLElement) {
+      return this.parentElement
+    },
+  })
+  return () => {
+    if (original !== undefined) Object.defineProperty(HTMLElement.prototype, 'offsetParent', original)
+    else delete (HTMLElement.prototype as unknown as Record<string, unknown>).offsetParent
+  }
+}
+
+/** pressTab sends Tab to whatever holds focus, as the keyboard would. */
+export function pressTab(): void {
+  const event = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true })
+  ;(document.activeElement ?? document.body).dispatchEvent(event)
 }
 
 /** activeScreen names the screen on show. */

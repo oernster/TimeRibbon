@@ -88,7 +88,6 @@ export function Settings({ snapshot, startAdding, reload, onClose }: Props) {
         cells={snapshot.cells}
         onRename={(id, label) => void api.renameClock(id, label, setProblem).then(then)}
         onChangePlace={(cell) => setSearch({ mode: 'rezone', cell })}
-        onMove={(id, steps) => void api.moveClock(id, steps, setProblem).then(then)}
         onRemove={(id) => void api.removeClock(id, setProblem).then(then)}
       />
       {search == null ? (

@@ -41,7 +41,6 @@ export function installBridge() {
     RenameClock: vi.fn(async () => undefined),
     RezoneClock: vi.fn(async () => undefined),
     RemoveClock: vi.fn(async () => undefined),
-    MoveClock: vi.fn(async () => undefined),
     SearchPlaces: vi.fn(async () => places),
     SetStyle: vi.fn(async () => undefined),
     SetFormat: vi.fn(async () => undefined),

@@ -6,6 +6,7 @@
 
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import ring from '../../installer/frontend/dist/setup-ring.js?raw'
+import { layOutByParent } from './setupPage'
 
 // An indirect eval runs the script in the global scope, as a script tag does: its key listener
 // goes on the document and nothing of it leaks into this module's own names.
@@ -22,21 +23,13 @@ const screen = `
   <div class="footer"><button id="cancel">Cancel</button><button id="install">Install</button></div>
 `
 
-// jsdom performs no layout, so every element reports no offset parent and the ring, which passes
-// over what is not on screen, would find no stops at all. The page's shape is stated instead: an
-// attached element's offset parent is its parent.
+let restoreLayout: () => void
+
 beforeAll(() => {
-  Object.defineProperty(HTMLElement.prototype, 'offsetParent', {
-    configurable: true,
-    get(this: HTMLElement) {
-      return this.parentElement
-    },
-  })
+  restoreLayout = layOutByParent()
 })
 
-afterAll(() => {
-  delete (HTMLElement.prototype as unknown as Record<string, unknown>).offsetParent
-})
+afterAll(() => restoreLayout())
 
 beforeEach(() => {
   document.body.innerHTML = screen

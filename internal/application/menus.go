@@ -47,13 +47,18 @@ func (s *Service) TrayMenu(visible bool) []MenuItem {
 	if visible {
 		toggle = MenuItem{Action: ActionHide, Label: labelHide}
 	}
-	return []MenuItem{toggle, addClockItem(), settingsItem(), s.alwaysOnTopItem(), helpItem(), {Action: ActionExit, Label: labelExit}}
+	return []MenuItem{toggle, addClockItem(), settingsItem(), s.alwaysOnTopItem(), helpItem(), exitItem()}
 }
 
 // ContextMenu answers the menu the strip offers when right-clicked (FR-108).
 func (s *Service) ContextMenu() []MenuItem {
-	return []MenuItem{addClockItem(), settingsItem(), s.alwaysOnTopItem(), helpItem(), {Action: ActionHide, Label: labelHide}}
+	return []MenuItem{
+		addClockItem(), settingsItem(), s.alwaysOnTopItem(), helpItem(), {Action: ActionHide, Label: labelHide}, exitItem(),
+	}
 }
+
+// exitItem ends the application, from either menu (FR-108, FR-502).
+func exitItem() MenuItem { return MenuItem{Action: ActionExit, Label: labelExit} }
 
 // helpItem is the Help submenu both menus hold (FR-508).
 func helpItem() MenuItem {

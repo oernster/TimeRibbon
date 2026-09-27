@@ -11,10 +11,6 @@ import "slices"
 // USER_DEFAULT_SCREEN_DPI.
 const BaseDPI = 96
 
-// EdgeMarginDIP is the gap between the strip and the work area's right edge at its default place
-// (FR-403).
-const EdgeMarginDIP = 16
-
 // Rect is a rectangle whose right and bottom edges lie just outside it, as Windows RECT does.
 type Rect struct {
 	Left, Top, Right, Bottom int
@@ -83,12 +79,10 @@ func Primary(monitors []Monitor) (Monitor, bool) {
 	return monitors[max(index, 0)], true
 }
 
-// Default answers the default place on monitor for a strip of size (FR-403): its right edge
-// EdgeMarginDIP inside the work area's right edge, centred vertically; then clamped.
+// Default answers the default place on monitor for a strip of size (FR-403): flush against the
+// work area's right edge, centred vertically, as a vertical strip is placed when chosen (FR-409).
 func Default(monitor Monitor, size Size) Placed {
-	margin := Scale(EdgeMarginDIP, BaseDPI, monitor.DPI)
-	at := Point{X: monitor.Work.Right - margin - size.Width}
-	return Placed{At: CentredAlong(at, size, monitor.Work, true), Monitor: monitor}
+	return Placed{At: AgainstEdge(size, monitor.Work, Right), Monitor: monitor}
 }
 
 // CentredAlong answers at with a strip of size centred on work along its length (top to bottom

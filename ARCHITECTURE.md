@@ -184,7 +184,7 @@ where the choice took, even with its save failed, it puts the strip against the 
 `WindowGetPosition` answers absolute coordinates. Its screen list carries no origin, device name or
 work area either. So displays are read through `EnumDisplayMonitors` and `GetMonitorInfoW` (`monitors`)
 and the window is placed with `SetWindowPos` (`desktop.Place`). With nothing stored the strip goes
-16 DIP inside the primary work area's right edge, centred vertically. The end of a drag is heard
+flush against the primary work area's right edge, centred vertically. The end of a drag is heard
 through a WinEvent hook on `EVENT_SYSTEM_MOVESIZEEND`; the placement is stored as the monitor's device
 name, its work area, its DPI and the strip's offset from the work area's corner. At launch it is
 restored on that monitor, the offset scaled by any change of DPI; where that monitor is gone it goes

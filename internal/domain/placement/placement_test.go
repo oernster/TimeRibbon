@@ -20,13 +20,13 @@ var (
 func TestDefaultPlacementIsRightEdgeCentred(t *testing.T) {
 	t.Parallel()
 	got := Default(primary, strip)
-	want := Point{X: 1920 - EdgeMarginDIP - 600, Y: (1032 - 120) / 2}
+	want := Point{X: 1920 - 600, Y: (1032 - 120) / 2}
 	if got.At != want || got.Monitor.Device != primary.Device {
 		t.Errorf("got %+v, want %+v on the primary", got.At, want)
 	}
 	scaled := Default(secondary, strip)
-	if margin := secondary.Work.Right - (scaled.At.X + strip.Width); margin != 24 {
-		t.Errorf("at 150 percent the margin is 24 pixels, got %d", margin)
+	if gap := secondary.Work.Right - (scaled.At.X + strip.Width); gap != 0 {
+		t.Errorf("at 150 percent the strip is %d pixels in from the right edge, want flush", gap)
 	}
 }
 

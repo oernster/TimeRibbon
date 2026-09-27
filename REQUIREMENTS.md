@@ -404,7 +404,10 @@ Priority: Must.
 While no placement is stored, the application shall place the strip on the primary monitor with its
 right edge 16 DIP inside the work area's right edge, centred vertically in the work area.
 Rationale: the spec's section 8; 16 DIP is Claude's proposal.
-Verified by: `TestDefaultPlacementIsRightEdgeCentred` (domain).
+Amendment 10 (Oliver, 2026-09-28): the strip sits flush against the work area's right edge, with no
+margin, as a vertical strip does when that orientation is chosen (FR-409).
+Verified by: `TestDefaultPlacementIsRightEdgeCentred` (domain);
+`TestLaunchWithNothingStoredGoesToTheDefaultPlace` (application).
 
 **FR-404 Placement persisted**
 Priority: Must.
@@ -444,7 +447,7 @@ vertical; `Centre on top edge` and `Centre on bottom edge` while it is horizonta
 the application shall put the strip flush against that edge of the work area of the monitor it is
 on, centred along the edge, then show it and store that placement (FR-404). While a panel is open the
 placement is stored and the strip goes there when the panel closes. Flush, with no margin (Oliver,
-2026-09-28); the first-run place of FR-403 keeps its margin.
+2026-09-28), as the first-run place of FR-403 is.
 Acceptance: given a vertical strip 196 DIP long on a work area 1032 DIP tall at 100 percent, when
 `Centre on left edge` is chosen, then its left edge is the work area's left edge and its top is 418
 DIP down; it opens there next time.

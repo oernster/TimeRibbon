@@ -28,7 +28,7 @@ func TestLaunchWithNothingStoredGoesToTheDefaultPlace(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := Arrangement{
-		At:   placement.Point{X: 1920 - placement.EdgeMarginDIP - 336, Y: (1032 - 106) / 2},
+		At:   placement.Point{X: 1920 - 336, Y: (1032 - 106) / 2},
 		Size: placement.Size{Width: 336, Height: 106}, DPI: placement.BaseDPI,
 	}
 	if got != want {
@@ -230,7 +230,8 @@ func TestPlacementIsStoredRelativeToItsMonitor(t *testing.T) {
 	}
 }
 
-// FR-406: a strip dragged off every display comes back; the place it comes back to is stored.
+// FR-406: a strip dragged off every display comes back to the default place, flush right on the
+// primary (FR-403), 336 x 106; the place it comes back to is stored.
 func TestADragOffEveryDisplayIsBroughtBack(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, clocks(2))
@@ -238,7 +239,7 @@ func TestADragOffEveryDisplayIsBroughtBack(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.At != (placement.Point{X: 1568, Y: 463}) || r.store.last(t).Placement.Device != primaryMonitor.Device {
+	if got.At != (placement.Point{X: 1920 - 336, Y: (1032 - 106) / 2}) || r.store.last(t).Placement.Device != primaryMonitor.Device {
 		t.Errorf("got %+v, stored %+v", got, r.store.last(t).Placement)
 	}
 }

@@ -38,7 +38,7 @@ var panelSize = placement.Size{Width: 560, Height: 760}
 
 func main() {
 	if generatingBindings {
-		if err := launch(&App{}); err != nil {
+		if err := launch(&App{}, ""); err != nil {
 			os.Exit(1)
 		}
 		return
@@ -111,5 +111,5 @@ func run(log io.Writer) error {
 	} else {
 		app.trayUp.Store(true)
 	}
-	return launch(app)
+	return launch(app, dir)
 }

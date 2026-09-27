@@ -6,6 +6,8 @@ questions; it holds none at present. Later changes arrive as dated amendments.
 Amendment 2 (Oliver, 2026-09-27): Help, About and Licence (FR-508, FR-607 to FR-609) plus the
 self-reading licence in setup (FR-811); CON-6, FR-108 and FR-502 carry notes of it.
 
+Amendment 3 (Oliver, 2026-09-27): the web view's data moves inside `%APPDATA%\TimeStrip` (FR-806).
+
 Source: `TimeStrip-SPEC.md` (the initial product specification, 2026-09-27), plus Oliver's rulings
 of 2026-09-27: the stack is Go with Wails; orientation is a setting offering both horizontal and
 vertical, both in the first release; a setup program ships with the first release; this document is
@@ -641,6 +643,8 @@ Priority: Must.
 When Uninstall is confirmed, setup shall remove the shortcuts, the Start with Windows value and the
 Apps list entry, then delete the install folder once setup has closed. Where `Also forget my settings`
 is ticked, which it is not by default, setup shall also delete `%APPDATA%\TimeStrip`.
+Amendment 3 (Oliver, 2026-09-27): everything the application writes under `%APPDATA%`, the web
+view's data included, lies inside `%APPDATA%\TimeStrip`, so forgetting leaves nothing behind.
 Verified by: planned `TestForgettingRemovesOnlyTheSettingsFolder` (infrastructure, setup); check M-9.
 
 **FR-807 A running copy is closed before setup writes**

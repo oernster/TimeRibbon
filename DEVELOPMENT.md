@@ -113,7 +113,8 @@ the development server to read `installer/frontend/dist`, where the self-reading
 lives.
 
 Each run appends to `%APPDATA%\TimeStrip\TimeStrip.log`, which is where a fault in a windowed run
-goes, the Go runtime's own panic report included. The settings are in `settings.json` beside it.
+goes, the Go runtime's own panic report included. The settings are in `settings.json` beside it;
+the web view keeps its data in `WebView2` in the same folder.
 Only one copy runs per Windows user: a second launch shows the first and exits.
 
 ## Installing what you built

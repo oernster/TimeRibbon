@@ -3,6 +3,7 @@ package main
 import (
 	"embed"
 	"fmt"
+	"path/filepath"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -18,9 +19,19 @@ var assets embed.FS
 // instanceID names the lock that keeps one TimeStrip per user (FR-506).
 const instanceID = "uk.codecrafter." + product.Name
 
-// launch runs the window. It starts hidden: startup places it and takes it off the taskbar before
-// the page shows it (FR-101).
-func launch(app *App) error {
+// webViewFolder names the web view's own data folder inside the settings folder. Left to Wails, it
+// would be a folder named for the executable beside the settings folder, which uninstalling with
+// "Also forget my settings" did not reach (FR-806); inside it, forgetting removes it with the rest.
+const webViewFolder = "WebView2"
+
+// launch runs the window, keeping the web view's data in the settings folder dir; where dir is
+// empty, as in the run that generates bindings, Wails chooses. It starts hidden: startup places it
+// and takes it off the taskbar before the page shows it (FR-101).
+func launch(app *App, dir string) error {
+	webViewData := ""
+	if dir != "" {
+		webViewData = filepath.Join(dir, webViewFolder)
+	}
 	err := wails.Run(&options.App{
 		Title:         product.Name,
 		Frameless:     true,
@@ -33,6 +44,7 @@ func launch(app *App) error {
 		},
 		Windows: &windows.Options{
 			WindowClassName:      product.StripClass,
+			WebviewUserDataPath:  webViewData,
 			Theme:                windows.SystemDefault,
 			DisablePinchZoom:     true,
 			IsZoomControlEnabled: false,

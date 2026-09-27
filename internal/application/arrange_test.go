@@ -65,6 +65,70 @@ func TestVerticalStripsStackTheirCells(t *testing.T) {
 	}
 }
 
+// draggedTo answers settings holding n London clocks in orientation, stored where a drag left the
+// strip at at on the primary monitor.
+func draggedTo(n int, orientation settings.Orientation, at placement.Point) settings.Settings {
+	s := clocks(n)
+	s.Orientation = orientation
+	s.Placement = &placement.Stored{Device: primaryMonitor.Device, DPI: placement.BaseDPI, Offset: at}
+	return s
+}
+
+// FR-104: a vertical strip dragged near the top gains a clock. Its length changes from
+// 2 x 90 + 8 = 188 to 3 x 90 + 2 x 8 = 286, so it is centred top to bottom, (1032 - 286) / 2,
+// its left edge kept; the place is saved, so the next launch finds it there.
+func TestAStripWhoseLengthChangesIsRecentredAndKept(t *testing.T) {
+	t.Parallel()
+	dragged := placement.Point{X: 1700, Y: 40}
+	r := newRig(t, draggedTo(2, settings.Vertical, dragged))
+	if got, _ := r.service.Launch(); got.At != dragged {
+		t.Fatalf("launched at %+v, want where the drag left it", got.At)
+	}
+	if _, err := r.service.AddClock("Asia/Kolkata"); err != nil {
+		t.Fatal(err)
+	}
+	centred := placement.Point{X: 1700, Y: (1032 - 286) / 2}
+	got, err := r.service.Rearrange(dragged)
+	if err != nil || got.At != centred {
+		t.Errorf("rearranged to %+v (%v), want %+v", got.At, err, centred)
+	}
+	if stored := r.store.last(t).Placement; stored == nil || stored.Offset != centred {
+		t.Errorf("stored %+v, want the centred place", stored)
+	}
+	if got, _ := r.service.Launch(); got.At != centred {
+		t.Errorf("relaunched at %+v, want the centred place", got.At)
+	}
+}
+
+// FR-104: a horizontal strip is centred left to right, its top kept.
+func TestAHorizontalStripIsRecentredLeftToRight(t *testing.T) {
+	t.Parallel()
+	dragged := placement.Point{X: 30, Y: 800}
+	r := newRig(t, draggedTo(2, settings.Horizontal, dragged))
+	_, _ = r.service.Launch()
+	_, _ = r.service.AddClock("Asia/Kolkata")
+	got, _ := r.service.Rearrange(dragged)
+	if want := (placement.Point{X: (1920 - (3*160 + 2*8)) / 2, Y: 800}); got.At != want {
+		t.Errorf("got %+v, want %+v", got.At, want)
+	}
+}
+
+// FR-104, FR-404: only a change of length re-centres the strip; a rearrange or a move with the
+// same clocks leaves it where it was put. Nothing is saved but the move.
+func TestNothingButAChangeOfLengthRecentresTheStrip(t *testing.T) {
+	t.Parallel()
+	dragged := placement.Point{X: 1700, Y: 40}
+	r := newRig(t, draggedTo(2, settings.Vertical, dragged))
+	_, _ = r.service.Launch()
+	if got, _ := r.service.Rearrange(dragged); got.At != dragged || len(r.store.saved) != 0 {
+		t.Errorf("rearranged to %+v with %d saves, want it left alone", got.At, len(r.store.saved))
+	}
+	moved := placement.Point{X: 1700, Y: 500}
+	if got, _ := r.service.Moved(moved); got.At != moved || r.store.last(t).Placement.Offset != moved {
+		t.Errorf("a drag was moved to %+v, want it kept where it was let go", got.At)
+	}
+}
+
 // FR-107: an empty strip is sized for its prompt, whatever the style: 160 + 16 by 190 + 16.
 func TestAnEmptyStripIsSizedForItsPrompt(t *testing.T) {
 	t.Parallel()
@@ -98,10 +162,31 @@ func TestTheStripMakesRoomForANotice(t *testing.T) {
 	if got.Size.Width != 496 || got.Scrolls {
 		t.Errorf("with a notice: got %+v", got)
 	}
+	r.store.saveErr = nil
 	r.service.DismissNotices()
 	got, _ = r.service.Launch()
 	if got.Size.Width != 336 {
 		t.Errorf("after dismissing: got %+v", got)
+	}
+}
+
+// FR-104, FR-707: a strip re-centred where its place cannot be saved raises the notice again, so it
+// is arranged once more with room for that cell rather than left too short for it.
+func TestARecentringThatCannotBeSavedMakesRoomForItsNotice(t *testing.T) {
+	t.Parallel()
+	r := newRig(t, clocks(2))
+	r.store.saveErr = errPlanted
+	_ = r.service.SetTheme(settings.Dark)
+	if _, err := r.service.Launch(); err != nil {
+		t.Fatal(err)
+	}
+	r.service.DismissNotices()
+	got, err := r.service.Launch()
+	if err != nil || got.Size.Width != 496 {
+		t.Errorf("got %+v (%v), want room for the notice the failed save raised", got, err)
+	}
+	if notices := r.service.Snapshot().Notices; len(notices) != 1 {
+		t.Errorf("notices %v, want the failed save's", notices)
 	}
 }
 

@@ -87,11 +87,19 @@ func Primary(monitors []Monitor) (Monitor, bool) {
 // EdgeMarginDIP inside the work area's right edge, centred vertically; then clamped.
 func Default(monitor Monitor, size Size) Placed {
 	margin := Scale(EdgeMarginDIP, BaseDPI, monitor.DPI)
-	at := Point{
-		X: monitor.Work.Right - margin - size.Width,
-		Y: monitor.Work.Top + (monitor.Work.Height()-size.Height)/2,
+	at := Point{X: monitor.Work.Right - margin - size.Width}
+	return Placed{At: CentredAlong(at, size, monitor.Work, true), Monitor: monitor}
+}
+
+// CentredAlong answers at with a strip of size centred on work along its length (top to bottom
+// when vertical, else left to right), its position across kept; then clamped (FR-104).
+func CentredAlong(at Point, size Size, work Rect, vertical bool) Point {
+	if vertical {
+		at.Y = work.Top + (work.Height()-size.Height)/2
+	} else {
+		at.X = work.Left + (work.Width()-size.Width)/2
 	}
-	return Placed{At: Clamp(at, size, monitor.Work), Monitor: monitor}
+	return Clamp(at, size, work)
 }
 
 // Restore answers where the strip goes at launch (FR-405): on the stored monitor at the stored

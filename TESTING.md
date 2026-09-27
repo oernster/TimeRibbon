@@ -53,9 +53,9 @@ and what stops it. An unexplained shortfall cannot be told from an oversight.
 | `installer` | 0%, no tests | none | not gated |
 | `internal/product` | no statements | none | not gated |
 
-194 Go test functions, each run once with no subtests (an uncached `go test -count=1 -json` over the
+200 Go test functions, each run once with no subtests (an uncached `go test -count=1 -json` over the
 packages `go list ./...` gives outside `node_modules`), plus one `TestMain` in
-`internal/infrastructure/setup`. Eighteen of them are the structural tests in `tests/structural`,
+`internal/infrastructure/setup`. Nineteen of them are the structural tests in `tests/structural`,
 which read the source rather than run it; [ARCHITECTURE.md](ARCHITECTURE.md) lists each against the
 rule it holds. One more holds a promise rather than a rule of structure:
 `TestA1Point0SettingsFileIsReadWhole` reads a frozen 1.0.0 settings file (NFR-C-1); see

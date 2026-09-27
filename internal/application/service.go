@@ -47,6 +47,17 @@ type Service struct {
 	// scrollbar is the thickness in DIP of the scroll bar the page draws, as the page measured it;
 	// zero until it says (FR-106).
 	scrollbar int
+	// arranged is the strip's length when it was last arranged, so a change of length can be told
+	// from anything else that arranges it (FR-104).
+	arranged stripLength
+}
+
+// stripLength is the strip's length in DIP along its orientation; known is false until the strip
+// has been arranged once, when there is nothing yet for a length to differ from.
+type stripLength struct {
+	known    bool
+	vertical bool
+	length   int
 }
 
 // SetScrollbar records the thickness in DIP of the scroll bar the page draws, which a scrolling

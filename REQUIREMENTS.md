@@ -16,6 +16,9 @@ with nothing focused rather than on its lead action (FR-809).
 Amendment 6 (Oliver, 2026-09-27): the strip runs in time order, earliest local time first, worked
 out at each snapshot (FR-102); ordering by hand is withdrawn (FR-306).
 
+Amendment 7 (Oliver, 2026-09-27): a strip whose length changes is re-centred along it on its
+display, keeping its position across (FR-104).
+
 Source: `TimeStrip-SPEC.md` (the initial product specification, 2026-09-27), plus Oliver's rulings
 of 2026-09-27: the stack is Go with Wails; orientation is a setting offering both horizontal and
 vertical, both in the first release; a setup program ships with the first release; this document is
@@ -204,7 +207,13 @@ Verified by: `TestDefaultsAreDigitalTwentyFourHourVerticalAndNotOnTop` (domain);
 Priority: Must.
 When the orientation changes, the application shall keep the strip's top-left corner where it was,
 then apply the recovery of FR-405 so the whole strip lies inside its monitor's work area.
-Verified by: planned `TestOrientationChangeClampsIntoWorkArea` (application).
+Amendment 7 (Oliver, 2026-09-27): when the strip's length changes (a clock added or removed, a
+notice raised or dismissed, the style or orientation changed), the application shall centre it
+along its length on its monitor's work area, keeping its position across; it shall store that place.
+Nothing else re-centres it: a drag is kept until the length next changes. Acceptance: given a
+vertical strip dragged near the top of its display, when a clock is added, then it is centred top
+to bottom with its left edge where it was; it opens there next time.
+Verified by: `TestAStripWhoseLengthChangesIsRecentredAndKept`, `TestAHorizontalStripIsRecentredLeftToRight`, `TestNothingButAChangeOfLengthRecentresTheStrip`, `TestARecentringThatCannotBeSavedMakesRoomForItsNotice` (application).
 
 **FR-105 Strip sized to its clocks**
 Priority: Must.

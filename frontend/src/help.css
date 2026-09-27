@@ -76,8 +76,22 @@
   font-weight: 600;
 }
 
+/* The licence is shown exactly as written, its own line breaks kept: a line the panel wrapped again
+   left single words stranded. So nothing wraps; the type shrinks until the widest line fits, never
+   above 13px. --licence-columns is the LICENSE's widest line (a structural test holds it);
+   --licence-advance is a Consolas character's width per em, 1126 of 2048 units in consola.ttf.
+   The width is read from .licence, inside the scrolling body: the body's own width counts its
+   scroll bar, which the text cannot use (measured in Edge: 520 against 505 at a 560 panel). */
+.licence {
+  container-type: inline-size;
+}
+
 .licence-text {
-  font: 13px/1.45 Consolas, 'Cascadia Mono', monospace;
-  white-space: pre-wrap;
+  --licence-columns: 78;
+  --licence-advance: 0.5498;
+  font-family: Consolas, 'Cascadia Mono', monospace;
+  font-size: min(13px, calc(100cqi / (var(--licence-columns) * var(--licence-advance))));
+  line-height: 1.45;
+  white-space: pre;
   margin: 0;
 }

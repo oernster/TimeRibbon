@@ -38,6 +38,7 @@ does not exist.
 | The page listens for every event `app.go` emits and keys every panel it names | `TestThePageNamesEveryEventGoEmits` | `wire_test.go` |
 | The setup page listens for every event `installer/app.go` emits | `TestTheSetupPageNamesEveryEventSetupEmits` | `wire_test.go` |
 | Each `wails.json` names its executable as `internal/product` does | `TestEachWailsConfigNamesItsExecutableAsTheProductDoes` | `names_test.go` |
+| The Licence panel is sized for the LICENSE's widest line, so it shows unwrapped | `TestTheLicencePanelIsSizedForTheLicencesWidestLine` | `licence_test.go` |
 
 ## Layers
 
@@ -143,7 +144,10 @@ horizontal strip along.
 
 Every change that can alter the cells (a clock added or removed, the style or orientation changed, a
 notice raised by a failed save or dismissed, the scroll bar reported) refits the strip where it
-stands. Sizes are computed in DIP and scaled to the display's DPI, so a strip moved between displays
+stands. Where the refit changes the strip's length, it is centred along that length on its display
+with its position across kept; the place is stored (FR-104) and the service remembers the length it last
+arranged to tell. Nothing else re-centres it, so a drag holds until the length next changes. Sizes
+are computed in DIP and scaled to the display's DPI, so a strip moved between displays
 at different scaling keeps its size in DIP (FR-407).
 
 **Place (FR-403 to FR-406).** Coordinates are physical pixels on the virtual desktop. Wails'

@@ -88,7 +88,9 @@ export function Licence({ onClose }: { onClose: () => void }) {
   }, [])
   return (
     <Panel title="Licence" problem={problem} onClose={onClose}>
-      <pre className="licence-text">{text}</pre>
+      <div className="licence">
+        <pre className="licence-text">{text}</pre>
+      </div>
     </Panel>
   )
 }

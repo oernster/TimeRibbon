@@ -30,6 +30,22 @@ func TestDefaultPlacementIsRightEdgeCentred(t *testing.T) {
 	}
 }
 
+// FR-104: centred along its length on the work area, its position across kept, within the work
+// area even when that position was off it.
+func TestCentredAlongKeepsThePositionAcross(t *testing.T) {
+	t.Parallel()
+	tall := Size{Width: 120, Height: 600}
+	if got, want := CentredAlong(Point{X: 1700, Y: 9}, tall, primary.Work, true), (Point{X: 1700, Y: (1032 - 600) / 2}); got != want {
+		t.Errorf("vertical: got %+v, want %+v", got, want)
+	}
+	if got, want := CentredAlong(Point{X: 9, Y: 800}, strip, primary.Work, false), (Point{X: (1920 - 600) / 2, Y: 800}); got != want {
+		t.Errorf("horizontal: got %+v, want %+v", got, want)
+	}
+	if got := CentredAlong(Point{X: 5000, Y: 0}, tall, primary.Work, true); got.X != 1920-120 {
+		t.Errorf("a strip across the edge was not brought inside: %+v", got)
+	}
+}
+
 // FR-404, FR-405.
 func TestPlacementIsStoredRelativeToItsMonitorAndRestored(t *testing.T) {
 	t.Parallel()

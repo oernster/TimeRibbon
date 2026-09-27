@@ -1,0 +1,158 @@
+package placement
+
+import "testing"
+
+// Two monitors side by side. The primary is 1920 by 1080 at 100 percent with a 48 pixel taskbar;
+// the secondary is 2560 by 1440 at 150 percent, to its right.
+var (
+	primary = Monitor{
+		Device: `\\.\DISPLAY1`, Work: Rect{Left: 0, Top: 0, Right: 1920, Bottom: 1032},
+		DPI: BaseDPI, Primary: true,
+	}
+	secondary = Monitor{
+		Device: `\\.\DISPLAY2`, Work: Rect{Left: 1920, Top: 0, Right: 4480, Bottom: 1392},
+		DPI: 144,
+	}
+	strip = Size{Width: 600, Height: 120}
+)
+
+// FR-403.
+func TestDefaultPlacementIsRightEdgeCentred(t *testing.T) {
+	t.Parallel()
+	got := Default(primary, strip)
+	want := Point{X: 1920 - EdgeMarginDIP - 600, Y: (1032 - 120) / 2}
+	if got.At != want || got.Monitor.Device != primary.Device {
+		t.Errorf("got %+v, want %+v on the primary", got.At, want)
+	}
+	scaled := Default(secondary, strip)
+	if margin := secondary.Work.Right - (scaled.At.X + strip.Width); margin != 24 {
+		t.Errorf("at 150 percent the margin is 24 pixels, got %d", margin)
+	}
+}
+
+// FR-404, FR-405.
+func TestPlacementIsStoredRelativeToItsMonitorAndRestored(t *testing.T) {
+	t.Parallel()
+	at := Point{X: 2100, Y: 300}
+	stored := Record(at, secondary)
+	if stored.Offset != (Point{X: 180, Y: 300}) || stored.Device != secondary.Device || stored.DPI != 144 {
+		t.Fatalf("stored %+v", stored)
+	}
+	got, ok := Restore(&stored, []Monitor{primary, secondary}, strip)
+	if !ok || got.At != at || got.Monitor.Device != secondary.Device {
+		t.Errorf("restored %+v on %s, want %+v on the secondary", got.At, got.Monitor.Device, at)
+	}
+}
+
+// FR-405: the spec's acceptance example.
+func TestMissingMonitorFallsBackToPrimary(t *testing.T) {
+	t.Parallel()
+	stored := Stored{Device: `\\.\DISPLAY2`, DPI: BaseDPI, Offset: Point{X: 1700, Y: 500}}
+	got, ok := Restore(&stored, []Monitor{primary}, strip)
+	if !ok || got != Default(primary, strip) {
+		t.Errorf("got %+v, want the default place on the primary", got)
+	}
+}
+
+func TestNothingStoredMeansTheDefaultPlace(t *testing.T) {
+	t.Parallel()
+	got, ok := Restore(nil, []Monitor{secondary, primary}, strip)
+	if !ok || got != Default(primary, strip) {
+		t.Errorf("got %+v, want the default place on the primary", got)
+	}
+}
+
+// FR-405.
+func TestOffscreenPlacementIsClampedIntoWorkArea(t *testing.T) {
+	t.Parallel()
+	stored := Stored{Device: primary.Device, DPI: BaseDPI, Offset: Point{X: 1800, Y: -40}}
+	got, _ := Restore(&stored, []Monitor{primary}, strip)
+	if got.At != (Point{X: 1920 - 600, Y: 0}) {
+		t.Errorf("got %+v", got.At)
+	}
+}
+
+// FR-405.
+func TestDpiChangeScalesTheOffset(t *testing.T) {
+	t.Parallel()
+	stored := Stored{Device: secondary.Device, DPI: BaseDPI, Offset: Point{X: 200, Y: 100}}
+	got, _ := Restore(&stored, []Monitor{secondary}, strip)
+	if got.At != (Point{X: 1920 + 300, Y: 150}) {
+		t.Errorf("got %+v, want the offset scaled by 144/96", got.At)
+	}
+}
+
+// FR-406.
+func TestDisplayChangeRecoversAStripLeftOffscreen(t *testing.T) {
+	t.Parallel()
+	got, ok := Recover(Point{X: 3000, Y: 200}, strip, []Monitor{primary})
+	if !ok || got != Default(primary, strip) {
+		t.Errorf("a strip on no monitor goes to the default place: got %+v", got)
+	}
+	half, _ := Recover(Point{X: 1700, Y: 200}, strip, []Monitor{primary, secondary})
+	if half.Monitor.Device != secondary.Device || half.At.X != secondary.Work.Left {
+		t.Errorf("a strip mostly on the secondary is clamped onto it: got %+v", half)
+	}
+}
+
+func TestNoMonitorsIsReportedRatherThanGuessed(t *testing.T) {
+	t.Parallel()
+	if _, ok := Restore(nil, nil, strip); ok {
+		t.Error("Restore with no monitors answered a place")
+	}
+	if _, ok := Recover(Point{}, strip, nil); ok {
+		t.Error("Recover with no monitors answered a place")
+	}
+}
+
+func TestPrimaryIsTheFirstWhenNoneIsMarked(t *testing.T) {
+	t.Parallel()
+	unmarked := secondary
+	got, ok := Primary([]Monitor{unmarked})
+	if !ok || got.Device != unmarked.Device {
+		t.Errorf("got %+v", got)
+	}
+}
+
+func TestAStripLargerThanTheWorkAreaAlignsToItsStart(t *testing.T) {
+	t.Parallel()
+	got := Clamp(Point{X: 500, Y: 500}, Size{Width: 3000, Height: 2000}, primary.Work)
+	if got != (Point{X: 0, Y: 0}) {
+		t.Errorf("got %+v", got)
+	}
+}
+
+func TestScaleRoundsToTheNearestPixelEitherSide(t *testing.T) {
+	t.Parallel()
+	cases := []struct{ length, from, to, want int }{
+		{16, BaseDPI, 144, 24},
+		{-200, BaseDPI, 144, -300},
+		{5, BaseDPI, 120, 6},
+		{-5, BaseDPI, 120, -6},
+		{100, 0, 144, 150},
+	}
+	for _, each := range cases {
+		if got := Scale(each.length, each.from, each.to); got != each.want {
+			t.Errorf("Scale(%d, %d, %d) = %d, want %d", each.length, each.from, each.to, got, each.want)
+		}
+	}
+}
+
+// FR-105, FR-106, FR-107.
+func TestStripLengthFollowsClockCountAndNeverExceedsWorkArea(t *testing.T) {
+	t.Parallel()
+	cases := []struct {
+		name                       string
+		cells, cell, padding, room int
+		want                       Fitted
+	}{
+		{"three cells fit", 3, 200, 8, 1920, Fitted{Length: 616}},
+		{"no cells keeps room for the prompt", 0, 200, 8, 1920, Fitted{Length: 216}},
+		{"twelve cells overflow", 12, 200, 0, 1920, Fitted{Length: 1920, Scrolls: true}},
+	}
+	for _, each := range cases {
+		if got := Fit(each.cells, each.cell, each.padding, each.room); got != each.want {
+			t.Errorf("%s: got %+v, want %+v", each.name, got, each.want)
+		}
+	}
+}

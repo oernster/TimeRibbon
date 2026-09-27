@@ -1,11 +1,12 @@
 # TimeStrip: Requirements Specification
 
-Status: draft for baselining. Section 11 records five open questions, each with a proposed answer.
-Nothing in section 3 depends on an open question unless it says so.
+Status: baselined by Oliver on 2026-09-27. Section 11 records the rulings that closed its open
+questions; it holds none at present. Later changes arrive as dated amendments.
 
-Source: `TimeStrip-SPEC.md` (the initial product specification, 2026-09-27), plus three rulings
-Oliver gave on 2026-09-27: the stack is Go with Wails; orientation is a setting offering both
-horizontal and vertical; this document is written and baselined before any code.
+Source: `TimeStrip-SPEC.md` (the initial product specification, 2026-09-27), plus Oliver's rulings
+of 2026-09-27: the stack is Go with Wails; orientation is a setting offering both horizontal and
+vertical, both in the first release; a setup program ships with the first release; this document is
+baselined before any code.
 
 ---
 
@@ -36,6 +37,8 @@ Oliver Ernster as author and decision owner; contributors to the open source pro
 - A notification-area (tray) icon with a menu; optional Always on Top; optional Start with Windows.
 - Light, dark and system themes.
 - Local persistence in one human-readable file.
+- A setup program that installs, updates, repairs and removes the application for one user
+  (section 5).
 
 **Out of scope:**
 
@@ -172,13 +175,13 @@ horizontally, then Sydney's cell is left of New York's.
 Verified by: planned `TestSnapshotFollowsClockOrder` (application); `strip.test.tsx`.
 
 **FR-103 Orientation setting**
-Priority: Should.
+Priority: Must (OQ-5, Oliver, 2026-09-27).
 The strip shall lay its cells out in the orientation held in settings; horizontal when none is held.
 Rationale: Oliver, 2026-09-27: both orientations, as a setting.
 Verified by: planned `TestOrientationDefaultsToHorizontal` (domain); `strip.test.tsx`.
 
 **FR-104 Changing orientation keeps the strip on screen**
-Priority: Should.
+Priority: Must.
 When the orientation changes, the application shall keep the strip's top-left corner where it was,
 then apply the recovery of FR-405 so the whole strip lies inside its monitor's work area.
 Verified by: planned `TestOrientationChangeClampsIntoWorkArea` (application).
@@ -293,8 +296,8 @@ The place search shall list every canonical zone of the embedded tz database by 
 region, filtering as the user types by case-insensitive substring over the default label, the zone
 id and the country name.
 Acceptance: typing `york` offers `New York (America/New_York)`; typing `kolkata` offers `Kolkata`.
-Note: whether cities without a zone of their own (Manchester, Toronto's suburbs) are searchable
-depends on OQ-1.
+Note: a city without a zone of its own (Manchester, Brighton) is not searchable; the user picks its
+zone and types the label (FR-303). Ruled on OQ-1 by Oliver, 2026-09-27.
 Verified by: planned `TestPlaceSearchMatchesLabelZoneOrCountry` (application).
 
 **FR-303 Edit a clock's label**
@@ -409,8 +412,14 @@ Verified by: check M-4.
 **FR-504 Hide is not exit**
 Priority: Must.
 Hiding the strip shall leave the application running with its tray icon; only `Exit` ends it.
-Note: what `Alt+F4` does on the strip is OQ-4.
 Verified by: check M-4.
+
+**FR-507 Alt+F4 hides**
+Priority: Must.
+When `Alt+F4` is pressed while the strip has focus, the application shall hide the strip as
+`Hide strip` does and keep running.
+Rationale: ruled on OQ-4 by Oliver, 2026-09-27; `Exit` stays in the tray alone.
+Verified by: planned `TestCloseRequestHidesRatherThanQuits` (application); check M-4.
 
 **FR-505 Always on Top**
 Priority: Must.
@@ -455,7 +464,8 @@ Priority: Should.
 When Start with Windows is turned on, the application shall write the value `TimeStrip` under
 `HKCU\Software\Microsoft\Windows\CurrentVersion\Run` holding its own quoted path; when turned off, it
 shall delete that value. It shall be off by default and never written without the user turning it on.
-Note: the launch arguments depend on OQ-2.
+The value carries no arguments: a sign-in start shows the strip at once, as a normal launch does
+(ruled on OQ-2 by Oliver, 2026-09-27). Setup's box of FR-805 writes this same value.
 Verified by: planned `TestStartWithWindowsWritesAndRemovesOneValue` (infrastructure).
 
 **FR-606 Theme**
@@ -543,10 +553,81 @@ written with the first build and kept true by the docs pass.
 
 ---
 
-## 5. Delivery
+## 5. Delivery and the setup program
 
-`build.ps1` reads `VERSION` into the binary, runs `test.ps1` first and builds with `wails build`.
-Whether a setup program is part of the first release is OQ-3.
+`build.ps1` reads `VERSION` into the binary, runs `test.ps1` first with no switch to skip it, builds
+the application with `wails build`, then builds the setup program embedding it. A setup program ships
+with the first release (ruled on OQ-3 by Oliver, 2026-09-27). It is a second Wails application in the
+same module, `installer/`, whose install policy lives in `internal/infrastructure/setup`; ported in
+shape from BridgeTalk's.
+
+**FR-801 Setup opens on the screen the machine calls for**
+Priority: Must.
+When setup starts with `-uninstall`, it shall open on the Uninstall screen. Otherwise it shall open on
+Install where nothing is installed; on Installed, offering Repair, Reinstall and Uninstall, where the
+same version is installed; on Update or Go back where another version is installed, with the button
+making the change leading. Versions compare by major, minor then patch as numbers, ignoring anything
+after a hyphen; a missing or non-numeric field counts as zero.
+Verified by: planned `TestCompareOrdersVersions` (infrastructure, setup); check M-9.
+
+**FR-802 Every install writes the same way**
+Priority: Must.
+When Install, Update, Go back or Reinstall is confirmed, setup shall write the application's files into
+`%LOCALAPPDATA%\Programs\TimeStrip`, place a copy of itself there as `uninstall.exe`, record the
+application in the Apps list with Modify and Repair offered, then apply the boxes of FR-805.
+Verified by: planned `TestExtractZipWritesEveryEntry` and `TestTheUninstallEntryNamesTheRealPath`
+(infrastructure, setup); check M-9.
+
+**FR-803 A payload entry leaving the install folder is refused**
+Priority: Must.
+If an entry in the payload names a path outside the install folder, then setup shall stop, report
+`unsafe path in payload` with the entry's name and write nothing further.
+Verified by: planned `TestExtractZipRejectsAPathThatEscapes` (infrastructure, setup).
+
+**FR-804 Repair keeps the options as they stand**
+Priority: Must.
+When Repair is pressed, setup shall write the files again as FR-802 does, keeping the Start Menu
+shortcut, the Desktop shortcut and the Start with Windows value exactly as they are on the machine.
+Verified by: planned `TestTheBoxesReflectWhatIsOnTheMachine` (infrastructure, setup).
+
+**FR-805 Install options**
+Priority: Must.
+The Install screen shall offer three boxes: `Add to the Start Menu` (ticked), `Add a Desktop shortcut`
+(unticked) and `Start with Windows` (unticked), plus `Start TimeStrip when setup closes` (ticked).
+`Start with Windows` shall write the one value FR-605 writes, so the two cannot disagree.
+Verified by: planned `TestStartWithWindowsIsTheSameValueSettingsWrites` (infrastructure).
+
+**FR-806 Uninstall removes the application and keeps the user's settings unless told**
+Priority: Must.
+When Uninstall is confirmed, setup shall remove the shortcuts, the Start with Windows value and the
+Apps list entry, then delete the install folder once setup has closed. Where `Also forget my settings`
+is ticked, which it is not by default, setup shall also delete `%APPDATA%\TimeStrip`.
+Verified by: planned `TestForgettingRemovesOnlyTheSettingsFolder` (infrastructure, setup); check M-9.
+
+**FR-807 A running copy is closed before setup writes**
+Priority: Must.
+If TimeStrip is running when setup is asked to write or to uninstall, then setup shall say so and offer
+to close it. If it is still running 5 seconds after being asked to close, then setup shall say it could
+not be closed and ask for it to be closed by hand.
+Verified by: check M-9.
+
+**FR-808 A failure says why**
+Priority: Must.
+If a step fails, then setup shall show `Something went wrong` with the reason and a Close button.
+Verified by: `setupScreens.test.ts`.
+
+**FR-809 Setup answers the keyboard**
+Priority: Must.
+Setup shall move focus forward on Tab and Right, back on Shift+Tab and Left, wrapping at both ends and
+passing over disabled or hidden controls; Enter on a focused box shall toggle it as Space does; each
+screen shall open with focus on the action it leads with.
+Verified by: `setupRing.test.ts`.
+
+**FR-810 Per user, no elevation**
+Priority: Must.
+Setup shall write only under `%LOCALAPPDATA%`, `%APPDATA%` (the Start Menu and the settings folder),
+the user's Desktop and `HKCU`, so Windows never asks for administrator rights (CON-8).
+Verified by: inspection of `internal/infrastructure/setup`; check M-9.
 
 ---
 
@@ -603,8 +684,8 @@ recover, snapshot) is executable from a Go test with no window open before the f
 
 | Priority | Content |
 |---|---|
-| **Must** | FR-101, FR-102, FR-105 to FR-107, FR-201 to FR-209, FR-301 to FR-306, FR-401 to FR-407, FR-501, FR-502, FR-504 to FR-506, FR-601 to FR-604, FR-701 to FR-707, NFR-P-1 to NFR-P-4, NFR-U-1 to NFR-U-5, NFR-S-1 to NFR-S-3, NFR-M-1, NFR-M-2, NFR-O-1 |
-| **Should** | FR-103, FR-104, FR-108, FR-307, FR-503, FR-605, FR-606 |
+| **Must** | FR-101 to FR-107, FR-201 to FR-209, FR-301 to FR-306, FR-401 to FR-407, FR-501, FR-502, FR-504 to FR-507, FR-601 to FR-604, FR-701 to FR-707, FR-801 to FR-810, NFR-P-1 to NFR-P-4, NFR-U-1 to NFR-U-5, NFR-S-1 to NFR-S-3, NFR-M-1, NFR-M-2, NFR-O-1 |
+| **Should** | FR-108, FR-307, FR-503, FR-605, FR-606 |
 | **Could** | FR-308 |
 | **Won't this time** | Everything in the out-of-scope table of section 1.3 |
 
@@ -639,13 +720,15 @@ implementation; where no test can hold it, its `Verified by:` line names the che
 
 ## 11. Open questions
 
-| ID | Question | Proposed answer | Owner |
+There are no open questions. The five raised while drafting were ruled by Oliver on 2026-09-27:
+
+| ID | Question | Ruling | Now held by |
 |---|---|---|---|
-| OQ-1 | Should the place search find cities that have no zone of their own (Manchester, Brighton, Toronto suburbs)? That needs a city list such as GeoNames `cities15000` (CC BY 4.0, about 26,000 entries) built into the binary. | No for the first release: search tz zone names and country names; any label can be typed freely afterwards (FR-303). | Oliver |
-| OQ-2 | When started by Windows at sign-in, should the strip show at once or wait in the tray? | Show at once: the strip is the product. | Oliver |
-| OQ-3 | Is a setup program (the house Wails installer) part of the first release? The alternative is a single executable. | Single executable first; the setup program follows once the strip is proven. | Oliver |
-| OQ-4 | What does `Alt+F4` on the strip do? | Hide the strip, as `Hide strip` does; `Exit` stays in the tray. | Oliver |
-| OQ-5 | Is the vertical orientation needed for the first useful release? It could follow directly after. | Follow directly after: it is Should in section 9. | Oliver |
+| OQ-1 | Should the place search find cities with no zone of their own? | No: zone and country names only; any label can be typed | FR-302 |
+| OQ-2 | Does a sign-in start show the strip or wait in the tray? | Show it at once | FR-605 |
+| OQ-3 | Does a setup program ship with the first release? | Yes | Section 5 |
+| OQ-4 | What does `Alt+F4` on the strip do? | Hide the strip | FR-507 |
+| OQ-5 | Is the vertical orientation in the first useful release? | Yes | FR-103, FR-104 |
 
 ---
 
@@ -661,3 +744,4 @@ implementation; where no test can hold it, its `Verified by:` line names the che
 | M-6 | Launching a second copy shows the first and leaves one tray icon. |
 | M-7 | Switching the Windows theme while on system theme recolours the strip. |
 | M-8 | Settings and the place search can be driven entirely from the keyboard. |
+| M-9 | Setup installs, updates, repairs and uninstalls on a real machine without asking for administrator rights, closing a running copy first. |

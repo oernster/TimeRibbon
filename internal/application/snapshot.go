@@ -16,8 +16,10 @@ const (
 
 // Cell is what one cell of the strip shows.
 type Cell struct {
-	ID          string
-	Label       string
+	ID    string
+	Label string
+	// Zone is the zone id as stored, shown in Settings beside the label.
+	Zone        string
 	ZoneMark    string
 	Time        string
 	Date        string
@@ -77,16 +79,17 @@ func (s *Service) cell(entry settings.Entry, now time.Time, format clock.Format)
 		label = entry.Zone
 	}
 	if entry.Unreadable != "" {
-		return Cell{ID: entry.ID, Label: label, Problem: unreadablePrefix + entry.Unreadable}
+		return Cell{ID: entry.ID, Label: label, Zone: entry.Zone, Problem: unreadablePrefix + entry.Unreadable}
 	}
 	location, err := s.ports.Zones.Resolve(entry.Zone)
 	if err != nil {
-		return Cell{ID: entry.ID, Label: label, Problem: unknownZonePrefix + entry.Zone}
+		return Cell{ID: entry.ID, Label: label, Zone: entry.Zone, Problem: unknownZonePrefix + entry.Zone}
 	}
 	reading := clock.Read(now, location, format)
 	return Cell{
 		ID:          entry.ID,
 		Label:       label,
+		Zone:        entry.Zone,
 		ZoneMark:    reading.ZoneMark,
 		Time:        reading.Time,
 		Date:        reading.Date,

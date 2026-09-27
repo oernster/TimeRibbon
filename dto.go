@@ -26,6 +26,7 @@ type layoutDTO struct {
 type cellDTO struct {
 	ID          string  `json:"id"`
 	Label       string  `json:"label"`
+	Zone        string  `json:"zone"`
 	ZoneMark    string  `json:"zoneMark"`
 	Time        string  `json:"time"`
 	Date        string  `json:"date"`
@@ -63,7 +64,7 @@ func snapshotOf(s application.Snapshot, scrolls bool, threshold placement.Size) 
 	cells := make([]cellDTO, 0, len(s.Cells))
 	for _, c := range s.Cells {
 		cells = append(cells, cellDTO{
-			ID: c.ID, Label: c.Label, ZoneMark: c.ZoneMark, Time: c.Time, Date: c.Date,
+			ID: c.ID, Label: c.Label, Zone: c.Zone, ZoneMark: c.ZoneMark, Time: c.Time, Date: c.Date,
 			HourAngle: c.HourAngle, MinuteAngle: c.MinuteAngle, Problem: c.Problem,
 		})
 	}

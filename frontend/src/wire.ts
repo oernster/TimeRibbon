@@ -15,6 +15,7 @@ export interface Layout {
 export interface Cell {
   id: string
   label: string
+  zone: string
   zoneMark: string
   time: string
   date: string

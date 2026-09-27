@@ -204,8 +204,37 @@ func TestCompositionRootIsWhitelisted(t *testing.T) {
 	}
 }
 
+// frontendExtensions are the page's source files the size rule governs.
+var frontendExtensions = map[string]bool{".ts": true, ".tsx": true, ".css": true}
+
+// frontendFiles returns every source file under frontend/src.
+func frontendFiles(t *testing.T) []string {
+	t.Helper()
+	source := filepath.Join(repoRoot(t), "frontend", "src")
+	var found []string
+	err := filepath.WalkDir(source, func(path string, entry os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if !entry.IsDir() && frontendExtensions[filepath.Ext(path)] {
+			found = append(found, path)
+		}
+		return nil
+	})
+	if err != nil || len(found) == 0 {
+		t.Fatalf("no front-end source under %s (%v), the walk is wrong", source, err)
+	}
+	return found
+}
+
+// sourceFiles is every file the size rule governs: the Go and the page.
+func sourceFiles(t *testing.T) []string {
+	t.Helper()
+	return append(goFiles(t), frontendFiles(t)...)
+}
+
 func TestNoFileExceedsLineLimit(t *testing.T) {
-	for _, path := range goFiles(t) {
+	for _, path := range sourceFiles(t) {
 		if count := lineCount(t, path); count > lineLimit {
 			t.Errorf("%s has %d lines, over the %d limit", path, count, lineLimit)
 		}
@@ -213,7 +242,7 @@ func TestNoFileExceedsLineLimit(t *testing.T) {
 }
 
 func TestNoFileInDangerBand(t *testing.T) {
-	for _, path := range goFiles(t) {
+	for _, path := range sourceFiles(t) {
 		count := lineCount(t, path)
 		if count > dangerBand && count <= lineLimit {
 			t.Errorf("%s has %d lines, inside the danger band %d to %d: reduce it to %d or fewer",

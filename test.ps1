@@ -43,6 +43,23 @@ Write-Host 'Running the whole suite...'
 go test -count=1 $packages
 if ($LASTEXITCODE -ne 0) { throw "go test failed with exit code $LASTEXITCODE" }
 
+# The page is held to the same bar in its own runner. A missing node_modules stops the gate rather
+# than skipping the page: a check that quietly does not run is the one that is not there on the day.
+Write-Host 'Checking the front end...'
+$frontend = Join-Path $root 'frontend'
+if (-not (Test-Path (Join-Path $frontend 'node_modules'))) {
+    throw "the front end's dependencies are not installed: run npm install in $frontend, then run this again"
+}
+Push-Location $frontend
+try {
+    foreach ($check in 'lint', 'typecheck', 'test') {
+        npm run $check
+        if ($LASTEXITCODE -ne 0) { throw "npm run $check failed with exit code $LASTEXITCODE" }
+    }
+} finally {
+    Pop-Location
+}
+
 Write-Host "Measuring coverage of $($gated -join ', ')..."
 $profilePath = Join-Path ([System.IO.Path]::GetTempPath()) 'timestrip-coverage.out'
 try {

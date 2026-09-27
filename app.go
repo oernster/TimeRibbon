@@ -163,7 +163,7 @@ func (a *App) SetFormat(format string) error {
 func (a *App) SetOrientation(orientation string) error {
 	chosen := settings.Orientation(orientation)
 	err := a.service.SetOrientation(chosen)
-	edge, known := application.HomeEdge(chosen)
+	edge, known := settings.HomeEdge(chosen)
 	if !known || a.service.Settings().Orientation != chosen {
 		a.contentChanged()
 		return err

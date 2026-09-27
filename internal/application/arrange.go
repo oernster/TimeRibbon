@@ -26,7 +26,7 @@ func (s *Service) Launch() (Arrangement, error) {
 		return s.arrange(func(monitors []placement.Monitor, current settings.Settings) placement.Monitor {
 			return storedOrPrimary(monitors, current.Placement)
 		}, func(size placement.Size, monitors []placement.Monitor, current settings.Settings) placement.Placed {
-			placed, _ := placement.Restore(current.Placement, monitors, size)
+			placed, _ := placement.Restore(current.Placement, monitors, size, homeOf(current))
 			return placed
 		})
 	})
@@ -114,8 +114,8 @@ func (s *Service) Centred(at placement.Point, size placement.Size) (Arrangement,
 func (s *Service) recovered(at placement.Point) (Arrangement, placement.Monitor, bool, error) {
 	return s.arrange(func(monitors []placement.Monitor, _ settings.Settings) placement.Monitor {
 		return mostOverlapped(monitors, at)
-	}, func(size placement.Size, monitors []placement.Monitor, _ settings.Settings) placement.Placed {
-		placed, _ := placement.Recover(at, size, monitors)
+	}, func(size placement.Size, monitors []placement.Monitor, current settings.Settings) placement.Placed {
+		placed, _ := placement.Recover(at, size, monitors, homeOf(current))
 		return placed
 	})
 }
@@ -226,8 +226,16 @@ func storedOrPrimary(monitors []placement.Monitor, stored *placement.Stored) pla
 	return primary
 }
 
-// mostOverlapped answers the monitor holding at; the primary when none does.
+// mostOverlapped answers the monitor holding at; the primary when none does. Only the monitor is read,
+// so the edge a strip on none would go to makes no difference.
 func mostOverlapped(monitors []placement.Monitor, at placement.Point) placement.Monitor {
-	placed, _ := placement.Recover(at, placement.Size{Width: 1, Height: 1}, monitors)
+	placed, _ := placement.Recover(at, placement.Size{Width: 1, Height: 1}, monitors, placement.Right)
 	return placed.Monitor
+}
+
+// homeOf answers the home edge of current's orientation (FR-409), where a strip with no place of its
+// own goes. The settings the service holds are normalised, so the orientation is always one offered.
+func homeOf(current settings.Settings) placement.Edge {
+	edge, _ := settings.HomeEdge(current.Orientation)
+	return edge
 }

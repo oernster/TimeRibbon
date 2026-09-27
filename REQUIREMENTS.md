@@ -404,8 +404,9 @@ Priority: Must.
 While no placement is stored, the application shall place the strip on the primary monitor with its
 right edge 16 DIP inside the work area's right edge, centred vertically in the work area.
 Rationale: the spec's section 8; 16 DIP is Claude's proposal.
-Amendment 10 (Oliver, 2026-09-28): the strip sits flush against the work area's right edge, with no
-margin, as a vertical strip does when that orientation is chosen (FR-409).
+Amendment 10 (Oliver, 2026-09-28): the strip sits flush, with no margin, against its orientation's
+home edge (FR-409): the right edge, centred vertically, for a vertical strip; the top edge, centred
+horizontally, for a horizontal one. The same holds wherever FR-405 or FR-406 fall back to this place.
 Verified by: `TestDefaultPlacementIsRightEdgeCentred` (domain);
 `TestLaunchWithNothingStoredGoesToTheDefaultPlace` (application).
 
@@ -464,7 +465,7 @@ failed has still taken, so it moves the strip; a choice that is refused leaves t
 it stands.
 Acceptance: given a vertical strip anywhere on its display, when `Horizontal` is chosen, then the
 strip lies flush against the top of that display's work area, centred left to right.
-Verified by: `TestEachOrientationHasAHomeEdge` (application); `TestChoosingAnOrientationGoesToItsHomeEdge`,
+Verified by: `TestEachOrientationHasAHomeEdge` (domain, settings); `TestChoosingAnOrientationGoesToItsHomeEdge`,
 `TestStyleAndOrientationItemsChooseAndRedraw` (facade), each proved by planting the right edge as the
 left; check M-12.
 

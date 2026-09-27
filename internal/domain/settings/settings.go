@@ -40,6 +40,17 @@ const (
 	Vertical   Orientation = "vertical"
 )
 
+// homeEdges is each orientation's home edge (FR-409): a horizontal strip goes to the top, a
+// vertical one to the right.
+var homeEdges = map[Orientation]placement.Edge{Horizontal: placement.Top, Vertical: placement.Right}
+
+// HomeEdge answers the edge a strip of orientation goes to when that orientation is chosen and
+// wherever it has no place of its own (FR-403, FR-409); false for an orientation not offered.
+func HomeEdge(orientation Orientation) (placement.Edge, bool) {
+	edge, ok := homeEdges[orientation]
+	return edge, ok
+}
+
 // Theme is the colour scheme (FR-606).
 type Theme string
 

@@ -1,9 +1,6 @@
 package application
 
-import (
-	"github.com/oernster/timestrip/internal/domain/placement"
-	"github.com/oernster/timestrip/internal/domain/settings"
-)
+import "github.com/oernster/timestrip/internal/domain/settings"
 
 // The actions of the Style and Orientation submenus (FR-108, FR-502).
 const (
@@ -31,10 +28,6 @@ var orientationActions = map[MenuAction]settings.Orientation{
 	ActionHorizontal: settings.Horizontal, ActionVertical: settings.Vertical,
 }
 
-// homeEdges is the edge a strip goes to when its orientation is chosen (FR-409): a horizontal strip
-// to the top, a vertical one to the right.
-var homeEdges = map[settings.Orientation]placement.Edge{settings.Horizontal: placement.Top, settings.Vertical: placement.Right}
-
 // StyleOf answers the style a Style item chooses; false for any other action.
 func StyleOf(action MenuAction) (settings.Style, bool) {
 	style, ok := styleActions[action]
@@ -45,13 +38,6 @@ func StyleOf(action MenuAction) (settings.Style, bool) {
 func OrientationOf(action MenuAction) (settings.Orientation, bool) {
 	orientation, ok := orientationActions[action]
 	return orientation, ok
-}
-
-// HomeEdge answers the edge a strip goes to when orientation is chosen (FR-409); false for an
-// orientation the setting does not offer.
-func HomeEdge(orientation settings.Orientation) (placement.Edge, bool) {
-	edge, ok := homeEdges[orientation]
-	return edge, ok
 }
 
 // styleItem is the Style submenu both menus hold, the current style ticked.

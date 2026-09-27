@@ -19,14 +19,27 @@ var (
 // FR-403.
 func TestDefaultPlacementIsRightEdgeCentred(t *testing.T) {
 	t.Parallel()
-	got := Default(primary, strip)
+	got := Default(primary, strip, Right)
 	want := Point{X: 1920 - 600, Y: (1032 - 120) / 2}
 	if got.At != want || got.Monitor.Device != primary.Device {
 		t.Errorf("got %+v, want %+v on the primary", got.At, want)
 	}
-	scaled := Default(secondary, strip)
+	scaled := Default(secondary, strip, Right)
 	if gap := secondary.Work.Right - (scaled.At.X + strip.Width); gap != 0 {
 		t.Errorf("at 150 percent the strip is %d pixels in from the right edge, want flush", gap)
+	}
+	// FR-409: the default place is against the home edge given, so a horizontal strip's is the top,
+	// whether it has nothing stored, its monitor has gone or it was left off every display.
+	top := Point{X: (1920 - 600) / 2, Y: 0}
+	if got := Default(primary, strip, Top); got.At != top {
+		t.Errorf("top: got %+v, want %+v", got.At, top)
+	}
+	gone := Stored{Device: `\\.\DISPLAY9`, DPI: BaseDPI}
+	if got, _ := Restore(&gone, []Monitor{primary}, strip, Top); got.At != top {
+		t.Errorf("a gone monitor with the top as home: got %+v, want %+v", got.At, top)
+	}
+	if got, _ := Recover(Point{X: 9000, Y: 0}, strip, []Monitor{primary}, Top); got.At != top {
+		t.Errorf("off every display with the top as home: got %+v, want %+v", got.At, top)
 	}
 }
 
@@ -79,7 +92,7 @@ func TestPlacementIsStoredRelativeToItsMonitorAndRestored(t *testing.T) {
 	if stored.Offset != (Point{X: 180, Y: 300}) || stored.Device != secondary.Device || stored.DPI != 144 {
 		t.Fatalf("stored %+v", stored)
 	}
-	got, ok := Restore(&stored, []Monitor{primary, secondary}, strip)
+	got, ok := Restore(&stored, []Monitor{primary, secondary}, strip, Right)
 	if !ok || got.At != at || got.Monitor.Device != secondary.Device {
 		t.Errorf("restored %+v on %s, want %+v on the secondary", got.At, got.Monitor.Device, at)
 	}
@@ -89,16 +102,16 @@ func TestPlacementIsStoredRelativeToItsMonitorAndRestored(t *testing.T) {
 func TestMissingMonitorFallsBackToPrimary(t *testing.T) {
 	t.Parallel()
 	stored := Stored{Device: `\\.\DISPLAY2`, DPI: BaseDPI, Offset: Point{X: 1700, Y: 500}}
-	got, ok := Restore(&stored, []Monitor{primary}, strip)
-	if !ok || got != Default(primary, strip) {
+	got, ok := Restore(&stored, []Monitor{primary}, strip, Right)
+	if !ok || got != Default(primary, strip, Right) {
 		t.Errorf("got %+v, want the default place on the primary", got)
 	}
 }
 
 func TestNothingStoredMeansTheDefaultPlace(t *testing.T) {
 	t.Parallel()
-	got, ok := Restore(nil, []Monitor{secondary, primary}, strip)
-	if !ok || got != Default(primary, strip) {
+	got, ok := Restore(nil, []Monitor{secondary, primary}, strip, Right)
+	if !ok || got != Default(primary, strip, Right) {
 		t.Errorf("got %+v, want the default place on the primary", got)
 	}
 }
@@ -107,7 +120,7 @@ func TestNothingStoredMeansTheDefaultPlace(t *testing.T) {
 func TestOffscreenPlacementIsClampedIntoWorkArea(t *testing.T) {
 	t.Parallel()
 	stored := Stored{Device: primary.Device, DPI: BaseDPI, Offset: Point{X: 1800, Y: -40}}
-	got, _ := Restore(&stored, []Monitor{primary}, strip)
+	got, _ := Restore(&stored, []Monitor{primary}, strip, Right)
 	if got.At != (Point{X: 1920 - 600, Y: 0}) {
 		t.Errorf("got %+v", got.At)
 	}
@@ -117,7 +130,7 @@ func TestOffscreenPlacementIsClampedIntoWorkArea(t *testing.T) {
 func TestDpiChangeScalesTheOffset(t *testing.T) {
 	t.Parallel()
 	stored := Stored{Device: secondary.Device, DPI: BaseDPI, Offset: Point{X: 200, Y: 100}}
-	got, _ := Restore(&stored, []Monitor{secondary}, strip)
+	got, _ := Restore(&stored, []Monitor{secondary}, strip, Right)
 	if got.At != (Point{X: 1920 + 300, Y: 150}) {
 		t.Errorf("got %+v, want the offset scaled by 144/96", got.At)
 	}
@@ -126,11 +139,11 @@ func TestDpiChangeScalesTheOffset(t *testing.T) {
 // FR-406.
 func TestDisplayChangeRecoversAStripLeftOffscreen(t *testing.T) {
 	t.Parallel()
-	got, ok := Recover(Point{X: 3000, Y: 200}, strip, []Monitor{primary})
-	if !ok || got != Default(primary, strip) {
+	got, ok := Recover(Point{X: 3000, Y: 200}, strip, []Monitor{primary}, Right)
+	if !ok || got != Default(primary, strip, Right) {
 		t.Errorf("a strip on no monitor goes to the default place: got %+v", got)
 	}
-	half, _ := Recover(Point{X: 1700, Y: 200}, strip, []Monitor{primary, secondary})
+	half, _ := Recover(Point{X: 1700, Y: 200}, strip, []Monitor{primary, secondary}, Right)
 	if half.Monitor.Device != secondary.Device || half.At.X != secondary.Work.Left {
 		t.Errorf("a strip mostly on the secondary is clamped onto it: got %+v", half)
 	}
@@ -138,10 +151,10 @@ func TestDisplayChangeRecoversAStripLeftOffscreen(t *testing.T) {
 
 func TestNoMonitorsIsReportedRatherThanGuessed(t *testing.T) {
 	t.Parallel()
-	if _, ok := Restore(nil, nil, strip); ok {
+	if _, ok := Restore(nil, nil, strip, Right); ok {
 		t.Error("Restore with no monitors answered a place")
 	}
-	if _, ok := Recover(Point{}, strip, nil); ok {
+	if _, ok := Recover(Point{}, strip, nil, Right); ok {
 		t.Error("Recover with no monitors answered a place")
 	}
 }

@@ -19,7 +19,9 @@ func clocks(n int) settings.Settings {
 	return s
 }
 
-// Two digital cells at 100 percent: 2 x 160 + 2 x 8 = 336 along, 90 + 2 x 8 = 106 across.
+// FR-403, FR-409: two digital cells at 100 percent, 2 x 160 + 2 x 8 = 336 along and
+// 90 + 2 x 8 = 106 across, go to their orientation's home edge: flush against the top, centred left
+// to right, when horizontal; flush against the right, centred top to bottom, when vertical.
 func TestLaunchWithNothingStoredGoesToTheDefaultPlace(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, clocks(2))
@@ -28,11 +30,17 @@ func TestLaunchWithNothingStoredGoesToTheDefaultPlace(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := Arrangement{
-		At:   placement.Point{X: 1920 - 336, Y: (1032 - 106) / 2},
+		At:   placement.Point{X: (1920 - 336) / 2, Y: 0},
 		Size: placement.Size{Width: 336, Height: 106}, DPI: placement.BaseDPI,
 	}
 	if got != want {
-		t.Errorf("got %+v, want %+v", got, want)
+		t.Errorf("horizontal: got %+v, want %+v", got, want)
+	}
+	vertical := clocks(2)
+	vertical.Orientation = settings.Vertical
+	// Vertical, the same two cells are 160 + 2 x 8 = 176 across and 2 x 90 + 2 x 8 = 196 along.
+	if got, _ := newRig(t, vertical).service.Launch(); got.At != (placement.Point{X: 1920 - 176, Y: (1032 - 196) / 2}) {
+		t.Errorf("vertical: got %+v", got)
 	}
 }
 
@@ -230,8 +238,8 @@ func TestPlacementIsStoredRelativeToItsMonitor(t *testing.T) {
 	}
 }
 
-// FR-406: a strip dragged off every display comes back to the default place, flush right on the
-// primary (FR-403), 336 x 106; the place it comes back to is stored.
+// FR-406: a horizontal strip dragged off every display comes back to the default place, flush
+// against the primary's top (FR-403, FR-409), 336 x 106; the place it comes back to is stored.
 func TestADragOffEveryDisplayIsBroughtBack(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, clocks(2))
@@ -239,7 +247,7 @@ func TestADragOffEveryDisplayIsBroughtBack(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.At != (placement.Point{X: 1920 - 336, Y: (1032 - 106) / 2}) || r.store.last(t).Placement.Device != primaryMonitor.Device {
+	if got.At != (placement.Point{X: (1920 - 336) / 2, Y: 0}) || r.store.last(t).Placement.Device != primaryMonitor.Device {
 		t.Errorf("got %+v, stored %+v", got, r.store.last(t).Placement)
 	}
 }

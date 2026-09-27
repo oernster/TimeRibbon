@@ -174,7 +174,7 @@ failed save fits the strip to its notice and keeps it flush. A later change of l
 along that edge, since re-centring keeps the position across.
 
 **An orientation's home edge (FR-409).** Choosing an orientation sends the strip to that
-orientation's home edge (`HomeEdge` in `menu_choices.go`): the top for horizontal, the right for
+orientation's home edge (`settings.HomeEdge`, a domain rule since the default place uses it too): the top for horizontal, the right for
 vertical. The facade's `SetOrientation` asks the service to choose, then reads the settings back:
 where the choice took, even with its save failed, it puts the strip against the home edge through
 `ToEdge`; where it was refused, it fits the strip where it stands.
@@ -184,7 +184,9 @@ where the choice took, even with its save failed, it puts the strip against the 
 `WindowGetPosition` answers absolute coordinates. Its screen list carries no origin, device name or
 work area either. So displays are read through `EnumDisplayMonitors` and `GetMonitorInfoW` (`monitors`)
 and the window is placed with `SetWindowPos` (`desktop.Place`). With nothing stored the strip goes
-flush against the primary work area's right edge, centred vertically. The end of a drag is heard
+flush against its orientation's home edge on the primary work area (the right for vertical, the top for
+horizontal), centred along it; a strip whose monitor has gone or which was left off every display
+goes there too. The end of a drag is heard
 through a WinEvent hook on `EVENT_SYSTEM_MOVESIZEEND`; the placement is stored as the monitor's device
 name, its work area, its DPI and the strip's offset from the work area's corner. At launch it is
 restored on that monitor, the offset scaled by any change of DPI; where that monitor is gone it goes

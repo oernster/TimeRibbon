@@ -79,10 +79,10 @@ func Primary(monitors []Monitor) (Monitor, bool) {
 	return monitors[max(index, 0)], true
 }
 
-// Default answers the default place on monitor for a strip of size (FR-403): flush against the
-// work area's right edge, centred vertically, as a vertical strip is placed when chosen (FR-409).
-func Default(monitor Monitor, size Size) Placed {
-	return Placed{At: AgainstEdge(size, monitor.Work, Right), Monitor: monitor}
+// Default answers the default place on monitor for a strip of size (FR-403): flush against home,
+// the edge of the strip's orientation (FR-409), centred along it.
+func Default(monitor Monitor, size Size, home Edge) Placed {
+	return Placed{At: AgainstEdge(size, monitor.Work, home), Monitor: monitor}
 }
 
 // CentredAlong answers at with a strip of size centred on work along its length (top to bottom
@@ -130,18 +130,19 @@ func AgainstEdge(size Size, work Rect, edge Edge) Point {
 
 // Restore answers where the strip goes at launch (FR-405): on the stored monitor at the stored
 // offset scaled by the change in its DPI; else at the default place on the primary monitor. Either
-// way it is clamped wholly inside the work area. It answers false only when there are no monitors.
-func Restore(stored *Stored, monitors []Monitor, size Size) (Placed, bool) {
+// way it is clamped wholly inside the work area. home is the edge the default place is against. It
+// answers false only when there are no monitors.
+func Restore(stored *Stored, monitors []Monitor, size Size, home Edge) (Placed, bool) {
 	primary, ok := Primary(monitors)
 	if !ok {
 		return Placed{}, false
 	}
 	if stored == nil {
-		return Default(primary, size), true
+		return Default(primary, size, home), true
 	}
 	index := slices.IndexFunc(monitors, func(m Monitor) bool { return m.Device == stored.Device })
 	if index < 0 {
-		return Default(primary, size), true
+		return Default(primary, size, home), true
 	}
 	monitor := monitors[index]
 	at := Point{
@@ -153,8 +154,8 @@ func Restore(stored *Stored, monitors []Monitor, size Size) (Placed, bool) {
 
 // Recover answers where a strip now at at belongs after the displays changed (FR-406): clamped
 // into the monitor it overlaps most; the default place on the primary monitor when it overlaps
-// none. It answers false only when there are no monitors.
-func Recover(at Point, size Size, monitors []Monitor) (Placed, bool) {
+// none, against home. It answers false only when there are no monitors.
+func Recover(at Point, size Size, monitors []Monitor, home Edge) (Placed, bool) {
 	primary, ok := Primary(monitors)
 	if !ok {
 		return Placed{}, false
@@ -167,7 +168,7 @@ func Recover(at Point, size Size, monitors []Monitor) (Placed, bool) {
 		}
 	}
 	if best < 0 {
-		return Default(primary, size), true
+		return Default(primary, size, home), true
 	}
 	return Placed{At: Clamp(at, size, monitors[best].Work), Monitor: monitors[best]}, true
 }

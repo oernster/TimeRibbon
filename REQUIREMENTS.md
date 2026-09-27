@@ -13,8 +13,8 @@ Amendment 4 (Oliver, 2026-09-27): with 1.0.0 the settings file becomes a contrac
 Amendment 5 (Oliver, 2026-09-27): the right-click menu gains `Exit` (FR-108); each setup screen opens
 with nothing focused rather than on its lead action (FR-809).
 
-Amendment 6 (Oliver, 2026-09-27): the strip runs in time order, earliest local time first, worked
-out at each snapshot (FR-102); ordering by hand is withdrawn (FR-306).
+Amendment 6 (Oliver, 2026-09-27): the strip runs in time order east from Greenwich, the reference,
+worked out at each snapshot (FR-102); ordering by hand is withdrawn (FR-306).
 
 Amendment 7 (Oliver, 2026-09-27): a strip whose length changes is re-centred along it on its
 display, keeping its position across (FR-104).
@@ -189,10 +189,13 @@ The strip shall show one cell per clock in ascending order of position, left to 
 horizontal and top to bottom when vertical.
 Acceptance: Given clocks Sydney at position 0 and New York at position 1, when the strip is shown
 horizontally, then Sydney's cell is left of New York's.
-Amendment 6 (Oliver, 2026-09-27): the cells run by local time, earliest first: ascending offset
-from UTC at the moment shown, daylight saving included, so the order is worked out at each
-snapshot. Clocks keeping the same time keep their stored order; a clock that cannot be shown goes
-last. Acceptance: given Sydney added before New York, New York's cell is shown first.
+Amendment 6 (Oliver, 2026-09-27): the cells run east from Greenwich, the reference: first the
+places level with or ahead of UTC by ascending offset, then the places behind UTC by ascending
+offset, since going east from Greenwich reaches them last. Offsets are those at the moment shown,
+daylight saving included, so the order is worked out at each snapshot. Clocks keeping the same
+time keep their stored order; a clock that cannot be shown goes last. Acceptance: given New York,
+Melbourne, Tokyo, Berlin and London added in that order, the strip shows London, Berlin, Tokyo,
+Melbourne, New York.
 Verified by: `TestTheStripRunsEarliestLocalTimeFirst`, `TestSnapshotFollowsClockOrderWithEachZonesDate` (application); `strip.test.tsx`.
 
 **FR-103 Orientation setting**

@@ -54,7 +54,7 @@ does not exist.
   operation answers a new value and leaves the old one as it was.
 - **Application** (`internal/application`): one `Service` holding every use case over six ports
   (`Store`, `Zones`, `Clock`, `IDs`, `Monitors`, `StartupEntry`, in `ports.go`). It builds the
-  snapshot the strip draws (its cells ordered by local time, earliest first, worked out afresh each
+  snapshot the strip draws (its cells ordered east from Greenwich, places behind UTC last, worked out afresh each
   time since daylight saving moves it), adds, edits and removes clocks, searches places, changes settings,
   arranges the strip (`Launch`, `Rearrange`, `Moved`, `Centred`) and answers the tray and context
   menus. A change that cannot be saved stays in effect and raises a notice until a later save

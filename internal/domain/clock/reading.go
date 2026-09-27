@@ -53,7 +53,7 @@ type Reading struct {
 	// MinuteAngle is the minute hand's angle in degrees clockwise from twelve.
 	MinuteAngle float64
 	// OffsetSeconds is the zone's offset from UTC at the instant, daylight saving included: what
-	// the strip is ordered by, earliest local time first (FR-102).
+	// the strip is ordered by, east from Greenwich (FR-102).
 	OffsetSeconds int
 }
 

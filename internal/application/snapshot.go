@@ -57,20 +57,34 @@ type timedCell struct {
 	shown         bool
 }
 
-// earliestFirst orders cells by local time, earliest first: the smaller the offset from UTC, the
-// earlier the clock reads. A cell that cannot be shown goes after every one that can.
-func earliestFirst(a, b timedCell) int {
+// secondsPerDay is one turn of the world, which a place behind Greenwich is reached after going east.
+var secondsPerDay = int((24 * time.Hour).Seconds())
+
+// eastOfGreenwich answers how far east of Greenwich a zone's clock is, in seconds: its offset from
+// UTC where that is ahead or level, else a whole day more, since going east from Greenwich reaches
+// the places behind it last.
+func eastOfGreenwich(offsetSeconds int) int {
+	if offsetSeconds < 0 {
+		return offsetSeconds + secondsPerDay
+	}
+	return offsetSeconds
+}
+
+// eastFromGreenwich orders cells starting at Greenwich and going east round the world: London,
+// then Berlin, Tokyo, Melbourne, with New York last. A cell that cannot be shown goes after every
+// one that can.
+func eastFromGreenwich(a, b timedCell) int {
 	if a.shown != b.shown {
 		if a.shown {
 			return -1
 		}
 		return 1
 	}
-	return cmp.Compare(a.offsetSeconds, b.offsetSeconds)
+	return cmp.Compare(eastOfGreenwich(a.offsetSeconds), eastOfGreenwich(b.offsetSeconds))
 }
 
-// Snapshot answers what the strip shows now, one cell per clock ordered by local time, earliest
-// first; clocks keeping the same time keep the order they were added in (FR-102, FR-201 to
+// Snapshot answers what the strip shows now, one cell per clock ordered east from Greenwich, the
+// reference; clocks keeping the same time keep the order they were added in (FR-102, FR-201 to
 // FR-206). The order is worked out at each snapshot, since daylight saving moves it. One clock
 // that cannot be shown leaves every other one working (FR-705).
 func (s *Service) Snapshot() Snapshot {
@@ -82,7 +96,7 @@ func (s *Service) Snapshot() Snapshot {
 	for _, entry := range current.Clocks {
 		timed = append(timed, s.cell(entry, now, current.Format))
 	}
-	slices.SortStableFunc(timed, earliestFirst)
+	slices.SortStableFunc(timed, eastFromGreenwich)
 	cells := make([]Cell, 0, len(timed))
 	for _, each := range timed {
 		cells = append(cells, each.cell)

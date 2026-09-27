@@ -16,14 +16,14 @@ func TestSnapshotFollowsClockOrderWithEachZonesDate(t *testing.T) {
 		settings.Entry{ID: "syd", Zone: "Australia/Sydney", Label: "Sydney"},
 	))
 	cells := r.service.Snapshot().Cells
-	if len(cells) != 2 || cells[0].ID != "ny" || cells[1].ID != "syd" {
+	if len(cells) != 2 || cells[0].ID != "syd" || cells[1].ID != "ny" {
 		t.Fatalf("cells %+v", cells)
 	}
-	if cells[0].Date != "Sunday, 27 September" || cells[0].Time != "16:37" || cells[0].ZoneMark != "EDT" {
-		t.Errorf("New York %+v", cells[0])
+	if cells[1].Date != "Sunday, 27 September" || cells[1].Time != "16:37" || cells[1].ZoneMark != "EDT" {
+		t.Errorf("New York %+v", cells[1])
 	}
-	if cells[1].Date != "Monday, 28 September" || cells[1].Time != "06:37" || cells[1].ZoneMark != "AEST" {
-		t.Errorf("Sydney %+v", cells[1])
+	if cells[0].Date != "Monday, 28 September" || cells[0].Time != "06:37" || cells[0].ZoneMark != "AEST" {
+		t.Errorf("Sydney %+v", cells[0])
 	}
 }
 
@@ -49,9 +49,10 @@ func TestOneBadClockLeavesTheOthersWorking(t *testing.T) {
 	}
 }
 
-// FR-102: the strip runs by local time, earliest first, whatever order the clocks were added in;
-// two zones keeping the same time stay in the order they were added.
-func TestTheStripRunsEarliestLocalTimeFirst(t *testing.T) {
+// FR-102: the strip runs east from Greenwich, the reference, whatever order the clocks were added
+// in: London, then places further ahead, then those behind Greenwich. Two zones keeping the same
+// time stay in the order they were added.
+func TestTheStripRunsEastFromGreenwich(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, withEntries(
 		settings.Entry{ID: "kol", Zone: "Asia/Kolkata"},
@@ -64,7 +65,7 @@ func TestTheStripRunsEarliestLocalTimeFirst(t *testing.T) {
 	for _, cell := range r.service.Snapshot().Cells {
 		ids = append(ids, cell.ID)
 	}
-	if want := []string{"ny", "lon", "lis", "kol", "syd"}; !slices.Equal(ids, want) {
+	if want := []string{"lon", "lis", "kol", "syd", "ny"}; !slices.Equal(ids, want) {
 		t.Errorf("order %v, want %v", ids, want)
 	}
 }

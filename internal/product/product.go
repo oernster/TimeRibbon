@@ -1,6 +1,15 @@
 // Package product holds the product's name: the one home for it, read by the window, the tray,
-// the settings folder, the log and the Start with Windows value.
+// the settings folder, the log, the Start with Windows value and the setup program.
 package product
 
 // Name is the product's name as a reader sees it.
 const Name = "TimeStrip"
+
+// StripClass is the class the strip's window is created with, so it can be found by it (CON-7).
+// Setup looks for it to know the strip is up before it closes.
+const StripClass = Name + "Strip"
+
+// Version is the version this build carries. build.ps1 stamps it from VERSION into both
+// executables with -ldflags -X, which reaches only a var, never a const (CON-4). A build made any
+// other way says so by carrying this placeholder.
+var Version = "0.0.0-dev"

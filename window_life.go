@@ -10,6 +10,7 @@ import (
 
 	"github.com/oernster/timestrip/internal/application"
 	"github.com/oernster/timestrip/internal/infrastructure/desktop"
+	"github.com/oernster/timestrip/internal/product"
 )
 
 // startup takes the strip off the taskbar and puts it in place while it is still hidden, then
@@ -17,7 +18,7 @@ import (
 // opens wherever Wails put it.
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
-	strip, err := desktop.FindStrip(stripClass)
+	strip, err := desktop.FindStrip(product.StripClass)
 	if err != nil {
 		a.report("finding the strip", err)
 		return

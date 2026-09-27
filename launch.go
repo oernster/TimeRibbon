@@ -15,9 +15,6 @@ import (
 //go:embed all:frontend/dist
 var assets embed.FS
 
-// stripClass is the class the strip's window is created with, so it can be found by it (CON-7).
-const stripClass = product.Name + "Strip"
-
 // instanceID names the lock that keeps one TimeStrip per user (FR-506).
 const instanceID = "uk.codecrafter." + product.Name
 
@@ -35,7 +32,7 @@ func launch(app *App) error {
 			OnSecondInstanceLaunch: func(options.SecondInstanceData) { app.secondInstance() },
 		},
 		Windows: &windows.Options{
-			WindowClassName:      stripClass,
+			WindowClassName:      product.StripClass,
 			Theme:                windows.SystemDefault,
 			DisablePinchZoom:     true,
 			IsZoomControlEnabled: false,

@@ -17,7 +17,7 @@ func scratch(t *testing.T) Entry {
 		_ = registry.DeleteKey(registry.CURRENT_USER, key)
 		_ = registry.DeleteKey(registry.CURRENT_USER, parent)
 	})
-	return Entry{key: key, value: ValueName, program: `C:\Users\Someone\AppData\Local\Programs\TimeStrip\TimeStrip.exe`}
+	return At(key, `C:\Users\Someone\AppData\Local\Programs\TimeStrip\TimeStrip.exe`)
 }
 
 // FR-605.

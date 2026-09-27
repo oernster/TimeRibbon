@@ -26,7 +26,13 @@ type Entry struct {
 
 // New answers the entry for program, the full path of TimeStrip's executable, under RunKey.
 func New(program string) Entry {
-	return Entry{key: RunKey, value: ValueName, program: program}
+	return At(RunKey, program)
+}
+
+// At answers the entry for program under key, a path beneath HKCU. Only a test names a key other
+// than RunKey: a scratch key of its own, so the real value is never touched.
+func At(key, program string) Entry {
+	return Entry{key: key, value: ValueName, program: program}
 }
 
 // Command answers what the value holds: the quoted program path and no arguments, so a sign-in

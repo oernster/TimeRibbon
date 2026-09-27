@@ -84,11 +84,13 @@ try {
 # shortfall is: error returns that only a failing disk, registry or display driver can produce.
 $measured = [ordered]@{
     './internal/infrastructure/monitors' = 82
+    './internal/infrastructure/setup'    = 83
     './internal/infrastructure/startup'  = 80
     './internal/infrastructure/store'    = 92
     './internal/infrastructure/system'   = 100
     './internal/infrastructure/zones'    = 100
     './tools/genplaces'                  = 38
+    './tools/payload'                    = 82
 }
 
 Write-Host 'Measuring the rest of the tree...'

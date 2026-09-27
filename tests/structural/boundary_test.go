@@ -227,10 +227,11 @@ func frontendFiles(t *testing.T) []string {
 	return found
 }
 
-// sourceFiles is every file the size rule governs: the Go and the page.
+// sourceFiles is every file the size rule governs: the Go, the page and the setup program's page.
 func sourceFiles(t *testing.T) []string {
 	t.Helper()
-	return append(goFiles(t), frontendFiles(t)...)
+	files := append(goFiles(t), frontendFiles(t)...)
+	return append(files, setupFrontendFiles(t)...)
 }
 
 func TestNoFileExceedsLineLimit(t *testing.T) {

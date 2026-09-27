@@ -132,6 +132,23 @@ func TestAStripLandingOnAnotherDisplayIsSizedForIt(t *testing.T) {
 	}
 }
 
+// CON-6: Settings opens centred on the strip's display, sized in its pixels.
+func TestSettingsOpenCentredOnTheStripsDisplay(t *testing.T) {
+	t.Parallel()
+	r := newRig(t, clocks(1))
+	got, err := r.service.Centred(placement.Point{X: 2100, Y: 300}, placement.Size{Width: 400, Height: 300})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := Arrangement{At: placement.Point{X: 1920 + (2560-600)/2, Y: (1392 - 450) / 2}, Size: placement.Size{Width: 600, Height: 450}, DPI: 144}
+	if got != want {
+		t.Errorf("got %+v, want %+v", got, want)
+	}
+	if len(r.store.saved) != 0 {
+		t.Error("centring saved something")
+	}
+}
+
 func TestNoDisplaysOrAFaultReadingThemIsAnswered(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, clocks(1))
@@ -145,5 +162,12 @@ func TestNoDisplaysOrAFaultReadingThemIsAnswered(t *testing.T) {
 	}
 	if _, err := r.service.Moved(placement.Point{}); !errors.Is(err, errPlanted) {
 		t.Errorf("a fault while moving: got %v", err)
+	}
+	if _, err := r.service.Centred(placement.Point{}, placement.Size{}); !errors.Is(err, errPlanted) {
+		t.Errorf("a fault while centring: got %v", err)
+	}
+	r.service.ports.Monitors = fakeMonitors{}
+	if _, err := r.service.Centred(placement.Point{}, placement.Size{}); !errors.Is(err, ErrNoMonitors) {
+		t.Errorf("centring with no monitors: got %v", err)
 	}
 }

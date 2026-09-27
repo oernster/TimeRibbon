@@ -1,0 +1,64 @@
+// Package runlog keeps the log a run leaves (NFR-O-1): a line naming when the run started, then
+// whatever the run reports, in TimeStrip.log inside the settings folder.
+//
+// A windowed program is handed a standard error handle of zero, so everything written there is
+// lost, the Go runtime's own panic report included. Keep points the handle and os.Stderr at the log
+// as the first act of the run, so a crash leaves a record rather than a silence (ported from Bridge
+// Talk, where it was measured against Go 1.26.3).
+package runlog
+
+import (
+	"fmt"
+	"io/fs"
+	"os"
+	"path/filepath"
+	"time"
+
+	"golang.org/x/sys/windows"
+
+	"github.com/oernster/timestrip/internal/product"
+)
+
+// FileName names the log inside the settings folder.
+const FileName = product.Name + ".log"
+
+// MaxBytes is the size past which a run starts the log afresh, so it cannot grow without end.
+const MaxBytes = 1 << 20
+
+const (
+	startedLayout             = "2006-01-02 15:04:05"
+	folderMode    fs.FileMode = 0o700
+	fileMode      fs.FileMode = 0o600
+)
+
+// Open opens the log in dir for a run started at started, making dir where it is missing, then
+// adds the start line. A log over MaxBytes is started afresh.
+func Open(dir string, started time.Time) (*os.File, error) {
+	if err := os.MkdirAll(dir, folderMode); err != nil {
+		return nil, fmt.Errorf("making %s: %w", dir, err)
+	}
+	path := filepath.Join(dir, FileName)
+	flags := os.O_CREATE | os.O_WRONLY | os.O_APPEND
+	if info, err := os.Stat(path); err == nil && info.Size() > MaxBytes {
+		flags |= os.O_TRUNC
+	}
+	log, err := os.OpenFile(path, flags, fileMode)
+	if err != nil {
+		return nil, fmt.Errorf("opening %s: %w", path, err)
+	}
+	if _, err := fmt.Fprintf(log, "%s started %s\n", product.Name, started.Format(startedLayout)); err != nil {
+		_ = log.Close()
+		return nil, fmt.Errorf("writing to %s: %w", path, err)
+	}
+	return log, nil
+}
+
+// Keep points the run's error output at log: the handle the runtime writes its reports through,
+// then os.Stderr.
+func Keep(log *os.File) error {
+	if err := windows.SetStdHandle(windows.STD_ERROR_HANDLE, windows.Handle(log.Fd())); err != nil {
+		return fmt.Errorf("sending error output to %s: %w", log.Name(), err)
+	}
+	os.Stderr = log
+	return nil
+}

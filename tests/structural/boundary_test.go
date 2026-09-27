@@ -26,8 +26,9 @@ const (
 const modulePath = "github.com/oernster/timestrip/"
 
 // compositionRoot names the files allowed to import both application and infrastructure: main.go
-// builds the adapters and app.go is the facade the window calls.
-var compositionRoot = map[string]bool{"main.go": true, "app.go": true}
+// builds the adapters; app.go is the facade the window calls; window_life.go is the facade's own
+// window handling, apart from app.go only to keep each file small.
+var compositionRoot = map[string]bool{"main.go": true, "app.go": true, "window_life.go": true}
 
 // forbiddenInDomain names the packages that would give the domain IO, randomness or a tz database
 // of its own. Zones reach it already resolved (CON-5).

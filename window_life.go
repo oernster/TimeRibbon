@@ -1,0 +1,199 @@
+package main
+
+// The window's own life: startup, showing, hiding, closing and what the desktop reports.
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/wailsapp/wails/v2/pkg/runtime"
+
+	"github.com/oernster/timestrip/internal/application"
+	"github.com/oernster/timestrip/internal/infrastructure/desktop"
+)
+
+// startup takes the strip off the taskbar and puts it in place while it is still hidden, then
+// starts listening to the desktop. Nothing here ends the run: a failure is logged and the strip
+// opens wherever Wails put it.
+func (a *App) startup(ctx context.Context) {
+	a.ctx = ctx
+	strip, err := desktop.FindStrip(stripClass)
+	if err != nil {
+		a.report("finding the strip", err)
+		return
+	}
+	a.strip = strip
+	a.report("hiding the taskbar button", desktop.HideFromTaskbar(strip))
+	a.desktop.Watch(strip)
+	a.report("placing the strip", a.placeLaunched())
+	a.applyAlwaysOnTop()
+	go a.listen()
+}
+
+// domReady shows the strip once the page has drawn, so it never appears blank.
+func (a *App) domReady(context.Context) { a.show() }
+
+// beforeClose answers a request to close the strip, such as Alt+F4: it hides the strip and the
+// application keeps running (FR-507). An Exit already decided passes through, as does any close
+// while there is no tray icon to bring the strip back from.
+func (a *App) beforeClose(context.Context) bool {
+	if a.quitting.Load() || !a.trayUp.Load() {
+		return false
+	}
+	if a.service.CloseRequested() == application.ActionHide {
+		a.hide()
+	}
+	return true
+}
+
+func (a *App) shutdown(context.Context) { a.desktop.Stop() }
+
+// secondInstance answers a second launch by showing the strip that is already running (FR-506).
+func (a *App) secondInstance() { a.show() }
+
+// listen acts on what the desktop reports until it stops. A panic in one event is logged and the
+// next is still heard, so one fault cannot leave a strip that reacts to nothing.
+func (a *App) listen() {
+	for event := range a.desktop.Events() {
+		a.handleSafely(event)
+	}
+}
+
+func (a *App) handleSafely(event desktop.Event) {
+	defer func() {
+		if failure := recover(); failure != nil {
+			fmt.Fprintf(a.log, "recovered from %v while handling desktop event %d\n", failure, event.Kind)
+		}
+	}()
+	switch event.Kind {
+	case desktop.EventMenu:
+		a.act(event.Action)
+	case desktop.EventIconClicked:
+		a.toggle()
+	case desktop.EventMoveEnded:
+		a.moved()
+	case desktop.EventDisplayChanged:
+		fmt.Fprintln(a.log, "the displays changed")
+		a.rearrange()
+		a.emit(eventRefresh)
+	case desktop.EventTimeChanged, desktop.EventResumed:
+		fmt.Fprintf(a.log, "desktop event %d: refreshing\n", event.Kind)
+		a.emit(eventRefresh)
+	}
+}
+
+// act carries out a menu action from the tray or the strip's own menu.
+func (a *App) act(action application.MenuAction) {
+	switch action {
+	case application.ActionShow:
+		a.show()
+	case application.ActionHide:
+		a.hide()
+	case application.ActionAddClock:
+		a.show()
+		a.emit(eventOpenSettings, openAtAddClock)
+	case application.ActionSettings:
+		a.show()
+		a.emit(eventOpenSettings, openAtSettings)
+	case application.ActionAlwaysOnTop:
+		a.report("changing Always on top", a.SetAlwaysOnTop(!a.service.Settings().AlwaysOnTop))
+		a.emit(eventRefresh)
+	case application.ActionExit:
+		a.quitting.Store(true)
+		if a.ctx != nil {
+			runtime.Quit(a.ctx)
+		}
+	}
+}
+
+// moved records where a drag left the strip, putting it back onto a display if the drag left part
+// of it off every one (FR-404, FR-406). A move of the Settings surface is not the strip's.
+func (a *App) moved() {
+	if a.settingsOpen.Load() {
+		return
+	}
+	at, err := desktop.Position(a.strip)
+	if err != nil {
+		a.report("reading where the strip was left", err)
+		return
+	}
+	arranged, err := a.service.Moved(at)
+	a.report("recording where the strip was left", err)
+	if err == nil {
+		a.scrolls.Store(arranged.Scrolls)
+		a.report("placing the strip", desktop.Place(a.strip, arranged.At, arranged.Size))
+	}
+}
+
+// rearrange fits the strip where it stands (FR-104, FR-406).
+func (a *App) rearrange() {
+	if a.settingsOpen.Load() {
+		return
+	}
+	at, err := desktop.Position(a.strip)
+	if err != nil {
+		a.report("reading where the strip is", err)
+		return
+	}
+	arranged, err := a.service.Rearrange(at)
+	if err != nil {
+		a.report("fitting the strip", err)
+		return
+	}
+	a.scrolls.Store(arranged.Scrolls)
+	a.report("placing the strip", desktop.Place(a.strip, arranged.At, arranged.Size))
+}
+
+// placeLaunched puts the strip where it was last left (FR-405).
+func (a *App) placeLaunched() error {
+	arranged, err := a.service.Launch()
+	if err != nil {
+		return err
+	}
+	a.scrolls.Store(arranged.Scrolls)
+	return desktop.Place(a.strip, arranged.At, arranged.Size)
+}
+
+func (a *App) applyAlwaysOnTop() {
+	if a.ctx != nil {
+		runtime.WindowSetAlwaysOnTop(a.ctx, a.service.Settings().AlwaysOnTop)
+	}
+}
+
+func (a *App) show() {
+	if a.ctx == nil {
+		return
+	}
+	runtime.WindowShow(a.ctx)
+	a.visible.Store(true)
+	a.emit(eventRefresh)
+}
+
+func (a *App) hide() {
+	if a.ctx == nil {
+		return
+	}
+	runtime.WindowHide(a.ctx)
+	a.visible.Store(false)
+}
+
+func (a *App) toggle() {
+	if a.visible.Load() {
+		a.hide()
+		return
+	}
+	a.show()
+}
+
+func (a *App) emit(event string, data ...any) {
+	if a.ctx != nil {
+		runtime.EventsEmit(a.ctx, event, data...)
+	}
+}
+
+// report writes a failure to the log; nothing when there was none.
+func (a *App) report(doing string, err error) {
+	if err != nil {
+		fmt.Fprintf(a.log, "%s: %v\n", doing, err)
+	}
+}

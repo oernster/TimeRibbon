@@ -1,0 +1,123 @@
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  background: var(--surface);
+  color: var(--text);
+  font-family: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
+  overflow: hidden;
+  user-select: none;
+}
+
+button {
+  font: inherit;
+  color: var(--text);
+  background: var(--cell);
+  border: 1px solid var(--divider);
+  border-radius: 6px;
+  min-width: 24px;
+  min-height: 24px;
+  padding: 2px 10px;
+  cursor: pointer;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+
+.strip {
+  display: flex;
+  box-sizing: border-box;
+  height: 100%;
+  width: 100%;
+  padding: var(--pad);
+  gap: 0;
+  cursor: default;
+}
+
+.strip.horizontal {
+  flex-direction: row;
+  overflow-x: hidden;
+}
+
+.strip.vertical {
+  flex-direction: column;
+  overflow-y: hidden;
+}
+
+.strip.horizontal.scrolls {
+  overflow-x: auto;
+}
+
+.strip.vertical.scrolls {
+  overflow-y: auto;
+}
+
+.cell {
+  flex: none;
+  box-sizing: border-box;
+  width: var(--cell-w);
+  height: var(--cell-h);
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.horizontal .cell + .cell {
+  border-left: 1px solid var(--divider);
+}
+
+.vertical .cell + .cell {
+  border-top: 1px solid var(--divider);
+}
+
+.place {
+  font-size: 13px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.place .label {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.time {
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.5px;
+}
+
+.date {
+  font-size: 13px;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.analogue {
+  align-items: center;
+  text-align: center;
+}
+
+.dial {
+  width: 96px;
+  height: 96px;
+}
+
+.problem {
+  font-size: 12px;
+  color: var(--problem);
+}
+
+.prompt {
+  align-items: flex-start;
+}

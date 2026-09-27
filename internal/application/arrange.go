@@ -52,6 +52,26 @@ func (s *Service) Moved(at placement.Point) (Arrangement, error) {
 	})
 }
 
+// Centred answers a window of size, in DIP, centred on the work area of the monitor holding at
+// (CON-6): where Settings opens, since it shares the strip's window. Nothing is saved.
+func (s *Service) Centred(at placement.Point, size placement.Size) (Arrangement, error) {
+	monitors, err := s.ports.Monitors.Monitors()
+	if err != nil {
+		return Arrangement{}, fmt.Errorf("reading the displays: %w", err)
+	}
+	if len(monitors) == 0 {
+		return Arrangement{}, ErrNoMonitors
+	}
+	monitor := mostOverlapped(monitors, at)
+	pixels := placement.Size{
+		Width:  placement.Scale(size.Width, placement.BaseDPI, monitor.DPI),
+		Height: placement.Scale(size.Height, placement.BaseDPI, monitor.DPI),
+	}
+	work := monitor.Work
+	centre := placement.Point{X: work.Left + (work.Width()-pixels.Width)/2, Y: work.Top + (work.Height()-pixels.Height)/2}
+	return Arrangement{At: placement.Clamp(centre, pixels, work), Size: pixels, DPI: monitor.DPI}, nil
+}
+
 // recovered answers the arrangement of a strip at at, clamped into the work area it overlaps most.
 func (s *Service) recovered(at placement.Point) (Arrangement, placement.Monitor, error) {
 	return s.arrange(func(monitors []placement.Monitor, _ settings.Settings) placement.Monitor {

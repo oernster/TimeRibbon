@@ -181,6 +181,15 @@ overwritten. One clock that cannot be read or names an unknown zone is kept in t
 shown in words as an invalid clock while the others work (FR-705, FR-706). A top-level key this
 version does not know is written back as it was found.
 
+**The file is a contract from 1.0.0 (NFR-C-1).** Every later 1.x reads every file 1.0.0 writes to the
+same settings. No key 1.0.0 writes may be renamed, dropped or given another meaning. No stored word
+(such as `12h` or `analogue`) may change. A later release may add keys. The guard is
+`TestA1Point0SettingsFileIsReadWhole`, which reads the frozen fixture
+`internal/infrastructure/store/testdata/settings-1.0.0.json` (every key set away from its default)
+and requires every key to be read rather than merely carried. It was proved by renaming a key and by
+changing a stored word: each failed it. The fixture is never regenerated from a later writer, since
+what it proves is that the old shape still reads.
+
 ## The desktop
 
 `desktop` owns a hidden top-level window on its own locked thread: the notification-area icon, the

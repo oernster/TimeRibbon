@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "style": "analogue",
+  "format": "12h",
+  "orientation": "vertical",
+  "theme": "dark",
+  "alwaysOnTop": true,
+  "placement": {
+    "device": "\\\\.\\DISPLAY2",
+    "work": {
+      "left": 1920,
+      "top": 0,
+      "right": 4480,
+      "bottom": 1392
+    },
+    "dpi": 144,
+    "offset": {
+      "x": 180,
+      "y": -4
+    }
+  },
+  "clocks": [
+    {
+      "id": "a1",
+      "zone": "America/New_York",
+      "label": "New York",
+      "position": 0
+    },
+    {
+      "id": "b2",
+      "zone": "Australia/Sydney",
+      "label": "Mum",
+      "position": 1
+    }
+  ]
+}

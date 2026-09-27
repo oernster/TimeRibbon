@@ -42,7 +42,8 @@ in a small frameless strip you can put anywhere on any monitor.
   applies at once, with no Save step. The theme can follow Windows.
 - **Keeps your clocks in one readable file.** `%APPDATA%\TimeStrip\settings.json`, written whole
   or not at all. A damaged file is kept aside under another name and never overwritten; one clock
-  that cannot be read leaves the others working.
+  that cannot be read leaves the others working. From 1.0.0 the file is a promise: every later 1.x
+  release reads a 1.0.0 file to the same clocks and choices.
 - **Starts with Windows when asked.** Off until you turn it on in Settings or in setup.
 - **Help, About and Licence** from the notification-area icon or a right-click on the strip.
 

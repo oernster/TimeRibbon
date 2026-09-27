@@ -8,6 +8,8 @@ self-reading licence in setup (FR-811); CON-6, FR-108 and FR-502 carry notes of 
 
 Amendment 3 (Oliver, 2026-09-27): the web view's data moves inside `%APPDATA%\TimeStrip` (FR-806).
 
+Amendment 4 (Oliver, 2026-09-27): with 1.0.0 the settings file becomes a contract (NFR-C-1).
+
 Source: `TimeStrip-SPEC.md` (the initial product specification, 2026-09-27), plus Oliver's rulings
 of 2026-09-27: the stack is Go with Wails; orientation is a setting offering both horizontal and
 vertical, both in the first release; a setup program ships with the first release; this document is
@@ -583,6 +585,7 @@ Verified by: planned `TestWriteFailureIsReportedAndCleared` (application).
 | NFR-S-3 | Non-claim: time zone rules are those of the tz database embedded at build time. A rule change made by a government after the build is shown only after a new release. The README states this. | Inspection of the README |
 | NFR-M-1 | The coverage floor of CON-3, the size limit of CON-2 and the layering of CON-1 are enforced by `test.ps1`, which `build.ps1` runs first with no switch to skip it. | `build.ps1` |
 | NFR-M-2 | Go code passes gofmt, go vet and staticcheck; the front end passes eslint, `tsc --noEmit` and Vitest. | `test.ps1` |
+| NFR-C-1 | From 1.0.0, every later 1.x release shall read every settings file 1.0.0 writes to the same settings: no key 1.0.0 writes is renamed, dropped or given another meaning; no stored word changes. A later release may add keys; 1.0.0 keeps a key it does not know and writes it back. Amendment 4 (Oliver, 2026-09-27). | `TestA1Point0SettingsFileIsReadWhole` over the frozen fixture `internal/infrastructure/store/testdata/settings-1.0.0.json` |
 | NFR-O-1 | The application shall write a log to `%APPDATA%\TimeStrip\TimeStrip.log` recording launch, placement recovery decisions, settings failures and invalid clocks; standard error is pointed at it before anything can fail. | Planned `TestLogReceivesStandardError` (infrastructure) |
 
 ---
@@ -733,7 +736,7 @@ recover, snapshot) is executable from a Go test with no window open before the f
 
 | Priority | Content |
 |---|---|
-| **Must** | FR-101 to FR-107, FR-201 to FR-209, FR-301 to FR-306, FR-401 to FR-407, FR-501, FR-502, FR-504 to FR-508, FR-601 to FR-604, FR-607 to FR-609, FR-701 to FR-707, FR-801 to FR-811, NFR-P-1 to NFR-P-4, NFR-U-1 to NFR-U-5, NFR-S-1 to NFR-S-3, NFR-M-1, NFR-M-2, NFR-O-1 |
+| **Must** | FR-101 to FR-107, FR-201 to FR-209, FR-301 to FR-306, FR-401 to FR-407, FR-501, FR-502, FR-504 to FR-508, FR-601 to FR-604, FR-607 to FR-609, FR-701 to FR-707, FR-801 to FR-811, NFR-P-1 to NFR-P-4, NFR-U-1 to NFR-U-5, NFR-S-1 to NFR-S-3, NFR-M-1, NFR-M-2, NFR-C-1, NFR-O-1 |
 | **Should** | FR-108, FR-307, FR-503, FR-605, FR-606 |
 | **Could** | FR-308 |
 | **Won't this time** | Everything in the out-of-scope table of section 1.3 |

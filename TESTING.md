@@ -55,11 +55,13 @@ and what stops it. An unexplained shortfall cannot be told from an oversight.
 The three measured packages without a floor are an open item in [TECH_DEBT.md](TECH_DEBT.md); so is
 the facade without tests.
 
-159 Go test functions, each run once with no subtests (an uncached `go test -count=1 -json` over the
+160 Go test functions, each run once with no subtests (an uncached `go test -count=1 -json` over the
 packages `go list ./...` gives outside `node_modules`), plus one `TestMain` in
 `internal/infrastructure/setup`. Sixteen of them are the structural tests in `tests/structural`,
 which read the source rather than run it; [ARCHITECTURE.md](ARCHITECTURE.md) lists each against the
-rule it holds.
+rule it holds. One more holds a promise rather than a rule of structure:
+`TestA1Point0SettingsFileIsReadWhole` reads a frozen 1.0.0 settings file (NFR-C-1); see
+ARCHITECTURE.md, The settings file.
 
 ### The front end
 

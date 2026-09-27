@@ -16,9 +16,9 @@ archived. A resolution worth remembering belongs in the release notes.
 ## 1. The executables' version resource is empty
 
 Both executables' Windows version resource comes from Wails' template, `build/windows/info.json`,
-which fills its fields from an `info` block that neither `wails.json` has. Measured on the build of
+which fills its fields from an `info` block that neither `wails.json` has. Measured on the builds of
 2026-09-27: `TimeStrip.exe` and `TimeStripSetup.exe` each carry an empty product version, file
-version and description. `VERSION` reaches the running code through `-ldflags` but not the file's
+version and description, as does the 1.0.0 build of `TimeStrip.exe`. `VERSION` reaches the running code through `-ldflags` but not the file's
 properties, so Explorer's Details tab shows none of them. The fix is to
 write the version and the product name into the resource from `VERSION` and `internal/product` at
 build time, keeping each in its one home. Blocked on nothing.

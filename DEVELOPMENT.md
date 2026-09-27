@@ -14,7 +14,7 @@ Testing has a document of its own, [TESTING.md](TESTING.md).
 | Node.js with npm | a current LTS release; `package.json` pins none | the React front end, its lint, type check and tests | [nodejs.org](https://nodejs.org/) or `winget install OpenJS.NodeJS.LTS` |
 | Wails CLI | v2.12.0, the version of the Wails module `go.mod` requires | builds both executables | `go install github.com/wailsapp/wails/v2/cmd/wails@v2.12.0` |
 | WebView2 runtime | any current | the window the front end is drawn in; Windows 11 ships it | Microsoft's WebView2 page |
-| Python 3 with Pillow | any current | only to regenerate the icons, which are committed | [python.org](https://www.python.org/), then `python -m pip install pillow` |
+| Python 3 with Pillow | any current | Python for every build, which stamps the site's version; Pillow only to regenerate the icons, which are committed | [python.org](https://www.python.org/), then `python -m pip install pillow` |
 
 The gate runs staticcheck at the version `test.ps1` pins through `go run`, so the first run on a
 machine fetches it and needs the network. Nothing needs a C compiler: `build.ps1` pins cgo off.
@@ -63,8 +63,10 @@ before `test.ps1` or `build.ps1`.
 
 It does these things in order and stops at the first failure:
 
-1. Reads the version from `VERSION` and refuses one that is not `major.minor.patch`. Reads the module
-   path from `go.mod` and each executable's name from its `wails.json`.
+1. Reads the version from `VERSION` and refuses one that is not `major.minor.patch`; stamps it into
+   the site's version tokens under `docs/` through `python stamp_version.py`, which touches nothing
+   when they already match. Reads the module path from `go.mod` and each executable's name from its
+   `wails.json`.
 2. Pins `CGO_ENABLED=0` for everything that follows, so the tests exercise what ships.
 3. Runs `test.ps1`, the gate [TESTING.md](TESTING.md#running-it) describes. There is no switch to
    skip it: a gate that can be skipped is skipped on the day it would have caught something.
@@ -168,7 +170,8 @@ Apps list records to choose between Install, Update, Go back and the Installed s
 ## Cutting a release
 
 1. Set `VERSION`.
-2. Run `./build.ps1` and read its exit code.
+2. Run `./build.ps1` and read its exit code. It stamps the new version into the site under `docs/`;
+   commit what it changed there with `VERSION`.
 3. Run the checks a person settles in [TESTING.md](TESTING.md#checks-a-person-settles) against
    `dist-installer/TimeStripSetup.exe`.
 4. Tag the commit and attach `TimeStripSetup.exe` to the release.

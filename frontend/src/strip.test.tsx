@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { api } from './api'
+import { addClockTip } from './ArtButton'
 import { cell, installBridge, snapshot } from './fakeBridge'
 import { Strip } from './Strip'
 
@@ -27,7 +28,7 @@ describe('Strip', () => {
     installBridge()
     const onAddClock = vi.fn()
     render(<Strip snapshot={snapshot({ cells: [] })} onAddClock={onAddClock} refused={vi.fn()} />)
-    fireEvent.click(screen.getByText('Add clock'))
+    fireEvent.click(screen.getByLabelText(addClockTip))
     expect(onAddClock).toHaveBeenCalled()
   })
 
@@ -42,7 +43,7 @@ describe('Strip', () => {
     expect(window.WailsInvoke).toHaveBeenCalledWith('drag')
     const invoke = window.WailsInvoke as ReturnType<typeof vi.fn>
     invoke.mockClear()
-    const button = screen.getByText('Add clock')
+    const button = screen.getByLabelText(addClockTip)
     fireEvent.pointerDown(button, { button: 0, screenX: 100, screenY: 100 })
     fireEvent.pointerMove(button, { buttons: 1, screenX: 140, screenY: 100 })
     expect(invoke).not.toHaveBeenCalled()

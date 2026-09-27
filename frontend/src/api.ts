@@ -18,10 +18,8 @@ interface Bridge {
   RezoneClock(id: string, zone: string): Promise<void>
   RemoveClock(id: string): Promise<void>
   SearchPlaces(query: string): Promise<Place[]>
-  SetStyle(style: string): Promise<void>
   SetSize(size: string): Promise<void>
   SetFormat(format: string): Promise<void>
-  SetOrientation(orientation: string): Promise<void>
   SetTheme(theme: string): Promise<void>
   SetAlwaysOnTop(on: boolean): Promise<void>
   StartWithWindows(): Promise<boolean>
@@ -73,10 +71,8 @@ export const api = {
   rezoneClock: (id: string, zone: string, refused: Refused) => call((b) => b.RezoneClock(id, zone), refused),
   removeClock: (id: string, refused: Refused) => call((b) => b.RemoveClock(id), refused),
   searchPlaces: (query: string, refused: Refused) => call((b) => b.SearchPlaces(query), refused),
-  setStyle: (style: string, refused: Refused) => call((b) => b.SetStyle(style), refused),
   setSize: (size: string, refused: Refused) => call((b) => b.SetSize(size), refused),
   setFormat: (format: string, refused: Refused) => call((b) => b.SetFormat(format), refused),
-  setOrientation: (orientation: string, refused: Refused) => call((b) => b.SetOrientation(orientation), refused),
   setTheme: (theme: string, refused: Refused) => call((b) => b.SetTheme(theme), refused),
   setAlwaysOnTop: (on: boolean, refused: Refused) => call((b) => b.SetAlwaysOnTop(on), refused),
   startWithWindows: (refused: Refused) => call((b) => b.StartWithWindows(), refused),

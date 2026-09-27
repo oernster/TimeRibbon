@@ -75,14 +75,17 @@ func (s *Service) TrayMenu(visible bool) []MenuItem {
 	if visible {
 		toggle = MenuItem{Action: ActionHide, Label: labelHide}
 	}
-	return []MenuItem{toggle, addClockItem(), settingsItem(), s.positionItem(), s.alwaysOnTopItem(), helpItem(), exitItem()}
+	return []MenuItem{
+		toggle, addClockItem(), settingsItem(), s.styleItem(), s.orientationItem(), s.positionItem(),
+		s.alwaysOnTopItem(), helpItem(), exitItem(),
+	}
 }
 
 // ContextMenu answers the menu the strip offers when right-clicked (FR-108).
 func (s *Service) ContextMenu() []MenuItem {
 	return []MenuItem{
-		addClockItem(), settingsItem(), s.positionItem(), s.alwaysOnTopItem(), helpItem(),
-		{Action: ActionHide, Label: labelHide}, exitItem(),
+		addClockItem(), settingsItem(), s.styleItem(), s.orientationItem(), s.positionItem(),
+		s.alwaysOnTopItem(), helpItem(), {Action: ActionHide, Label: labelHide}, exitItem(),
 	}
 }
 

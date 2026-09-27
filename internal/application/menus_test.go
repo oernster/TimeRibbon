@@ -21,7 +21,7 @@ func TestTrayMenuNamesTheOppositeOfTheVisibility(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, settings.Defaults())
 	shown := r.service.TrayMenu(true)
-	if !slices.Equal(labels(shown), []string{"Hide strip", "Add clock", "Settings", "Position", "Always on top", "Help", "Exit"}) ||
+	if !slices.Equal(labels(shown), []string{"Hide strip", "Add clock", "Settings", "Style", "Orientation", "Position", "Always on top", "Help", "Exit"}) ||
 		shown[0].Action != ActionHide {
 		t.Errorf("visible: %+v", shown)
 	}
@@ -35,15 +35,75 @@ func TestTrayMenuNamesTheOppositeOfTheVisibility(t *testing.T) {
 func TestAlwaysOnTopItemShowsItsState(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, settings.Defaults())
-	item := r.service.TrayMenu(true)[4]
-	if !item.Checkable || item.Checked {
+	item := find(t, r.service.TrayMenu(true), labelAlwaysOnTop)
+	if !item.Checkable || item.Checked || item.Action != ActionAlwaysOnTop {
 		t.Errorf("off: %+v", item)
 	}
 	if err := r.service.SetAlwaysOnTop(true); err != nil {
 		t.Fatal(err)
 	}
-	if item := r.service.ContextMenu()[3]; !item.Checked || item.Action != ActionAlwaysOnTop {
+	if item := find(t, r.service.ContextMenu(), labelAlwaysOnTop); !item.Checked {
 		t.Errorf("on: %+v", item)
+	}
+}
+
+// find answers the item of menu labelled label, failing the test when there is none.
+func find(t *testing.T, menu []MenuItem, label string) MenuItem {
+	t.Helper()
+	index := slices.IndexFunc(menu, func(item MenuItem) bool { return item.Label == label })
+	if index < 0 {
+		t.Fatalf("no %s in %v", label, labels(menu))
+	}
+	return menu[index]
+}
+
+// FR-108, FR-502: Style and Orientation are submenus in both menus, the current choice ticked;
+// each item names what it chooses and nothing else does.
+func TestBothMenusOfferStyleAndOrientationWithTheCurrentTicked(t *testing.T) {
+	t.Parallel()
+	initial := settings.Defaults()
+	initial.Style = settings.Analogue
+	initial.Orientation = settings.Horizontal
+	r := newRig(t, initial)
+	for name, menu := range map[string][]MenuItem{"tray": r.service.TrayMenu(true), "context": r.service.ContextMenu()} {
+		style, orientation := find(t, menu, labelStyle), find(t, menu, labelOrientation)
+		if style.Action != "" || !slices.Equal(labels(style.Children), []string{"Digital", "Analogue"}) ||
+			style.Children[0].Checked || !style.Children[1].Checked || !style.Children[0].Checkable {
+			t.Errorf("%s style: %+v", name, style)
+		}
+		if orientation.Action != "" || !slices.Equal(labels(orientation.Children), []string{"Horizontal", "Vertical"}) ||
+			!orientation.Children[0].Checked || orientation.Children[1].Checked || !orientation.Children[1].Checkable {
+			t.Errorf("%s orientation: %+v", name, orientation)
+		}
+	}
+	for action, want := range styleActions {
+		if got, ok := StyleOf(action); !ok || got != want {
+			t.Errorf("%s: got %s, %v", action, got, ok)
+		}
+	}
+	for action, want := range orientationActions {
+		if got, ok := OrientationOf(action); !ok || got != want {
+			t.Errorf("%s: got %s, %v", action, got, ok)
+		}
+	}
+	if _, ok := StyleOf(ActionVertical); ok {
+		t.Error("Vertical was taken for a style")
+	}
+	if _, ok := OrientationOf(ActionDigital); ok {
+		t.Error("Digital was taken for an orientation")
+	}
+}
+
+// FR-409: a horizontal strip goes to the top edge, a vertical one to the right.
+func TestEachOrientationHasAHomeEdge(t *testing.T) {
+	t.Parallel()
+	for orientation, want := range map[settings.Orientation]placement.Edge{settings.Horizontal: placement.Top, settings.Vertical: placement.Right} {
+		if got, ok := HomeEdge(orientation); !ok || got != want {
+			t.Errorf("%s: got %s, %v; want %s", orientation, got, ok, want)
+		}
+	}
+	if _, ok := HomeEdge("diagonal"); ok {
+		t.Error("an orientation the setting does not offer has a home edge")
 	}
 }
 
@@ -51,7 +111,7 @@ func TestAlwaysOnTopItemShowsItsState(t *testing.T) {
 func TestContextMenuOffersTheStripsActions(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, settings.Defaults())
-	if got := labels(r.service.ContextMenu()); !slices.Equal(got, []string{"Add clock", "Settings", "Position", "Always on top", "Help", "Hide strip", "Exit"}) {
+	if got := labels(r.service.ContextMenu()); !slices.Equal(got, []string{"Add clock", "Settings", "Style", "Orientation", "Position", "Always on top", "Help", "Hide strip", "Exit"}) {
 		t.Errorf("got %v", got)
 	}
 	if last := r.service.ContextMenu()[len(r.service.ContextMenu())-1]; last.Action != ActionExit {

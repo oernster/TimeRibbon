@@ -16,17 +16,20 @@ async function open(startAdding = false) {
 describe('Settings', () => {
   it('applies a choice at once with no Save step (FR-602)', async () => {
     const { bridge, reload } = await open()
-    await act(async () => fireEvent.click(screen.getByLabelText('Analogue')))
-    expect(bridge.SetStyle).toHaveBeenCalledWith('analogue')
     await act(async () => fireEvent.click(screen.getByLabelText('Small')))
     expect(bridge.SetSize).toHaveBeenCalledWith('small')
     await act(async () => fireEvent.click(screen.getByLabelText('12-hour')))
     expect(bridge.SetFormat).toHaveBeenCalledWith('12h')
-    await act(async () => fireEvent.click(screen.getByLabelText('Vertical')))
-    expect(bridge.SetOrientation).toHaveBeenCalledWith('vertical')
     await act(async () => fireEvent.click(screen.getByLabelText('Always on top')))
     expect(bridge.SetAlwaysOnTop).toHaveBeenCalledWith(true)
     expect(reload).toHaveBeenCalled()
+  })
+
+  it('leaves style and orientation to the menus (FR-601)', async () => {
+    await open()
+    for (const gone of ['Style', 'Digital', 'Analogue', 'Orientation', 'Horizontal', 'Vertical']) {
+      expect(screen.queryByText(gone)).toBeNull()
+    }
   })
 
   it('asks before removing, naming the clock; Cancel removes nothing (FR-305)', async () => {

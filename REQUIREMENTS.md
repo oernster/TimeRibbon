@@ -204,6 +204,8 @@ The strip shall lay its cells out in the orientation held in settings; vertical 
 Rationale: Oliver, 2026-09-27: both orientations, as a setting.
 Amendment 1 (Oliver, 2026-09-27, after the first build): the default changed from horizontal to
 vertical.
+Amendment 9 (Oliver, 2026-09-28): the orientation is chosen from the `Orientation` submenu of both
+menus rather than in Settings (FR-108, FR-502, FR-601).
 Verified by: `TestDefaultsAreDigitalTwentyFourHourVerticalAndNotOnTop` (domain); `strip.test.tsx`.
 
 **FR-104 Changing orientation keeps the strip on screen**
@@ -216,6 +218,9 @@ along its length on its monitor's work area, keeping its position across; it sha
 Nothing else re-centres it: a drag is kept until the length next changes. Acceptance: given a
 vertical strip dragged near the top of its display, when a clock is added, then it is centred top
 to bottom with its left edge where it was; it opens there next time.
+Amendment 9 (Oliver, 2026-09-28): a change of orientation no longer keeps the top-left corner; the
+strip goes to that orientation's home edge instead (FR-409). A change of length for any other reason
+is re-centred as above.
 Verified by: `TestAStripWhoseLengthChangesIsRecentredAndKept`, `TestAHorizontalStripIsRecentredLeftToRight`, `TestNothingButAChangeOfLengthRecentresTheStrip`, `TestARecentringThatCannotBeSavedMakesRoomForItsNotice` (application).
 
 **FR-105 Strip sized to its clocks**
@@ -247,7 +252,10 @@ Amendment 2 (Oliver, 2026-09-27): a `Help` submenu (FR-508) sits after `Always o
 Amendment 5 (Oliver, 2026-09-27): `Exit` follows `Hide strip` and ends the application as the tray's
 does (FR-502).
 Amendment 8 (Oliver, 2026-09-28): a `Position` submenu (FR-408) sits after `Settings`.
-Verified by: `TestContextMenuOffersTheStripsActions` (application).
+Amendment 9 (Oliver, 2026-09-28): `Style` and `Orientation` submenus sit between `Settings` and
+`Position`, as in the tray menu (FR-502).
+Verified by: `TestContextMenuOffersTheStripsActions`,
+`TestBothMenusOfferStyleAndOrientationWithTheCurrentTicked` (application).
 
 ### 3.2 Time and date
 
@@ -445,6 +453,18 @@ Verified by: `TestAgainstEdgeIsFlushAndCentredAlongTheEdge` (domain);
 `TestToEdgeThatCannotBeSavedMakesRoomForItsNotice`, `TestPositionOffersTheEdgesAlongTheOrientation`
 (application); `TestAPositionItemPutsTheStripAgainstItsEdge` (facade); check M-12.
 
+**FR-409 An orientation's home edge**
+Priority: Must (Amendment 9, Oliver, 2026-09-28).
+When the orientation is chosen, the application shall put the strip against that orientation's home
+edge as FR-408 does: the top edge for horizontal, the right edge for vertical. A choice whose save
+failed has still taken, so it moves the strip; a choice that is refused leaves the strip fitted where
+it stands.
+Acceptance: given a vertical strip anywhere on its display, when `Horizontal` is chosen, then the
+strip lies flush against the top of that display's work area, centred left to right.
+Verified by: `TestEachOrientationHasAHomeEdge` (application); `TestChoosingAnOrientationGoesToItsHomeEdge`,
+`TestStyleAndOrientationItemsChooseAndRedraw` (facade), each proved by planting the right edge as the
+left; check M-12.
+
 ### 3.5 Tray and window behaviour
 
 **FR-501 Tray icon**
@@ -458,7 +478,11 @@ When the tray icon is right-clicked, the application shall offer `Show strip` or
 (whichever applies), `Add clock`, `Settings`, `Always on top` (showing its state) and `Exit`.
 Amendment 2 (Oliver, 2026-09-27): a `Help` submenu (FR-508) sits after `Always on top`.
 Amendment 8 (Oliver, 2026-09-28): a `Position` submenu (FR-408) sits after `Settings`.
-Verified by: `TestTrayMenuNamesTheOppositeOfTheVisibility` (application); check M-4.
+Amendment 9 (Oliver, 2026-09-28): `Style` (`Digital`, `Analogue`) and `Orientation` (`Horizontal`,
+`Vertical`) submenus sit between `Settings` and `Position`, each ticking the current choice; choosing
+an item applies it at once as FR-602 does.
+Verified by: `TestTrayMenuNamesTheOppositeOfTheVisibility`,
+`TestBothMenusOfferStyleAndOrientationWithTheCurrentTicked` (application); check M-4.
 
 **FR-503 Tray click**
 Priority: Should.
@@ -507,6 +531,8 @@ donation page to the desktop's browser. Nothing else.
 Amendment 8 (Oliver, 2026-09-28): size (large, small; FR-610) follows style. The title and `Close`
 stay at the top of the window while the rest of the panel scrolls beneath them, as the foot stays
 at the bottom.
+Amendment 9 (Oliver, 2026-09-28): style and orientation leave Settings for the menus (FR-108,
+FR-502), so Settings offers size, format and theme.
 Verified by: `settings.test.tsx`; the header by check M-12.
 
 **FR-602 Settings apply at once**
@@ -863,4 +889,4 @@ There are no open questions. The five raised while drafting were ruled by Oliver
 | M-8 | Settings and the place search can be driven entirely from the keyboard. |
 | M-9 | Setup installs, updates, repairs and uninstalls on a real machine without asking for administrator rights, closing a running copy first. |
 | M-10 | Both menus open a Help submenu whose About and Licence each show their panel; the licence reads itself down after 5 s, a wheel stops it and it resumes; setup's Licence screen does the same. |
-| M-12 | Each Position item puts the strip flush against its edge and centred along it on the display it is on; it opens there next time; small clocks show their whole date and time in both styles; the Settings title and Close stay put while the panel scrolls. |
+| M-12 | Each Position item puts the strip flush against its edge and centred along it on the display it is on; it opens there next time; choosing Horizontal or Vertical from either menu sends it to the top or right edge; small clocks show their whole date and time in both styles; the Settings title and Close stay put while the panel scrolls. |

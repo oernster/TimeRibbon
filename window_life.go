@@ -111,15 +111,35 @@ func (a *App) act(action application.MenuAction) {
 			a.quit()
 		}
 	default:
-		if edge, ok := application.EdgeOf(action); ok {
-			a.toEdge(edge)
-		}
+		a.actOnChoice(action)
+	}
+}
+
+// actOnChoice carries out a Position, Style or Orientation item (FR-108, FR-408, FR-409), then has
+// the page redraw, since a choice made from a menu is one the page did not make.
+func (a *App) actOnChoice(action application.MenuAction) {
+	if edge, ok := application.EdgeOf(action); ok {
+		a.toEdge(edge)
+		return
+	}
+	if style, ok := application.StyleOf(action); ok {
+		a.report("changing the style", a.SetStyle(string(style)))
+		a.emit(eventRefresh)
+		return
+	}
+	if orientation, ok := application.OrientationOf(action); ok {
+		a.report("changing the orientation", a.SetOrientation(string(orientation)))
+		a.emit(eventRefresh)
 	}
 }
 
 // toEdge puts the strip against edge of its display and shows it there (FR-408). While a panel is
 // open the window is that panel, so the place is kept and the strip goes there as the panel closes.
+// Before startup has found the strip there is nothing to move.
 func (a *App) toEdge(edge placement.Edge) {
+	if a.strip == 0 {
+		return
+	}
 	at, err := a.position()
 	if err != nil {
 		a.report("reading where the strip is", err)

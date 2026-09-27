@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"slices"
 	"strings"
 	"testing"
@@ -147,6 +148,60 @@ func TestAPositionItemPutsTheStripAgainstItsEdge(t *testing.T) {
 	app.act(application.ActionTopEdge)
 	if !slices.Equal(service.calls, []string{"ToEdge"}) || len(seen.placed) != 0 {
 		t.Errorf("under a panel the service heard %v and the window was placed %d times, want the place kept only", service.calls, len(seen.placed))
+	}
+}
+
+// FR-409: choosing an orientation puts the strip against its home edge, even where the save failed,
+// since the choice took; a refused choice fits the strip where it stands instead.
+func TestChoosingAnOrientationGoesToItsHomeEdge(t *testing.T) {
+	for orientation, edge := range map[string]placement.Edge{"horizontal": placement.Top, "vertical": placement.Right} {
+		for _, failure := range []error{nil, errPlanted} {
+			app, service, seen, _ := newTestApp(t)
+			service.changeErr = failure
+			if err := app.SetOrientation(orientation); !errors.Is(err, failure) {
+				t.Errorf("%s answered %v, want %v", orientation, err, failure)
+			}
+			if !slices.Equal(service.calls, []string{"SetOrientation", "ToEdge"}) || service.edges[0] != edge || len(seen.placed) != 1 {
+				t.Errorf("%s (save %v): the service heard %v for %v, placed %d times; want %s once", orientation, failure, service.calls, service.edges, len(seen.placed), edge)
+			}
+		}
+	}
+	app, service, seen, _ := newTestApp(t)
+	service.changeErr = application.ErrUnknownChoice
+	if err := app.SetOrientation("diagonal"); !errors.Is(err, application.ErrUnknownChoice) {
+		t.Errorf("a refused orientation answered %v", err)
+	}
+	if !slices.Equal(service.calls, []string{"SetOrientation", "Rearrange"}) || len(seen.placed) != 1 {
+		t.Errorf("a refused orientation reached %v and placed %d times, want it fitted where it stands", service.calls, len(seen.placed))
+	}
+}
+
+// FR-108: the Style and Orientation items choose through the facade and have the page redraw.
+func TestStyleAndOrientationItemsChooseAndRedraw(t *testing.T) {
+	app, service, seen, _ := newTestApp(t)
+	app.act(application.ActionAnalogue)
+	if !slices.Equal(service.calls, []string{"SetStyle", "Rearrange"}) || !seen.sawEvent(eventRefresh) {
+		t.Errorf("Analogue reached %v and sent %v, want the style set, the strip fitted and a redraw", service.calls, seen.events)
+	}
+	app, service, seen, _ = newTestApp(t)
+	app.act(application.ActionHorizontal)
+	if !slices.Equal(service.calls, []string{"SetOrientation", "ToEdge"}) || service.edges[0] != placement.Top || !seen.sawEvent(eventRefresh) {
+		t.Errorf("Horizontal reached %v for %v and sent %v, want it set and the strip at the top", service.calls, service.edges, seen.events)
+	}
+	app, service, _, _ = newTestApp(t)
+	app.act("no-such-action")
+	if len(service.calls) != 0 {
+		t.Errorf("an unknown action reached %v", service.calls)
+	}
+}
+
+// Before startup has found the strip there is nothing to put against an edge.
+func TestNoStripIsMovedBeforeStartupFindsIt(t *testing.T) {
+	app, service, seen, _ := newTestApp(t)
+	app.strip = 0
+	app.act(application.ActionLeftEdge)
+	if len(service.calls) != 0 || len(seen.placed) != 0 {
+		t.Errorf("the service heard %v and the window was placed %d times", service.calls, len(seen.placed))
 	}
 }
 

@@ -22,7 +22,6 @@ func TestEveryChangeFitsTheStripAndAnswersTheServicesError(t *testing.T) {
 		"SetStyle":       func(app *App) error { return app.SetStyle("analogue") },
 		"SetSize":        func(app *App) error { return app.SetSize("small") },
 		"SetFormat":      func(app *App) error { return app.SetFormat("12h") },
-		"SetOrientation": func(app *App) error { return app.SetOrientation("vertical") },
 		"SetTheme":       func(app *App) error { return app.SetTheme("dark") },
 		"SetAlwaysOnTop": func(app *App) error { return app.SetAlwaysOnTop(true) },
 		"SetScrollbar":   func(app *App) error { return app.SetScrollbar(12) },

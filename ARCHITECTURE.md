@@ -148,9 +148,9 @@ overflow on both axes and scrolls only along its own; hiding one axis alone let 
 other into a second scroll bar, measured in Edge on 2026-09-27. A plain wheel moves a scrolling
 horizontal strip along.
 
-Every change that can alter the cells (a clock added or removed, the style or orientation changed, a
-notice raised by a failed save or dismissed, the scroll bar reported) refits the strip where it
-stands. Where the refit changes the strip's length, it is centred along that length on its display
+Every change that can alter the cells (a clock added or removed, the style or size changed, a notice
+raised by a failed save or dismissed, the scroll bar reported) refits the strip where it stands; a
+change of orientation sends it to that orientation's home edge instead (FR-409, below). Where the refit changes the strip's length, it is centred along that length on its display
 with its position across kept (`placement.CentredAlong`); `recentredKept` in `arrange.go` stores
 that place (FR-104). The service remembers the length it last arranged to tell a change; the first
 arrangement of a run never counts as one. A length that changed while a panel was open is centred
@@ -172,6 +172,12 @@ small sizes were measured in Edge on 2026-09-28 against the longest date the cel
 centred along it (`placement.AgainstEdge`); it stores the place through `recentredKept`, so a
 failed save fits the strip to its notice and keeps it flush. A later change of length re-centres it
 along that edge, since re-centring keeps the position across.
+
+**An orientation's home edge (FR-409).** Choosing an orientation sends the strip to that
+orientation's home edge (`HomeEdge` in `menu_choices.go`): the top for horizontal, the right for
+vertical. The facade's `SetOrientation` asks the service to choose, then reads the settings back:
+where the choice took, even with its save failed, it puts the strip against the home edge through
+`ToEdge`; where it was refused, it fits the strip where it stands.
 
 **Place (FR-403 to FR-406).** Coordinates are physical pixels on the virtual desktop. Wails'
 `WindowSetPosition` places a window relative to the work area of the monitor it is on while
@@ -240,11 +246,14 @@ recover a panic and log it, so one fault cannot leave a strip that reacts to not
 
 Both menus are native popup menus, so the strip's small window never clips them. Their items and
 words have one home, `internal/application/menus.go`. The tray menu offers Show strip or Hide strip
-(whichever applies), Add clock, Settings, Position, Always on top, Help and Exit; the strip's
-right-click menu offers Add clock, Settings, Position, Always on top, Help, Hide strip and Exit.
-Position is a submenu holding the two edges the strip runs along (FR-408); Help is a submenu holding
-About and Licence in both. A left click on the tray icon shows or hides the strip. A menu item may
-hold children, which become a submenu (Position, then the Help submenu of FR-508); identifiers are numbered depth first,
+(whichever applies), Add clock, Settings, Style, Orientation, Position, Always on top, Help and Exit;
+the strip's right-click menu offers Add clock, Settings, Style, Orientation, Position, Always on top,
+Help, Hide strip and Exit. Style and Orientation are submenus ticking the current choice, whose
+items reach the same facade calls the page's would (`menu_choices.go`, FR-502); style and orientation
+are not offered in Settings. Position is a submenu holding the two edges the strip runs along
+(FR-408); Help is a submenu holding About and Licence in both. A left click on the tray icon shows or
+hides the strip. A menu item may hold children, which become a submenu (Style, Orientation,
+Position, then the Help submenu of FR-508); identifiers are numbered depth first,
 so a choice inside a submenu still names its action. A tray icon that cannot be created is not fatal:
 the strip still runs. Closing it then quits, since nothing would bring it back.
 

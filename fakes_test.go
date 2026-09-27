@@ -62,7 +62,12 @@ func (s *scriptedService) SetSize(settings.Size) error { return s.change("SetSiz
 
 func (s *scriptedService) SetFormat(clock.Format) error { return s.change("SetFormat") }
 
-func (s *scriptedService) SetOrientation(settings.Orientation) error {
+// SetOrientation takes the choice unless it is refused as one the setting does not offer, as the
+// service does: a save that fails still leaves the choice in effect.
+func (s *scriptedService) SetOrientation(orientation settings.Orientation) error {
+	if !errors.Is(s.changeErr, application.ErrUnknownChoice) {
+		s.settings.Orientation = orientation
+	}
 	return s.change("SetOrientation")
 }
 

@@ -157,10 +157,18 @@ func (a *App) SetFormat(format string) error {
 	return a.refitted(a.service.SetFormat(clock.Format(format)))
 }
 
-// SetOrientation chooses horizontal or vertical (FR-103).
+// SetOrientation chooses horizontal or vertical (FR-103), then puts the strip against that
+// orientation's home edge (FR-409). A choice that did not take, as one the setting does not offer,
+// fits the strip where it stands. One whose save failed has still taken, so it moves.
 func (a *App) SetOrientation(orientation string) error {
-	err := a.service.SetOrientation(settings.Orientation(orientation))
-	a.contentChanged()
+	chosen := settings.Orientation(orientation)
+	err := a.service.SetOrientation(chosen)
+	edge, known := application.HomeEdge(chosen)
+	if !known || a.service.Settings().Orientation != chosen {
+		a.contentChanged()
+		return err
+	}
+	a.toEdge(edge)
 	return err
 }
 

@@ -22,8 +22,8 @@ func (s *Service) SetFormat(format clock.Format) error {
 	return choose(s, format, func(c *settings.Settings) *clock.Format { return &c.Format })
 }
 
-// SetOrientation chooses horizontal or vertical (FR-103). Arranging the window afterwards keeps
-// it on screen (FR-104).
+// SetOrientation chooses horizontal or vertical (FR-103). The window then goes to the
+// orientation's home edge (FR-409).
 func (s *Service) SetOrientation(orientation settings.Orientation) error {
 	return choose(s, orientation, func(c *settings.Settings) *settings.Orientation { return &c.Orientation })
 }

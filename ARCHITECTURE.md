@@ -61,7 +61,8 @@ does not exist.
   integration. `store` (the settings file), `zones` (resolution through the embedded tz database and
   the place catalogue), `monitors` (displays through Win32), `startup` (the Start with Windows
   value), `system` (the wall clock and new clock ids), `appdata` (the settings folder), `runlog` (the
-  run's log), `desktop` (the tray, native menus, the move fence and the desktop's broadcasts) and
+  run's log), `desktop` (the tray, native menus, the move fence, the desktop's broadcasts and
+  handing an address to the default browser through the shell, which reports a refusal) and
   `setup` (the install policy behind the setup program).
 - **UI**: the React front end plus the Wails facade in package `main`, which calls the service and
   maps what it answers into the shapes in `dto.go`.

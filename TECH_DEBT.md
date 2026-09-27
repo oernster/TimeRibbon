@@ -13,12 +13,7 @@ are deliberately unnumbered and are not open items.
 History is not recorded here. A resolved item is deleted outright, never rewritten as done and never
 archived. A resolution worth remembering belongs in the release notes.
 
-## 1. A donation page the desktop refused to open cannot be reported
-
-`OpenDonation` hands the address to Wails' `BrowserOpenURL`, which answers no error. Where no browser
-is registered, nothing happens and nothing says why. Blocked on Wails: the call would have to answer
-a failure. The alternative, opening the address through the shell directly, would give the facade a
-second way to reach the desktop.
+There is no open technical debt.
 
 ## Looks like debt, not worth touching
 
@@ -42,6 +37,11 @@ window's build can import a script from the setup page's folder, so that one has
 through `internal/infrastructure/setup`; `installer/app.go` decides only which screen to open and when
 to refuse. The portable half of `setup` is unit tested; `installer` has no tests, since every method
 on it acts on the machine.
+
+**The donation page opens through the shell, not through Wails.** Wails' `BrowserOpenURL` answers
+no error, so a desktop with no browser left the button doing nothing with nothing said.
+`desktop.OpenInBrowser` calls `ShellExecute`, which reports the refusal; Settings shows it with the
+address. Moving it back to Wails would bring the silence back.
 
 **The scroll bar's thickness comes from the page.** It is the web engine's bar, which Windows' own
 scroll bar metric does not describe, so the page is the only place that can measure it.

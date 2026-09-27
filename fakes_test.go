@@ -136,6 +136,7 @@ type window struct {
 	stripAt   placement.Point
 	readErr   error
 	placeErr  error
+	browseErr error
 	positions int
 }
 
@@ -176,7 +177,10 @@ func newTestApp(t *testing.T) (*App, *scriptedService, *window, *bytes.Buffer) {
 	app.hideWindow = func() { seen.hidden++ }
 	app.quit = func() { seen.quits++ }
 	app.setOnTop = func(on bool) { seen.onTop = append(seen.onTop, on) }
-	app.browse = func(address string) { seen.browsed = append(seen.browsed, address) }
+	app.browse = func(address string) error {
+		seen.browsed = append(seen.browsed, address)
+		return seen.browseErr
+	}
 	app.showMenu = func(items []application.MenuItem) { seen.menus = append(seen.menus, items) }
 	app.position = func() (placement.Point, error) {
 		seen.positions++

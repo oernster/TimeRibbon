@@ -20,5 +20,3 @@ func (a *App) hideInWails() { runtime.WindowHide(a.ctx) }
 func (a *App) quitWails() { runtime.Quit(a.ctx) }
 
 func (a *App) setOnTopInWails(on bool) { runtime.WindowSetAlwaysOnTop(a.ctx, on) }
-
-func (a *App) browseInWails(address string) { runtime.BrowserOpenURL(a.ctx, address) }

@@ -5,6 +5,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"sync/atomic"
 
@@ -77,7 +78,7 @@ type App struct {
 	hideWindow func()
 	quit       func()
 	setOnTop   func(on bool)
-	browse     func(address string)
+	browse     func(address string) error
 	showMenu   func(items []application.MenuItem)
 	position   func() (placement.Point, error)
 	place      func(at placement.Point, size placement.Size) error
@@ -99,7 +100,7 @@ func newApp(service stripService, desk *desktop.Desktop, log io.Writer, panelSiz
 	built.hideWindow = built.hideInWails
 	built.quit = built.quitWails
 	built.setOnTop = built.setOnTopInWails
-	built.browse = built.browseInWails
+	built.browse = desktop.OpenInBrowser
 	built.showMenu = desk.ShowMenu
 	built.position = built.stripPosition
 	built.place = built.placeStrip
@@ -213,11 +214,13 @@ func (a *App) ClosePanel() error {
 }
 
 // OpenDonation hands the donation page to the desktop's browser. The application never fetches it,
-// so the button's existence leaves the no-network guarantee as it was (NFR-S-1).
-func (a *App) OpenDonation() {
-	if a.ctx != nil {
-		a.browse(product.DonateURL)
+// so the button's existence leaves the no-network guarantee as it was (NFR-S-1). Where Windows
+// cannot open it, the refusal says why and gives the address, so it can still be reached by hand.
+func (a *App) OpenDonation() error {
+	if err := a.browse(product.DonateURL); err != nil {
+		return fmt.Errorf("your browser could not be opened on the donation page (%w). Windows may have no default browser set; the page is %s", err, product.DonateURL)
 	}
+	return nil
 }
 
 // Hide hides the strip (FR-504).

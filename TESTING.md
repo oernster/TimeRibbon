@@ -48,12 +48,12 @@ and what stops it. An unexplained shortfall cannot be told from an oversight.
 | `tools/genplaces` | 38.8% | 38% | `test.ps1` |
 | `internal/infrastructure/appdata` | 100% | 100% | `test.ps1` |
 | `internal/infrastructure/runlog` | 76.5% | 76% | `test.ps1` |
-| the root package (the Wails facade) | 68.1% | 68% | `test.ps1` |
-| `internal/infrastructure/desktop` | 12.0% | 12% | `test.ps1` |
+| the root package (the Wails facade) | 68.6% | 68% | `test.ps1` |
+| `internal/infrastructure/desktop` | 14.8% | 14% | `test.ps1` |
 | `installer` | 0%, no tests | none | not gated |
 | `internal/product` | no statements | none | not gated |
 
-192 Go test functions, each run once with no subtests (an uncached `go test -count=1 -json` over the
+194 Go test functions, each run once with no subtests (an uncached `go test -count=1 -json` over the
 packages `go list ./...` gives outside `node_modules`), plus one `TestMain` in
 `internal/infrastructure/setup`. Eighteen of them are the structural tests in `tests/structural`,
 which read the source rather than run it; [ARCHITECTURE.md](ARCHITECTURE.md) lists each against the
@@ -63,7 +63,7 @@ ARCHITECTURE.md, The settings file.
 
 ### The front end
 
-70 tests across 7 files, under Vitest with jsdom: the strip, Settings, About and Licence, the
+71 tests across 7 files, under Vitest with jsdom: the strip, Settings, About and Licence, the
 self-reading cycle, then the setup page's screens, keyboard ring and unreachable-program cases. The
 front end has no coverage figure: no coverage provider is installed, so none is measured or claimed.
 
@@ -88,17 +88,18 @@ under scratch keys beneath `HKCU`.
 
 ### The platform owns it
 
-- **`internal/infrastructure/desktop` (12.0%).** The tray icon, the native menus, the move fence and
+- **`internal/infrastructure/desktop` (14.8%).** The tray icon, the native menus, the move fence and
   the desktop's broadcasts all run on a hidden window's message loop; the strip functions act on the
   real strip window. The tests cover what is portable: the menu identifier numbering (a submenu
-  included), the fence's rectangle arithmetic, a work area read at a point and Windows' drag
-  distance. The loop itself, the menus as drawn and the broadcasts arriving are checks for a person.
+  included), the fence's rectangle arithmetic, a work area read at a point, Windows' drag distance
+  and an address Windows cannot open being refused. The loop itself, the menus as drawn, the
+  broadcasts arriving and a browser actually opening (M-11) are checks for a person.
 - **`internal/infrastructure/monitors` (82.6%).** The displays are read for real; what is not reached
   is Windows refusing to enumerate them or to describe one.
 - **`internal/infrastructure/runlog` (76.5%).** Opening the log and pointing standard error at it are
   tested; making the folder failing, the start line failing to write and `SetStdHandle` refusing only
   fail inside the system.
-- **The root package (68.1%).** The facade's decisions are tested: which calls fit the strip, that a
+- **The root package (68.6%).** The facade's decisions are tested: which calls fit the strip, that a
   drag whose save failed is still fitted, the panel state, the menu actions, the close and the
   recover round each desktop event. Not reached: the composition root (`main.go`, `launch.go`),
   `startup`, `listen` and `shutdown`, which need the real strip window and the tray's message loop.
@@ -149,6 +150,7 @@ are REQUIREMENTS.md's section 12.
 | M-8 | Settings and the place search can be driven entirely from the keyboard |
 | M-9 | Setup installs, updates, repairs and uninstalls on a real machine without asking for administrator rights, closing a running copy first |
 | M-10 | Both menus open a Help submenu whose About and Licence each show their panel; the licence reads itself down after 5 seconds, a wheel stops it and it resumes; setup's Licence screen does the same |
+| M-11 | The donate button at the foot of Settings opens the default browser on the donation page |
 | Wheel at 250% | On a display at 250%, one notch of a plain wheel over a scrolling horizontal strip moves it as far as a native notch moves a vertical one. In headless Edge through the DevTools protocol it moved 48 against 120; whether a physical wheel does the same is not known |
 
 The strip's layout at its full size was measured in headless Edge 154.0.4258.37, the version of the

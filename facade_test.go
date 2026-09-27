@@ -4,6 +4,7 @@ import (
 	"errors"
 	"reflect"
 	"slices"
+	"strings"
 	"testing"
 
 	"github.com/oernster/timestrip/internal/application"
@@ -162,13 +163,27 @@ func TestShowContextMenuShowsTheServicesMenu(t *testing.T) {
 	}
 }
 
-func TestOpenDonationHandsTheAddressToTheBrowserOnceStarted(t *testing.T) {
+func TestOpenDonationHandsTheAddressToTheBrowser(t *testing.T) {
 	app, _, seen, _ := newTestApp(t)
-	app.OpenDonation()
-	app.ctx = nil
-	app.OpenDonation()
+	if err := app.OpenDonation(); err != nil {
+		t.Fatal(err)
+	}
 	if !slices.Equal(seen.browsed, []string{product.DonateURL}) {
 		t.Errorf("browsed %v, want the donation address once", seen.browsed)
+	}
+}
+
+// A browser Windows could not open is reported with the reason and the address, so the page can
+// still be reached by hand rather than the button doing nothing.
+func TestADonationPageThatCouldNotBeOpenedIsReportedWithItsAddress(t *testing.T) {
+	app, _, seen, _ := newTestApp(t)
+	seen.browseErr = errPlanted
+	err := app.OpenDonation()
+	if !errors.Is(err, errPlanted) {
+		t.Fatalf("OpenDonation answered %v, want the desktop's refusal", err)
+	}
+	if !strings.Contains(err.Error(), product.DonateURL) {
+		t.Errorf("the refusal %q does not give the address", err)
 	}
 }
 

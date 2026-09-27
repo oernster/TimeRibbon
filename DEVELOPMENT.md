@@ -179,7 +179,7 @@ Apps list records to choose between Install, Update, Go back and the Installed s
 |---|---|
 | `main.go` | the composition root and the cell and panel sizes |
 | `app.go`, `window_life.go` | the facade: the calls the page makes; the window's own life with the desktop's events |
-| `wails_calls.go` | the facade's calls into Wails, held as fields so its tests can stand in for them |
+| `wails_calls.go` | the facade's calls into Wails (show, hide, quit, always on top, events), held as fields so its tests can stand in for them |
 | `identity.go`, `dto.go`, `launch.go` | About and Licence, the wire, the window's options |
 | `bindings_on.go`, `bindings_off.go` | keep the binding-generation run from writing the log or showing a tray icon |
 | `internal/domain` | clock readings, placement and the settings value; no I/O |

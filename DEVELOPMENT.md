@@ -99,9 +99,9 @@ If a build is interrupted between steps 6 and 8, run `./build.ps1` again rather 
 ### A note on `-ldflags`
 
 The version reaches both executables through `-X github.com/oernster/timestrip/internal/product.Version=<version>`.
-`-X` writes only to a `var`; against a `const` it silently does nothing, which is why `Version` is a
-var holding `0.0.0-dev` until the flag replaces it. An executable reporting `0.0.0-dev` was built
-without `build.ps1`.
+`-X` writes only to a `var`; against a `const` it silently does nothing, which is why `Version` in
+`internal/product/product.go` is a var holding a development placeholder until the flag replaces it.
+An executable reporting that placeholder was built without `build.ps1`.
 
 ## Running it while working
 
@@ -162,7 +162,7 @@ newer Go; `zones_test.go` fails where a catalogue zone does not resolve in them.
 ## Versioning
 
 `VERSION` holds the one version string. `build.ps1` passes it into both executables; nothing in the
-source holds a version literal. The setup program compares the version it carries with the one the
+source holds the release's version, only the development placeholder above. The setup program compares the version it carries with the one the
 Apps list records to choose between Install, Update, Go back and the Installed screen.
 
 ## Cutting a release
@@ -180,6 +180,7 @@ Apps list records to choose between Install, Update, Go back and the Installed s
 | `main.go` | the composition root and the cell and panel sizes |
 | `app.go`, `window_life.go` | the facade: the calls the page makes; the window's own life with the desktop's events |
 | `wails_calls.go` | the facade's calls into Wails (show, hide, quit, always on top, events), held as fields so its tests can stand in for them |
+| `facade_test.go`, `window_life_test.go`, `fakes_test.go` | the facade's tests, over a scripted service and a stand-in window |
 | `identity.go`, `dto.go`, `launch.go` | About and Licence, the wire, the window's options |
 | `bindings_on.go`, `bindings_off.go` | keep the binding-generation run from writing the log or showing a tray icon |
 | `internal/domain` | clock readings, placement and the settings value; no I/O |

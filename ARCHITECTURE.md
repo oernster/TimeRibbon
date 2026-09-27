@@ -20,25 +20,25 @@ does not exist.
 
 | Invariant | Enforcing test | File |
 |---|---|---|
-| Domain imports nothing from this module outside `internal/domain` | `TestDomainHasNoOutwardImports` | `boundary_test.go` |
-| Domain is pure: no network, filesystem, process, random or tz database package; no wall clock read and no zone loaded (FR-207, CON-5) | `TestDomainIsPure` | `boundary_test.go` |
-| Application never imports infrastructure or Wails | `TestApplicationDoesNotImportInfrastructure` | `boundary_test.go` |
-| Infrastructure never imports Wails, the setup program's own package apart | `TestWailsStaysOutOfInfrastructure` | `boundary_test.go` |
-| Only `main.go`, `app.go` and `window_life.go` import both the application and infrastructure | `TestCompositionRootIsWhitelisted` | `boundary_test.go` |
-| No source file exceeds 400 lines: the Go, the front end's TypeScript and CSS, the setup page | `TestNoFileExceedsLineLimit` | `boundary_test.go` |
-| No source file sits in the danger band of 381 to 400 lines | `TestNoFileInDangerBand` | `boundary_test.go` |
-| Every exported type carries a doc comment | `TestEveryExportedTypeIsDocumented` | `boundary_test.go` |
-| A file's lines are counted as an editor numbers them | `TestLineCountCountsTheLinesAnEditorShows` | `linecount_test.go` |
-| No Go file of this module imports a network package (NFR-S-1) | `TestTheModuleImportsNoNetworkPackage` | `network_test.go` |
-| The network package check recognises `net`, `crypto/tls` and `golang.org/x/net` paths and passes look-alikes | `TestNetworkPackageRecognitionIsExact` | `network_test.go` |
-| The setup page loads every script beside it | `TestTheSetupPageLoadsEveryScript` | `setup_test.go` |
-| No setup page file spells the product's name, which the setup program hands it | `TestTheSetupPageNeverWritesTheProductsName` | `setup_test.go` |
-| About credits exactly the modules the application and the setup program link (FR-607) | `TestEveryLinkedModuleIsCredited` | `credits_test.go` |
-| The wire is stated identically in `dto.go` and `frontend/src/wire.ts` | `TestTheWireIsStatedAlikeOnBothSides` | `wire_test.go` |
-| The page listens for every event `app.go` emits and keys every panel it names | `TestThePageNamesEveryEventGoEmits` | `wire_test.go` |
-| The setup page listens for every event `installer/app.go` emits | `TestTheSetupPageNamesEveryEventSetupEmits` | `wire_test.go` |
-| Each `wails.json` names its executable as `internal/product` does | `TestEachWailsConfigNamesItsExecutableAsTheProductDoes` | `names_test.go` |
-| The Licence panel is sized for the LICENSE's widest line, so it shows unwrapped | `TestTheLicencePanelIsSizedForTheLicencesWidestLine` | `licence_test.go` |
+| Domain imports nothing from this module outside `internal/domain` | `TestDomainHasNoOutwardImports` | [`boundary_test.go`](tests/structural/boundary_test.go) |
+| Domain is pure: no network, filesystem, process, random or tz database package; no wall clock read and no zone loaded (FR-207, CON-5) | `TestDomainIsPure` | [`boundary_test.go`](tests/structural/boundary_test.go) |
+| Application never imports infrastructure or Wails | `TestApplicationDoesNotImportInfrastructure` | [`boundary_test.go`](tests/structural/boundary_test.go) |
+| Infrastructure never imports Wails | `TestWailsStaysOutOfInfrastructure` | [`boundary_test.go`](tests/structural/boundary_test.go) |
+| Only `main.go`, `app.go` and `window_life.go` import both the application and infrastructure | `TestCompositionRootIsWhitelisted` | [`boundary_test.go`](tests/structural/boundary_test.go) |
+| No source file exceeds 400 lines: the Go, the front end's TypeScript and CSS, the setup page | `TestNoFileExceedsLineLimit` | [`boundary_test.go`](tests/structural/boundary_test.go) |
+| No source file sits in the danger band of 381 to 400 lines | `TestNoFileInDangerBand` | [`boundary_test.go`](tests/structural/boundary_test.go) |
+| Every exported type carries a doc comment | `TestEveryExportedTypeIsDocumented` | [`boundary_test.go`](tests/structural/boundary_test.go) |
+| A file's lines are counted as an editor numbers them | `TestLineCountCountsTheLinesAnEditorShows` | [`linecount_test.go`](tests/structural/linecount_test.go) |
+| No Go file of this module imports a network package (NFR-S-1) | `TestTheModuleImportsNoNetworkPackage` | [`network_test.go`](tests/structural/network_test.go) |
+| The network package check recognises `net`, `crypto/tls` and `golang.org/x/net` paths and passes look-alikes | `TestNetworkPackageRecognitionIsExact` | [`network_test.go`](tests/structural/network_test.go) |
+| The setup page loads every script beside it | `TestTheSetupPageLoadsEveryScript` | [`setup_test.go`](tests/structural/setup_test.go) |
+| No setup page file spells the product's name, which the setup program hands it | `TestTheSetupPageNeverWritesTheProductsName` | [`setup_test.go`](tests/structural/setup_test.go) |
+| About credits exactly the modules the application and the setup program link (FR-607) | `TestEveryLinkedModuleIsCredited` | [`credits_test.go`](tests/structural/credits_test.go) |
+| The wire is stated identically in `dto.go` and `frontend/src/wire.ts` | `TestTheWireIsStatedAlikeOnBothSides` | [`wire_test.go`](tests/structural/wire_test.go) |
+| The page listens for every event `app.go` emits and keys every panel it names | `TestThePageNamesEveryEventGoEmits` | [`wire_test.go`](tests/structural/wire_test.go) |
+| The setup page listens for every event `installer/app.go` emits | `TestTheSetupPageNamesEveryEventSetupEmits` | [`wire_test.go`](tests/structural/wire_test.go) |
+| Each `wails.json` names its executable as `internal/product` does | `TestEachWailsConfigNamesItsExecutableAsTheProductDoes` | [`names_test.go`](tests/structural/names_test.go) |
+| The Licence panel is sized for the LICENSE's widest line, so it shows unwrapped | `TestTheLicencePanelIsSizedForTheLicencesWidestLine` | [`licence_test.go`](tests/structural/licence_test.go) |
 
 ## Layers
 
@@ -49,16 +49,21 @@ does not exist.
   letters, else `UTC` and the signed offset) and the hand angles; `NextRefresh` names the next minute
   boundary. It also derives a zone's default label. `placement` decides where the strip goes, in
   physical pixels: the default place, a stored placement restored on its monitor at that monitor's
-  DPI, the least move that brings a strip wholly inside a work area (`Clamp`, `Recover`) and `Fit`,
-  the strip's length along its orientation. `settings` is the user's choices as one value; every
+  DPI, the least move that brings a strip wholly inside a work area (`Clamp`, `Recover`), the
+  strip's length along its orientation (`Fit`) plus a strip centred along its length on a work area
+  with its position across kept (`CentredAlong`). `settings` is the user's choices as one value; every
   operation answers a new value and leaves the old one as it was.
 - **Application** (`internal/application`): one `Service` holding every use case over six ports
   (`Store`, `Zones`, `Clock`, `IDs`, `Monitors`, `StartupEntry`, in `ports.go`). It builds the
-  snapshot the strip draws (its cells ordered east from Greenwich, places behind UTC last, worked out afresh each
-  time since daylight saving moves it), adds, edits and removes clocks, searches places, changes settings,
+  snapshot the strip draws, adds, edits and removes clocks, searches places, changes settings,
   arranges the strip (`Launch`, `Rearrange`, `Moved`, `Centred`) and answers the tray and context
-  menus. A change that cannot be saved stays in effect and raises a notice until a later save
-  succeeds (FR-707). It never imports infrastructure or Wails.
+  menus. The snapshot orders its cells east from Greenwich (`eastFromGreenwich` in `snapshot.go`):
+  places level with or ahead of UTC by ascending offset, then the places behind UTC, since going
+  east reaches them last. Offsets are read at the snapshot's instant, so the order is worked out
+  afresh each time and daylight saving can move it; clocks keeping the same time keep their stored
+  order and a clock that cannot be shown goes last. There is no ordering by hand. A change that
+  cannot be saved stays in effect and raises a notice until a later save succeeds (FR-707). It
+  never imports infrastructure or Wails.
 - **Infrastructure** (`internal/infrastructure`): the adapters behind the ports and the Windows
   integration. `store` (the settings file), `zones` (resolution through the embedded tz database and
   the place catalogue), `monitors` (displays through Win32), `startup` (the Start with Windows
@@ -145,8 +150,12 @@ horizontal strip along.
 Every change that can alter the cells (a clock added or removed, the style or orientation changed, a
 notice raised by a failed save or dismissed, the scroll bar reported) refits the strip where it
 stands. Where the refit changes the strip's length, it is centred along that length on its display
-with its position across kept; the place is stored (FR-104) and the service remembers the length it last
-arranged to tell. Nothing else re-centres it, so a drag holds until the length next changes. Sizes
+with its position across kept (`placement.CentredAlong`); `recentredKept` in `arrange.go` stores
+that place (FR-104). The service remembers the length it last arranged to tell a change; the first
+arrangement of a run never counts as one. A length that changed while a panel was open is centred
+as the panel closes. Should the save fail, its notice is one more cell, so the strip is arranged once
+more to fit it and that arrangement is not saved again. Nothing else re-centres the strip, so a drag
+holds until the length next changes. Sizes
 are computed in DIP and scaled to the display's DPI, so a strip moved between displays
 at different scaling keeps its size in DIP (FR-407).
 
@@ -195,9 +204,10 @@ overwritten. One clock that cannot be read or names an unknown zone is kept in t
 shown in words as an invalid clock while the others work (FR-705, FR-706). A top-level key this
 version does not know is written back as it was found.
 
-**The file is a contract from 1.0.0 (NFR-C-1).** Every later 1.x reads every file 1.0.0 writes to the
-same settings. No key 1.0.0 writes may be renamed, dropped or given another meaning. No stored word
-(such as `12h` or `analogue`) may change. A later release may add keys. The guard is
+**The file is a contract from the first release (NFR-C-1).** Every later release of the same major
+version reads every file the first release writes to the same settings. No key it writes may be
+renamed, dropped or given another meaning. No stored word (such as `12h` or `analogue`) may change.
+A later release may add keys. The guard is
 `TestA1Point0SettingsFileIsReadWhole`, which reads the frozen fixture
 `internal/infrastructure/store/testdata/settings-1.0.0.json` (every key set away from its default)
 and requires every key to be read rather than merely carried. It was proved by renaming a key and by
@@ -214,7 +224,11 @@ buffered channel, dropping an event with a line in the log rather than blocking 
 called in on; the facade's `listen` loop acts on it. Both the window procedure and the listen loop
 recover a panic and log it, so one fault cannot leave a strip that reacts to nothing.
 
-Both menus are native popup menus, so the strip's small window never clips them. A menu item may hold
+Both menus are native popup menus, so the strip's small window never clips them. Their items and
+words have one home, `internal/application/menus.go`. The tray menu offers Show strip or Hide strip
+(whichever applies), Add clock, Settings, Always on top, Help and Exit; the strip's right-click menu
+offers Add clock, Settings, Always on top, Help, Hide strip and Exit. Help is a submenu holding About
+and Licence in both. A left click on the tray icon shows or hides the strip. A menu item may hold
 children, which become a submenu (the Help submenu of FR-508); identifiers are numbered depth first,
 so a choice inside a submenu still names its action. A tray icon that cannot be created is not fatal:
 the strip still runs. Closing it then quits, since nothing would bring it back.
@@ -225,7 +239,10 @@ About and Licence are panels of the one window (FR-607, FR-608). About shows the
 the name and version, the author, the copyright line and a credit for every component the executables
 ship, each naming its licence and what it does here; `TestEveryLinkedModuleIsCredited` asks the Go
 tool which modules the two executables link as `wails build` builds them and holds the credits to
-that list in both directions. Licence shows the `LICENSE` file embedded in the binary.
+that list in both directions. Licence shows the `LICENSE` file embedded in the binary exactly as
+written: its own line breaks are kept and nothing wraps it again. Its type is sized so the widest
+line fits the panel, 13px at most (`frontend/src/help.css`); the width `help.css` sizes for is held
+to the file's widest line by `TestTheLicencePanelIsSizedForTheLicencesWidestLine`.
 
 Both bodies read themselves when they hold more than fits (FR-609): still for 5 seconds on opening,
 down one pixel every other 40 ms tick, still for 5 seconds at the end, back to the top at 15 pixels a
@@ -280,7 +297,9 @@ for it to go (FR-807). **The setup page names nothing**: it has no build step, s
 type checks it. The product's name arrives on the state it is handed;
 `TestTheSetupPageNeverWritesTheProductsName` holds that. Its keyboard ring (`setup-ring.js`) is the
 window's model written again for a page that cannot import it; `frontend/src/setupRing.test.ts`
-loads the shipped script and presses keys against it. The window is painted the page's own ground
+loads the shipped script and presses keys against it. Each screen opens with nothing focused
+(`startNeutral` in `setup-shell.js`, FR-809): the first Tab or Right enters the ring at its first
+control and the first Shift+Tab or Left at its last. The window is painted the page's own ground
 before the page loads, read from the page's stylesheet, so it never flashes the wrong colour. Setup's
 own web view data and step log sit under the temporary folder.
 

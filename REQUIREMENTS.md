@@ -152,7 +152,7 @@ recorded at the first measured build.
 | ID | Constraint |
 |---|---|
 | CON-1 | The layering invariant `UI to Application to Domain from Infrastructure` holds and is enforced by `tests/structural`. |
-| CON-2 | Every Go source file and every TypeScript and CSS file under `frontend/src` stays at or below 400 lines; one landing between 381 and 399 lines is reduced to 350 or fewer. Build and packaging scripts are not counted. |
+| CON-2 | Every Go source file and every TypeScript and CSS file under `frontend/src` stays at or below 400 lines; one landing between 381 and 400 lines is reduced to 350 or fewer. Build and packaging scripts are not counted. |
 | CON-3 | The coverage floor over `internal/domain` and `internal/application` stays at 100 percent. |
 | CON-4 | `VERSION` is the single source of truth for the version. No version literal elsewhere. |
 | CON-5 | Zones resolve through Go's `time.LoadLocation` with the `time/tzdata` package embedded, so no rule depends on files present on the machine. Measured 2026-09-27 with `ZONEINFO` pointed at a missing path: `America/New_York` answered EST in January and EDT in July; `Not/AZone` answered an error. No DST rule is written by hand. |
@@ -172,8 +172,8 @@ recorded at the first measured build.
 
 ## 3. Requirements
 
-Every requirement below names the test planned to verify it. None is written yet; a `Verified by:`
-line names a planned test until it exists and has been seen to fail without the implementation.
+Every requirement below names the test that verifies it. A `Verified by:` line marked planned names
+a test not yet written; one that says no test yet names none.
 
 ### 3.1 The strip
 
@@ -196,7 +196,7 @@ daylight saving included, so the order is worked out at each snapshot. Clocks ke
 time keep their stored order; a clock that cannot be shown goes last. Acceptance: given New York,
 Melbourne, Tokyo, Berlin and London added in that order, the strip shows London, Berlin, Tokyo,
 Melbourne, New York.
-Verified by: `TestTheStripRunsEarliestLocalTimeFirst`, `TestSnapshotFollowsClockOrderWithEachZonesDate` (application); `strip.test.tsx`.
+Verified by: `TestTheStripRunsEastFromGreenwich`, `TestSnapshotFollowsClockOrderWithEachZonesDate` (application); `strip.test.tsx`.
 
 **FR-103 Orientation setting**
 Priority: Must (OQ-5, Oliver, 2026-09-27).
@@ -222,7 +222,7 @@ Verified by: `TestAStripWhoseLengthChangesIsRecentredAndKept`, `TestAHorizontalS
 Priority: Must.
 The strip's length along its orientation shall equal the sum of its cells' lengths plus its padding,
 while that sum fits the work area of its monitor.
-Verified by: planned `TestStripLengthFollowsClockCount` (domain, placement).
+Verified by: `TestStripLengthFollowsClockCountAndNeverExceedsWorkArea` (domain, placement).
 
 **FR-106 Overflow scrolls**
 Priority: Must.
@@ -231,7 +231,7 @@ then the application shall size the strip to that work area and scroll the cells
 orientation, never clipping a cell out of reach and never wrapping to a second row or column.
 Acceptance: Given a work area 1920 DIP wide and 12 horizontal cells needing 2400 DIP, then the strip
 is 1920 DIP long and the last cell is reachable by scrolling.
-Verified by: planned `TestStripNeverExceedsWorkArea` (domain); `strip.test.tsx` for the scroll.
+Verified by: `TestStripLengthFollowsClockCountAndNeverExceedsWorkArea` (domain); `strip.test.tsx` for the scroll.
 
 **FR-107 Empty strip**
 Priority: Must.
@@ -256,7 +256,7 @@ The clock service shall compute each clock's local time by converting the curren
 clock's zone through the tz database of CON-5.
 Acceptance: Given the instant 2026-09-27T01:37:00Z, then `America/New_York` shows 21:37 and
 `Australia/Sydney` shows 11:37.
-Verified by: planned `TestLocalTimeInDistantZones` (domain).
+Verified by: `TestLocalTimeInDistantZones` (domain).
 
 **FR-202 Local date per clock**
 Priority: Must.
@@ -267,7 +267,7 @@ Sydney reads `Monday, 28 September`.
 Note: the spec's section 3 pairs New York 21:37 with Sydney 06:37; no single instant gives that pair,
 since the two are 14 hours apart in late September (measured 2026-09-27). This example uses a pair
 that occurs: New York 16:37, Sydney 06:37.
-Verified by: planned `TestLocalDateCrossesMidnightByZone` (domain).
+Verified by: `TestLocalDateCrossesMidnightByZone` (domain).
 
 **FR-203 Zone mark**
 Priority: Must.
@@ -275,7 +275,7 @@ Each cell shall show a zone mark: the zone's current abbreviation where the tz d
 letters; otherwise `UTC` followed by the signed offset in hours, with minutes only when non-zero.
 Acceptance, from values measured on 2026-09-27: New York in July reads `EDT`; São Paulo reads
 `UTC-3`; Kathmandu reads `UTC+5:45`.
-Verified by: planned `TestZoneMarkPrefersLettersElseOffset` (domain).
+Verified by: `TestZoneMarkPrefersLettersElseOffset` (domain).
 
 **FR-204 Daylight saving follows the rules**
 Priority: Must.
@@ -283,21 +283,21 @@ The clock service shall take every offset and abbreviation from the tz database 
 being shown, holding no offset of its own.
 Acceptance: Given `America/New_York`, the instant 2026-03-08T06:59:00Z reads `01:59 EST` and
 2026-03-08T07:00:00Z reads `03:00 EDT`.
-Verified by: planned `TestDaylightSavingTransitionIsFollowed` (domain).
+Verified by: `TestDaylightSavingTransitionIsFollowed` (domain).
 
 **FR-205 Year boundary**
 Priority: Must.
 Each cell shall show its own zone's date across a year boundary.
 Acceptance: Given the instant 2026-12-31T12:00:00Z, then `Pacific/Kiritimati` reads
 `Friday, 1 January` while `America/Los_Angeles` reads `Thursday, 31 December`.
-Verified by: planned `TestYearBoundaryDiffersByZone` (domain).
+Verified by: `TestYearBoundaryDiffersByZone` (domain).
 
 **FR-206 Time format**
 Priority: Must.
 Where the format is 24-hour, a time shall be written with two-digit hours (`06:37`, `21:37`); where
 it is 12-hour, with unpadded hours plus `AM` or `PM` (`6:37 AM`, `9:37 PM`, `12:00 AM` at midnight,
 `12:00 PM` at noon).
-Verified by: planned `TestTwelveAndTwentyFourHourFormats` (domain).
+Verified by: `TestTwelveAndTwentyFourHourFormats` (domain).
 
 **FR-207 Injected instant**
 Priority: Must.
@@ -309,7 +309,7 @@ Verified by: `tests/structural` domain purity test, proved by a planted `time.No
 Priority: Must.
 While the strip is shown, the application shall refresh every cell at each minute boundary of the
 Windows clock, scheduling each refresh from the current time rather than from the last refresh.
-Verified by: planned `TestNextRefreshIsTheNextMinuteBoundary` (application); NFR-P-2.
+Verified by: `TestNextRefreshIsTheNextMinuteBoundary` (domain); NFR-P-2.
 
 **FR-209 Clock change and resume**
 Priority: Must.
@@ -323,7 +323,7 @@ Verified by: section 12, check M-5 (a person changes the clock and sleeps the ma
 Priority: Must.
 When the user chooses a place from the place search, the application shall append a clock for its
 zone with the default label and persist it.
-Verified by: planned `TestAddingAClockAppendsItWithTheDefaultLabel` (application).
+Verified by: `TestAddingAClockAppendsItWithTheDefaultLabel` (application).
 
 **FR-302 Place search**
 Priority: Must.
@@ -333,25 +333,25 @@ id and the country name.
 Acceptance: typing `york` offers `New York (America/New_York)`; typing `kolkata` offers `Kolkata`.
 Note: a city without a zone of its own (Manchester, Brighton) is not searchable; the user picks its
 zone and types the label (FR-303). Ruled on OQ-1 by Oliver, 2026-09-27.
-Verified by: planned `TestPlaceSearchMatchesLabelZoneOrCountry` (application).
+Verified by: `TestPlaceSearchMatchesLabelZoneOrCountry` (application).
 
 **FR-303 Edit a clock's label**
 Priority: Must.
 When the user edits a clock's label, the application shall store the new label; if the label is
 empty after trimming spaces, then it shall store the default label instead.
-Verified by: planned `TestEmptyLabelFallsBackToDefault` (application).
+Verified by: `TestEmptyLabelFallsBackToDefault` (domain).
 
 **FR-304 Edit a clock's zone**
 Priority: Must.
 When the user chooses a different place for an existing clock, the application shall replace its
 zone, keep its position and replace its label only if the label was the old zone's default label.
-Verified by: planned `TestChangingZoneKeepsACustomLabel` (application).
+Verified by: `TestChangingZoneKeepsACustomLabel` (domain).
 
 **FR-305 Remove a clock**
 Priority: Must.
 When the user confirms removal of a clock named in a confirmation prompt, the application shall
 remove it and close the gap in the order.
-Verified by: planned `TestRemovingAClockClosesTheGap` (application); `clocks.test.tsx` for the
+Verified by: `TestRemovingAClockClosesTheGap` (domain); `settings.test.tsx` for the
 prompt.
 
 **FR-306 Reorder clocks**
@@ -368,7 +368,7 @@ Priority: Should.
 A label shall hold at most 32 characters; a cell too narrow for its label shall end it with an
 ellipsis and show the whole label as a tooltip.
 Rationale: 32 is Claude's proposal, sized to keep a cell compact.
-Verified by: planned `TestLabelIsCappedAt32Characters` (domain); `cell.test.tsx`.
+Verified by: `TestLabelIsCappedAt32Characters` (domain); no test yet for the ellipsis and tooltip.
 
 **FR-308 Duplicate zones permitted**
 Priority: Could.
@@ -395,13 +395,13 @@ Priority: Must.
 While no placement is stored, the application shall place the strip on the primary monitor with its
 right edge 16 DIP inside the work area's right edge, centred vertically in the work area.
 Rationale: the spec's section 8; 16 DIP is Claude's proposal.
-Verified by: planned `TestDefaultPlacementIsRightEdgeCentred` (domain).
+Verified by: `TestDefaultPlacementIsRightEdgeCentred` (domain).
 
 **FR-404 Placement persisted**
 Priority: Must.
 When a drag ends, the application shall persist the placement: the monitor's device name, its work
 area, its DPI and the strip's offset from that work area's top-left corner.
-Verified by: planned `TestPlacementIsStoredRelativeToItsMonitor` (application).
+Verified by: `TestPlacementIsStoredRelativeToItsMonitor` (application).
 
 **FR-405 Placement restored or recovered**
 Priority: Must.
@@ -412,14 +412,14 @@ would lie outside the chosen monitor's work area, then it shall move the strip t
 that brings it wholly inside.
 Acceptance: Given a strip stored at offset (1700, 500) on `\\.\DISPLAY2` and only `\\.\DISPLAY1`
 present, when launched, then the strip is at the default placement on `\\.\DISPLAY1`.
-Verified by: planned `TestMissingMonitorFallsBackToPrimary`,
+Verified by: `TestMissingMonitorFallsBackToPrimary`,
 `TestOffscreenPlacementIsClampedIntoWorkArea` and `TestDpiChangeScalesTheOffset` (domain).
 
 **FR-406 Display changes while running**
 Priority: Must.
 When Windows reports a display configuration change while the strip is shown, the application shall
 apply the recovery of FR-405 to the strip's current position.
-Verified by: planned `TestDisplayChangeRecoversAStripLeftOffscreen` (application); check M-3.
+Verified by: `TestDisplayChangeRecoversAStripLeftOffscreen` (domain); check M-3.
 
 **FR-407 Scaling across monitors**
 Priority: Must.
@@ -456,7 +456,7 @@ Priority: Must.
 When `Alt+F4` is pressed while the strip has focus, the application shall hide the strip as
 `Hide strip` does and keep running.
 Rationale: ruled on OQ-4 by Oliver, 2026-09-27; `Exit` stays in the tray alone.
-Verified by: planned `TestCloseRequestHidesRatherThanQuits` (application); check M-4.
+Verified by: `TestCloseRequestHidesRatherThanQuits` (application); check M-4.
 
 **FR-508 Help submenu**
 Priority: Must (Amendment 2, Oliver, 2026-09-27).
@@ -469,7 +469,7 @@ Verified by: `TestBothMenusOfferHelpWithAboutAndLicence` (application);
 Priority: Must.
 Where Always on Top is on, the strip shall stay above windows that are not themselves topmost; the
 setting shall be off by default and persisted.
-Verified by: planned `TestAlwaysOnTopDefaultsOffAndPersists` (application); check M-4.
+Verified by: `TestDefaultsAreDigitalTwentyFourHourVerticalAndNotOnTop` (domain); `TestChangingASettingPersistsIt` (application); check M-4.
 
 **FR-506 One instance**
 Priority: Must.
@@ -483,25 +483,26 @@ Verified by: check M-6.
 Priority: Must.
 Settings shall offer: style (digital, analogue); format (12-hour, 24-hour); orientation
 (horizontal, vertical); theme (system, light, dark); Always on Top; Start with Windows; the Clocks
-list of FR-303 to FR-305, in the strip's order. Nothing else.
+list of FR-303 to FR-305, in the strip's order; at its foot, a donate button that hands the
+donation page to the desktop's browser. Nothing else.
 Verified by: `settings.test.tsx`.
 
 **FR-602 Settings apply at once**
 Priority: Must.
 When a setting changes, the application shall apply it to the strip and persist it without a Save
 step.
-Verified by: planned `TestChangingASettingPersistsIt` (application).
+Verified by: `TestChangingASettingPersistsIt` (application).
 
 **FR-603 Analogue style**
 Priority: Must.
 Where the style is analogue, each cell shall show a dial with hour and minute hands for the local
 time plus the label, zone mark and local date as text.
-Verified by: planned `TestHandAnglesForLocalTime` (domain); `cell.test.tsx`.
+Verified by: `TestHandAnglesForLocalTime` (domain); no front-end test yet draws the dial.
 
 **FR-604 Digital style**
 Priority: Must.
 Where the style is digital, the time shall be the largest text in each cell.
-Verified by: `cell.test.tsx` (computed font sizes).
+Verified by: no test yet.
 
 **FR-605 Start with Windows**
 Priority: Should.
@@ -510,13 +511,13 @@ When Start with Windows is turned on, the application shall write the value `Tim
 shall delete that value. It shall be off by default and never written without the user turning it on.
 The value carries no arguments: a sign-in start shows the strip at once, as a normal launch does
 (ruled on OQ-2 by Oliver, 2026-09-27). Setup's box of FR-805 writes this same value.
-Verified by: planned `TestStartWithWindowsWritesAndRemovesOneValue` (infrastructure).
+Verified by: `TestStartWithWindowsWritesAndRemovesOneValue` (infrastructure).
 
 **FR-606 Theme**
 Priority: Should.
 Where the theme is system, the strip shall follow the Windows app theme as it changes; light and dark
 shall hold regardless of Windows.
-Verified by: `theme.test.tsx`; check M-7.
+Verified by: check M-7; no front-end test yet.
 
 **FR-607 About**
 Priority: Must (Amendment 2, Oliver, 2026-09-27).
@@ -524,13 +525,13 @@ The About panel shall show, in this order: the application icon; the product nam
 this build carries; `by Oliver Ernster`; `© Oliver Ernster`; then a credit for every component the
 application ships, each naming the component, its licence and what it does here. Close and Escape
 return the window to the strip.
-Verified by: `about.test.tsx`; `TestEveryLinkedModuleIsCredited` (structural).
+Verified by: `help.test.tsx`; `TestEveryLinkedModuleIsCredited` (structural).
 
 **FR-608 Licence**
 Priority: Must (Amendment 2, Oliver, 2026-09-27).
 The Licence panel shall show the whole of the `LICENSE` file the application was built with, as
 embedded in the binary. Close and Escape return the window to the strip.
-Verified by: `about.test.tsx`.
+Verified by: `help.test.tsx`; `TestTheLicencePanelIsSizedForTheLicencesWidestLine` (structural).
 
 **FR-609 Help content reads itself**
 Priority: Must (Amendment 2, Oliver, 2026-09-27).
@@ -541,7 +542,7 @@ focus arriving in the body shall suspend the cycle for 2.5 s of stillness, after
 from where the reader left it. Focus arriving while the opening 5 s still run shall not shorten
 them. While a dialog marked modal stands above the body, the cycle shall stand frozen in place. The
 cycle is one script, shared with the setup program (FR-811).
-Verified by: `autoScroll.test.ts`; `about.test.tsx`.
+Verified by: `autoScroll.test.ts`; `help.test.tsx`.
 
 ### 3.7 Persistence and recovery
 
@@ -550,26 +551,26 @@ Priority: Must.
 The application shall keep its settings in the settings file as indented JSON holding style, format,
 orientation, theme, Always on Top, placement and clocks; each clock holding a stable id, its zone id,
 its label and its position. Derived values (offset, abbreviation, time, date) shall not be stored.
-Verified by: planned `TestSettingsRoundTrip` and `TestNoDerivedValueIsStored` (infrastructure).
+Verified by: `TestSettingsRoundTrip` and `TestNoDerivedValueIsStored` (infrastructure).
 
 **FR-702 Atomic writes**
 Priority: Must.
 The application shall write the settings file to a temporary file in the same folder and replace the
 old file with it, so a crash mid-write leaves the previous file intact.
-Verified by: planned `TestWriteReplacesAtomically` (infrastructure).
+Verified by: `TestWriteReplacesAtomically` (infrastructure).
 
 **FR-703 First run**
 Priority: Must.
 If the settings file does not exist, then the application shall start with default settings and no
 clocks, write nothing until something changes and report no problem.
-Verified by: planned `TestAbsentFileMeansDefaults` (infrastructure).
+Verified by: `TestAbsentFileMeansDefaults` (infrastructure).
 
 **FR-704 Unreadable file**
 Priority: Must.
 If the settings file exists but is not valid JSON, then the application shall rename it to
 `settings.unreadable.json`, start with default settings and show on the strip `Settings could not be
 read; the old file was kept as settings.unreadable.json`.
-Verified by: planned `TestUnreadableFileIsKeptAsideAndReported` (infrastructure).
+Verified by: `TestUnreadableFileIsKeptAsideAndReported` (infrastructure).
 
 **FR-705 One bad clock**
 Priority: Must.
@@ -578,20 +579,20 @@ application shall load every other clock, keep the bad entry in the file unchang
 invalid clock.
 Acceptance: Given three clocks where the second names `Not/AZone`, then the first and third show
 their times and the second reads `Unknown time zone: Not/AZone`.
-Verified by: planned `TestOneBadClockLeavesTheOthersWorking` (infrastructure, application).
+Verified by: `TestOneBadClockLeavesTheOthersWorking` (application).
 
 **FR-706 Invalid clock shown for repair**
 Priority: Must.
 An invalid clock shall keep its place in the order, show its stored label (else its stored zone
 text) with the words `Unknown time zone` and offer `Edit` and `Remove` in Settings. The application
 shall never substitute another zone.
-Verified by: `cell.test.tsx`; planned `TestInvalidClockIsNeverGivenAnotherZone` (application).
+Verified by: `strip.test.tsx`; `TestInvalidClockIsNeverGivenAnotherZone` (application).
 
 **FR-707 Write failure**
 Priority: Must.
 If the settings file cannot be written, then the application shall keep running with the change in
 effect and show `Settings could not be saved:` followed by the reason, until a later write succeeds.
-Verified by: planned `TestWriteFailureIsReportedAndCleared` (application).
+Verified by: `TestWriteFailureIsReportedAndCleared` (application).
 
 ### 3.8 Non-functional
 
@@ -600,11 +601,11 @@ Verified by: planned `TestWriteFailureIsReportedAndCleared` (application).
 | NFR-P-1 | From launch to the strip showing current times shall take at most 1.5 s on the reference machine. | Timed from the log's first line to the first snapshot, median of 5 launches |
 | NFR-P-2 | While running normally, each cell shall show the new minute within 1 s after the Windows clock reaches it. | Log timestamps against the refresh, over 10 boundaries |
 | NFR-P-3 | After a resume or a system time change, every cell shall be correct within 2 s. | Check M-5 |
-| NFR-P-4 | While shown, the application shall schedule no periodic timer more frequent than once per minute. | Inspection plus a structural test over the front end's timer calls |
-| NFR-U-1 | Label, time, date and zone mark text shall meet a contrast ratio of at least 4.5:1 against the cell in both themes. | Theme token contrast test |
+| NFR-P-4 | While shown, the application shall schedule no periodic timer more frequent than once per minute. | Inspection plus a planned structural test over the front end's timer calls |
+| NFR-U-1 | Label, time, date and zone mark text shall meet a contrast ratio of at least 4.5:1 against the cell in both themes. | Planned theme token contrast test |
 | NFR-U-2 | No state shall be told by colour alone; an invalid clock carries words (FR-706). | Inspection |
 | NFR-U-3 | Every control in Settings and the place search shall be reachable and operable from the keyboard, with a visible focus indicator on the focused control. | `settings.test.tsx`; check M-8 |
-| NFR-U-4 | Every icon-only control shall carry an accessible name and a tooltip. | `a11y.test.tsx` |
+| NFR-U-4 | Every icon-only control shall carry an accessible name and a tooltip. | Planned `a11y.test.tsx` |
 | NFR-U-5 | Interactive targets shall be at least 24 by 24 DIP. | Inspection; WCAG 2.2 criterion 2.5.8 |
 | NFR-S-1 | The application shall make no network request. | Structural test forbidding any `net` or `net/http` import in the module |
 | NFR-S-2 | The application shall not change the Windows clock or time zone. | Inspection |
@@ -612,7 +613,7 @@ Verified by: planned `TestWriteFailureIsReportedAndCleared` (application).
 | NFR-M-1 | The coverage floor of CON-3, the size limit of CON-2 and the layering of CON-1 are enforced by `test.ps1`, which `build.ps1` runs first with no switch to skip it. | `build.ps1` |
 | NFR-M-2 | Go code passes gofmt, go vet and staticcheck; the front end passes eslint, `tsc --noEmit` and Vitest. | `test.ps1` |
 | NFR-C-1 | From 1.0.0, every later 1.x release shall read every settings file 1.0.0 writes to the same settings: no key 1.0.0 writes is renamed, dropped or given another meaning; no stored word changes. A later release may add keys; 1.0.0 keeps a key it does not know and writes it back. Amendment 4 (Oliver, 2026-09-27). | `TestA1Point0SettingsFileIsReadWhole` over the frozen fixture `internal/infrastructure/store/testdata/settings-1.0.0.json` |
-| NFR-O-1 | The application shall write a log to `%APPDATA%\TimeStrip\TimeStrip.log` recording launch, placement recovery decisions, settings failures and invalid clocks; standard error is pointed at it before anything can fail. | Planned `TestLogReceivesStandardError` (infrastructure) |
+| NFR-O-1 | The application shall write a log to `%APPDATA%\TimeStrip\TimeStrip.log` recording launch, placement recovery decisions, settings failures and invalid clocks; standard error is pointed at it before anything can fail. | `TestLogReceivesStandardError` (infrastructure) |
 
 ---
 
@@ -638,34 +639,34 @@ Install where nothing is installed; on Installed, offering Repair, Reinstall and
 same version is installed; on Update or Go back where another version is installed, with the button
 making the change leading. Versions compare by major, minor then patch as numbers, ignoring anything
 after a hyphen; a missing or non-numeric field counts as zero.
-Verified by: planned `TestCompareOrdersVersions` (infrastructure, setup); check M-9.
+Verified by: `TestCompareOrdersVersions` (infrastructure, setup); check M-9.
 
 **FR-802 Every install writes the same way**
 Priority: Must.
 When Install, Update, Go back or Reinstall is confirmed, setup shall write the application's files into
 `%LOCALAPPDATA%\Programs\TimeStrip`, place a copy of itself there as `uninstall.exe`, record the
 application in the Apps list with Modify and Repair offered, then apply the boxes of FR-805.
-Verified by: planned `TestExtractZipWritesEveryEntry` and `TestTheUninstallEntryNamesTheRealPath`
+Verified by: `TestExtractZipWritesEveryEntry` and `TestTheUninstallEntryNamesTheRealPath`
 (infrastructure, setup); check M-9.
 
 **FR-803 A payload entry leaving the install folder is refused**
 Priority: Must.
 If an entry in the payload names a path outside the install folder, then setup shall stop, report
 `unsafe path in payload` with the entry's name and write nothing further.
-Verified by: planned `TestExtractZipRejectsAPathThatEscapes` (infrastructure, setup).
+Verified by: `TestExtractZipRejectsAPathThatEscapes` (infrastructure, setup).
 
 **FR-804 Repair keeps the options as they stand**
 Priority: Must.
 When Repair is pressed, setup shall write the files again as FR-802 does, keeping the Start Menu
 shortcut, the Desktop shortcut and the Start with Windows value exactly as they are on the machine.
-Verified by: planned `TestTheBoxesReflectWhatIsOnTheMachine` (infrastructure, setup).
+Verified by: `TestTheBoxesReflectWhatIsOnTheMachine` (infrastructure, setup).
 
 **FR-805 Install options**
 Priority: Must.
 The Install screen shall offer three boxes: `Add to the Start Menu` (ticked), `Add a Desktop shortcut`
 (unticked) and `Start with Windows` (unticked), plus `Start TimeStrip when setup closes` (ticked).
 `Start with Windows` shall write the one value FR-605 writes, so the two cannot disagree.
-Verified by: planned `TestStartWithWindowsIsTheSameValueSettingsWrites` (infrastructure).
+Verified by: `TestStartWithWindowsIsTheSameValueSettingsWrites` (infrastructure).
 
 **FR-806 Uninstall removes the application and keeps the user's settings unless told**
 Priority: Must.
@@ -674,7 +675,7 @@ Apps list entry, then delete the install folder once setup has closed. Where `Al
 is ticked, which it is not by default, setup shall also delete `%APPDATA%\TimeStrip`.
 Amendment 3 (Oliver, 2026-09-27): everything the application writes under `%APPDATA%`, the web
 view's data included, lies inside `%APPDATA%\TimeStrip`, so forgetting leaves nothing behind.
-Verified by: planned `TestForgettingRemovesOnlyTheSettingsFolder` (infrastructure, setup); check M-9.
+Verified by: `TestForgettingRemovesOnlyTheSettingsFolder` (infrastructure, setup); check M-9.
 
 **FR-807 A running copy is closed before setup writes**
 Priority: Must.

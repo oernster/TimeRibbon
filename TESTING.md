@@ -48,7 +48,7 @@ and what stops it. An unexplained shortfall cannot be told from an oversight.
 | `tools/genplaces` | 38.8% | 38% | `test.ps1` |
 | `internal/infrastructure/appdata` | 100% | 100% | `test.ps1` |
 | `internal/infrastructure/runlog` | 76.5% | 76% | `test.ps1` |
-| the root package (the Wails facade) | 68.6% | 68% | `test.ps1` |
+| the root package (the Wails facade) | 68.4% | 68% | `test.ps1` |
 | `internal/infrastructure/desktop` | 14.8% | 14% | `test.ps1` |
 | `installer` | 0%, no tests | none | not gated |
 | `internal/product` | no statements | none | not gated |
@@ -58,7 +58,7 @@ packages `go list ./...` gives outside `node_modules`), plus one `TestMain` in
 `internal/infrastructure/setup`. Nineteen of them are the structural tests in `tests/structural`,
 which read the source rather than run it; [ARCHITECTURE.md](ARCHITECTURE.md) lists each against the
 rule it holds. One more holds a promise rather than a rule of structure:
-`TestA1Point0SettingsFileIsReadWhole` reads a frozen 1.0.0 settings file (NFR-C-1); see
+`TestA1Point0SettingsFileIsReadWhole` reads a frozen settings file of the first release (NFR-C-1); see
 ARCHITECTURE.md, The settings file.
 
 ### The front end
@@ -99,7 +99,8 @@ under scratch keys beneath `HKCU`.
 - **`internal/infrastructure/runlog` (76.5%).** Opening the log and pointing standard error at it are
   tested; making the folder failing, the start line failing to write and `SetStdHandle` refusing only
   fail inside the system.
-- **The root package (68.6%).** The facade's decisions are tested: which calls fit the strip, that a
+- **The root package (68.4%).** The facade's tests are `facade_test.go` and `window_life_test.go`,
+  over the scripted service in `fakes_test.go`. The facade's decisions are tested: which calls fit the strip, that a
   drag whose save failed is still fitted, the panel state, the menu actions, the close and the
   recover round each desktop event. Not reached: the composition root (`main.go`, `launch.go`),
   `startup`, `listen` and `shutdown`, which need the real strip window and the tray's message loop.
@@ -125,7 +126,7 @@ under scratch keys beneath `HKCU`.
 - **`internal/infrastructure/store` (92.7%).** Not reached: the folder or temporary file refusing to
   be made or flushed; the rename over the old file failing. Only a failing disk produces either.
 - **`tools/versioninfo` (86.7%).** `main` hands `run` the real arguments; an output folder that
-  cannot be made is not reached. What it writes was read back from both 1.0.0 executables through
+  cannot be made is not reached. What it writes was read back from both released executables through
   Windows' own version API on 2026-09-27.
 - **`tools/payload` (82.8%).** `main` hands `run` the real arguments; the archive failing to write
   part way is not reached.

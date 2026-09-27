@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TimeStrip: world clocks in a strip</title>
+    <meta name="description" content="TimeStrip is a small frameless strip of world clocks for Windows: one clock per place you choose, each with its own local time, weekday and date.">
+    <meta name="theme-color" content="#111418">
+    <link rel="icon" type="image/png" href="icon.png">
+    <link rel="apple-touch-icon" href="icon.png">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="TimeStrip: world clocks in a strip">
+    <meta property="og:description" content="What time and what day is it where the people you talk to are? One glance at a strip of clocks. For Windows.">
+    <meta property="og:image" content="https://ernster.dev/TimeStrip/icon.png">
+    <meta property="og:url" content="https://ernster.dev/TimeStrip/">
+    <link rel="stylesheet" href="styles.css">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "TimeStrip",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Windows",
+        "description": "A strip of configurable world clocks for Windows, horizontal or vertical.",
+        "author": {"@type": "Person", "name": "Oliver Ernster", "url": "https://ernster.dev"},
+        "license": "https://www.gnu.org/licenses/gpl-3.0.html",
+        "downloadUrl": "https://github.com/oernster/TimeStrip/releases/latest",
+        "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}
+    }
+    </script>
+</head>
+<body>
+
+<header class="wrap site-head">
+    <a class="brand" href="#top"><img src="icon.png" alt="" width="34" height="34"> TimeStrip</a>
+    <nav aria-label="Sections">
+        <a href="#features" class="hide-sm">Features</a>
+        <a href="#look">A look</a>
+        <a href="#download">Download</a>
+        <a href="https://github.com/oernster/TimeStrip">GitHub</a>
+    </nav>
+</header>
+
+<main id="top">
+
+    <div class="wrap hero">
+        <div>
+            <p class="eyebrow">
+                <span class="pill">v<!--VERSION-->1.0.0<!--/VERSION--></span>
+                <span class="pill">Windows</span>
+                <span class="pill">Free and open source</span>
+            </p>
+            <h1>TimeStrip</h1>
+            <p class="lead">A simple strip of world clocks, horizontal or vertical.
+                <strong>What time and what day is it where the people you talk to are?</strong>
+                One clock per place you choose, each with its own local time, weekday
+                and date, in a small frameless strip you can put anywhere on any monitor.</p>
+            <div class="cta">
+                <a class="btn btn-primary" href="https://github.com/oernster/TimeStrip/releases/latest/download/TimeStripSetup.exe">Download for Windows</a>
+                <a class="btn" href="https://github.com/oernster/TimeStrip">View the source</a>
+            </div>
+        </div>
+        <img class="hero-mark" src="icon.png" alt="" width="256" height="256">
+    </div>
+
+    <section class="wrap" id="features">
+        <p class="kicker">What it does</p>
+        <h2>Every place's own time. Nothing to set by hand.</h2>
+        <div class="features">
+            <div class="feature">
+                <h3>A clock per place</h3>
+                <p>Each clock shows its place, its local time, its weekday and date there
+                    and its zone's abbreviation (such as EDT). Where a zone has no letters
+                    it shows the offset from UTC instead (such as UTC+5:45).</p>
+            </div>
+            <div class="feature">
+                <h3>Daylight saving, followed</h3>
+                <p>Times come from the time zone rules themselves, built into the
+                    program. When the clocks change somewhere, its clock changes with them.</p>
+            </div>
+            <div class="feature">
+                <h3>East from Greenwich</h3>
+                <p>The strip runs east round the world from Greenwich: London first, then
+                    places further ahead; places behind UTC such as New York come last. The
+                    order is worked out afresh as the strip updates, so daylight saving can move it.</p>
+            </div>
+            <div class="feature">
+                <h3>Find any place</h3>
+                <p>Search the zones of the tz database by city, zone or country. Label a
+                    clock whatever you like: Manchester can borrow London's clock under its
+                    own name.</p>
+            </div>
+            <div class="feature">
+                <h3>Your way round</h3>
+                <p>Digital or analogue; 12 hour or 24 hour; horizontal or vertical; light,
+                    dark or following Windows. Every choice applies at once, with no Save step.</p>
+            </div>
+            <div class="feature">
+                <h3>Fits, then scrolls</h3>
+                <p>The strip is as long as its clocks until it reaches the edge of the
+                    display. Past that its clocks scroll rather than shrink or wrap.</p>
+            </div>
+            <div class="feature">
+                <h3>Stays where you leave it</h3>
+                <p>Drag it by any empty part onto any monitor and it opens there next time.
+                    Add or remove a clock and it re-centres along its length on that display.</p>
+            </div>
+            <div class="feature">
+                <h3>Out of the way</h3>
+                <p>No title bar, no border and no taskbar button. It can stay on top of
+                    other windows and start with Windows; both are yours to turn on.</p>
+            </div>
+            <div class="feature">
+                <h3>Two menus, one list</h3>
+                <p>The notification area icon and a right-click on the strip both offer
+                    Add clock, Settings, Always on top, Help (About and Licence), Hide and Exit.
+                    When the strip is hidden the icon offers Show in place of Hide.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="wrap" id="look">
+        <p class="kicker">A look</p>
+        <h2>Five places, one glance.</h2>
+        <div class="shot">
+            <figure>
+                <img src="screenshots/screenshot.png" width="181" height="883"
+                    alt="TimeStrip as a vertical strip in the dark theme with analogue clocks for London, Berlin, Tokyo, Melbourne and New York; each clock shows its place, its zone abbreviation, its weekday and its date, with New York last because it is behind UTC.">
+            </figure>
+            <div class="two-col">
+                <div class="card">
+                    <h3>What you are looking at</h3>
+                    <ul>
+                        <li><strong>Vertical, analogue and dark:</strong> three of the
+                            choices in Settings.</li>
+                        <li><strong>London first,</strong> then Berlin, Tokyo and Melbourne
+                            as the strip heads east.</li>
+                        <li><strong>New York last,</strong> since it is behind UTC.</li>
+                        <li><strong>Different days:</strong> Tokyo and Melbourne are
+                            already on tomorrow.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>What it does not do</h3>
+                    <ul>
+                        <li><strong>The internet.</strong> It makes no network request.
+                            The donate button hands its address to your browser.</li>
+                        <li><strong>Planning.</strong> No calendar, meetings, reminders
+                            or alarms. It shows the time; it plans nothing.</li>
+                        <li><strong>People.</strong> A clock is a place, never a person.</li>
+                        <li><strong>Seconds.</strong> Hours and minutes only.</li>
+                        <li><strong>Your Windows clock.</strong> It reads the time; it
+                            never changes it.</li>
+                        <li><strong>Anything but Windows.</strong> Windows only.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="wrap" id="download">
+        <p class="kicker">Download</p>
+        <h2>Install it for yourself. No administrator needed.</h2>
+        <span class="dl-version" id="dl-version">Version <!--VERSION-->1.0.0<!--/VERSION--></span>
+        <!--
+            The button points at GitHub's releases/latest/download redirect, which always
+            serves the newest release's file. The name carries no version, so the link
+            cannot go stale. The script at the foot adds the file size when it can reach
+            the API; without it the page still says everything that matters.
+        -->
+        <div class="downloads">
+            <div class="dl-card">
+                <div class="ico">&#x1FA9F;</div>
+                <h3>Windows</h3>
+                <p class="req">Windows 10 or 11 (Windows only)</p>
+                <a class="btn btn-primary" href="https://github.com/oernster/TimeStrip/releases/latest/download/TimeStripSetup.exe">Download for Windows</a>
+                <p class="meta" data-asset="TimeStripSetup.exe">Setup program (.exe)</p>
+                <p class="meta">Windows may show a SmartScreen warning when you run
+                    it: <a href="https://ernster.dev/windows-smartscreen.html">here is why</a>.</p>
+                <p class="how">Run <code>TimeStripSetup.exe</code> and choose Install. It
+                    installs for your account only, so Windows never asks for administrator
+                    rights. It offers a Start Menu entry, a Desktop shortcut and Start with
+                    Windows.</p>
+                <p class="how">Run the same program again to update, repair or uninstall.
+                    You can also remove it from the Apps list in Windows Settings; your
+                    clocks stay unless you tick <em>Also forget my settings</em>.</p>
+            </div>
+        </div>
+        <p class="dl-links">
+            <a id="dl-whats-new" href="https://github.com/oernster/TimeStrip/releases/latest">What is new in this release</a>
+            &nbsp;&middot;&nbsp;
+            <a href="https://github.com/oernster/TimeStrip/releases">All releases</a>
+            &nbsp;&middot;&nbsp;
+            <a href="https://github.com/oernster/TimeStrip">Source on GitHub</a>
+        </p>
+    </section>
+
+    <section class="wrap support" id="support">
+        <p class="kicker">Supporting TimeStrip</p>
+        <h2>Free. It stays free.</h2>
+        <div class="prose">
+            <p>There is no paid tier, no licence key and no feature held back behind a
+                donation. If TimeStrip saves you working out what time it is somewhere
+                else, a contribution supports its maintenance. The same button sits at
+                the foot of Settings.</p>
+        </div>
+        <div class="cta">
+            <a class="btn btn-donate" href="https://www.paypal.com/ncp/payment/THUS4KZ5GECH8">
+                <img src="donate.png" alt="">
+                Donate
+            </a>
+        </div>
+    </section>
+
+</main>
+
+<footer class="wrap site-foot">
+    <span>&copy; Oliver Ernster. GPL-3.0.
+        <a href="https://ernster.dev/commercial-licensing.html">Commercial licences</a> available.</span>
+    <span><a href="https://github.com/oernster/TimeStrip">Source</a> &middot;
+        <a href="https://ernster.dev">ernster.dev</a></span>
+</footer>
+
+<script>
+    // The download button never goes stale: it points at GitHub's releases/latest/download
+    // redirect, which always serves the newest release's file. This script only decorates
+    // the page: the version chip, the notes link and the file's size, read from the GitHub
+    // API. Where the call fails, the static text stands on its own; the chip then carries
+    // the version stamped into this page from the VERSION file. No date is ever shown.
+    (function () {
+        var api = 'https://api.github.com/repos/oernster/TimeStrip/releases/latest';
+        fetch(api).then(function (r) {
+            if (!r.ok) { throw new Error('release lookup failed'); }
+            return r.json();
+        }).then(function (rel) {
+            var version = (rel.tag_name || '').replace(/^v/, '');
+            if (version) {
+                document.getElementById('dl-version').textContent = 'Version ' + version;
+            }
+            if (rel.html_url) {
+                document.getElementById('dl-whats-new').href = rel.html_url;
+            }
+            (rel.assets || []).forEach(function (asset) {
+                var meta = document.querySelector('[data-asset="' + asset.name + '"]');
+                if (meta && asset.size) {
+                    var mb = (asset.size / (1024 * 1024)).toFixed(1);
+                    meta.textContent = meta.textContent + ' · ' + mb + ' MB';
+                }
+            });
+        }).catch(function () { /* The static page already says everything essential. */ });
+    })();
+</script>
+
+</body>
+</html>

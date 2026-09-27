@@ -48,6 +48,6 @@ dist-installer/
 
 frontend/package.json.md5
 
-# Session resume snapshot written by /ox and the oxygen protocol
-.claude/resume.md
+# Local Claude session files: the resume snapshot and this machine's site preview settings
+.claude/
 NOTES.md

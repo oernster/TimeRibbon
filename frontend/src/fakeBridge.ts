@@ -51,6 +51,7 @@ export function installBridge() {
     StartWithWindows: vi.fn(async () => false),
     SetStartWithWindows: vi.fn(async () => undefined),
     DismissNotices: vi.fn(async () => undefined),
+    SetScrollbar: vi.fn(async () => undefined),
     ShowContextMenu: vi.fn(async () => undefined),
     OpenPanel: vi.fn(async () => undefined),
     ClosePanel: vi.fn(async () => undefined),

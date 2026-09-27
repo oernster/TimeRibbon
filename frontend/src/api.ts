@@ -27,6 +27,7 @@ interface Bridge {
   StartWithWindows(): Promise<boolean>
   SetStartWithWindows(on: boolean): Promise<void>
   DismissNotices(): Promise<void>
+  SetScrollbar(dip: number): Promise<void>
   ShowContextMenu(): Promise<void>
   OpenPanel(): Promise<void>
   ClosePanel(): Promise<void>
@@ -81,6 +82,7 @@ export const api = {
   startWithWindows: (refused: Refused) => call((b) => b.StartWithWindows(), refused),
   setStartWithWindows: (on: boolean, refused: Refused) => call((b) => b.SetStartWithWindows(on), refused),
   dismissNotices: (refused: Refused) => call((b) => b.DismissNotices(), refused),
+  setScrollbar: (dip: number, refused: Refused) => call((b) => b.SetScrollbar(dip), refused),
   showContextMenu: (refused: Refused) => call((b) => b.ShowContextMenu(), refused),
   openPanel: (refused: Refused) => call((b) => b.OpenPanel(), refused),
   closePanel: (refused: Refused) => call((b) => b.ClosePanel(), refused),

@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { api } from './api'
 import { addClockTip } from './ArtButton'
 import { cell, installBridge, snapshot } from './fakeBridge'
+import { scrollbarThickness } from './scrollbar'
 import { Strip } from './Strip'
 
 describe('Strip', () => {
@@ -47,6 +48,36 @@ describe('Strip', () => {
     fireEvent.pointerDown(button, { button: 0, screenX: 100, screenY: 100 })
     fireEvent.pointerMove(button, { buttons: 1, screenX: 140, screenY: 100 })
     expect(invoke).not.toHaveBeenCalled()
+  })
+
+  it('moves only a scrolling horizontal strip along with a plain wheel (FR-106)', () => {
+    installBridge()
+    const along = (overrides: Parameters<typeof snapshot>[0], deltaX: number) => {
+      const view = render(<Strip snapshot={snapshot(overrides)} onAddClock={vi.fn()} refused={vi.fn()} />)
+      const strip = view.container.querySelector('.strip') as HTMLElement
+      let left = 0
+      Object.defineProperty(strip, 'scrollLeft', { get: () => left, set: (value: number) => (left = value) })
+      fireEvent.wheel(strip, { deltaX, deltaY: 100 })
+      view.unmount()
+      return left
+    }
+    expect(along({ orientation: 'horizontal', scrolls: true }, 0)).toBe(100)
+    expect(along({ orientation: 'horizontal', scrolls: true }, 30)).toBe(0)
+    expect(along({ orientation: 'horizontal', scrolls: false }, 0)).toBe(0)
+    expect(along({ orientation: 'vertical', scrolls: true }, 0)).toBe(0)
+  })
+
+  it('measures the scroll bar as the room it takes from a box that must scroll (FR-106)', () => {
+    expect(scrollbarThickness()).toBe(0)
+    const offset = vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(100)
+    const client = vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(85)
+    try {
+      expect(scrollbarThickness()).toBe(15)
+      expect(document.body.children.length).toBe(0)
+    } finally {
+      offset.mockRestore()
+      client.mockRestore()
+    }
   })
 
   it('opens the native menu on right-click (FR-108)', () => {

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { api, on, type Snapshot } from './api'
 import { About, Licence } from './Help'
+import { scrollbarThickness } from './scrollbar'
 import { Settings } from './Settings'
 import { Strip } from './Strip'
 
@@ -42,6 +43,11 @@ export function App() {
     setView('strip')
     void api.closePanel(setProblem).then(load)
   }, [load])
+
+  useEffect(() => {
+    // Go makes room for the scroll bar a scrolling strip shows, which only the page can measure.
+    void api.setScrollbar(scrollbarThickness(), setProblem)
+  }, [])
 
   useEffect(() => {
     load()

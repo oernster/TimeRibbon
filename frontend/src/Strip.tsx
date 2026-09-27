@@ -1,4 +1,4 @@
-import { useRef, type CSSProperties, type PointerEvent } from 'react'
+import { useRef, type CSSProperties, type PointerEvent, type WheelEvent } from 'react'
 import { api, startDrag, type Refused, type Snapshot } from './api'
 import { ArtButton, addClockTip } from './ArtButton'
 import addClockArt from './assets/add-clock.png'
@@ -46,6 +46,13 @@ export function Strip({ snapshot, onAddClock, refused }: Props) {
   const up = () => {
     pressed.current = null
   }
+  // A plain wheel moves up and down, which a horizontal strip cannot; so while one scrolls, the
+  // wheel moves it along instead (FR-106). A sideways wheel or a trackpad already moves it along.
+  const wheel = (event: WheelEvent<HTMLDivElement>) => {
+    if (!vertical && snapshot.scrolls && event.deltaX === 0) {
+      event.currentTarget.scrollLeft += event.deltaY
+    }
+  }
 
   const classes = ['strip', vertical ? 'vertical' : 'horizontal', snapshot.scrolls ? 'scrolls' : ''].join(' ')
   return (
@@ -55,6 +62,7 @@ export function Strip({ snapshot, onAddClock, refused }: Props) {
       onPointerDown={down}
       onPointerMove={move}
       onPointerUp={up}
+      onWheel={wheel}
       onContextMenu={(event) => {
         event.preventDefault()
         void api.showContextMenu(refused)

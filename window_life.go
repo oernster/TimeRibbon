@@ -127,10 +127,14 @@ func (a *App) moved() {
 	}
 	arranged, err := a.service.Moved(at)
 	a.report("recording where the strip was left", err)
-	if err == nil {
-		a.scrolls.Store(arranged.Scrolls)
-		a.report("placing the strip", desktop.Place(a.strip, arranged.At, arranged.Size))
+	if err != nil {
+		// The placement could not be saved, which raised a notice: fit the strip where it stands,
+		// its new cell included, rather than leave it wherever the drag let go.
+		a.rearrange()
+		return
 	}
+	a.scrolls.Store(arranged.Scrolls)
+	a.report("placing the strip", desktop.Place(a.strip, arranged.At, arranged.Size))
 }
 
 // rearrange fits the strip where it stands (FR-104, FR-406).

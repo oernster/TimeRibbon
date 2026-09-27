@@ -98,21 +98,40 @@ func (s *Service) arrange(
 	if len(monitors) == 0 {
 		return Arrangement{}, placement.Monitor{}, ErrNoMonitors
 	}
-	current := s.Settings()
+	content := s.stripContent()
+	current := content.settings
 	monitor := pick(monitors, current)
-	size, scrolls := s.stripSize(current, monitor)
+	size, scrolls := s.stripSize(content, monitor)
 	placed := place(size, monitors, current)
 	if placed.Monitor.Device != monitor.Device {
-		size, scrolls = s.stripSize(current, placed.Monitor)
+		size, scrolls = s.stripSize(content, placed.Monitor)
 		placed = place(size, monitors, current)
 	}
 	arranged := Arrangement{At: placed.At, Size: size, Scrolls: scrolls, DPI: placed.Monitor.DPI}
 	return arranged, placed.Monitor, nil
 }
 
-// stripSize answers the strip's size on monitor in physical pixels (FR-105, FR-106): the cells
-// fitted along the orientation within the work area; one cell plus padding across it.
-func (s *Service) stripSize(current settings.Settings, monitor placement.Monitor) (placement.Size, bool) {
+// content is what decides the strip's size, read together under one lock.
+type content struct {
+	settings settings.Settings
+	// cells counts every cell the page draws: each notice, then each clock (the prompt standing in
+	// for them when there are none).
+	cells     int
+	scrollbar int
+}
+
+func (s *Service) stripContent() content {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+	current := s.current.Normalised()
+	return content{settings: current, cells: len(s.notices()) + max(len(current.Clocks), 1), scrollbar: s.scrollbar}
+}
+
+// stripSize answers the strip's size on monitor in physical pixels (FR-105, FR-106): the cells,
+// notices included, fitted along the orientation within the work area; one cell plus padding
+// across it, plus the scroll bar's thickness when the cells scroll, so the bar never covers them.
+func (s *Service) stripSize(content content, monitor placement.Monitor) (placement.Size, bool) {
+	current := content.settings
 	cell := s.layout.Digital
 	switch {
 	case len(current.Clocks) == 0:
@@ -127,9 +146,13 @@ func (s *Service) stripSize(current settings.Settings, monitor placement.Monitor
 		room = monitor.Work.Height()
 	}
 	available := placement.Scale(room, monitor.DPI, placement.BaseDPI)
-	fitted := placement.Fit(len(current.Clocks), along, s.layout.Padding, available)
+	fitted := placement.Fit(content.cells, along, s.layout.Padding, available)
+	thickness := across + 2*s.layout.Padding
+	if fitted.Scrolls {
+		thickness += content.scrollbar
+	}
 	length := placement.Scale(fitted.Length, placement.BaseDPI, monitor.DPI)
-	breadth := placement.Scale(across+2*s.layout.Padding, placement.BaseDPI, monitor.DPI)
+	breadth := placement.Scale(thickness, placement.BaseDPI, monitor.DPI)
 	if current.Orientation == settings.Vertical {
 		return placement.Size{Width: breadth, Height: length}, fitted.Scrolls
 	}

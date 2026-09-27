@@ -85,6 +85,51 @@ func TestAStripThatWillNotFitScrollsAtTheWidthOfTheWorkArea(t *testing.T) {
 	}
 }
 
+// FR-106, FR-707: a notice is drawn as one more cell, so the strip makes room for it; two clocks and
+// a notice are 3 x 160 + 2 x 8 = 496 along. Once the notice is dismissed the strip is 336 again.
+func TestTheStripMakesRoomForANotice(t *testing.T) {
+	t.Parallel()
+	r := newRig(t, clocks(2))
+	r.store.saveErr = errPlanted
+	if err := r.service.SetTheme(settings.Dark); !errors.Is(err, errPlanted) {
+		t.Fatalf("the save did not fail: %v", err)
+	}
+	got, _ := r.service.Launch()
+	if got.Size.Width != 496 || got.Scrolls {
+		t.Errorf("with a notice: got %+v", got)
+	}
+	r.service.DismissNotices()
+	got, _ = r.service.Launch()
+	if got.Size.Width != 336 {
+		t.Errorf("after dismissing: got %+v", got)
+	}
+}
+
+// FR-106: a strip that scrolls is made thicker by the scroll bar the page reports, so the bar never
+// covers the cells; one that fits is not. 12 cells overflow the primary: 90 + 16 + 15 = 121 across.
+func TestAScrollingStripMakesRoomForItsScrollBar(t *testing.T) {
+	t.Parallel()
+	r := newRig(t, clocks(12))
+	const bar = 15
+	if err := r.service.SetScrollbar(bar); err != nil {
+		t.Fatal(err)
+	}
+	got, _ := r.service.Launch()
+	if !got.Scrolls || got.Size.Height != 90+2*testLayout.Padding+bar {
+		t.Errorf("scrolling: got %+v", got)
+	}
+	fits := newRig(t, clocks(2))
+	if err := fits.service.SetScrollbar(bar); err != nil {
+		t.Fatal(err)
+	}
+	if got, _ := fits.service.Launch(); got.Size.Height != 90+2*testLayout.Padding {
+		t.Errorf("fitting: got %+v", got)
+	}
+	if err := r.service.SetScrollbar(-1); !errors.Is(err, ErrNegativeLength) {
+		t.Errorf("a negative bar: got %v", err)
+	}
+}
+
 // FR-404.
 func TestPlacementIsStoredRelativeToItsMonitor(t *testing.T) {
 	t.Parallel()

@@ -63,14 +63,17 @@ button:focus-visible {
   cursor: default;
 }
 
+/* Both axes are stated. Hiding only one lets the browser turn the other into auto, which drew a
+   second scroll bar across the cells once the first took room (measured in Edge, 2026-09-27). A
+   scrolling strip is made thicker by its bar in Go, so the bar never covers the cells (FR-106). */
 .strip.horizontal {
   flex-direction: row;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 .strip.vertical {
   flex-direction: column;
-  overflow-y: hidden;
+  overflow: hidden;
 }
 
 .strip.horizontal.scrolls {

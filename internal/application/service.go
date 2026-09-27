@@ -18,6 +18,9 @@ var ErrUnknownChoice = errors.New("not one of the values this setting offers")
 // ErrNoMonitors is answered when Windows reports no display at all.
 var ErrNoMonitors = errors.New("no display is reported")
 
+// ErrNegativeLength is answered when a length that cannot be negative is given as one.
+var ErrNegativeLength = errors.New("a length cannot be negative")
+
 // saveFailedPrefix begins the notice shown while the settings cannot be written (FR-707).
 const saveFailedPrefix = "Settings could not be saved: "
 
@@ -41,6 +44,22 @@ type Service struct {
 	current    settings.Settings
 	loadNotice string
 	saveNotice string
+	// scrollbar is the thickness in DIP of the scroll bar the page draws, as the page measured it;
+	// zero until it says (FR-106).
+	scrollbar int
+}
+
+// SetScrollbar records the thickness in DIP of the scroll bar the page draws, which a scrolling
+// strip makes room for across its cells (FR-106). Only the page can measure it: it is the web
+// engine's bar, not one Windows reports.
+func (s *Service) SetScrollbar(dip int) error {
+	if dip < 0 {
+		return fmt.Errorf("%w: a scroll bar of %d", ErrNegativeLength, dip)
+	}
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+	s.scrollbar = dip
+	return nil
 }
 
 // New answers a service over ports with the first-run settings; Start loads the stored ones.

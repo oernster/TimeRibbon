@@ -51,6 +51,12 @@ if (-not ((Test-Path $icon) -and (Test-Path $appIcon))) {
     throw 'Missing build/windows/icon.ico or build/appicon.png: run python tools/genicons.py first.'
 }
 
+# Each executable's Windows version resource is written from VERSION and internal/product before
+# its build. Left to Wails' template it carried Wails' fallback version and a placeholder copyright.
+Write-Host 'Writing the version resources...'
+go run ./tools/versioninfo -version $version -out (Join-Path $root 'build/windows/info.json')
+if ($LASTEXITCODE -ne 0) { throw "tools/versioninfo failed with exit code $LASTEXITCODE" }
+
 Write-Host 'Building the application...'
 wails build -ldflags $ldflags
 if ($LASTEXITCODE -ne 0) { throw "wails build failed with exit code $LASTEXITCODE" }
@@ -71,6 +77,8 @@ try {
     New-Item -ItemType Directory -Force -Path (Join-Path $setupBuild 'windows') | Out-Null
     Copy-Item $icon (Join-Path $setupBuild 'windows/icon.ico') -Force
     Copy-Item $appIcon (Join-Path $setupBuild 'appicon.png') -Force
+    go run ./tools/versioninfo -version $version -setup -out (Join-Path $setupBuild 'windows/info.json')
+    if ($LASTEXITCODE -ne 0) { throw "tools/versioninfo failed with exit code $LASTEXITCODE" }
     Push-Location (Join-Path $root 'installer')
     try {
         wails build -ldflags $ldflags

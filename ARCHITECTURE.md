@@ -68,6 +68,9 @@ does not exist.
   Every layer reads it, so it belongs to none.
 - **Tools**, never shipped: `tools/genplaces` writes the place catalogue from the tz database's
   `zone.tab` and `iso3166.tab`; `tools/payload` packs the built application for the setup program;
+  `tools/versioninfo` writes each executable's Windows version resource from `VERSION` and
+  `internal/product` before its build, in place of Wails' template, which carried its fallback
+  version and a placeholder copyright;
   `tools/genicons.py` writes every icon from the masters in `assets/`.
 
 ## Composition root

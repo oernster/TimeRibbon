@@ -91,6 +91,7 @@ $measured = [ordered]@{
     './internal/infrastructure/zones'    = 100
     './tools/genplaces'                  = 38
     './tools/payload'                    = 82
+    './tools/versioninfo'                = 86
 }
 
 Write-Host 'Measuring the rest of the tree...'

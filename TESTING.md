@@ -41,6 +41,7 @@ and what stops it. An unexplained shortfall cannot be told from an oversight.
 | `internal/infrastructure/zones` | 100% | 100% | `test.ps1` |
 | `internal/infrastructure/store` | 92.7% | 92% | `test.ps1` |
 | `internal/infrastructure/setup` | 83.2% | 83% | `test.ps1` |
+| `tools/versioninfo` | 86.7% | 86% | `test.ps1` |
 | `tools/payload` | 82.8% | 82% | `test.ps1` |
 | `internal/infrastructure/monitors` | 82.6% | 82% | `test.ps1` |
 | `internal/infrastructure/startup` | 80.6% | 80% | `test.ps1` |
@@ -55,7 +56,7 @@ and what stops it. An unexplained shortfall cannot be told from an oversight.
 The three measured packages without a floor are an open item in [TECH_DEBT.md](TECH_DEBT.md); so is
 the facade without tests.
 
-160 Go test functions, each run once with no subtests (an uncached `go test -count=1 -json` over the
+164 Go test functions, each run once with no subtests (an uncached `go test -count=1 -json` over the
 packages `go list ./...` gives outside `node_modules`), plus one `TestMain` in
 `internal/infrastructure/setup`. Sixteen of them are the structural tests in `tests/structural`,
 which read the source rather than run it; [ARCHITECTURE.md](ARCHITECTURE.md) lists each against the
@@ -119,6 +120,9 @@ under scratch keys beneath `HKCU`.
   registry refusing to open or write the key is not reached.
 - **`internal/infrastructure/store` (92.7%).** Not reached: the folder or temporary file refusing to
   be made or flushed; the rename over the old file failing. Only a failing disk produces either.
+- **`tools/versioninfo` (86.7%).** `main` hands `run` the real arguments; an output folder that
+  cannot be made is not reached. What it writes was read back from both 1.0.0 executables through
+  Windows' own version API on 2026-09-27.
 - **`tools/payload` (82.8%).** `main` hands `run` the real arguments; the archive failing to write
   part way is not reached.
 - **`tools/genplaces` (38.8%).** `main`, `run`, `readTable` and `readVersion` read the tz database's

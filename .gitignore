@@ -36,6 +36,8 @@ frontend/node_modules/
 frontend/dist/
 frontend/wailsjs/
 build/bin/
+# Written by tools/versioninfo before each build, from VERSION and internal/product.
+build/windows/info.json
 
 # The setup program's build output. installer/payload.zip is tracked only as an empty-archive
 # placeholder: build.ps1 writes the real payload before building and puts the placeholder back after.

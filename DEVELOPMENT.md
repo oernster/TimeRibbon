@@ -70,12 +70,15 @@ It does these things in order and stops at the first failure:
    skip it: a gate that can be skipped is skipped on the day it would have caught something.
 4. Refuses to go on without `build/windows/icon.ico` and `build/appicon.png`, which
    `tools/genicons.py` makes and which are committed.
-5. Runs `wails build` for the application with the version passed in through `-ldflags`. That runs
+5. Writes the application's Windows version resource, `build/windows/info.json`, from `VERSION` and
+   `internal/product` through `go run ./tools/versioninfo`, then runs `wails build` for the
+   application with the version passed in through `-ldflags`. That runs
    the front end's `npm run build`, which runs `eslint` and `tsc --noEmit` before bundling.
 6. Packs the built application and `LICENSE` into `installer/payload.zip` through
    `go run ./tools/payload`.
-7. Copies the icon into the setup program's build folder, builds the setup program with the same
-   `-ldflags` and copies it to `dist-installer`.
+7. Copies the icon into the setup program's build folder, writes its version resource the same way
+   (described as the setup program), builds it with the same `-ldflags` and copies it to
+   `dist-installer`.
 8. Writes the empty placeholder back over `installer/payload.zip` whether or not step 7 succeeded,
    so `go build ./...` and the tests keep working and the real payload never reaches a commit.
 
@@ -185,7 +188,7 @@ Apps list records to choose between Install, Update, Go back and the Installed s
 | `frontend/src` | the React front end |
 | `installer/` | the setup program, a Wails application of its own; its page in `installer/frontend/dist` has no build step |
 | `tests/structural` | the tests that hold the architecture in place |
-| `tools/` | the icons, the place catalogue and the payload |
+| `tools/` | the icons, the place catalogue, the payload and the version resources |
 | `assets/` | the master artwork `tools/genicons.py` reads |
 
 ## House rules worth knowing before a first change

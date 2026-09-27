@@ -13,31 +13,21 @@ are deliberately unnumbered and are not open items.
 History is not recorded here. A resolved item is deleted outright, never rewritten as done and never
 archived. A resolution worth remembering belongs in the release notes.
 
-## 1. The executables' version resource is empty
-
-Both executables' Windows version resource comes from Wails' template, `build/windows/info.json`,
-which fills its fields from an `info` block that neither `wails.json` has. Measured on the builds of
-2026-09-27: `TimeStrip.exe` and `TimeStripSetup.exe` each carry an empty product version, file
-version and description, as does the 1.0.0 build of `TimeStrip.exe`. `VERSION` reaches the running code through `-ldflags` but not the file's
-properties, so Explorer's Details tab shows none of them. The fix is to
-write the version and the product name into the resource from `VERSION` and `internal/product` at
-build time, keeping each in its one home. Blocked on nothing.
-
-## 2. The product's name has homes outside `internal/product`
+## 1. The product's name has homes outside `internal/product`
 
 `wails.json` and `installer/wails.json` spell `TimeStrip` and `TimeStripSetup` as each executable's
 name, which `build.ps1` then reads back. A rename would have to reach both files by hand; the
 structural test holding the setup page to naming nothing does not look at them. The cost is small
 while the name is settled, which is why this is open rather than urgent. Blocked on nothing.
 
-## 3. The setup program's progress event word is stated twice
+## 2. The setup program's progress event word is stated twice
 
 `installer/app.go` emits `progress` and `setup-routes.js` listens for `'progress'`, with no test
 pairing the two as `TestThePageNamesEveryEventGoEmits` pairs the application's words with its page. A
 rename on one side alone would leave the progress bar standing still with nothing failing. Blocked on
 nothing.
 
-## 4. The Wails facade has no tests
+## 3. The Wails facade has no tests
 
 The root package measures 0%: `app.go`, `window_life.go` and `identity.go` have no tests of their
 own. What they call is tested in the application layer and what the page does with the answers in the
@@ -46,20 +36,20 @@ whose save failed is still fitted, the panel state and the menu actions. Each re
 directly rather than through a field a test could replace, which is what has to change first.
 Blocked on nothing.
 
-## 5. Three measured packages carry no floor
+## 4. Three measured packages carry no floor
 
 `internal/infrastructure/appdata` (100%), `internal/infrastructure/runlog` (76.5%) and
 `internal/infrastructure/desktop` (12.0%) are measured by any coverage run but are missing from the
 floors in `test.ps1`, so losing their cover fails nothing. Each needs a floor at what it reaches.
 Blocked on nothing.
 
-## 6. The running copy that will not close is untested
+## 5. The running copy that will not close is untested
 
 FR-807 says that a copy still running 5 seconds after setup asked it to close is reported, asking for
 it to be closed by hand. `setup.AppProcesses().Close` holds that deadline; no test reaches it.
 Closing is forced, so a stand-in that refuses to go is needed. Blocked on nothing.
 
-## 7. A donation page the desktop refused to open cannot be reported
+## 6. A donation page the desktop refused to open cannot be reported
 
 `OpenDonation` hands the address to Wails' `BrowserOpenURL`, which answers no error. Where no browser
 is registered, nothing happens and nothing says why. Blocked on Wails: the call would have to answer

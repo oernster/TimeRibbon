@@ -28,6 +28,7 @@ export interface Cell {
 export interface Snapshot {
   cells: Cell[]
   style: string
+  size: string
   format: string
   orientation: string
   theme: string

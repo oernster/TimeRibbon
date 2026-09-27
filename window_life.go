@@ -110,7 +110,32 @@ func (a *App) act(action application.MenuAction) {
 		if a.ctx != nil {
 			a.quit()
 		}
+	default:
+		if edge, ok := application.EdgeOf(action); ok {
+			a.toEdge(edge)
+		}
 	}
+}
+
+// toEdge puts the strip against edge of its display and shows it there (FR-408). While a panel is
+// open the window is that panel, so the place is kept and the strip goes there as the panel closes.
+func (a *App) toEdge(edge placement.Edge) {
+	at, err := a.position()
+	if err != nil {
+		a.report("reading where the strip is", err)
+		return
+	}
+	arranged, err := a.service.ToEdge(at, edge)
+	if err != nil {
+		a.report("putting the strip against an edge", err)
+		return
+	}
+	if a.panelOpen.Load() {
+		return
+	}
+	a.scrolls.Store(arranged.Scrolls)
+	a.report("placing the strip", a.place(arranged.At, arranged.Size))
+	a.show()
 }
 
 // moved records where a drag left the strip, putting it back onto a display if the drag left part

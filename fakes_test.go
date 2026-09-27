@@ -34,6 +34,7 @@ type scriptedService struct {
 	at      []placement.Point
 	centred placement.Size
 	onTop   []bool
+	edges   []placement.Edge
 }
 
 func (s *scriptedService) record(call string) { s.calls = append(s.calls, call) }
@@ -56,6 +57,8 @@ func (s *scriptedService) RemoveClock(string) error { return s.change("RemoveClo
 func (s *scriptedService) SearchPlaces(string) []application.Place { return s.places }
 
 func (s *scriptedService) SetStyle(settings.Style) error { return s.change("SetStyle") }
+
+func (s *scriptedService) SetSize(settings.Size) error { return s.change("SetSize") }
 
 func (s *scriptedService) SetFormat(clock.Format) error { return s.change("SetFormat") }
 
@@ -101,6 +104,13 @@ func (s *scriptedService) Moved(at placement.Point) (application.Arrangement, er
 	s.record("Moved")
 	s.at = append(s.at, at)
 	return s.arrangement, s.movedErr
+}
+
+func (s *scriptedService) ToEdge(at placement.Point, edge placement.Edge) (application.Arrangement, error) {
+	s.record("ToEdge")
+	s.at = append(s.at, at)
+	s.edges = append(s.edges, edge)
+	return s.arrangement, s.arrangeErr
 }
 
 func (s *scriptedService) Centred(at placement.Point, size placement.Size) (application.Arrangement, error) {

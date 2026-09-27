@@ -54,7 +54,7 @@ export function Strip({ snapshot, onAddClock, refused }: Props) {
     }
   }
 
-  const classes = ['strip', vertical ? 'vertical' : 'horizontal', snapshot.scrolls ? 'scrolls' : ''].join(' ')
+  const classes = ['strip', vertical ? 'vertical' : 'horizontal', snapshot.size, snapshot.scrolls ? 'scrolls' : ''].join(' ')
   return (
     <div
       className={classes}

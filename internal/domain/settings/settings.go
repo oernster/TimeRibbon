@@ -22,6 +22,15 @@ const (
 	Analogue Style = "analogue"
 )
 
+// Size is how large every cell is drawn (FR-610).
+type Size string
+
+// The sizes.
+const (
+	Large Size = "large"
+	Small Size = "small"
+)
+
 // Orientation is the direction cells run in (FR-103).
 type Orientation string
 
@@ -62,6 +71,7 @@ type Entry struct {
 // Settings is every choice the user has made.
 type Settings struct {
 	Style       Style
+	Size        Size
 	Format      clock.Format
 	Orientation Orientation
 	Theme       Theme
@@ -72,11 +82,12 @@ type Settings struct {
 	Clocks []Entry
 }
 
-// Defaults answers the settings of a first run (FR-703): digital, 24-hour, vertical (FR-103, amended
-// by Oliver on 2026-09-27), system theme, not on top, not yet placed, no clocks.
+// Defaults answers the settings of a first run (FR-703): digital, large (FR-610), 24-hour, vertical
+// (FR-103, amended by Oliver on 2026-09-27), system theme, not on top, not yet placed, no clocks.
 func Defaults() Settings {
 	return Settings{
 		Style:       Digital,
+		Size:        Large,
 		Format:      clock.TwentyFourHour,
 		Orientation: Vertical,
 		Theme:       System,
@@ -89,6 +100,9 @@ func (s Settings) Normalised() Settings {
 	defaults := Defaults()
 	if s.Style != Digital && s.Style != Analogue {
 		s.Style = defaults.Style
+	}
+	if s.Size != Large && s.Size != Small {
+		s.Size = defaults.Size
 	}
 	if s.Format != clock.TwentyFourHour && s.Format != clock.TwelveHour {
 		s.Format = defaults.Format

@@ -102,6 +102,38 @@ func CentredAlong(at Point, size Size, work Rect, vertical bool) Point {
 	return Clamp(at, size, work)
 }
 
+// Edge is one side of a work area a strip can be put against (FR-408).
+type Edge string
+
+// The edges.
+const (
+	Left   Edge = "left"
+	Right  Edge = "right"
+	Top    Edge = "top"
+	Bottom Edge = "bottom"
+)
+
+// AgainstEdge answers a strip of size flush against edge of work, centred along that edge: top to
+// bottom for the left and right edges, left to right for the top and bottom (FR-408); then clamped,
+// so a strip longer than work is aligned to its top or left.
+func AgainstEdge(size Size, work Rect, edge Edge) Point {
+	centred := Point{
+		X: work.Left + (work.Width()-size.Width)/2,
+		Y: work.Top + (work.Height()-size.Height)/2,
+	}
+	switch edge {
+	case Left:
+		centred.X = work.Left
+	case Right:
+		centred.X = work.Right - size.Width
+	case Top:
+		centred.Y = work.Top
+	case Bottom:
+		centred.Y = work.Bottom - size.Height
+	}
+	return Clamp(centred, size, work)
+}
+
 // Restore answers where the strip goes at launch (FR-405): on the stored monitor at the stored
 // offset scaled by the change in its DPI; else at the default place on the primary monitor. Either
 // way it is clamped wholly inside the work area. It answers false only when there are no monitors.

@@ -46,6 +46,31 @@ func TestCentredAlongKeepsThePositionAcross(t *testing.T) {
 	}
 }
 
+// FR-408: flush against the edge, centred along it; on a work area that does not start at zero.
+func TestAgainstEdgeIsFlushAndCentredAlongTheEdge(t *testing.T) {
+	t.Parallel()
+	tall := Size{Width: 120, Height: 600}
+	work := secondary.Work
+	cases := map[Edge]struct {
+		size Size
+		want Point
+	}{
+		Left:   {tall, Point{X: 1920, Y: (1392 - 600) / 2}},
+		Right:  {tall, Point{X: 4480 - 120, Y: (1392 - 600) / 2}},
+		Top:    {strip, Point{X: 1920 + (2560-600)/2, Y: 0}},
+		Bottom: {strip, Point{X: 1920 + (2560-600)/2, Y: 1392 - 120}},
+	}
+	for edge, each := range cases {
+		if got := AgainstEdge(each.size, work, edge); got != each.want {
+			t.Errorf("%s: got %+v, want %+v", edge, got, each.want)
+		}
+	}
+	long := Size{Width: 120, Height: 2000}
+	if got := AgainstEdge(long, primary.Work, Right); got != (Point{X: 1920 - 120, Y: 0}) {
+		t.Errorf("a strip longer than the work area was not aligned to its top: %+v", got)
+	}
+}
+
 // FR-404, FR-405.
 func TestPlacementIsStoredRelativeToItsMonitorAndRestored(t *testing.T) {
 	t.Parallel()

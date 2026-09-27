@@ -39,10 +39,13 @@ in a small frameless strip you can put anywhere on any monitor.
   own, such as Manchester, takes its zone's clock and your label).
 - **Stays out of the way.** The strip has no title bar, no border and no taskbar button. A left
   click on its icon in the notification area shows or hides it. The icon's menu and the strip's own
-  right-click menu both add a clock, open Settings, turn Always on top on or off, open Help (About
-  and Licence) and exit. Closing the strip (Alt+F4) hides it; only Exit ends it.
+  right-click menu both add a clock, open Settings, centre the strip on an edge, turn Always on top
+  on or off, open Help (About and Licence) and exit. Closing the strip (Alt+F4) hides it; only Exit
+  ends it.
 - **Goes where you put it.** Drag the strip by any empty part onto any monitor; it stays wholly on
   that display. It opens there next time. When that monitor is gone, it opens on the primary one.
+  Position in either menu puts it flush against an edge of its display, centred along that edge:
+  left or right for a vertical strip, top or bottom for a horizontal one.
 - **Re-centres when its length changes.** Adding or removing a clock, a notice appearing or going
   and a change of style or orientation all change the strip's length. When that happens the strip
   centres itself along its length on its display, keeping its position across; it opens there next
@@ -50,8 +53,9 @@ in a small frameless strip you can put anywhere on any monitor.
 - **Fits its clocks, then scrolls.** The strip is as long as its clocks until it reaches the edge
   of the display, then its clocks scroll rather than shrink or wrap. A plain mouse wheel moves a
   horizontal strip along.
-- **Digital or analogue, 12-hour or 24-hour, horizontal or vertical, light or dark.** Every choice
-  applies at once, with no Save step. The theme can follow Windows.
+- **Digital or analogue, large or small, 12-hour or 24-hour, horizontal or vertical, light or
+  dark.** Every choice applies at once, with no Save step. Small clocks suit a small screen such as a
+  13 inch laptop. The theme can follow Windows.
 - **Keeps your clocks in one readable file.** `%APPDATA%\TimeStrip\settings.json`, written whole
   or not at all. A damaged file is kept aside under another name and never overwritten; a notice on
   the strip says so. A save that fails keeps the change in effect with a notice until a later save

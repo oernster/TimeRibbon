@@ -246,6 +246,7 @@ When the strip is right-clicked, the application shall offer `Add clock`, `Setti
 Amendment 2 (Oliver, 2026-09-27): a `Help` submenu (FR-508) sits after `Always on top`.
 Amendment 5 (Oliver, 2026-09-27): `Exit` follows `Hide strip` and ends the application as the tray's
 does (FR-502).
+Amendment 8 (Oliver, 2026-09-28): a `Position` submenu (FR-408) sits after `Settings`.
 Verified by: `TestContextMenuOffersTheStripsActions` (application).
 
 ### 3.2 Time and date
@@ -427,6 +428,23 @@ The strip shall keep its size in DIP when moved between monitors with different 
 drawn at the destination monitor's resolution.
 Verified by: section 12, check M-3.
 
+**FR-408 Centre on an edge**
+Priority: Must (Amendment 8, Oliver, 2026-09-28).
+The tray menu and the strip's right-click menu shall each hold a `Position` submenu offering the two
+edges the strip runs along: `Centre on left edge` and `Centre on right edge` while the orientation is
+vertical; `Centre on top edge` and `Centre on bottom edge` while it is horizontal. When one is chosen,
+the application shall put the strip flush against that edge of the work area of the monitor it is
+on, centred along the edge, then show it and store that placement (FR-404). While a panel is open the
+placement is stored and the strip goes there when the panel closes. Flush, with no margin (Oliver,
+2026-09-28); the first-run place of FR-403 keeps its margin.
+Acceptance: given a vertical strip 196 DIP long on a work area 1032 DIP tall at 100 percent, when
+`Centre on left edge` is chosen, then its left edge is the work area's left edge and its top is 418
+DIP down; it opens there next time.
+Verified by: `TestAgainstEdgeIsFlushAndCentredAlongTheEdge` (domain);
+`TestToEdgePutsAVerticalStripFlushAndKeepsIt`, `TestToEdgeUsesTheDisplayTheStripIsOn`,
+`TestToEdgeThatCannotBeSavedMakesRoomForItsNotice`, `TestPositionOffersTheEdgesAlongTheOrientation`
+(application); `TestAPositionItemPutsTheStripAgainstItsEdge` (facade); check M-12.
+
 ### 3.5 Tray and window behaviour
 
 **FR-501 Tray icon**
@@ -439,6 +457,7 @@ Priority: Must.
 When the tray icon is right-clicked, the application shall offer `Show strip` or `Hide strip`
 (whichever applies), `Add clock`, `Settings`, `Always on top` (showing its state) and `Exit`.
 Amendment 2 (Oliver, 2026-09-27): a `Help` submenu (FR-508) sits after `Always on top`.
+Amendment 8 (Oliver, 2026-09-28): a `Position` submenu (FR-408) sits after `Settings`.
 Verified by: `TestTrayMenuNamesTheOppositeOfTheVisibility` (application); check M-4.
 
 **FR-503 Tray click**
@@ -485,7 +504,10 @@ Settings shall offer: style (digital, analogue); format (12-hour, 24-hour); orie
 (horizontal, vertical); theme (system, light, dark); Always on Top; Start with Windows; the Clocks
 list of FR-303 to FR-305, in the strip's order; at its foot, a donate button that hands the
 donation page to the desktop's browser. Nothing else.
-Verified by: `settings.test.tsx`.
+Amendment 8 (Oliver, 2026-09-28): size (large, small; FR-610) follows style. The title and `Close`
+stay at the top of the window while the rest of the panel scrolls beneath them, as the foot stays
+at the bottom.
+Verified by: `settings.test.tsx`; the header by check M-12.
 
 **FR-602 Settings apply at once**
 Priority: Must.
@@ -532,6 +554,21 @@ Priority: Must (Amendment 2, Oliver, 2026-09-27).
 The Licence panel shall show the whole of the `LICENSE` file the application was built with, as
 embedded in the binary. Close and Escape return the window to the strip.
 Verified by: `help.test.tsx`; `TestTheLicencePanelIsSizedForTheLicencesWidestLine` (structural).
+
+**FR-610 Clock size**
+Priority: Must (Amendment 8, Oliver, 2026-09-28).
+The strip shall draw every clock cell at the size held in settings, large or small, in either style;
+large when none is held, so a 1.0.0 settings file keeps the clocks it had. Small cells are 146 by 72
+DIP digital and 146 by 116 DIP analogue against large's 176 by 92 and 176 by 176, with their text and
+dial reduced to fit; the empty strip's prompt is the same at either size.
+Rationale: small screens such as a 13 inch laptop, where large analogue cells leave room for few
+clocks.
+Acceptance: given two analogue clocks in a vertical strip at 100 percent with 6 DIP padding, when the
+size is small, then the strip is 158 DIP wide and 244 DIP long.
+Verified by: `TestUnknownChoicesAreNormalisedToDefaults` (domain);
+`TestTheSmallSizeFitsTheStripToSmallCells` (application); `TestA1Point0SettingsFileIsReadWhole`,
+`TestSettingsRoundTrip` (infrastructure, store); `strip.test.tsx`, `settings.test.tsx`; the fit of
+the text by check M-12.
 
 **FR-609 Help content reads itself**
 Priority: Must (Amendment 2, Oliver, 2026-09-27).
@@ -826,3 +863,4 @@ There are no open questions. The five raised while drafting were ruled by Oliver
 | M-8 | Settings and the place search can be driven entirely from the keyboard. |
 | M-9 | Setup installs, updates, repairs and uninstalls on a real machine without asking for administrator rights, closing a running copy first. |
 | M-10 | Both menus open a Help submenu whose About and Licence each show their panel; the licence reads itself down after 5 s, a wheel stops it and it resumes; setup's Licence screen does the same. |
+| M-12 | Each Position item puts the strip flush against its edge and centred along it on the display it is on; it opens there next time; small clocks show their whole date and time in both styles; the Settings title and Close stay put while the panel scrolls. |

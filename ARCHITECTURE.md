@@ -51,7 +51,8 @@ does not exist.
   physical pixels: the default place, a stored placement restored on its monitor at that monitor's
   DPI, the least move that brings a strip wholly inside a work area (`Clamp`, `Recover`), the
   strip's length along its orientation (`Fit`) plus a strip centred along its length on a work area
-  with its position across kept (`CentredAlong`). `settings` is the user's choices as one value; every
+  with its position across kept (`CentredAlong`) or flush against one of its edges and centred
+  along it (`AgainstEdge`). `settings` is the user's choices as one value; every
   operation answers a new value and leaves the old one as it was.
 - **Application** (`internal/application`): one `Service` holding every use case over six ports
   (`Store`, `Zones`, `Clock`, `IDs`, `Monitors`, `StartupEntry`, in `ports.go`). It builds the
@@ -159,6 +160,19 @@ holds until the length next changes. Sizes
 are computed in DIP and scaled to the display's DPI, so a strip moved between displays
 at different scaling keeps its size in DIP (FR-407).
 
+The cell sizes live in one table in `main.go`, one layout per size setting (FR-610): large and
+small, each giving a digital, an analogue and a prompt cell plus the padding. The service picks the
+layout for the current size (`Layouts.For`) and hands it to the page in the snapshot along with the
+size itself; the page marks the strip `small` so `app.css` reduces the text and the dial to fit. The
+small sizes were measured in Edge on 2026-09-28 against the longest date the cells show, `Wednesday,
+30 September`, so it fits whole.
+
+**Centred on an edge (FR-408).** The Position submenu's items name an edge each (`EdgeOf` in
+`menus.go`); `ToEdge` puts the strip flush against that edge of the work area it overlaps most,
+centred along it (`placement.AgainstEdge`); it stores the place through `recentredKept`, so a
+failed save fits the strip to its notice and keeps it flush. A later change of length re-centres it
+along that edge, since re-centring keeps the position across.
+
 **Place (FR-403 to FR-406).** Coordinates are physical pixels on the virtual desktop. Wails'
 `WindowSetPosition` places a window relative to the work area of the monitor it is on while
 `WindowGetPosition` answers absolute coordinates. Its screen list carries no origin, device name or
@@ -226,10 +240,11 @@ recover a panic and log it, so one fault cannot leave a strip that reacts to not
 
 Both menus are native popup menus, so the strip's small window never clips them. Their items and
 words have one home, `internal/application/menus.go`. The tray menu offers Show strip or Hide strip
-(whichever applies), Add clock, Settings, Always on top, Help and Exit; the strip's right-click menu
-offers Add clock, Settings, Always on top, Help, Hide strip and Exit. Help is a submenu holding About
-and Licence in both. A left click on the tray icon shows or hides the strip. A menu item may hold
-children, which become a submenu (the Help submenu of FR-508); identifiers are numbered depth first,
+(whichever applies), Add clock, Settings, Position, Always on top, Help and Exit; the strip's
+right-click menu offers Add clock, Settings, Position, Always on top, Help, Hide strip and Exit.
+Position is a submenu holding the two edges the strip runs along (FR-408); Help is a submenu holding
+About and Licence in both. A left click on the tray icon shows or hides the strip. A menu item may
+hold children, which become a submenu (Position, then the Help submenu of FR-508); identifiers are numbered depth first,
 so a choice inside a submenu still names its action. A tray icon that cannot be created is not fatal:
 the strip still runs. Closing it then quits, since nothing would bring it back.
 

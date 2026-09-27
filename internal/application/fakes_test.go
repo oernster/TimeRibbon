@@ -91,6 +91,17 @@ var testLayout = Layout{
 	Padding:  8,
 }
 
+// testLayouts is testLayout for the large size and a smaller one for the small (FR-610).
+var testLayouts = Layouts{
+	Large: testLayout,
+	Small: Layout{
+		Digital:  placement.Size{Width: 120, Height: 60},
+		Analogue: placement.Size{Width: 120, Height: 100},
+		Prompt:   testLayout.Prompt,
+		Padding:  testLayout.Padding,
+	},
+}
+
 // Two monitors side by side: a primary at 100 percent and a secondary at 150 percent to its right.
 var (
 	primaryMonitor = placement.Monitor{
@@ -130,7 +141,7 @@ func newRig(t *testing.T, initial settings.Settings) rig {
 		IDs:      &countingIDs{},
 		Monitors: fakeMonitors{monitors: []placement.Monitor{primaryMonitor, secondaryMonitor}},
 		Startup:  startup,
-	}, testLayout)
+	}, testLayouts)
 	if err := service.Start(); err != nil {
 		t.Fatalf("Start: %v", err)
 	}

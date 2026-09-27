@@ -25,8 +25,9 @@ interface Choice {
 }
 
 /** Each choice Settings offers, with its values in the words shown (FR-601). */
-const choices: { name: string; key: 'style' | 'format' | 'orientation' | 'theme'; options: Choice[] }[] = [
+const choices: { name: string; key: 'style' | 'size' | 'format' | 'orientation' | 'theme'; options: Choice[] }[] = [
   { name: 'Style', key: 'style', options: [{ label: 'Digital', value: 'digital' }, { label: 'Analogue', value: 'analogue' }] },
+  { name: 'Size', key: 'size', options: [{ label: 'Large', value: 'large' }, { label: 'Small', value: 'small' }] },
   { name: 'Time format', key: 'format', options: [{ label: '24-hour', value: '24h' }, { label: '12-hour', value: '12h' }] },
   { name: 'Orientation', key: 'orientation', options: [{ label: 'Horizontal', value: 'horizontal' }, { label: 'Vertical', value: 'vertical' }] },
   { name: 'Theme', key: 'theme', options: [{ label: 'System', value: 'system' }, { label: 'Light', value: 'light' }, { label: 'Dark', value: 'dark' }] },
@@ -34,6 +35,7 @@ const choices: { name: string; key: 'style' | 'format' | 'orientation' | 'theme'
 
 const setters = {
   style: api.setStyle,
+  size: api.setSize,
   format: api.setFormat,
   orientation: api.setOrientation,
   theme: api.setTheme,

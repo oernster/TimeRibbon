@@ -40,6 +40,7 @@ type cellDTO struct {
 type snapshotDTO struct {
 	Cells         []cellDTO `json:"cells"`
 	Style         string    `json:"style"`
+	Size          string    `json:"size"`
 	Format        string    `json:"format"`
 	Orientation   string    `json:"orientation"`
 	Theme         string    `json:"theme"`
@@ -90,7 +91,7 @@ func snapshotOf(s application.Snapshot, scrolls bool, threshold placement.Size) 
 		notices = []string{}
 	}
 	return snapshotDTO{
-		Cells: cells, Style: string(s.Style), Format: string(s.Format), Orientation: string(s.Orientation),
+		Cells: cells, Style: string(s.Style), Size: string(s.Size), Format: string(s.Format), Orientation: string(s.Orientation),
 		Theme: string(s.Theme), AlwaysOnTop: s.AlwaysOnTop,
 		Layout:        layoutDTO{Digital: sizeOf(s.Layout.Digital), Analogue: sizeOf(s.Layout.Analogue), Prompt: sizeOf(s.Layout.Prompt), Padding: s.Layout.Padding},
 		RefreshInMs:   s.NextRefresh.Sub(s.Now).Milliseconds(),

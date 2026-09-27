@@ -25,6 +25,16 @@ describe('Strip', () => {
     expect(screen.queryByText(/\d\d:\d\d/)).toBeNull()
   })
 
+  it('draws cells at the size the snapshot names, marked for its text sizes (FR-610)', () => {
+    installBridge()
+    const small = { digital: { width: 144, height: 72 }, analogue: { width: 144, height: 124 }, prompt: { width: 176, height: 184 }, padding: 6 }
+    render(<Strip snapshot={snapshot({ size: 'small', layout: small })} onAddClock={vi.fn()} refused={vi.fn()} />)
+    const strip = screen.getAllByRole('group')[0].closest('.strip') as HTMLElement
+    expect(strip.classList.contains('small')).toBe(true)
+    expect(strip.style.getPropertyValue('--cell-w')).toBe('144px')
+    expect(strip.style.getPropertyValue('--cell-h')).toBe('72px')
+  })
+
   it('offers Add clock on an empty strip (FR-107)', () => {
     installBridge()
     const onAddClock = vi.fn()

@@ -11,6 +11,8 @@ import (
 	"path/filepath"
 	"slices"
 	"testing"
+
+	"github.com/oernster/timestrip/internal/domain/settings"
 )
 
 // contractFixture is a settings file as 1.0.0 writes it.
@@ -37,5 +39,9 @@ func TestA1Point0SettingsFileIsReadWhole(t *testing.T) {
 		got.Theme != want.Theme || got.AlwaysOnTop != want.AlwaysOnTop || got.Placement == nil ||
 		*got.Placement != *want.Placement || !slices.Equal(got.Clocks, want.Clocks) {
 		t.Errorf("a 1.0.0 file read as %+v, want %+v", got, want)
+	}
+	// 1.0.0 had no size (FR-610): its clocks were the large ones, so they stay large.
+	if got.Size != settings.Large {
+		t.Errorf("a 1.0.0 file read with size %q, want large", got.Size)
 	}
 }

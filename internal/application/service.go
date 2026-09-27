@@ -34,11 +34,25 @@ type Layout struct {
 	Padding int
 }
 
+// Layouts is the layout for each size (FR-610).
+type Layouts struct {
+	Large Layout
+	Small Layout
+}
+
+// For answers the layout of size; the large one for a size it does not know.
+func (l Layouts) For(size settings.Size) Layout {
+	if size == settings.Small {
+		return l.Small
+	}
+	return l.Large
+}
+
 // Service runs every use case over the current settings. It is safe to call from several
 // goroutines: Wails, the tray and display events each call in on their own.
 type Service struct {
-	ports  Ports
-	layout Layout
+	ports   Ports
+	layouts Layouts
 
 	mutex      sync.Mutex
 	current    settings.Settings
@@ -74,8 +88,8 @@ func (s *Service) SetScrollbar(dip int) error {
 }
 
 // New answers a service over ports with the first-run settings; Start loads the stored ones.
-func New(ports Ports, layout Layout) *Service {
-	return &Service{ports: ports, layout: layout, current: settings.Defaults()}
+func New(ports Ports, layouts Layouts) *Service {
+	return &Service{ports: ports, layouts: layouts, current: settings.Defaults()}
 }
 
 // Start loads the stored settings. A fault reading them is answered and the defaults are kept, so

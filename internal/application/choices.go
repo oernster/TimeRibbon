@@ -12,6 +12,11 @@ func (s *Service) SetStyle(style settings.Style) error {
 	return choose(s, style, func(c *settings.Settings) *settings.Style { return &c.Style })
 }
 
+// SetSize chooses large or small cells (FR-610). Arranging the window afterwards fits it to them.
+func (s *Service) SetSize(size settings.Size) error {
+	return choose(s, size, func(c *settings.Settings) *settings.Size { return &c.Size })
+}
+
 // SetFormat chooses 12-hour or 24-hour time (FR-206).
 func (s *Service) SetFormat(format clock.Format) error {
 	return choose(s, format, func(c *settings.Settings) *clock.Format { return &c.Format })

@@ -14,7 +14,7 @@ import (
 func TestALoadNoticeIsShownUntilDismissed(t *testing.T) {
 	t.Parallel()
 	store := &fakeStore{loaded: Loaded{Settings: settings.Defaults(), Notice: "kept aside"}}
-	service := New(Ports{Store: store, Clock: fixedClock{}}, testLayout)
+	service := New(Ports{Store: store, Clock: fixedClock{}}, testLayouts)
 	if err := service.Start(); err != nil {
 		t.Fatal(err)
 	}
@@ -30,7 +30,7 @@ func TestALoadNoticeIsShownUntilDismissed(t *testing.T) {
 func TestAFaultReadingSettingsKeepsTheDefaultsAndSaysSo(t *testing.T) {
 	t.Parallel()
 	store := &fakeStore{loadErr: errPlanted}
-	service := New(Ports{Store: store, Clock: fixedClock{}}, testLayout)
+	service := New(Ports{Store: store, Clock: fixedClock{}}, testLayouts)
 	if err := service.Start(); !errors.Is(err, errPlanted) {
 		t.Errorf("Start answered %v", err)
 	}

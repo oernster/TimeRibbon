@@ -24,13 +24,29 @@ import (
 	"github.com/oernster/timestrip/internal/product"
 )
 
-// layout is the size of one cell in each style and the padding round the cells, in DIP: its one
-// home. The page draws cells at these sizes from the snapshot.
-var layout = application.Layout{
-	Digital:  placement.Size{Width: 176, Height: 92},
-	Analogue: placement.Size{Width: 176, Height: 176},
-	Prompt:   placement.Size{Width: 176, Height: 184},
-	Padding:  6,
+// The empty strip's one cell and the padding round the cells, in DIP, the same at either size: the
+// prompt holds the large Add clock button whatever size the clocks are drawn at.
+var (
+	promptCell   = placement.Size{Width: 176, Height: 184}
+	stripPadding = 6
+)
+
+// layouts is the size of one cell in each style at each size (FR-610), in DIP: its one home. The
+// page draws cells at these sizes from the snapshot; app.css sizes their text to fit, under
+// .strip.small for the small ones.
+var layouts = application.Layouts{
+	Large: application.Layout{
+		Digital:  placement.Size{Width: 176, Height: 92},
+		Analogue: placement.Size{Width: 176, Height: 176},
+		Prompt:   promptCell,
+		Padding:  stripPadding,
+	},
+	Small: application.Layout{
+		Digital:  placement.Size{Width: 146, Height: 72},
+		Analogue: placement.Size{Width: 146, Height: 116},
+		Prompt:   promptCell,
+		Padding:  stripPadding,
+	},
 }
 
 // panelSize is the window in DIP while it shows a panel: Settings, About or Licence (CON-6).
@@ -99,7 +115,7 @@ func run(log io.Writer) error {
 		IDs:      system.IDs{},
 		Monitors: monitors.Monitors{},
 		Startup:  startup.New(program),
-	}, layout)
+	}, layouts)
 	if err := service.Start(); err != nil {
 		fmt.Fprintf(log, "loading settings: %v\n", err)
 	}

@@ -20,6 +20,7 @@ func TestEveryChangeFitsTheStripAndAnswersTheServicesError(t *testing.T) {
 		"RezoneClock":    func(app *App) error { return app.RezoneClock("id-1", "Asia/Kolkata") },
 		"RemoveClock":    func(app *App) error { return app.RemoveClock("id-1") },
 		"SetStyle":       func(app *App) error { return app.SetStyle("analogue") },
+		"SetSize":        func(app *App) error { return app.SetSize("small") },
 		"SetFormat":      func(app *App) error { return app.SetFormat("12h") },
 		"SetOrientation": func(app *App) error { return app.SetOrientation("vertical") },
 		"SetTheme":       func(app *App) error { return app.SetTheme("dark") },

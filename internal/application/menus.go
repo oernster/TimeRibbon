@@ -1,5 +1,10 @@
 package application
 
+import (
+	"github.com/oernster/timestrip/internal/domain/placement"
+	"github.com/oernster/timestrip/internal/domain/settings"
+)
+
 // MenuAction names what a menu item does. The window and the tray act on it; the words shown for
 // it live here alone.
 type MenuAction string
@@ -14,7 +19,25 @@ const (
 	ActionAbout       MenuAction = "about"
 	ActionLicence     MenuAction = "licence"
 	ActionExit        MenuAction = "exit"
+	ActionLeftEdge    MenuAction = "left-edge"
+	ActionRightEdge   MenuAction = "right-edge"
+	ActionTopEdge     MenuAction = "top-edge"
+	ActionBottomEdge  MenuAction = "bottom-edge"
 )
+
+// edgeActions maps each Position item to the edge it puts the strip against (FR-408).
+var edgeActions = map[MenuAction]placement.Edge{
+	ActionLeftEdge:   placement.Left,
+	ActionRightEdge:  placement.Right,
+	ActionTopEdge:    placement.Top,
+	ActionBottomEdge: placement.Bottom,
+}
+
+// EdgeOf answers the edge a Position item puts the strip against; false for any other action.
+func EdgeOf(action MenuAction) (placement.Edge, bool) {
+	edge, ok := edgeActions[action]
+	return edge, ok
+}
 
 // MenuItem is one entry of a menu.
 type MenuItem struct {
@@ -33,6 +56,11 @@ const (
 	labelHide        = "Hide strip"
 	labelAddClock    = "Add clock"
 	labelSettings    = "Settings"
+	labelPosition    = "Position"
+	labelLeftEdge    = "Centre on left edge"
+	labelRightEdge   = "Centre on right edge"
+	labelTopEdge     = "Centre on top edge"
+	labelBottomEdge  = "Centre on bottom edge"
 	labelAlwaysOnTop = "Always on top"
 	labelHelp        = "Help"
 	labelAbout       = "About"
@@ -47,14 +75,26 @@ func (s *Service) TrayMenu(visible bool) []MenuItem {
 	if visible {
 		toggle = MenuItem{Action: ActionHide, Label: labelHide}
 	}
-	return []MenuItem{toggle, addClockItem(), settingsItem(), s.alwaysOnTopItem(), helpItem(), exitItem()}
+	return []MenuItem{toggle, addClockItem(), settingsItem(), s.positionItem(), s.alwaysOnTopItem(), helpItem(), exitItem()}
 }
 
 // ContextMenu answers the menu the strip offers when right-clicked (FR-108).
 func (s *Service) ContextMenu() []MenuItem {
 	return []MenuItem{
-		addClockItem(), settingsItem(), s.alwaysOnTopItem(), helpItem(), {Action: ActionHide, Label: labelHide}, exitItem(),
+		addClockItem(), settingsItem(), s.positionItem(), s.alwaysOnTopItem(), helpItem(),
+		{Action: ActionHide, Label: labelHide}, exitItem(),
 	}
+}
+
+// positionItem is the Position submenu both menus hold (FR-408): the two edges along which the
+// strip runs its length, so a vertical strip is offered the left and right edges and a horizontal
+// one the top and bottom.
+func (s *Service) positionItem() MenuItem {
+	children := []MenuItem{{Action: ActionTopEdge, Label: labelTopEdge}, {Action: ActionBottomEdge, Label: labelBottomEdge}}
+	if s.Settings().Orientation == settings.Vertical {
+		children = []MenuItem{{Action: ActionLeftEdge, Label: labelLeftEdge}, {Action: ActionRightEdge, Label: labelRightEdge}}
+	}
+	return MenuItem{Label: labelPosition, Children: children}
 }
 
 // exitItem ends the application, from either menu (FR-108, FR-502).

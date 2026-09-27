@@ -15,6 +15,7 @@ import (
 const (
 	keyVersion     = "version"
 	keyStyle       = "style"
+	keySize        = "size"
 	keyFormat      = "format"
 	keyOrientation = "orientation"
 	keyTheme       = "theme"
@@ -24,7 +25,7 @@ const (
 )
 
 // knownKeys lists the keys this version reads, in writing order.
-var knownKeys = []string{keyVersion, keyStyle, keyFormat, keyOrientation, keyTheme, keyAlwaysOnTop, keyPlacement, keyClocks}
+var knownKeys = []string{keyVersion, keyStyle, keySize, keyFormat, keyOrientation, keyTheme, keyAlwaysOnTop, keyPlacement, keyClocks}
 
 // unreadableIDPrefix begins the id an unreadable clock is given for the session, so it can be
 // edited or removed. It is never written: the entry is written back as it was found.
@@ -69,6 +70,7 @@ func decode(raw []byte) (settings.Settings, []pair, bool) {
 	}
 	decoded := settings.Defaults()
 	readInto(object, keyStyle, &decoded.Style)
+	readInto(object, keySize, &decoded.Size)
 	readInto(object, keyFormat, &decoded.Format)
 	readInto(object, keyOrientation, &decoded.Orientation)
 	readInto(object, keyTheme, &decoded.Theme)

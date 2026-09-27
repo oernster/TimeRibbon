@@ -50,9 +50,24 @@ func (s *Service) Moved(at placement.Point) (Arrangement, error) {
 	return arranged, s.record(arranged.At, monitor)
 }
 
-// recentredKept answers what arrange answers, saving the strip's place where it was re-centred so
-// the next launch finds it there (FR-104). A save that fails raises a notice, one more cell
-// (FR-707), so the strip is arranged once more to fit it; that arrangement is not saved again.
+// ToEdge puts a strip now at at flush against edge of the work area it overlaps most, centred along
+// that edge; it keeps that place (FR-408).
+func (s *Service) ToEdge(at placement.Point, edge placement.Edge) (Arrangement, error) {
+	return s.recentredKept(func() (Arrangement, placement.Monitor, bool, error) {
+		arranged, monitor, _, err := s.arrange(func(monitors []placement.Monitor, _ settings.Settings) placement.Monitor {
+			return mostOverlapped(monitors, at)
+		}, func(size placement.Size, monitors []placement.Monitor, _ settings.Settings) placement.Placed {
+			monitor := mostOverlapped(monitors, at)
+			return placement.Placed{At: placement.AgainstEdge(size, monitor.Work, edge), Monitor: monitor}
+		})
+		return arranged, monitor, true, err
+	})
+}
+
+// recentredKept answers what arrange answers, saving the strip's place where arrange says it was
+// moved, re-centred or put against an edge, so the next launch finds it there (FR-104, FR-408). A
+// save that fails raises a notice, one more cell (FR-707), so the strip is arranged once more to
+// fit it; that arrangement is not saved again.
 func (s *Service) recentredKept(arrange func() (Arrangement, placement.Monitor, bool, error)) (Arrangement, error) {
 	arranged, monitor, recentred, err := arrange()
 	if err != nil || !recentred {
@@ -171,12 +186,13 @@ func (s *Service) stripContent() content {
 // It answers the length along the orientation in DIP too, which a move between scalings keeps.
 func (s *Service) stripSize(content content, monitor placement.Monitor) (placement.Size, bool, int) {
 	current := content.settings
-	cell := s.layout.Digital
+	layout := s.layouts.For(current.Size)
+	cell := layout.Digital
 	switch {
 	case len(current.Clocks) == 0:
-		cell = s.layout.Prompt
+		cell = layout.Prompt
 	case current.Style == settings.Analogue:
-		cell = s.layout.Analogue
+		cell = layout.Analogue
 	}
 	along, across := cell.Width, cell.Height
 	room := monitor.Work.Width()
@@ -185,8 +201,8 @@ func (s *Service) stripSize(content content, monitor placement.Monitor) (placeme
 		room = monitor.Work.Height()
 	}
 	available := placement.Scale(room, monitor.DPI, placement.BaseDPI)
-	fitted := placement.Fit(content.cells, along, s.layout.Padding, available)
-	thickness := across + 2*s.layout.Padding
+	fitted := placement.Fit(content.cells, along, layout.Padding, available)
+	thickness := across + 2*layout.Padding
 	if fitted.Scrolls {
 		thickness += content.scrollbar
 	}

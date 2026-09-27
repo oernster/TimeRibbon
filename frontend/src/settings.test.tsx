@@ -18,6 +18,8 @@ describe('Settings', () => {
     const { bridge, reload } = await open()
     await act(async () => fireEvent.click(screen.getByLabelText('Analogue')))
     expect(bridge.SetStyle).toHaveBeenCalledWith('analogue')
+    await act(async () => fireEvent.click(screen.getByLabelText('Small')))
+    expect(bridge.SetSize).toHaveBeenCalledWith('small')
     await act(async () => fireEvent.click(screen.getByLabelText('12-hour')))
     expect(bridge.SetFormat).toHaveBeenCalledWith('12h')
     await act(async () => fireEvent.click(screen.getByLabelText('Vertical')))

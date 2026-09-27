@@ -46,6 +46,7 @@ type stripService interface {
 	RemoveClock(id string) error
 	SearchPlaces(query string) []application.Place
 	SetStyle(style settings.Style) error
+	SetSize(size settings.Size) error
 	SetFormat(format clock.Format) error
 	SetOrientation(orientation settings.Orientation) error
 	SetTheme(theme settings.Theme) error
@@ -59,6 +60,7 @@ type stripService interface {
 	Launch() (application.Arrangement, error)
 	Rearrange(at placement.Point) (application.Arrangement, error)
 	Moved(at placement.Point) (application.Arrangement, error)
+	ToEdge(at placement.Point, edge placement.Edge) (application.Arrangement, error)
 	Centred(at placement.Point, size placement.Size) (application.Arrangement, error)
 }
 
@@ -139,6 +141,13 @@ func (a *App) SearchPlaces(query string) []placeDTO { return placesOf(a.service.
 // SetStyle chooses digital or analogue (FR-601).
 func (a *App) SetStyle(style string) error {
 	err := a.service.SetStyle(settings.Style(style))
+	a.contentChanged()
+	return err
+}
+
+// SetSize chooses large or small cells (FR-610).
+func (a *App) SetSize(size string) error {
+	err := a.service.SetSize(settings.Size(size))
 	a.contentChanged()
 	return err
 }

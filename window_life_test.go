@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/oernster/timestrip/internal/application"
+	"github.com/oernster/timestrip/internal/domain/placement"
 	"github.com/oernster/timestrip/internal/infrastructure/desktop"
 )
 
@@ -127,6 +128,39 @@ func TestAlwaysOnTopFromTheMenuTurnsTheSettingOver(t *testing.T) {
 	}
 	if !seen.sawEvent(eventRefresh) {
 		t.Error("the page was not told the setting changed")
+	}
+}
+
+// FR-408: a Position item puts the strip where the service says and shows it; under an open panel
+// the place is kept for the panel's close and the panel is left where it is.
+func TestAPositionItemPutsTheStripAgainstItsEdge(t *testing.T) {
+	app, service, seen, _ := newTestApp(t)
+	app.act(application.ActionRightEdge)
+	if !slices.Equal(service.calls, []string{"ToEdge"}) || service.at[0] != testStripAt || service.edges[0] != placement.Right {
+		t.Errorf("the service heard %v at %v for %v, want ToEdge from the strip for the right edge", service.calls, service.at, service.edges)
+	}
+	if len(seen.placed) != 1 || seen.placed[0].At != testArrange.At || seen.shown != 1 || !app.scrolls.Load() {
+		t.Errorf("placed %+v and shown %d times, want placed where the service said and shown", seen.placed, seen.shown)
+	}
+	app, service, seen, _ = newTestApp(t)
+	app.panelOpen.Store(true)
+	app.act(application.ActionTopEdge)
+	if !slices.Equal(service.calls, []string{"ToEdge"}) || len(seen.placed) != 0 {
+		t.Errorf("under a panel the service heard %v and the window was placed %d times, want the place kept only", service.calls, len(seen.placed))
+	}
+}
+
+// A Position item whose place cannot be read or decided moves nothing and says why in the log.
+func TestAPositionItemThatFailsMovesNothing(t *testing.T) {
+	app, service, seen, log := newTestApp(t)
+	seen.readErr = errPlanted
+	app.act(application.ActionLeftEdge)
+	service.arrangeErr = errPlanted
+	seen.readErr = nil
+	app.act(application.ActionLeftEdge)
+	if len(seen.placed) != 0 || !strings.Contains(log.String(), "reading where the strip is") ||
+		!strings.Contains(log.String(), "putting the strip against an edge") {
+		t.Errorf("placed %d times with log %q, want nothing placed and both failures logged", len(seen.placed), log)
 	}
 }
 

@@ -36,6 +36,7 @@ type Cell struct {
 type Snapshot struct {
 	Cells       []Cell
 	Style       settings.Style
+	Size        settings.Size
 	Format      clock.Format
 	Orientation settings.Orientation
 	Theme       settings.Theme
@@ -91,7 +92,7 @@ func (s *Service) Snapshot() Snapshot {
 	now := s.ports.Clock.Now()
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
-	current := s.current
+	current := s.current.Normalised()
 	timed := make([]timedCell, 0, len(current.Clocks))
 	for _, entry := range current.Clocks {
 		timed = append(timed, s.cell(entry, now, current.Format))
@@ -104,11 +105,12 @@ func (s *Service) Snapshot() Snapshot {
 	return Snapshot{
 		Cells:       cells,
 		Style:       current.Style,
+		Size:        current.Size,
 		Format:      current.Format,
 		Orientation: current.Orientation,
 		Theme:       current.Theme,
 		AlwaysOnTop: current.AlwaysOnTop,
-		Layout:      s.layout,
+		Layout:      s.layouts.For(current.Size),
 		Now:         now,
 		NextRefresh: clock.NextRefresh(now),
 		Notices:     s.notices(),

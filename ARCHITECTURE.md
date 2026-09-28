@@ -1,6 +1,6 @@
 # TimeRibbon Architecture
 
-A small Windows desktop application showing a strip of clocks, one per chosen place. It reads the
+A small Windows desktop application showing a ribbon of clocks, one per chosen place. It reads the
 Windows clock and nothing else from outside itself; the time zone rules are built into the
 executable. It makes no network request: no Go file of this module imports a network package, which
 `TestTheModuleImportsNoNetworkPackage` holds. The one address it knows, the donation page, is handed
@@ -47,17 +47,17 @@ does not exist.
   clock. `clock` turns an instant and a zone into what a cell shows: the local time in either
   format, the weekday and date, the zone mark (the abbreviation where the tz database gives one of
   letters, else `UTC` and the signed offset) and the hand angles; `NextRefresh` names the next minute
-  boundary. It also derives a zone's default label. `placement` decides where the strip goes, in
+  boundary. It also derives a zone's default label. `placement` decides where the ribbon goes, in
   physical pixels: the default place, a stored placement restored on its monitor at that monitor's
-  DPI, the least move that brings a strip wholly inside a work area (`Clamp`, `Recover`), the
-  strip's length along its orientation (`Fit`) plus a strip centred along its length on a work area
+  DPI, the least move that brings a ribbon wholly inside a work area (`Clamp`, `Recover`), the
+  ribbon's length along its orientation (`Fit`) plus a ribbon centred along its length on a work area
   with its position across kept (`CentredAlong`) or flush against one of its edges and centred
   along it (`AgainstEdge`). `settings` is the user's choices as one value; every
   operation answers a new value and leaves the old one as it was.
 - **Application** (`internal/application`): one `Service` holding every use case over six ports
   (`Store`, `Zones`, `Clock`, `IDs`, `Monitors`, `StartupEntry`, in `ports.go`). It builds the
-  snapshot the strip draws, adds, edits and removes clocks, searches places, changes settings,
-  arranges the strip (`Launch`, `Rearrange`, `Moved`, `Centred`) and answers the tray and context
+  snapshot the ribbon draws, adds, edits and removes clocks, searches places, changes settings,
+  arranges the ribbon (`Launch`, `Rearrange`, `Moved`, `Centred`) and answers the tray and context
   menus. The snapshot orders its cells east from Greenwich (`eastFromGreenwich` in `snapshot.go`):
   places level with or ahead of UTC by ascending offset, then the places behind UTC, since going
   east reaches them last. Offsets are read at the snapshot's instant, so the order is worked out
@@ -125,84 +125,84 @@ show a tray icon.
 
 ## One window
 
-Wails v2 offers one window, so the strip, Settings, About and Licence share it (CON-6). The strip is
+Wails v2 offers one window, so the ribbon, Settings, About and Licence share it (CON-6). The ribbon is
 the window at the size its clocks need. Opening a panel resizes the window to `panelSize`, centred on
-the strip's display and never larger than its work area (`Service.Centred`); closing one returns the
-window to where the strip was last left. While a panel is open, a move of the window is not recorded
-as the strip's and a change of content is fitted when the panel closes.
+the ribbon's display and never larger than its work area (`Service.Centred`); closing one returns the
+window to where the ribbon was last left. While a panel is open, a move of the window is not recorded
+as the ribbon's and a change of content is fitted when the panel closes.
 
 The window opens hidden. `startup` finds its handle by the class `TimeRibbonStrip`, takes it off the
 taskbar, fences its moves and places it, all before the page is shown, so it never appears blank or
 in the wrong place. Wails always marks its window as an application window, which forces a taskbar
 button; `HideFromTaskbar` takes that style off and marks it a tool window once, before it is shown.
 
-## The strip's size and place
+## The ribbon's size and place
 
 **Size (FR-105, FR-106).** `stripSize` counts the cells the page draws: each notice, then each clock
-(the Add clock prompt standing in for them when there are none). Along the orientation the strip is that many cells plus
+(the Add clock prompt standing in for them when there are none). Along the orientation the ribbon is that many cells plus
 padding, while that fits the work area of its display; beyond that it is the work area's length and
 its cells scroll. Across, it is one cell plus padding, plus the thickness of the scroll bar when the
 cells scroll, so the bar never covers them. The bar is the web engine's, not one Windows reports, so
-the page measures it once it has loaded and hands it to Go through `SetScrollbar`. The strip hides
+the page measures it once it has loaded and hands it to Go through `SetScrollbar`. The ribbon hides
 overflow on both axes and scrolls only along its own; hiding one axis alone let the browser turn the
 other into a second scroll bar, measured in Edge on 2026-09-27. A plain wheel moves a scrolling
-horizontal strip along.
+horizontal ribbon along.
 
 Every change that can alter the cells (a clock added or removed, the style or size changed, a notice
-raised by a failed save or dismissed, the scroll bar reported) refits the strip where it stands; a
-change of orientation sends it to that orientation's home edge instead (FR-409, below). Where the refit changes the strip's length, it is centred along that length on its display
+raised by a failed save or dismissed, the scroll bar reported) refits the ribbon where it stands; a
+change of orientation sends it to that orientation's home edge instead (FR-409, below). Where the refit changes the ribbon's length, it is centred along that length on its display
 with its position across kept (`placement.CentredAlong`); `recentredKept` in `arrange.go` stores
 that place (FR-104). The service remembers the length it last arranged to tell a change; the first
 arrangement of a run never counts as one. A length that changed while a panel was open is centred
-as the panel closes. Should the save fail, its notice is one more cell, so the strip is arranged once
-more to fit it and that arrangement is not saved again. Nothing else re-centres the strip, so a drag
+as the panel closes. Should the save fail, its notice is one more cell, so the ribbon is arranged once
+more to fit it and that arrangement is not saved again. Nothing else re-centres the ribbon, so a drag
 holds until the length next changes. Sizes
-are computed in DIP and scaled to the display's DPI, so a strip moved between displays
+are computed in DIP and scaled to the display's DPI, so a ribbon moved between displays
 at different scaling keeps its size in DIP (FR-407).
 
 The cell sizes live in one table in `main.go`, one layout per size setting (FR-610): large and
 small, each giving a digital, an analogue and a prompt cell plus the padding. The service picks the
 layout for the current size (`Layouts.For`) and hands it to the page in the snapshot along with the
-size itself; the page marks the strip `small` so `app.css` reduces the text and the dial to fit. The
+size itself; the page marks the ribbon `small` so `app.css` reduces the text and the dial to fit. The
 small sizes were measured in Edge on 2026-09-28 against the longest date the cells show, `Wednesday,
 30 September`, so it fits whole.
 
 **Centred on an edge (FR-408).** The Position submenu's items name an edge each (`EdgeOf` in
-`menus.go`); `ToEdge` puts the strip flush against that edge of the work area it overlaps most,
+`menus.go`); `ToEdge` puts the ribbon flush against that edge of the work area it overlaps most,
 centred along it (`placement.AgainstEdge`); it stores the place through `recentredKept`, so a
-failed save fits the strip to its notice and keeps it flush. A later change of length re-centres it
-along that edge, since re-centring keeps the position across. A strip is placed by its top-left
+failed save fits the ribbon to its notice and keeps it flush. A later change of length re-centres it
+along that edge, since re-centring keeps the position across. A ribbon is placed by its top-left
 corner, so against the right or bottom edge a change of thickness (a change of size or style, a
-scroll bar) would pull it off: the service remembers where it last arranged the strip. When it
-places the strip again on the same display with that corner unmoved it keeps the far edge flush
+scroll bar) would pull it off: the service remembers where it last arranged the ribbon. When it
+places the ribbon again on the same display with that corner unmoved it keeps the far edge flush
 (`placement.KeptFlush`), measured to fail without it by `TestShrinkingKeepsTheStripAgainstItsEdge`.
 
-**An orientation's home edge (FR-409).** Choosing an orientation sends the strip to that
+**An orientation's home edge (FR-409).** Choosing an orientation sends the ribbon to that
 orientation's home edge (`settings.HomeEdge`, a domain rule since the default place uses it too): the top for horizontal, the right for
 vertical. The facade's `SetOrientation` asks the service to choose, then reads the settings back:
-where the choice took, even with its save failed, it puts the strip against the home edge through
-`ToEdge`; where it was refused, it fits the strip where it stands.
+where the choice took, even with its save failed, it puts the ribbon against the home edge through
+`ToEdge`; where it was refused, it fits the ribbon where it stands.
 
 **Place (FR-403 to FR-406).** Coordinates are physical pixels on the virtual desktop. Wails'
 `WindowSetPosition` places a window relative to the work area of the monitor it is on while
 `WindowGetPosition` answers absolute coordinates. Its screen list carries no origin, device name or
 work area either. So displays are read through `EnumDisplayMonitors` and `GetMonitorInfoW` (`monitors`)
-and the window is placed with `SetWindowPos` (`desktop.Place`). With nothing stored the strip goes
+and the window is placed with `SetWindowPos` (`desktop.Place`). With nothing stored the ribbon goes
 flush against its orientation's home edge on the primary work area (the right for vertical, the top for
-horizontal), centred along it; a strip whose monitor has gone or which was left off every display
+horizontal), centred along it; a ribbon whose monitor has gone or which was left off every display
 goes there too. The end of a drag is heard
 through a WinEvent hook on `EVENT_SYSTEM_MOVESIZEEND`; the placement is stored as the monitor's device
-name, its work area, its DPI and the strip's offset from the work area's corner. At launch it is
+name, its work area, its DPI and the ribbon's offset from the work area's corner. At launch it is
 restored on that monitor, the offset scaled by any change of DPI; where that monitor is gone it goes
-to the default place on the primary. A display change refits the strip where it is.
+to the default place on the primary. A display change refits the ribbon where it is.
 
-**The drag (FR-401, FR-402).** A press on empty strip area that moves past Windows' own drag
+**The drag (FR-401, FR-402).** A press on empty ribbon area that moves past Windows' own drag
 distance (`SM_CXDRAG`, `SM_CYDRAG`) hands the press to Windows' move loop through
 `window.WailsInvoke('drag')`, the message Wails' own drag regions send. That message is internal to
 Wails v2 rather than a documented call; a press on a control never starts one. While the window
 moves, a window procedure placed in front of Wails' own (`desktop.KeepOnDisplays`) answers each
 `WM_MOVING` by moving the proposed rectangle the least distance that keeps it inside the work area of
-the display under the pointer, so the strip can be carried onto another display but never left half
+the display under the pointer, so the ribbon can be carried onto another display but never left half
 off one.
 
 ## Time
@@ -248,20 +248,20 @@ icon is read out of the executable itself. When Explorer restarts it re-adds the
 `TaskbarCreated` message. Nothing crosses the thread boundary by callback: the desktop reports on a
 buffered channel, dropping an event with a line in the log rather than blocking the thread Windows
 called in on; the facade's `listen` loop acts on it. Both the window procedure and the listen loop
-recover a panic and log it, so one fault cannot leave a strip that reacts to nothing.
+recover a panic and log it, so one fault cannot leave a ribbon that reacts to nothing.
 
-Both menus are native popup menus, so the strip's small window never clips them. Their items and
-words have one home, `internal/application/menus.go`. The tray menu offers Show strip or Hide strip
+Both menus are native popup menus, so the ribbon's small window never clips them. Their items and
+words have one home, `internal/application/menus.go`. The tray menu offers Show ribbon or Hide ribbon
 (whichever applies), Add clock, Settings, Style, Orientation, Position, Always on top, Help and Exit;
-the strip's right-click menu offers Add clock, Settings, Style, Orientation, Position, Always on top,
-Help, Hide strip and Exit. Style and Orientation are submenus ticking the current choice, whose
+the ribbon's right-click menu offers Add clock, Settings, Style, Orientation, Position, Always on top,
+Help, Hide ribbon and Exit. Style and Orientation are submenus ticking the current choice, whose
 items reach the same facade calls the page's would (`menu_choices.go`, FR-502); style and orientation
-are not offered in Settings. Position is a submenu holding the two edges the strip runs along
+are not offered in Settings. Position is a submenu holding the two edges the ribbon runs along
 (FR-408); Help is a submenu holding About and Licence in both. A left click on the tray icon shows or
-hides the strip. A menu item may hold children, which become a submenu (Style, Orientation,
+hides the ribbon. A menu item may hold children, which become a submenu (Style, Orientation,
 Position, then the Help submenu of FR-508); identifiers are numbered depth first,
 so a choice inside a submenu still names its action. A tray icon that cannot be created is not fatal:
-the strip still runs. Closing it then quits, since nothing would bring it back.
+the ribbon still runs. Closing it then quits, since nothing would bring it back.
 
 ## Help, About and Licence
 
@@ -356,15 +356,15 @@ caller acts on.
   pointed at the log as the first act of the run (`runlog.Keep`), so even the Go runtime's own panic
   report is kept. A settings folder that cannot be found falls back to a folder in the temporary
   folder; settings that cannot be read, a tray icon that cannot be made and a missing executable path
-  are logged and the strip still opens. The embedded place catalogue failing to parse is a build
+  are logged and the ribbon still opens. The embedded place catalogue failing to parse is a build
   defect, which a test holds.
-- **Shown on the strip, which keeps working:** a settings file kept aside and a save that failed, as
+- **Shown on the ribbon, which keeps working:** a settings file kept aside and a save that failed, as
   notices with OK; an invalid clock, in words in its own cell.
 - **Refused beneath the control that was pressed:** every page call that Go can refuse. Each `api`
   wrapper takes a refusal handler as its last argument and answers null rather than rejecting, so a
   call written without a handler does not compile and no refusal is dropped on the page.
 - **Logged and carried on:** a desktop event nobody was reading, a panic in the desktop's thread or in
-  handling one of its events, a failure to place, hide from the taskbar or fence the strip.
+  handling one of its events, a failure to place, hide from the taskbar or fence the ribbon.
 
 ## Quality enforcement
 
@@ -386,11 +386,11 @@ caller acts on.
 | Go with Wails and a web front end | One executable with no runtime to install; the same stack draws the setup program | A Python and Qt desktop stack |
 | The tz database built into the executable | Every machine shows the same rules, whatever it has installed; no DST rule is written by hand | Reading the machine's zone files; offsets written by hand |
 | Displays and placement through Win32 | Wails' screen list has no origin, device name or work area; its position calls mix relative and absolute coordinates | Wails' own position calls |
-| One window for the strip and every panel | Wails v2 offers one window | A second window per panel |
-| Native popup menus | The strip's window is small; a menu drawn in the page would be clipped by it | A menu drawn in the page |
+| One window for the ribbon and every panel | Wails v2 offers one window | A second window per panel |
+| Native popup menus | The ribbon's window is small; a menu drawn in the page would be clipped by it | A menu drawn in the page |
 | The scroll bar measured by the page | It is the web engine's bar, which Windows' scroll bar metric does not describe | A thickness written into the Go code |
 | The self-reading cycle in one script beside the setup page | The setup page cannot import; the window's build can import the file, so both run the same code | The cycle written twice, once in TypeScript and once for the setup page |
-| The strip hides from the taskbar by swapping its window style | Wails always marks its window as an application window | Accepting a taskbar button |
+| The ribbon hides from the taskbar by swapping its window style | Wails always marks its window as an application window | Accepting a taskbar button |
 | The web view's data folder named inside the settings folder | Left to Wails it was `%APPDATA%\TimeRibbon.exe`, beside the settings folder, which forgetting the settings on uninstall did not reach | Deleting Wails' default folder by name at uninstall, which hangs on a rule Wails does not promise |
 | Settings in one JSON file, written whole | A person can read and repair it; a crash mid-write cannot damage it | A database |
 | Everything per user | Nothing needs administrator rights, so nothing asks for them | A machine-wide install |

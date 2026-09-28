@@ -21,12 +21,12 @@ func TestTrayMenuNamesTheOppositeOfTheVisibility(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, settings.Defaults())
 	shown := r.service.TrayMenu(true)
-	if !slices.Equal(labels(shown), []string{"Hide strip", "Add clock", "Settings", "Style", "Orientation", "Position", "Always on top", "Help", "Exit"}) ||
+	if !slices.Equal(labels(shown), []string{"Hide ribbon", "Add clock", "Settings", "Style", "Orientation", "Position", "Always on top", "Help", "Exit"}) ||
 		shown[0].Action != ActionHide {
 		t.Errorf("visible: %+v", shown)
 	}
 	hidden := r.service.TrayMenu(false)
-	if hidden[0].Label != "Show strip" || hidden[0].Action != ActionShow {
+	if hidden[0].Label != "Show ribbon" || hidden[0].Action != ActionShow {
 		t.Errorf("hidden: %+v", hidden[0])
 	}
 }
@@ -98,7 +98,7 @@ func TestBothMenusOfferStyleAndOrientationWithTheCurrentTicked(t *testing.T) {
 func TestContextMenuOffersTheStripsActions(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, settings.Defaults())
-	if got := labels(r.service.ContextMenu()); !slices.Equal(got, []string{"Add clock", "Settings", "Style", "Orientation", "Position", "Always on top", "Help", "Hide strip", "Exit"}) {
+	if got := labels(r.service.ContextMenu()); !slices.Equal(got, []string{"Add clock", "Settings", "Style", "Orientation", "Position", "Always on top", "Help", "Hide ribbon", "Exit"}) {
 		t.Errorf("got %v", got)
 	}
 	if last := r.service.ContextMenu()[len(r.service.ContextMenu())-1]; last.Action != ActionExit {

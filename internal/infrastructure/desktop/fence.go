@@ -52,7 +52,7 @@ func KeepOnDisplays(strip windows.HWND, log io.Writer) error {
 	fence := &moveFence{log: log}
 	previous, _, err := procSetWindowLongPtr.Call(uintptr(strip), uintptr(wndProcIndex), windows.NewCallback(fence.proc))
 	if previous == 0 {
-		return fmt.Errorf("fencing the strip's moves: %w", err)
+		return fmt.Errorf("fencing the ribbon's moves: %w", err)
 	}
 	fence.previous = previous
 	return nil

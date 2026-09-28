@@ -38,7 +38,7 @@ func TestEveryChangeFitsTheStripAndAnswersTheServicesError(t *testing.T) {
 				t.Errorf("%s never reached the service", name)
 			}
 			if !slices.Contains(service.calls, "Rearrange") || len(seen.placed) != 1 {
-				t.Errorf("%s (service answered %v) placed the strip %d times, want it fitted once", name, failure, len(seen.placed))
+				t.Errorf("%s (service answered %v) placed the ribbon %d times, want it fitted once", name, failure, len(seen.placed))
 			}
 		}
 	}
@@ -54,7 +54,7 @@ func TestAChangeLeavesThePanelOrAnUnfoundStripAlone(t *testing.T) {
 	app.strip = 0
 	_ = app.RenameClock("id-1", "Home")
 	if slices.Contains(service.calls, "Rearrange") || len(seen.placed) != 0 {
-		t.Errorf("the strip was fitted %d times, want none", len(seen.placed))
+		t.Errorf("the ribbon was fitted %d times, want none", len(seen.placed))
 	}
 }
 
@@ -62,7 +62,7 @@ func TestFittingPlacesTheArrangementAndKeepsWhetherItScrolls(t *testing.T) {
 	app, service, seen, _ := newTestApp(t)
 	_ = app.SetScrollbar(12)
 	if service.at[0] != testStripAt {
-		t.Errorf("fitted from %v, want where the strip stands, %v", service.at[0], testStripAt)
+		t.Errorf("fitted from %v, want where the ribbon stands, %v", service.at[0], testStripAt)
 	}
 	if seen.placed[0].At != testArrange.At || seen.placed[0].Size != testArrange.Size {
 		t.Errorf("placed %+v, want the service's arrangement %+v", seen.placed[0], testArrange)
@@ -114,7 +114,7 @@ func TestOpenPanelCentresThePanelOnTheStripsDisplay(t *testing.T) {
 		t.Fatal(err)
 	}
 	if !app.panelOpen.Load() || service.at[0] != testStripAt || service.centred != testPanel {
-		t.Errorf("open %v, centred %v from %v; want open, the panel's size from the strip", app.panelOpen.Load(), service.centred, service.at)
+		t.Errorf("open %v, centred %v from %v; want open, the panel's size from the ribbon", app.panelOpen.Load(), service.centred, service.at)
 	}
 	if len(seen.placed) != 1 || seen.placed[0].At != testArrange.At {
 		t.Errorf("placed %+v, want the centred arrangement", seen.placed)
@@ -133,7 +133,7 @@ func TestOpenPanelAnswersWhatStoppedIt(t *testing.T) {
 			t.Errorf("OpenPanel answered %v, want the failure", err)
 		}
 		if !app.panelOpen.Load() {
-			t.Error("a panel that failed to place is no longer counted open, so the strip would be fitted over it")
+			t.Error("a panel that failed to place is no longer counted open, so the ribbon would be fitted over it")
 		}
 	}
 }
@@ -155,7 +155,7 @@ func TestClosePanelPutsTheStripWhereItWasLastLeft(t *testing.T) {
 
 func TestShowContextMenuShowsTheServicesMenu(t *testing.T) {
 	app, service, seen, _ := newTestApp(t)
-	service.menu = []application.MenuItem{{Action: application.ActionHide, Label: "Hide strip"}}
+	service.menu = []application.MenuItem{{Action: application.ActionHide, Label: "Hide ribbon"}}
 	app.ShowContextMenu()
 	if len(seen.menus) != 1 || !reflect.DeepEqual(seen.menus[0], service.menu) {
 		t.Errorf("showed %v, want %v", seen.menus, service.menu)
@@ -206,6 +206,6 @@ func TestTheReadingsPassThrough(t *testing.T) {
 	}
 	app.Hide()
 	if app.visible.Load() {
-		t.Error("Hide left the strip counted visible")
+		t.Error("Hide left the ribbon counted visible")
 	}
 }

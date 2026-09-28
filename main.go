@@ -123,7 +123,7 @@ func run(log io.Writer) error {
 	desk := desktop.New(func() []application.MenuItem { return service.TrayMenu(app.visible.Load()) }, log)
 	app = newApp(service, desk, log, panelSize)
 	if err := desk.Start(); err != nil {
-		fmt.Fprintf(log, "starting the tray icon: %v; closing the strip will exit\n", err)
+		fmt.Fprintf(log, "starting the tray icon: %v; closing the ribbon will exit\n", err)
 	} else {
 		app.trayUp.Store(true)
 	}

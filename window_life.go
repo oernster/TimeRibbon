@@ -19,14 +19,14 @@ func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 	strip, err := desktop.FindStrip(product.StripClass)
 	if err != nil {
-		a.report("finding the strip", err)
+		a.report("finding the ribbon", err)
 		return
 	}
 	a.strip = strip
 	a.report("hiding the taskbar button", desktop.HideFromTaskbar(strip))
-	a.report("keeping the strip on its displays", desktop.KeepOnDisplays(strip, a.log))
+	a.report("keeping the ribbon on its displays", desktop.KeepOnDisplays(strip, a.log))
 	a.desktop.Watch(strip)
-	a.report("placing the strip", a.placeLaunched())
+	a.report("placing the ribbon", a.placeLaunched())
 	a.applyAlwaysOnTop()
 	go a.listen()
 }
@@ -142,19 +142,19 @@ func (a *App) toEdge(edge placement.Edge) {
 	}
 	at, err := a.position()
 	if err != nil {
-		a.report("reading where the strip is", err)
+		a.report("reading where the ribbon is", err)
 		return
 	}
 	arranged, err := a.service.ToEdge(at, edge)
 	if err != nil {
-		a.report("putting the strip against an edge", err)
+		a.report("putting the ribbon against an edge", err)
 		return
 	}
 	if a.panelOpen.Load() {
 		return
 	}
 	a.scrolls.Store(arranged.Scrolls)
-	a.report("placing the strip", a.place(arranged.At, arranged.Size))
+	a.report("placing the ribbon", a.place(arranged.At, arranged.Size))
 	a.show()
 }
 
@@ -166,11 +166,11 @@ func (a *App) moved() {
 	}
 	at, err := a.position()
 	if err != nil {
-		a.report("reading where the strip was left", err)
+		a.report("reading where the ribbon was left", err)
 		return
 	}
 	arranged, err := a.service.Moved(at)
-	a.report("recording where the strip was left", err)
+	a.report("recording where the ribbon was left", err)
 	if err != nil {
 		// The placement could not be saved, which raised a notice: fit the strip where it stands,
 		// its new cell included, rather than leave it wherever the drag let go.
@@ -178,7 +178,7 @@ func (a *App) moved() {
 		return
 	}
 	a.scrolls.Store(arranged.Scrolls)
-	a.report("placing the strip", a.place(arranged.At, arranged.Size))
+	a.report("placing the ribbon", a.place(arranged.At, arranged.Size))
 }
 
 // rearrange fits the strip where it stands (FR-104, FR-406).
@@ -188,16 +188,16 @@ func (a *App) rearrange() {
 	}
 	at, err := a.position()
 	if err != nil {
-		a.report("reading where the strip is", err)
+		a.report("reading where the ribbon is", err)
 		return
 	}
 	arranged, err := a.service.Rearrange(at)
 	if err != nil {
-		a.report("fitting the strip", err)
+		a.report("fitting the ribbon", err)
 		return
 	}
 	a.scrolls.Store(arranged.Scrolls)
-	a.report("placing the strip", a.place(arranged.At, arranged.Size))
+	a.report("placing the ribbon", a.place(arranged.At, arranged.Size))
 }
 
 // placeLaunched puts the strip where it was last left (FR-405).

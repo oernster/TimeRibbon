@@ -72,7 +72,7 @@ ARCHITECTURE.md, The settings file.
 
 ### The front end
 
-72 tests across 7 files, under Vitest with jsdom: the strip, Settings, About and Licence, the
+72 tests across 7 files, under Vitest with jsdom: the ribbon, Settings, About and Licence, the
 self-reading cycle, then the setup page's screens, keyboard ring and unreachable-program cases. The
 front end has no coverage figure: no coverage provider is installed, so none is measured or claimed.
 
@@ -98,8 +98,8 @@ under scratch keys beneath `HKCU`.
 ### The platform owns it
 
 - **`internal/infrastructure/desktop` (14.8%).** The tray icon, the native menus, the move fence and
-  the desktop's broadcasts all run on a hidden window's message loop; the strip functions act on the
-  real strip window. The tests cover what is portable: the menu identifier numbering (a submenu
+  the desktop's broadcasts all run on a hidden window's message loop; the ribbon functions act on the
+  real ribbon window. The tests cover what is portable: the menu identifier numbering (a submenu
   included), the fence's rectangle arithmetic, a work area read at a point, Windows' drag distance
   and an address Windows cannot open being refused. The loop itself, the menus as drawn, the
   broadcasts arriving and a browser actually opening (M-11) are checks for a person.
@@ -109,10 +109,10 @@ under scratch keys beneath `HKCU`.
   tested; making the folder failing, the start line failing to write and `SetStdHandle` refusing only
   fail inside the system.
 - **The root package (68.4%).** The facade's tests are `facade_test.go` and `window_life_test.go`,
-  over the scripted service in `fakes_test.go`. The facade's decisions are tested: which calls fit the strip, that a
+  over the scripted service in `fakes_test.go`. The facade's decisions are tested: which calls fit the ribbon, that a
   drag whose save failed is still fitted, the panel state, the menu actions, the close and the
   recover round each desktop event. Not reached: the composition root (`main.go`, `launch.go`),
-  `startup`, `listen` and `shutdown`, which need the real strip window and the tray's message loop.
+  `startup`, `listen` and `shutdown`, which need the real ribbon window and the tray's message loop.
   Nor are the one-line calls in `wails_calls.go` and `window_life.go` that hand a request to Wails
   or Win32 and do nothing else.
 
@@ -129,7 +129,7 @@ under scratch keys beneath `HKCU`.
   list record (`AppsList`), deleting the install folder after the real setup exits
   (`DeleteAfterExit`; the PowerShell hand-off itself is tested against a stand-in process), COM
   refusing to start or a shortcut refusing to save, a copy or removal failing part way, giving the
-  setup window the keyboard (`TakeFocus`) and finding the strip's own window after a launch.
+  setup window the keyboard (`TakeFocus`) and finding the ribbon's own window after a launch.
 - **`internal/infrastructure/startup` (80.6%).** Written, read and removed under a scratch key; the
   registry refusing to open or write the key is not reached.
 - **`internal/infrastructure/store` (92.7%).** Not reached: the folder or temporary file refusing to
@@ -150,23 +150,23 @@ are REQUIREMENTS.md's section 12.
 
 | Check | What to do |
 |---|---|
-| M-1 | The strip shows with no title bar, border or taskbar button |
-| M-2 | Dragging empty strip area moves it; pressing a control does not; a small wobble does not |
-| M-3 | Dragged onto a display at other scaling, the strip keeps its size and stays sharp; unplugging that display brings it back onto a visible one |
+| M-1 | The ribbon shows with no title bar, border or taskbar button |
+| M-2 | Dragging empty ribbon area moves it; pressing a control does not; a small wobble does not |
+| M-3 | Dragged onto a display at other scaling, the ribbon keeps its size and stays sharp; unplugging that display brings it back onto a visible one |
 | M-4 | The tray icon, its menu, a left click, Always on top and Exit behave as FR-501 to FR-505 say |
 | M-5 | Changing the Windows clock, changing the time zone and sleeping then waking the machine each leave every clock right within 2 seconds; each writes a line to `TimeRibbon.log` |
 | M-6 | Launching a second copy shows the first and leaves one tray icon |
-| M-7 | Switching the Windows theme while TimeRibbon follows it recolours the strip |
+| M-7 | Switching the Windows theme while TimeRibbon follows it recolours the ribbon |
 | M-8 | Settings and the place search can be driven entirely from the keyboard |
 | M-9 | Setup installs, updates, repairs and uninstalls on a real machine without asking for administrator rights, closing a running copy first |
 | M-10 | Both menus open a Help submenu whose About and Licence each show their panel; the licence reads itself down after 5 seconds, a wheel stops it and it resumes; setup's Licence screen does the same |
 | M-11 | The donate button at the foot of Settings opens the default browser on the donation page |
-| M-12 | Each Position item puts the strip flush against its edge and centred along it on the display it is on; it opens there next time; choosing Horizontal or Vertical from either menu sends it to the top or right edge; small clocks show their whole date and time in both styles; the Settings title and Close stay put while the panel scrolls |
-| Wheel at 250% | On a display at 250%, one notch of a plain wheel over a scrolling horizontal strip moves it as far as a native notch moves a vertical one. In headless Edge through the DevTools protocol it moved 48 against 120; whether a physical wheel does the same is not known |
+| M-12 | Each Position item puts the ribbon flush against its edge and centred along it on the display it is on; it opens there next time; choosing Horizontal or Vertical from either menu sends it to the top or right edge; small clocks show their whole date and time in both styles; the Settings title and Close stay put while the panel scrolls |
+| Wheel at 250% | On a display at 250%, one notch of a plain wheel over a scrolling horizontal ribbon moves it as far as a native notch moves a vertical one. In headless Edge through the DevTools protocol it moved 48 against 120; whether a physical wheel does the same is not known |
 
-The strip's layout at its full size was measured in headless Edge 154.0.4258.37, the version of the
+The ribbon's layout at its full size was measured in headless Edge 154.0.4258.37, the version of the
 installed WebView2 runtime, with the application's own stylesheets. At 100% and 250% a scrolling
-strip shows one scroll bar with no clock cut off; every clock is reachable beside a notice.
+ribbon shows one scroll bar with no clock cut off; every clock is reachable beside a notice.
 
 ## Running it
 

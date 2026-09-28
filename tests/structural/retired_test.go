@@ -81,7 +81,7 @@ func TestRetiredNamesAreFoundInAnyCase(t *testing.T) {
 			t.Errorf("%q was not recognised", text)
 		}
 	}
-	if found := holdsRetiredName("TimeRibbon shows a strip of clocks"); found != "" {
+	if found := holdsRetiredName("TimeRibbon shows a ribbon of clocks"); found != "" {
 		t.Errorf("the current name was taken for %q", found)
 	}
 }

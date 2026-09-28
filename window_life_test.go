@@ -30,9 +30,9 @@ func TestADragWhoseSaveFailedIsStillFitted(t *testing.T) {
 	service.movedErr = errPlanted
 	app.moved()
 	if !slices.Equal(service.calls, []string{"Moved", "Rearrange"}) || len(seen.placed) != 1 {
-		t.Errorf("the service heard %v and the strip was placed %d times, want it fitted once", service.calls, len(seen.placed))
+		t.Errorf("the service heard %v and the ribbon was placed %d times, want it fitted once", service.calls, len(seen.placed))
 	}
-	if !strings.Contains(log.String(), "recording where the strip was left") {
+	if !strings.Contains(log.String(), "recording where the ribbon was left") {
 		t.Errorf("the failed save was not logged: %q", log)
 	}
 }
@@ -45,9 +45,9 @@ func TestADragIsIgnoredWhileAPanelIsOpenOrWhenTheStripCannotBeRead(t *testing.T)
 	seen.readErr = errPlanted
 	app.moved()
 	if len(service.calls) != 0 || len(seen.placed) != 0 {
-		t.Errorf("the service heard %v and the strip was placed %d times, want neither", service.calls, len(seen.placed))
+		t.Errorf("the service heard %v and the ribbon was placed %d times, want neither", service.calls, len(seen.placed))
 	}
-	if !strings.Contains(log.String(), "reading where the strip was left") {
+	if !strings.Contains(log.String(), "reading where the ribbon was left") {
 		t.Errorf("the unreadable position was not logged: %q", log)
 	}
 }
@@ -103,7 +103,7 @@ func TestEachMenuActionOpensWhatItNames(t *testing.T) {
 		app, _, seen, _ := newTestApp(t)
 		app.handleSafely(desktop.Event{Kind: desktop.EventMenu, Action: action})
 		if seen.shown != 1 || !seen.sawEvent(eventOpenPanel, panel) {
-			t.Errorf("action %v showed %d times and sent %v, want the strip shown and %s opened", action, seen.shown, seen.events, panel)
+			t.Errorf("action %v showed %d times and sent %v, want the ribbon shown and %s opened", action, seen.shown, seen.events, panel)
 		}
 	}
 }
@@ -138,7 +138,7 @@ func TestAPositionItemPutsTheStripAgainstItsEdge(t *testing.T) {
 	app, service, seen, _ := newTestApp(t)
 	app.act(application.ActionRightEdge)
 	if !slices.Equal(service.calls, []string{"ToEdge"}) || service.at[0] != testStripAt || service.edges[0] != placement.Right {
-		t.Errorf("the service heard %v at %v for %v, want ToEdge from the strip for the right edge", service.calls, service.at, service.edges)
+		t.Errorf("the service heard %v at %v for %v, want ToEdge from the ribbon for the right edge", service.calls, service.at, service.edges)
 	}
 	if len(seen.placed) != 1 || seen.placed[0].At != testArrange.At || seen.shown != 1 || !app.scrolls.Load() {
 		t.Errorf("placed %+v and shown %d times, want placed where the service said and shown", seen.placed, seen.shown)
@@ -181,12 +181,12 @@ func TestStyleAndOrientationItemsChooseAndRedraw(t *testing.T) {
 	app, service, seen, _ := newTestApp(t)
 	app.act(application.ActionAnalogue)
 	if !slices.Equal(service.calls, []string{"SetStyle", "Rearrange"}) || !seen.sawEvent(eventRefresh) {
-		t.Errorf("Analogue reached %v and sent %v, want the style set, the strip fitted and a redraw", service.calls, seen.events)
+		t.Errorf("Analogue reached %v and sent %v, want the style set, the ribbon fitted and a redraw", service.calls, seen.events)
 	}
 	app, service, seen, _ = newTestApp(t)
 	app.act(application.ActionHorizontal)
 	if !slices.Equal(service.calls, []string{"SetOrientation", "ToEdge"}) || service.edges[0] != placement.Top || !seen.sawEvent(eventRefresh) {
-		t.Errorf("Horizontal reached %v for %v and sent %v, want it set and the strip at the top", service.calls, service.edges, seen.events)
+		t.Errorf("Horizontal reached %v for %v and sent %v, want it set and the ribbon at the top", service.calls, service.edges, seen.events)
 	}
 	app, service, _, _ = newTestApp(t)
 	app.act("no-such-action")
@@ -213,8 +213,8 @@ func TestAPositionItemThatFailsMovesNothing(t *testing.T) {
 	service.arrangeErr = errPlanted
 	seen.readErr = nil
 	app.act(application.ActionLeftEdge)
-	if len(seen.placed) != 0 || !strings.Contains(log.String(), "reading where the strip is") ||
-		!strings.Contains(log.String(), "putting the strip against an edge") {
+	if len(seen.placed) != 0 || !strings.Contains(log.String(), "reading where the ribbon is") ||
+		!strings.Contains(log.String(), "putting the ribbon against an edge") {
 		t.Errorf("placed %d times with log %q, want nothing placed and both failures logged", len(seen.placed), log)
 	}
 }
@@ -236,11 +236,11 @@ func TestExitQuitsAndLetsTheCloseThrough(t *testing.T) {
 func TestACloseHidesTheStripOnlyWhileTheTrayIsUp(t *testing.T) {
 	app, _, seen, _ := newTestApp(t)
 	if app.beforeClose(context.Background()) {
-		t.Error("the close was held back with no tray icon to bring the strip back from")
+		t.Error("the close was held back with no tray icon to bring the ribbon back from")
 	}
 	app.trayUp.Store(true)
 	if !app.beforeClose(context.Background()) || seen.hidden != 1 {
-		t.Errorf("the close went ahead or hid %d times, want it held and the strip hidden", seen.hidden)
+		t.Errorf("the close went ahead or hid %d times, want it held and the ribbon hidden", seen.hidden)
 	}
 }
 

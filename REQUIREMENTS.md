@@ -13,10 +13,10 @@ Amendment 4 (Oliver, 2026-09-27): with 1.0.0 the settings file becomes a contrac
 Amendment 5 (Oliver, 2026-09-27): the right-click menu gains `Exit` (FR-108); each setup screen opens
 with nothing focused rather than on its lead action (FR-809).
 
-Amendment 6 (Oliver, 2026-09-27): the strip runs in time order east from Greenwich, the reference,
+Amendment 6 (Oliver, 2026-09-27): the ribbon runs in time order east from Greenwich, the reference,
 worked out at each snapshot (FR-102); ordering by hand is withdrawn (FR-306).
 
-Amendment 7 (Oliver, 2026-09-27): a strip whose length changes is re-centred along it on its
+Amendment 7 (Oliver, 2026-09-27): a ribbon whose length changes is re-centred along it on its
 display, keeping its position across (FR-104).
 
 Source: `TimeRibbon-SPEC.md` (the initial product specification, 2026-09-27), plus Oliver's rulings
@@ -30,7 +30,7 @@ baselined before any code.
 
 ### 1.1 Purpose
 
-TimeRibbon is a small Windows desktop application showing a strip of clocks, one per chosen place in
+TimeRibbon is a small Windows desktop application showing a ribbon of clocks, one per chosen place in
 the world. It answers one question at a glance: what time and what day is it where my friends are?
 
 It shows places, never people. It is not a calendar, a meeting planner or a productivity tool.
@@ -43,13 +43,13 @@ Oliver Ernster as author and decision owner; contributors to the open source pro
 
 **In scope:**
 
-- A frameless strip of clocks, horizontal by default, vertical as a setting.
+- A frameless ribbon of clocks, horizontal by default, vertical as a setting.
 - Each clock showing its place, its local time, its local weekday and date plus a zone
   abbreviation or UTC offset, all derived from real time zone rules.
-- Adding, editing and removing clocks, with a searchable list of places; the strip keeps them in
+- Adding, editing and removing clocks, with a searchable list of places; the ribbon keeps them in
   time order.
 - Digital and analogue presentation; 12-hour and 24-hour time.
-- Dragging the whole strip anywhere, including onto another monitor; restoring its monitor and
+- Dragging the whole ribbon anywhere, including onto another monitor; restoring its monitor and
   position at the next launch; recovering it onto a visible display when its place has gone.
 - A notification-area (tray) icon with a menu; optional Always on Top; optional Start with Windows.
 - Light, dark and system themes.
@@ -81,15 +81,15 @@ Oliver Ernster as author and decision owner; contributors to the open source pro
 | **Zone** | An IANA time zone identifier such as `America/New_York`, resolved through the tz database built into the application. |
 | **Label** | The place name a clock is shown by, such as `New York`. |
 | **Default label** | The label derived from a zone id: its last segment with underscores read as spaces. `America/Argentina/Buenos_Aires` gives `Buenos Aires`. |
-| **Strip** | The application's frameless window holding the clocks in order. |
-| **Cell** | The part of the strip showing one clock. |
+| **Ribbon** | The application's frameless window holding the clocks in order. |
+| **Cell** | The part of the ribbon showing one clock. |
 | **Orientation** | Horizontal (cells left to right) or vertical (cells top to bottom). |
 | **Style** | Digital or analogue: how every cell presents its time. |
 | **Format** | 12-hour or 24-hour: how every digital time and every textual time is written. |
 | **Zone mark** | The text beside a label naming the zone's current abbreviation or UTC offset (FR-203). |
 | **Local date** | The weekday, day and month at the clock's zone for the current instant. |
 | **Work area** | A monitor's rectangle minus the taskbar and docked toolbars, as Windows reports it. |
-| **Placement** | The monitor the strip is on plus the strip's position relative to that monitor's work area. |
+| **Placement** | The monitor the ribbon is on plus the ribbon's position relative to that monitor's work area. |
 | **Invalid clock** | A stored clock entry that cannot be used: its zone is not recognised or its fields cannot be read. |
 | **Settings file** | `%APPDATA%\TimeRibbon\settings.json`. |
 | **DIP** | Device-independent pixel: one pixel at 100 percent Windows scaling. |
@@ -115,7 +115,7 @@ graph LR
   WC[Windows clock] --> CS[Clock service]
   TZ["tz database<br/>built into the binary"] --> CS
   ST[Settings store] --> CS
-  CS --> UI["Strip<br/>Wails front end"]
+  CS --> UI["Ribbon<br/>Wails front end"]
   UI --> ST
   WI["Windows integration<br/>tray, monitors, placement, Run key"] --> UI
   WI --> ST
@@ -156,7 +156,7 @@ recorded at the first measured build.
 | CON-3 | The coverage floor over `internal/domain` and `internal/application` stays at 100 percent. |
 | CON-4 | `VERSION` is the single source of truth for the version. No version literal elsewhere. |
 | CON-5 | Zones resolve through Go's `time.LoadLocation` with the `time/tzdata` package embedded, so no rule depends on files present on the machine. Measured 2026-09-27 with `ZONEINFO` pointed at a missing path: `America/New_York` answered EST in January and EDT in July; `Not/AZone` answered an error. No DST rule is written by hand. |
-| CON-6 | The strip, its context menu and the Settings surface share one window, since Wails v2 offers one. Settings is shown by resizing that window to a settings layout and returning it to the strip afterwards. Amendment 2: About and Licence (FR-607, FR-608) are shown the same way, as panels of that one window. |
+| CON-6 | The ribbon, its context menu and the Settings surface share one window, since Wails v2 offers one. Settings is shown by resizing that window to a settings layout and returning it to the ribbon afterwards. Amendment 2: About and Licence (FR-607, FR-608) are shown the same way, as panels of that one window. |
 | CON-7 | Monitor enumeration, work areas, monitor identity and window placement go through Win32 (`EnumDisplayMonitors`, `GetMonitorInfoW`, `SetWindowPos`) in infrastructure, never through Wails' position calls. |
 | CON-8 | Everything written stays per user: the settings file under `%APPDATA%` and the Start with Windows value under `HKCU`. Windows never asks for administrator rights. |
 
@@ -165,7 +165,7 @@ recorded at the first measured build.
 | ID | Assumption | Owner | Confirm by |
 |---|---|---|---|
 | ASM-1 | The Windows clock is correct; TimeRibbon shows what it implies. | Oliver | Baselining |
-| ASM-2 | Up to 12 clocks covers real use; beyond that the strip scrolls rather than grows (FR-106). The number sizes tests, not a limit. | Oliver | Baselining |
+| ASM-2 | Up to 12 clocks covers real use; beyond that the ribbon scrolls rather than grows (FR-106). The number sizes tests, not a limit. | Oliver | Baselining |
 | ASM-3 | English weekday and month names suffice. | Oliver | Baselining |
 
 ---
@@ -175,32 +175,32 @@ recorded at the first measured build.
 Every requirement below names the test that verifies it. A `Verified by:` line marked planned names
 a test not yet written; one that says no test yet names none.
 
-### 3.1 The strip
+### 3.1 The ribbon
 
-**FR-101 Frameless strip**
+**FR-101 Frameless ribbon**
 Priority: Must.
-The strip shall be a window with no title bar, no system border and no taskbar button.
+The ribbon shall be a window with no title bar, no system border and no taskbar button.
 Rationale: the spec's sections 2 and 8; the tray is its presence (FR-501).
 Verified by: inspection of the running build (section 12, check M-1).
 
 **FR-102 Cells in configured order**
 Priority: Must.
-The strip shall show one cell per clock in ascending order of position, left to right when
+The ribbon shall show one cell per clock in ascending order of position, left to right when
 horizontal and top to bottom when vertical.
-Acceptance: Given clocks Sydney at position 0 and New York at position 1, when the strip is shown
+Acceptance: Given clocks Sydney at position 0 and New York at position 1, when the ribbon is shown
 horizontally, then Sydney's cell is left of New York's.
 Amendment 6 (Oliver, 2026-09-27): the cells run east from Greenwich, the reference: first the
 places level with or ahead of UTC by ascending offset, then the places behind UTC by ascending
 offset, since going east from Greenwich reaches them last. Offsets are those at the moment shown,
 daylight saving included, so the order is worked out at each snapshot. Clocks keeping the same
 time keep their stored order; a clock that cannot be shown goes last. Acceptance: given New York,
-Melbourne, Tokyo, Berlin and London added in that order, the strip shows London, Berlin, Tokyo,
+Melbourne, Tokyo, Berlin and London added in that order, the ribbon shows London, Berlin, Tokyo,
 Melbourne, New York.
 Verified by: `TestTheStripRunsEastFromGreenwich`, `TestSnapshotFollowsClockOrderWithEachZonesDate` (application); `strip.test.tsx`.
 
 **FR-103 Orientation setting**
 Priority: Must (OQ-5, Oliver, 2026-09-27).
-The strip shall lay its cells out in the orientation held in settings; vertical when none is held.
+The ribbon shall lay its cells out in the orientation held in settings; vertical when none is held.
 Rationale: Oliver, 2026-09-27: both orientations, as a setting.
 Amendment 1 (Oliver, 2026-09-27, after the first build): the default changed from horizontal to
 vertical.
@@ -208,48 +208,48 @@ Amendment 9 (Oliver, 2026-09-28): the orientation is chosen from the `Orientatio
 menus rather than in Settings (FR-108, FR-502, FR-601).
 Verified by: `TestDefaultsAreDigitalTwentyFourHourVerticalAndNotOnTop` (domain); `strip.test.tsx`.
 
-**FR-104 Changing orientation keeps the strip on screen**
+**FR-104 Changing orientation keeps the ribbon on screen**
 Priority: Must.
-When the orientation changes, the application shall keep the strip's top-left corner where it was,
-then apply the recovery of FR-405 so the whole strip lies inside its monitor's work area.
-Amendment 7 (Oliver, 2026-09-27): when the strip's length changes (a clock added or removed, a
+When the orientation changes, the application shall keep the ribbon's top-left corner where it was,
+then apply the recovery of FR-405 so the whole ribbon lies inside its monitor's work area.
+Amendment 7 (Oliver, 2026-09-27): when the ribbon's length changes (a clock added or removed, a
 notice raised or dismissed, the style or orientation changed), the application shall centre it
 along its length on its monitor's work area, keeping its position across; it shall store that place.
 Nothing else re-centres it: a drag is kept until the length next changes. Acceptance: given a
-vertical strip dragged near the top of its display, when a clock is added, then it is centred top
+vertical ribbon dragged near the top of its display, when a clock is added, then it is centred top
 to bottom with its left edge where it was; it opens there next time.
 Amendment 9 (Oliver, 2026-09-28): a change of orientation no longer keeps the top-left corner; the
-strip goes to that orientation's home edge instead (FR-409). A change of length for any other reason
+ribbon goes to that orientation's home edge instead (FR-409). A change of length for any other reason
 is re-centred as above.
 Verified by: `TestAStripWhoseLengthChangesIsRecentredAndKept`, `TestAHorizontalStripIsRecentredLeftToRight`, `TestNothingButAChangeOfLengthRecentresTheStrip`, `TestARecentringThatCannotBeSavedMakesRoomForItsNotice` (application).
 
-**FR-105 Strip sized to its clocks**
+**FR-105 Ribbon sized to its clocks**
 Priority: Must.
-The strip's length along its orientation shall equal the sum of its cells' lengths plus its padding,
+The ribbon's length along its orientation shall equal the sum of its cells' lengths plus its padding,
 while that sum fits the work area of its monitor.
 Verified by: `TestStripLengthFollowsClockCountAndNeverExceedsWorkArea` (domain, placement).
 
 **FR-106 Overflow scrolls**
 Priority: Must.
-If the strip's cells need more length than the monitor's work area offers along the orientation,
-then the application shall size the strip to that work area and scroll the cells along the
+If the ribbon's cells need more length than the monitor's work area offers along the orientation,
+then the application shall size the ribbon to that work area and scroll the cells along the
 orientation, never clipping a cell out of reach and never wrapping to a second row or column.
-Acceptance: Given a work area 1920 DIP wide and 12 horizontal cells needing 2400 DIP, then the strip
+Acceptance: Given a work area 1920 DIP wide and 12 horizontal cells needing 2400 DIP, then the ribbon
 is 1920 DIP long and the last cell is reachable by scrolling.
 Verified by: `TestStripLengthFollowsClockCountAndNeverExceedsWorkArea` (domain); `strip.test.tsx` for the scroll.
 
-**FR-107 Empty strip**
+**FR-107 Empty ribbon**
 Priority: Must.
-While no clock is configured, the strip shall show one cell reading `No clocks yet` with an `Add clock`
+While no clock is configured, the ribbon shall show one cell reading `No clocks yet` with an `Add clock`
 control opening the place search of FR-302.
 Verified by: `strip.test.tsx`.
 
 **FR-108 Context menu**
 Priority: Should.
-When the strip is right-clicked, the application shall offer `Add clock`, `Settings`, `Always on top`
-(showing its state) and `Hide strip`.
+When the ribbon is right-clicked, the application shall offer `Add clock`, `Settings`, `Always on top`
+(showing its state) and `Hide ribbon`.
 Amendment 2 (Oliver, 2026-09-27): a `Help` submenu (FR-508) sits after `Always on top`.
-Amendment 5 (Oliver, 2026-09-27): `Exit` follows `Hide strip` and ends the application as the tray's
+Amendment 5 (Oliver, 2026-09-27): `Exit` follows `Hide ribbon` and ends the application as the tray's
 does (FR-502).
 Amendment 8 (Oliver, 2026-09-28): a `Position` submenu (FR-408) sits after `Settings`.
 Amendment 9 (Oliver, 2026-09-28): `Style` and `Orientation` submenus sit between `Settings` and
@@ -316,7 +316,7 @@ Verified by: `tests/structural` domain purity test, proved by a planted `time.No
 
 **FR-208 Minute-aligned updates**
 Priority: Must.
-While the strip is shown, the application shall refresh every cell at each minute boundary of the
+While the ribbon is shown, the application shall refresh every cell at each minute boundary of the
 Windows clock, scheduling each refresh from the current time rather than from the last refresh.
 Verified by: `TestNextRefreshIsTheNextMinuteBoundary` (domain); NFR-P-2.
 
@@ -367,7 +367,7 @@ prompt.
 Priority: Must.
 The Clocks list in Settings shall reorder clocks by dragging a row and by `Move up` / `Move down`
 controls reachable from the keyboard; the new order shall be persisted.
-Rationale: dragging on the strip itself moves the window (FR-401), so reordering lives where a drag
+Rationale: dragging on the ribbon itself moves the window (FR-401), so reordering lives where a drag
 cannot be mistaken for a move; the spec's section 10.
 Withdrawn by Amendment 6 (Oliver, 2026-09-27): the order follows the time (FR-102), so there is
 nothing to order by hand. The number is kept so references to it still resolve.
@@ -387,11 +387,11 @@ Verified by: planned `TestTheSameZoneMayBeAddedTwice` (application).
 
 ### 3.4 Dragging and placement
 
-**FR-401 Whole-strip drag**
+**FR-401 Whole-ribbon drag**
 Priority: Must.
-When the user presses the primary button on any part of the strip that is not a control and moves
+When the user presses the primary button on any part of the ribbon that is not a control and moves
 further than the Windows drag threshold (`SM_CXDRAG`, `SM_CYDRAG`), the application shall move the
-whole strip with the pointer, onto any monitor.
+whole ribbon with the pointer, onto any monitor.
 Verified by: section 12, check M-2.
 
 **FR-402 Controls do not drag**
@@ -401,11 +401,11 @@ Verified by: `strip.test.tsx` for the drag regions; check M-2.
 
 **FR-403 Default placement**
 Priority: Must.
-While no placement is stored, the application shall place the strip on the primary monitor with its
+While no placement is stored, the application shall place the ribbon on the primary monitor with its
 right edge 16 DIP inside the work area's right edge, centred vertically in the work area.
 Rationale: the spec's section 8; 16 DIP is Claude's proposal.
-Amendment 10 (Oliver, 2026-09-28): the strip sits flush, with no margin, against its orientation's
-home edge (FR-409): the right edge, centred vertically, for a vertical strip; the top edge, centred
+Amendment 10 (Oliver, 2026-09-28): the ribbon sits flush, with no margin, against its orientation's
+home edge (FR-409): the right edge, centred vertically, for a vertical ribbon; the top edge, centred
 horizontally, for a horizontal one. The same holds wherever FR-405 or FR-406 fall back to this place.
 Verified by: `TestDefaultPlacementIsRightEdgeCentred` (domain);
 `TestLaunchWithNothingStoredGoesToTheDefaultPlace` (application).
@@ -413,43 +413,43 @@ Verified by: `TestDefaultPlacementIsRightEdgeCentred` (domain);
 **FR-404 Placement persisted**
 Priority: Must.
 When a drag ends, the application shall persist the placement: the monitor's device name, its work
-area, its DPI and the strip's offset from that work area's top-left corner.
+area, its DPI and the ribbon's offset from that work area's top-left corner.
 Verified by: `TestPlacementIsStoredRelativeToItsMonitor` (application).
 
 **FR-405 Placement restored or recovered**
 Priority: Must.
-At launch, the application shall restore the strip to the stored monitor, scaling the stored offset
+At launch, the application shall restore the ribbon to the stored monitor, scaling the stored offset
 by the ratio of the monitor's current DPI to its stored DPI. If the stored monitor is not present,
-then it shall use the primary monitor with the default placement of FR-403. If any part of the strip
-would lie outside the chosen monitor's work area, then it shall move the strip the least distance
+then it shall use the primary monitor with the default placement of FR-403. If any part of the ribbon
+would lie outside the chosen monitor's work area, then it shall move the ribbon the least distance
 that brings it wholly inside.
-Acceptance: Given a strip stored at offset (1700, 500) on `\\.\DISPLAY2` and only `\\.\DISPLAY1`
-present, when launched, then the strip is at the default placement on `\\.\DISPLAY1`.
+Acceptance: Given a ribbon stored at offset (1700, 500) on `\\.\DISPLAY2` and only `\\.\DISPLAY1`
+present, when launched, then the ribbon is at the default placement on `\\.\DISPLAY1`.
 Verified by: `TestMissingMonitorFallsBackToPrimary`,
 `TestOffscreenPlacementIsClampedIntoWorkArea` and `TestDpiChangeScalesTheOffset` (domain).
 
 **FR-406 Display changes while running**
 Priority: Must.
-When Windows reports a display configuration change while the strip is shown, the application shall
-apply the recovery of FR-405 to the strip's current position.
+When Windows reports a display configuration change while the ribbon is shown, the application shall
+apply the recovery of FR-405 to the ribbon's current position.
 Verified by: `TestDisplayChangeRecoversAStripLeftOffscreen` (domain); check M-3.
 
 **FR-407 Scaling across monitors**
 Priority: Must.
-The strip shall keep its size in DIP when moved between monitors with different scaling, with text
+The ribbon shall keep its size in DIP when moved between monitors with different scaling, with text
 drawn at the destination monitor's resolution.
 Verified by: section 12, check M-3.
 
 **FR-408 Centre on an edge**
 Priority: Must (Amendment 8, Oliver, 2026-09-28).
-The tray menu and the strip's right-click menu shall each hold a `Position` submenu offering the two
-edges the strip runs along: `Centre on left edge` and `Centre on right edge` while the orientation is
+The tray menu and the ribbon's right-click menu shall each hold a `Position` submenu offering the two
+edges the ribbon runs along: `Centre on left edge` and `Centre on right edge` while the orientation is
 vertical; `Centre on top edge` and `Centre on bottom edge` while it is horizontal. When one is chosen,
-the application shall put the strip flush against that edge of the work area of the monitor it is
+the application shall put the ribbon flush against that edge of the work area of the monitor it is
 on, centred along the edge, then show it and store that placement (FR-404). While a panel is open the
-placement is stored and the strip goes there when the panel closes. Flush, with no margin (Oliver,
+placement is stored and the ribbon goes there when the panel closes. Flush, with no margin (Oliver,
 2026-09-28), as the first-run place of FR-403 is.
-Acceptance: given a vertical strip 196 DIP long on a work area 1032 DIP tall at 100 percent, when
+Acceptance: given a vertical ribbon 196 DIP long on a work area 1032 DIP tall at 100 percent, when
 `Centre on left edge` is chosen, then its left edge is the work area's left edge and its top is 418
 DIP down; it opens there next time.
 Verified by: `TestAgainstEdgeIsFlushAndCentredAlongTheEdge` (domain);
@@ -459,12 +459,12 @@ Verified by: `TestAgainstEdgeIsFlushAndCentredAlongTheEdge` (domain);
 
 **FR-409 An orientation's home edge**
 Priority: Must (Amendment 9, Oliver, 2026-09-28).
-When the orientation is chosen, the application shall put the strip against that orientation's home
+When the orientation is chosen, the application shall put the ribbon against that orientation's home
 edge as FR-408 does: the top edge for horizontal, the right edge for vertical. A choice whose save
-failed has still taken, so it moves the strip; a choice that is refused leaves the strip fitted where
+failed has still taken, so it moves the ribbon; a choice that is refused leaves the ribbon fitted where
 it stands.
-Acceptance: given a vertical strip anywhere on its display, when `Horizontal` is chosen, then the
-strip lies flush against the top of that display's work area, centred left to right.
+Acceptance: given a vertical ribbon anywhere on its display, when `Horizontal` is chosen, then the
+ribbon lies flush against the top of that display's work area, centred left to right.
 Verified by: `TestEachOrientationHasAHomeEdge` (domain, settings); `TestChoosingAnOrientationGoesToItsHomeEdge`,
 `TestStyleAndOrientationItemsChooseAndRedraw` (facade), each proved by planting the right edge as the
 left; check M-12.
@@ -478,7 +478,7 @@ Verified by: check M-4.
 
 **FR-502 Tray menu**
 Priority: Must.
-When the tray icon is right-clicked, the application shall offer `Show strip` or `Hide strip`
+When the tray icon is right-clicked, the application shall offer `Show ribbon` or `Hide ribbon`
 (whichever applies), `Add clock`, `Settings`, `Always on top` (showing its state) and `Exit`.
 Amendment 2 (Oliver, 2026-09-27): a `Help` submenu (FR-508) sits after `Always on top`.
 Amendment 8 (Oliver, 2026-09-28): a `Position` submenu (FR-408) sits after `Settings`.
@@ -490,38 +490,38 @@ Verified by: `TestTrayMenuNamesTheOppositeOfTheVisibility`,
 
 **FR-503 Tray click**
 Priority: Should.
-When the tray icon is left-clicked, the application shall toggle the strip's visibility.
+When the tray icon is left-clicked, the application shall toggle the ribbon's visibility.
 Verified by: check M-4.
 
 **FR-504 Hide is not exit**
 Priority: Must.
-Hiding the strip shall leave the application running with its tray icon; only `Exit` ends it.
+Hiding the ribbon shall leave the application running with its tray icon; only `Exit` ends it.
 Verified by: check M-4.
 
 **FR-507 Alt+F4 hides**
 Priority: Must.
-When `Alt+F4` is pressed while the strip has focus, the application shall hide the strip as
-`Hide strip` does and keep running.
+When `Alt+F4` is pressed while the ribbon has focus, the application shall hide the ribbon as
+`Hide ribbon` does and keep running.
 Rationale: ruled on OQ-4 by Oliver, 2026-09-27; `Exit` stays in the tray alone.
 Verified by: `TestCloseRequestHidesRatherThanQuits` (application); check M-4.
 
 **FR-508 Help submenu**
 Priority: Must (Amendment 2, Oliver, 2026-09-27).
-The tray menu and the strip's right-click menu shall each hold a `Help` submenu offering `About`
-(FR-607) and `Licence` (FR-608). Choosing either shall show the strip's window as that panel.
+The tray menu and the ribbon's right-click menu shall each hold a `Help` submenu offering `About`
+(FR-607) and `Licence` (FR-608). Choosing either shall show the ribbon's window as that panel.
 Verified by: `TestBothMenusOfferHelpWithAboutAndLicence` (application);
 `TestASubmenuIsNumberedAfterEveryItemBeforeIt` (infrastructure, desktop); check M-10.
 
 **FR-505 Always on Top**
 Priority: Must.
-Where Always on Top is on, the strip shall stay above windows that are not themselves topmost; the
+Where Always on Top is on, the ribbon shall stay above windows that are not themselves topmost; the
 setting shall be off by default and persisted.
 Verified by: `TestDefaultsAreDigitalTwentyFourHourVerticalAndNotOnTop` (domain); `TestChangingASettingPersistsIt` (application); check M-4.
 
 **FR-506 One instance**
 Priority: Must.
 If TimeRibbon is launched while it is already running for the same Windows user, then the new
-process shall show the running strip and exit.
+process shall show the running ribbon and exit.
 Verified by: check M-6.
 
 ### 3.6 Settings and startup
@@ -530,7 +530,7 @@ Verified by: check M-6.
 Priority: Must.
 Settings shall offer: style (digital, analogue); format (12-hour, 24-hour); orientation
 (horizontal, vertical); theme (system, light, dark); Always on Top; Start with Windows; the Clocks
-list of FR-303 to FR-305, in the strip's order; at its foot, a donate button that hands the
+list of FR-303 to FR-305, in the ribbon's order; at its foot, a donate button that hands the
 donation page to the desktop's browser. Nothing else.
 Amendment 8 (Oliver, 2026-09-28): size (large, small; FR-610) follows style. The title and `Close`
 stay at the top of the window while the rest of the panel scrolls beneath them, as the foot stays
@@ -541,7 +541,7 @@ Verified by: `settings.test.tsx`; the header by check M-12.
 
 **FR-602 Settings apply at once**
 Priority: Must.
-When a setting changes, the application shall apply it to the strip and persist it without a Save
+When a setting changes, the application shall apply it to the ribbon and persist it without a Save
 step.
 Verified by: `TestChangingASettingPersistsIt` (application).
 
@@ -561,13 +561,13 @@ Priority: Should.
 When Start with Windows is turned on, the application shall write the value `TimeRibbon` under
 `HKCU\Software\Microsoft\Windows\CurrentVersion\Run` holding its own quoted path; when turned off, it
 shall delete that value. It shall be off by default and never written without the user turning it on.
-The value carries no arguments: a sign-in start shows the strip at once, as a normal launch does
+The value carries no arguments: a sign-in start shows the ribbon at once, as a normal launch does
 (ruled on OQ-2 by Oliver, 2026-09-27). Setup's box of FR-805 writes this same value.
 Verified by: `TestStartWithWindowsWritesAndRemovesOneValue` (infrastructure).
 
 **FR-606 Theme**
 Priority: Should.
-Where the theme is system, the strip shall follow the Windows app theme as it changes; light and dark
+Where the theme is system, the ribbon shall follow the Windows app theme as it changes; light and dark
 shall hold regardless of Windows.
 Verified by: check M-7; no front-end test yet.
 
@@ -576,27 +576,27 @@ Priority: Must (Amendment 2, Oliver, 2026-09-27).
 The About panel shall show, in this order: the application icon; the product name with the version
 this build carries; `by Oliver Ernster`; `© Oliver Ernster`; then a credit for every component the
 application ships, each naming the component, its licence and what it does here. Close and Escape
-return the window to the strip.
+return the window to the ribbon.
 Verified by: `help.test.tsx`; `TestEveryLinkedModuleIsCredited` (structural).
 
 **FR-608 Licence**
 Priority: Must (Amendment 2, Oliver, 2026-09-27).
 The Licence panel shall show the whole of the `LICENSE` file the application was built with, as
-embedded in the binary. Close and Escape return the window to the strip.
+embedded in the binary. Close and Escape return the window to the ribbon.
 Verified by: `help.test.tsx`; `TestTheLicencePanelIsSizedForTheLicencesWidestLine` (structural).
 
 **FR-610 Clock size**
 Priority: Must (Amendment 8, Oliver, 2026-09-28).
-The strip shall draw every clock cell at the size held in settings, large or small, in either style;
+The ribbon shall draw every clock cell at the size held in settings, large or small, in either style;
 large when none is held, so a 1.0.0 settings file keeps the clocks it had. Small cells are 146 by 72
 DIP digital and 146 by 116 DIP analogue against large's 176 by 92 and 176 by 176, with their text and
-dial reduced to fit; the empty strip's prompt is the same at either size. A strip lying flush against
+dial reduced to fit; the empty ribbon's prompt is the same at either size. A ribbon lying flush against
 an edge of its display stays against that edge when the size changes, as it does when its cells
 change for any other reason (Oliver, 2026-09-28).
 Rationale: small screens such as a 13 inch laptop, where large analogue cells leave room for few
 clocks.
-Acceptance: given two analogue clocks in a vertical strip at 100 percent with 6 DIP padding, when the
-size is small, then the strip is 158 DIP wide and 244 DIP long.
+Acceptance: given two analogue clocks in a vertical ribbon at 100 percent with 6 DIP padding, when the
+size is small, then the ribbon is 158 DIP wide and 244 DIP long.
 Verified by: `TestUnknownChoicesAreNormalisedToDefaults` (domain);
 `TestKeptFlushHoldsTheFarEdgeNotTheCorner` (domain); `TestTheSmallSizeFitsTheStripToSmallCells`,
 `TestShrinkingKeepsTheStripAgainstItsEdge` (application); `TestA1Point0SettingsFileIsReadWhole`,
@@ -638,7 +638,7 @@ Verified by: `TestAbsentFileMeansDefaults` (infrastructure).
 **FR-704 Unreadable file**
 Priority: Must.
 If the settings file exists but is not valid JSON, then the application shall rename it to
-`settings.unreadable.json`, start with default settings and show on the strip `Settings could not be
+`settings.unreadable.json`, start with default settings and show on the ribbon `Settings could not be
 read; the old file was kept as settings.unreadable.json`.
 Verified by: `TestUnreadableFileIsKeptAsideAndReported` (infrastructure).
 
@@ -668,7 +668,7 @@ Verified by: `TestWriteFailureIsReportedAndCleared` (application).
 
 | ID | Requirement | Method |
 |---|---|---|
-| NFR-P-1 | From launch to the strip showing current times shall take at most 1.5 s on the reference machine. | Timed from the log's first line to the first snapshot, median of 5 launches |
+| NFR-P-1 | From launch to the ribbon showing current times shall take at most 1.5 s on the reference machine. | Timed from the log's first line to the first snapshot, median of 5 launches |
 | NFR-P-2 | While running normally, each cell shall show the new minute within 1 s after the Windows clock reaches it. | Log timestamps against the refresh, over 10 boundaries |
 | NFR-P-3 | After a resume or a system time change, every cell shall be correct within 2 s. | Check M-5 |
 | NFR-P-4 | While shown, the application shall schedule no periodic timer more frequent than once per minute. | Inspection plus a planned structural test over the front end's timer calls |
@@ -794,7 +794,7 @@ Proposed, to be fixed in ARCHITECTURE.md:
 | Infrastructure | `internal/infrastructure/store` | JSON settings file, atomic write, tolerant clock decoding |
 | Infrastructure | `internal/infrastructure/zones` | Zone resolution through `time/tzdata`; the place catalogue |
 | Infrastructure | `internal/infrastructure/windows` | Monitors, `SetWindowPos`, drag, tray, Run key, time change and resume messages |
-| UI | `frontend/` | The strip, the cells in both styles, Settings, the place search |
+| UI | `frontend/` | The ribbon, the cells in both styles, Settings, the place search |
 
 ---
 
@@ -824,7 +824,7 @@ recover, snapshot) is executable from a Go test with no window open before the f
 1. Domain: clock formatting and zone marks against fixed instants; placement recovery.
 2. Application: the use cases over faked ports.
 3. Infrastructure: the settings store, the zone catalogue, the Windows integration.
-4. User interface: the strip in digital style, then dragging and placement, then Settings, the tray,
+4. User interface: the ribbon in digital style, then dragging and placement, then Settings, the tray,
    the analogue style and the vertical orientation.
 5. Hardening against section 12's checks on real hardware; then artwork and polish.
 
@@ -852,7 +852,7 @@ The spec's first-useful-release criteria, mapped:
 | 3 Current local times together | FR-102, FR-201 |
 | 4 Correct local weekday and date | FR-202, FR-205 |
 | 5 DST automatic | FR-204, CON-5 |
-| 6 Compact horizontal frameless strip | FR-101, FR-105 |
+| 6 Compact horizontal frameless ribbon | FR-101, FR-105 |
 | 7 Drag anywhere | FR-401, FR-402 |
 | 8 Onto another monitor | FR-401, FR-407 |
 | 9 Restart restores clocks, order, display, position | FR-404, FR-405, FR-701 |
@@ -875,9 +875,9 @@ There are no open questions. The five raised while drafting were ruled by Oliver
 | ID | Question | Ruling | Now held by |
 |---|---|---|---|
 | OQ-1 | Should the place search find cities with no zone of their own? | No: zone and country names only; any label can be typed | FR-302 |
-| OQ-2 | Does a sign-in start show the strip or wait in the tray? | Show it at once | FR-605 |
+| OQ-2 | Does a sign-in start show the ribbon or wait in the tray? | Show it at once | FR-605 |
 | OQ-3 | Does a setup program ship with the first release? | Yes | Section 5 |
-| OQ-4 | What does `Alt+F4` on the strip do? | Hide the strip | FR-507 |
+| OQ-4 | What does `Alt+F4` on the ribbon do? | Hide the ribbon | FR-507 |
 | OQ-5 | Is the vertical orientation in the first useful release? | Yes | FR-103, FR-104 |
 
 ---
@@ -886,14 +886,14 @@ There are no open questions. The five raised while drafting were ruled by Oliver
 
 | ID | Check |
 |---|---|
-| M-1 | The strip shows with no title bar, border or taskbar button. |
-| M-2 | Dragging empty strip area moves it; pressing a control does not; a small wobble does not. |
-| M-3 | Dragged onto a monitor with different scaling, the strip keeps its size and stays crisp; unplugging that monitor brings it back onto a visible one. |
+| M-1 | The ribbon shows with no title bar, border or taskbar button. |
+| M-2 | Dragging empty ribbon area moves it; pressing a control does not; a small wobble does not. |
+| M-3 | Dragged onto a monitor with different scaling, the ribbon keeps its size and stays crisp; unplugging that monitor brings it back onto a visible one. |
 | M-4 | The tray icon, its menu, left click, Always on Top and Exit behave as FR-501 to FR-505 say. |
 | M-5 | Changing the Windows clock, changing the time zone and sleeping then waking the machine each leave every cell correct within 2 s. |
 | M-6 | Launching a second copy shows the first and leaves one tray icon. |
-| M-7 | Switching the Windows theme while on system theme recolours the strip. |
+| M-7 | Switching the Windows theme while on system theme recolours the ribbon. |
 | M-8 | Settings and the place search can be driven entirely from the keyboard. |
 | M-9 | Setup installs, updates, repairs and uninstalls on a real machine without asking for administrator rights, closing a running copy first. |
 | M-10 | Both menus open a Help submenu whose About and Licence each show their panel; the licence reads itself down after 5 s, a wheel stops it and it resumes; setup's Licence screen does the same. |
-| M-12 | Each Position item puts the strip flush against its edge and centred along it on the display it is on; it opens there next time; choosing Horizontal or Vertical from either menu sends it to the top or right edge; small clocks show their whole date and time in both styles; the Settings title and Close stay put while the panel scrolls. |
+| M-12 | Each Position item puts the ribbon flush against its edge and centred along it on the display it is on; it opens there next time; choosing Horizontal or Vertical from either menu sends it to the top or right edge; small clocks show their whole date and time in both styles; the Settings title and Close stay put while the panel scrolls. |

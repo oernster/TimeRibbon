@@ -18,7 +18,7 @@ const (
 )
 
 // ErrStripNotFound is answered when no window of the strip's class appears.
-var ErrStripNotFound = errors.New("the strip's window was not found")
+var ErrStripNotFound = errors.New("the ribbon's window was not found")
 
 // FindStrip answers the window of class, the class name the strip's window is created with.
 func FindStrip(class string) (windows.HWND, error) {
@@ -39,7 +39,7 @@ func HideFromTaskbar(strip windows.HWND) error {
 	// SetWindowLongPtr answers the previous style, never zero here since Wails sets WS_EX_APPWINDOW;
 	// zero is the failure.
 	if previous, _, err := procSetWindowLongPtr.Call(uintptr(strip), uintptr(exStyleIndex), style&^wsExAppWindow|wsExToolWindow); previous == 0 {
-		return fmt.Errorf("changing the strip's window style: %w", err)
+		return fmt.Errorf("changing the ribbon's window style: %w", err)
 	}
 	return nil
 }
@@ -54,7 +54,7 @@ func Place(strip windows.HWND, at placement.Point, size placement.Size) error {
 		uintptr(at.X), uintptr(at.Y), uintptr(size.Width), uintptr(size.Height),
 		swpNoZOrder|swpNoActivate|swpFrameChanged)
 	if ok == 0 {
-		return fmt.Errorf("placing the strip: %w", err)
+		return fmt.Errorf("placing the ribbon: %w", err)
 	}
 	return nil
 }
@@ -63,7 +63,7 @@ func Place(strip windows.HWND, at placement.Point, size placement.Size) error {
 func Position(strip windows.HWND) (placement.Point, error) {
 	var bounds rect
 	if ok, _, err := procGetWindowRect.Call(uintptr(strip), uintptr(unsafe.Pointer(&bounds))); ok == 0 {
-		return placement.Point{}, fmt.Errorf("reading the strip's position: %w", err)
+		return placement.Point{}, fmt.Errorf("reading the ribbon's position: %w", err)
 	}
 	return placement.Point{X: int(bounds.left), Y: int(bounds.top)}, nil
 }

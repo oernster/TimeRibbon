@@ -52,8 +52,8 @@ type MenuItem struct {
 
 // Item words, one home each.
 const (
-	labelShow        = "Show strip"
-	labelHide        = "Hide strip"
+	labelShow        = "Show ribbon"
+	labelHide        = "Hide ribbon"
 	labelAddClock    = "Add clock"
 	labelSettings    = "Settings"
 	labelPosition    = "Position"

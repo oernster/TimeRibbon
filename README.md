@@ -1,12 +1,12 @@
 # <img width="128" height="128" alt="application-icon" src="https://github.com/user-attachments/assets/fc124b11-f3a8-467c-9922-0abb40e9871e" /> TimeRibbon
 
-A simple strip of configurable world clocks, horizontal or vertical.
+A simple ribbon of configurable world clocks, horizontal or vertical.
 
 > **Commercial licences available.** TimeRibbon is free and open source under the GPL-3.0. If those terms do not suit what you are building, such as a closed-source product, a commercial licence can be bought from me separately. It covers my own code; third-party libraries keep their own licences. See [commercial licensing](https://ernster.dev/commercial-licensing.html).
 
 TimeRibbon answers one question at a glance: what time and what day is it where the people you talk
 to are? It shows one clock per place you choose, each with its own local time, weekday and date,
-in a small frameless strip you can put anywhere on any monitor.
+in a small frameless ribbon you can put anywhere on any monitor.
 
 ## Who it is for
 
@@ -37,30 +37,30 @@ in a small frameless strip you can put anywhere on any monitor.
 - **Finds places by city, zone or country.** Search the 418 zones of the tz database by name, zone
   id or country; label a clock whatever you like, up to 32 characters (a city with no zone of its
   own, such as Manchester, takes its zone's clock and your label).
-- **Stays out of the way.** The strip has no title bar, no border and no taskbar button. A left
-  click on its icon in the notification area shows or hides it. The icon's menu and the strip's own
+- **Stays out of the way.** The ribbon has no title bar, no border and no taskbar button. A left
+  click on its icon in the notification area shows or hides it. The icon's menu and the ribbon's own
   right-click menu both add a clock, open Settings, choose digital or analogue, choose horizontal or
-  vertical, centre the strip on an edge, turn Always on top on or off, open Help (About and Licence)
-  and exit. Closing the strip (Alt+F4) hides it; only Exit ends it.
-- **Goes where you put it.** Drag the strip by any empty part onto any monitor; it stays wholly on
+  vertical, centre the ribbon on an edge, turn Always on top on or off, open Help (About and Licence)
+  and exit. Closing the ribbon (Alt+F4) hides it; only Exit ends it.
+- **Goes where you put it.** Drag the ribbon by any empty part onto any monitor; it stays wholly on
   that display. It opens there next time. When that monitor is gone, it opens on the primary one.
   Position in either menu puts it flush against an edge of its display, centred along that edge:
-  left or right for a vertical strip, top or bottom for a horizontal one. Choosing horizontal sends
+  left or right for a vertical ribbon, top or bottom for a horizontal one. Choosing horizontal sends
   it to the top edge; choosing vertical sends it to the right.
 - **Re-centres when its length changes.** Adding or removing a clock, a notice appearing or going
-  and a change of style or size all change the strip's length. When that happens the strip
+  and a change of style or size all change the ribbon's length. When that happens the ribbon
   centres itself along its length on its display, keeping its position across; it opens there next
   time. Nothing else moves it, so a drag holds until the length next changes.
-- **Fits its clocks, then scrolls.** The strip is as long as its clocks until it reaches the edge
+- **Fits its clocks, then scrolls.** The ribbon is as long as its clocks until it reaches the edge
   of the display, then its clocks scroll rather than shrink or wrap. A plain mouse wheel moves a
-  horizontal strip along.
+  horizontal ribbon along.
 - **Digital or analogue, large or small, 12-hour or 24-hour, horizontal or vertical, light or
   dark.** Every choice applies at once, with no Save step. Style and orientation are in the menus;
   size, time format and theme are in Settings. Small clocks suit a small screen such as a 13 inch
   laptop. The theme can follow Windows.
 - **Keeps your clocks in one readable file.** `%APPDATA%\TimeRibbon\settings.json`, written whole
   or not at all. A damaged file is kept aside under another name and never overwritten; a notice on
-  the strip says so. A save that fails keeps the change in effect with a notice until a later save
+  the ribbon says so. A save that fails keeps the change in effect with a notice until a later save
   succeeds. One clock that cannot be read leaves the others working. The file is a promise: every
   later release of the same major version reads a file this release wrote to the same clocks and
   choices.

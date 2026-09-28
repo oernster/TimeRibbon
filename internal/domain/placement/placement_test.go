@@ -26,7 +26,7 @@ func TestDefaultPlacementIsRightEdgeCentred(t *testing.T) {
 	}
 	scaled := Default(secondary, strip, Right)
 	if gap := secondary.Work.Right - (scaled.At.X + strip.Width); gap != 0 {
-		t.Errorf("at 150 percent the strip is %d pixels in from the right edge, want flush", gap)
+		t.Errorf("at 150 percent the ribbon is %d pixels in from the right edge, want flush", gap)
 	}
 	// FR-409: the default place is against the home edge given, so a horizontal strip's is the top,
 	// whether it has nothing stored, its monitor has gone or it was left off every display.
@@ -55,7 +55,7 @@ func TestCentredAlongKeepsThePositionAcross(t *testing.T) {
 		t.Errorf("horizontal: got %+v, want %+v", got, want)
 	}
 	if got := CentredAlong(Point{X: 5000, Y: 0}, tall, primary.Work, true); got.X != 1920-120 {
-		t.Errorf("a strip across the edge was not brought inside: %+v", got)
+		t.Errorf("a ribbon across the edge was not brought inside: %+v", got)
 	}
 }
 
@@ -80,7 +80,7 @@ func TestAgainstEdgeIsFlushAndCentredAlongTheEdge(t *testing.T) {
 	}
 	long := Size{Width: 120, Height: 2000}
 	if got := AgainstEdge(long, primary.Work, Right); got != (Point{X: 1920 - 120, Y: 0}) {
-		t.Errorf("a strip longer than the work area was not aligned to its top: %+v", got)
+		t.Errorf("a ribbon longer than the work area was not aligned to its top: %+v", got)
 	}
 }
 
@@ -104,11 +104,11 @@ func TestKeptFlushHoldsTheFarEdgeNotTheCorner(t *testing.T) {
 	}
 	moved := Point{X: 1500, Y: 200}
 	if got := KeptFlush(moved, narrow, right, wide, work); got != moved {
-		t.Errorf("a strip moved off the edge was pulled back: %+v", got)
+		t.Errorf("a ribbon moved off the edge was pulled back: %+v", got)
 	}
 	free := Point{X: 900, Y: 200}
 	if got := KeptFlush(free, narrow, free, wide, work); got != free {
-		t.Errorf("a strip against no edge was moved: %+v", got)
+		t.Errorf("a ribbon against no edge was moved: %+v", got)
 	}
 }
 
@@ -169,11 +169,11 @@ func TestDisplayChangeRecoversAStripLeftOffscreen(t *testing.T) {
 	t.Parallel()
 	got, ok := Recover(Point{X: 3000, Y: 200}, strip, []Monitor{primary}, Right)
 	if !ok || got != Default(primary, strip, Right) {
-		t.Errorf("a strip on no monitor goes to the default place: got %+v", got)
+		t.Errorf("a ribbon on no monitor goes to the default place: got %+v", got)
 	}
 	half, _ := Recover(Point{X: 1700, Y: 200}, strip, []Monitor{primary, secondary}, Right)
 	if half.Monitor.Device != secondary.Device || half.At.X != secondary.Work.Left {
-		t.Errorf("a strip mostly on the secondary is clamped onto it: got %+v", half)
+		t.Errorf("a ribbon mostly on the secondary is clamped onto it: got %+v", half)
 	}
 }
 

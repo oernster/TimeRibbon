@@ -67,18 +67,18 @@ and what stops it. An unexplained shortfall cannot be told from an oversight.
 | `installer` | 0%, no tests | none | not gated |
 
 Every figure is the Windows build's, which is what `test.ps1` measures. The Windows build compiles
-258 Go test functions, counted from the test files `go list` selects for it; each runs once with no
+260 Go test functions, counted from the test files `go list` selects for it; each runs once with no
 subtests, plus one `TestMain` in `internal/infrastructure/setup`. Twenty-four of them are the
 structural tests in `tests/structural`, which read the source rather than run it and are the same
 on every platform; [ARCHITECTURE.md](ARCHITECTURE.md) lists each against the rule it holds. One
 test in `store` holds a promise rather than a rule of structure:
 `TestA1Point0SettingsFileIsReadWhole` reads a frozen settings file of the first release (NFR-C-1);
-see ARCHITECTURE.md, The settings file. The macOS and Linux builds compile 239 each
+see ARCHITECTURE.md, The settings file. The macOS and Linux builds compile 241 each
 ([On macOS and Linux](#on-macos-and-linux)).
 
 ### The front end
 
-81 tests across 8 files, under Vitest with jsdom: the ribbon, Settings, About, Licence and the
+82 tests across 8 files, under Vitest with jsdom: the ribbon, Settings, About, Licence and the
 update panel; the self-reading cycle; the watch on the page's `devicePixelRatio`; then the setup
 page's screens, keyboard ring and unreachable-program cases. The front end has no coverage figure:
 no coverage provider is installed, so none is measured or claimed.
@@ -166,7 +166,7 @@ The macOS and Linux halves of infrastructure compile only for their own platform
 face the desktop (`cocoamain`, `gtkmain`, `monitors`, `desktop`) also need cgo against AppKit or
 GTK. `test.ps1` reaches none of them. They are checked on a machine of their own
 platform, set up as [DEVELOPMENT.md](DEVELOPMENT.md) says, from a checkout with the page built. Each
-build compiles 239 Go test functions: the shared ones, the structural tests and its own.
+build compiles 241 Go test functions: the shared ones, the structural tests and its own.
 
 | What | macOS | Linux |
 |---|---|---|
@@ -242,7 +242,7 @@ Windows, installing and removing the DMG on macOS and the Flatpak on Linux.
 | M-9 | Setup installs, updates, repairs and uninstalls on a real machine without asking for administrator rights, closing a running copy first |
 | M-10 | Both menus open a Help submenu whose About and Licence each show their panel; the licence reads itself down after 5 seconds, a wheel stops it and it resumes; setup's Licence screen does the same |
 | M-11 | The donate button at the foot of Settings opens the default browser on the donation page |
-| M-12 | Each Position item puts the ribbon flush against its edge and centred along it on the display it is on; it opens there next time; choosing Horizontal or Vertical from either menu sends it to the top or right edge; small clocks show their whole date and time in both styles; the Settings title and Close stay put while the panel scrolls; each colour scheme looks right and unmistakably its own in Light, Dark and System, Neon glowing on its dark side only |
+| M-12 | Each Position item puts the ribbon flush against its edge and centred along it on the display it is on; it opens there next time; choosing Horizontal or Vertical from either menu sends it to the top or right edge; small clocks show their whole date and time in both styles; the Settings title and Close stay put while the panel scrolls; each colour scheme looks right and unmistakably its own in Light, Dark and System, Neon glowing on its dark side only; every date format shows its whole date in large and small cells, a Wednesday in September the widest |
 | M-13 | Help's Check for updates says this is the latest version with the network on and that GitHub could not be reached with it off; a build older than the latest release shows the update panel a few seconds after it starts; Download opens this platform's download in the browser; after Skip this version the next start shows nothing; the Flatpak build reaches GitHub too |
 | Wheel at 250% | On a display at 250%, one notch of a plain wheel over a scrolling horizontal ribbon moves it as far as a native notch moves a vertical one; only a physical wheel settles it |
 

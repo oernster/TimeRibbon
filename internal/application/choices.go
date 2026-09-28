@@ -27,6 +27,11 @@ func (s *Service) SetFormat(format clock.Format) error {
 	return choose(s, format, func(c *settings.Settings) *clock.Format { return &c.Format })
 }
 
+// SetDateFormat chooses how every date is written (FR-612).
+func (s *Service) SetDateFormat(dateFormat clock.DateFormat) error {
+	return choose(s, dateFormat, func(c *settings.Settings) *clock.DateFormat { return &c.DateFormat })
+}
+
 // SetOrientation chooses horizontal or vertical (FR-103). The window then goes to the
 // orientation's home edge (FR-409).
 func (s *Service) SetOrientation(orientation settings.Orientation) error {

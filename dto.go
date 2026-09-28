@@ -44,6 +44,7 @@ type snapshotDTO struct {
 	Size          string    `json:"size"`
 	Colour        string    `json:"colour"`
 	Format        string    `json:"format"`
+	DateFormat    string    `json:"dateFormat"`
 	Orientation   string    `json:"orientation"`
 	Theme         string    `json:"theme"`
 	AlwaysOnTop   bool      `json:"alwaysOnTop"`
@@ -106,7 +107,7 @@ func snapshotOf(s application.Snapshot, scrolls bool, threshold placement.Size) 
 		notices = []string{}
 	}
 	return snapshotDTO{
-		Cells: cells, Style: string(s.Style), Size: string(s.Size), Colour: string(s.Colour), Format: string(s.Format), Orientation: string(s.Orientation),
+		Cells: cells, Style: string(s.Style), Size: string(s.Size), Colour: string(s.Colour), Format: string(s.Format), DateFormat: string(s.DateFormat), Orientation: string(s.Orientation),
 		Theme: string(s.Theme), AlwaysOnTop: s.AlwaysOnTop,
 		Layout:        layoutDTO{Digital: sizeOf(s.Layout.Digital), Analogue: sizeOf(s.Layout.Analogue), Prompt: sizeOf(s.Layout.Prompt), Padding: s.Layout.Padding},
 		RefreshInMs:   s.NextRefresh.Sub(s.Now).Milliseconds(),

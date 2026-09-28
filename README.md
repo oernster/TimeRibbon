@@ -64,12 +64,14 @@ in a small frameless ribbon you can put anywhere on any monitor.
 - **Fits its clocks, then scrolls.** The ribbon is as long as its clocks until it reaches the edge
   of the display, then its clocks scroll rather than shrink or wrap. A plain mouse wheel moves a
   horizontal ribbon along.
-- **Digital or analogue, large or small, ten colour schemes, 12-hour or 24-hour, horizontal or
-  vertical, light or dark.** Every choice applies at once, with no Save step. The schemes are
-  Classic, Neon (glowing digits and hands when dark), Ocean, Sunset, Forest, Amber, Ruby, Indigo,
-  Berry and Contrast (black and white); each follows the light or dark theme. Style, colour and
-  orientation are in the menus; size, time format and theme are in Settings. Small clocks suit a
-  small screen such as a 13 inch laptop. The theme can follow the system's.
+- **Digital or analogue, large or small, ten colour schemes, 12-hour or 24-hour, five date
+  formats, horizontal or vertical, light or dark.** Every choice applies at once, with no Save
+  step. The schemes are Classic, Neon (glowing digits and hands when dark), Ocean, Sunset, Forest,
+  Amber, Ruby, Indigo, Berry and Contrast (black and white); each follows the light or dark theme.
+  The date reads "Monday, 28 September" or "Monday, September 28" in words; in numbers it reads
+  "Mon 28/09/2026", "Mon 09/28/2026" or "Mon 2026/09/28". Style, colour and orientation are in
+  the menus; size, time format, date format and theme are in Settings. Small clocks suit a small
+  screen such as a 13 inch laptop. The theme can follow the system's.
 - **Keeps your clocks in one readable file,** `settings.json`, written whole or not at all (where
   it lives is in [Your settings](#your-settings)). A damaged file is kept aside under another name
   and never overwritten; a notice on the ribbon says so. A save that fails keeps the change in

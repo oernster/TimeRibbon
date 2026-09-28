@@ -54,7 +54,7 @@ does not exist.
 - **Domain** (`internal/domain`: `clock`, `placement`, `settings`): pure Go. Time arrives as an
   argument and a zone arrives already resolved, so the domain holds no tz database and reads no
   clock. `clock` turns an instant and a zone into what a cell shows: the local time in either
-  format, the weekday and date, the zone mark (the abbreviation where the tz database gives one of
+  format, the weekday and date in the chosen date format, the zone mark (the abbreviation where the tz database gives one of
   letters, else `UTC` and the signed offset) and the hand angles; `NextRefresh` names the next minute
   boundary. It also derives a zone's default label. `placement` decides where the ribbon goes, in
   physical pixels: the default place, a stored placement restored on its monitor at that monitor's
@@ -197,7 +197,9 @@ small, each giving a digital, an analogue and a prompt cell plus the padding. Th
 layout for the current size (`Layouts.For`) and hands it to the page in the snapshot along with the
 size itself; the page marks the ribbon `small` so `app.css` reduces the text and the dial to fit. The
 small sizes were measured in Edge on 2026-09-28 against the longest date the cells show, `Wednesday,
-30 September`, so it fits whole.
+30 September`, so it fits whole. The other date formats (FR-612) were not measured: `Wednesday,
+September 30` holds the same characters in another order and the numeric ones are shorter, which
+check M-12 confirms on screen.
 
 **Centred on an edge (FR-408).** The Position submenu's items name an edge each (`EdgeOf` in
 `menus.go`); `ToEdge` puts the ribbon flush against that edge of the work area it overlaps most,
@@ -272,9 +274,9 @@ version does not know is written back as it was found.
 **The file is a contract from the first release (NFR-C-1).** Every later release of the same major
 version reads every file the first release writes to the same settings. No key it writes may be
 renamed, dropped or given another meaning. No stored word (such as `12h` or `analogue`) may change.
-A later release may add keys. `size` (FR-610), `colour` (FR-611) and `skippedUpdate` (FR-509, the
-release the user chose to skip) came after the first release; a file without them reads as the
-large size, Classic and nothing skipped. The guard is `TestA1Point0SettingsFileIsReadWhole`, which reads the frozen fixture
+A later release may add keys. `size` (FR-610), `colour` (FR-611), `skippedUpdate` (FR-509, the
+release the user chose to skip) and `dateFormat` (FR-612) came after the first release; a file
+without them reads as the large size, Classic, nothing skipped and the date in words day first. The guard is `TestA1Point0SettingsFileIsReadWhole`, which reads the frozen fixture
 `internal/infrastructure/store/testdata/settings-1.0.0.json` (every key set away from its default)
 and requires every key to be read rather than merely carried. It was proved by renaming a key and by
 changing a stored word: each failed it. The fixture is never regenerated from a later writer, since

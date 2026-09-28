@@ -31,6 +31,7 @@ export interface Snapshot {
   size: string
   colour: string
   format: string
+  dateFormat: string
   orientation: string
   theme: string
   alwaysOnTop: boolean

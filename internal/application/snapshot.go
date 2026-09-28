@@ -39,6 +39,7 @@ type Snapshot struct {
 	Size        settings.Size
 	Colour      settings.Colour
 	Format      clock.Format
+	DateFormat  clock.DateFormat
 	Orientation settings.Orientation
 	Theme       settings.Theme
 	AlwaysOnTop bool
@@ -87,7 +88,7 @@ func eastFromGreenwich(a, b timedCell) int {
 
 // Snapshot answers what the ribbon shows now, one cell per clock ordered east from Greenwich, the
 // reference; clocks keeping the same time keep the order they were added in (FR-102, FR-201 to
-// FR-206). The order is worked out at each snapshot, since daylight saving moves it. One clock
+// FR-206, FR-612). The order is worked out at each snapshot, since daylight saving moves it. One clock
 // that cannot be shown leaves every other one working (FR-705).
 func (s *Service) Snapshot() Snapshot {
 	now := s.ports.Clock.Now()
@@ -96,7 +97,7 @@ func (s *Service) Snapshot() Snapshot {
 	current := s.current.Normalised()
 	timed := make([]timedCell, 0, len(current.Clocks))
 	for _, entry := range current.Clocks {
-		timed = append(timed, s.cell(entry, now, current.Format))
+		timed = append(timed, s.cell(entry, now, current.Format, current.DateFormat))
 	}
 	slices.SortStableFunc(timed, eastFromGreenwich)
 	cells := make([]Cell, 0, len(timed))
@@ -109,6 +110,7 @@ func (s *Service) Snapshot() Snapshot {
 		Size:        current.Size,
 		Colour:      current.Colour,
 		Format:      current.Format,
+		DateFormat:  current.DateFormat,
 		Orientation: current.Orientation,
 		Theme:       current.Theme,
 		AlwaysOnTop: current.AlwaysOnTop,
@@ -120,7 +122,7 @@ func (s *Service) Snapshot() Snapshot {
 }
 
 // cell answers one clock's cell at now, with the offset it is ordered by.
-func (s *Service) cell(entry settings.Entry, now time.Time, format clock.Format) timedCell {
+func (s *Service) cell(entry settings.Entry, now time.Time, format clock.Format, dateFormat clock.DateFormat) timedCell {
 	label := entry.Label
 	if label == "" {
 		label = entry.Zone
@@ -132,7 +134,7 @@ func (s *Service) cell(entry settings.Entry, now time.Time, format clock.Format)
 	if err != nil {
 		return timedCell{cell: Cell{ID: entry.ID, Label: label, Zone: entry.Zone, Problem: unknownZonePrefix + entry.Zone}}
 	}
-	reading := clock.Read(now, location, format)
+	reading := clock.Read(now, location, format, dateFormat)
 	return timedCell{
 		cell: Cell{
 			ID:          entry.ID,

@@ -48,6 +48,7 @@ type ribbonService interface {
 	SetSize(size settings.Size) error
 	SetColour(colour settings.Colour) error
 	SetFormat(format clock.Format) error
+	SetDateFormat(dateFormat clock.DateFormat) error
 	SetOrientation(orientation settings.Orientation) error
 	SetTheme(theme settings.Theme) error
 	SetAlwaysOnTop(on bool) error
@@ -169,6 +170,11 @@ func (a *App) SetColour(colour string) error {
 // SetFormat chooses 12-hour or 24-hour (FR-206).
 func (a *App) SetFormat(format string) error {
 	return a.refitted(a.service.SetFormat(clock.Format(format)))
+}
+
+// SetDateFormat chooses how every date is written (FR-612).
+func (a *App) SetDateFormat(dateFormat string) error {
+	return a.refitted(a.service.SetDateFormat(clock.DateFormat(dateFormat)))
 }
 
 // SetOrientation chooses horizontal or vertical (FR-103), then puts the ribbon against that

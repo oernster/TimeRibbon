@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
 )
 
@@ -24,6 +25,20 @@ func TestSnapshotFollowsClockOrderWithEachZonesDate(t *testing.T) {
 	}
 	if cells[0].Date != "Monday, 28 September" || cells[0].Time != "06:37" || cells[0].ZoneMark != "AEST" {
 		t.Errorf("Sydney %+v", cells[0])
+	}
+}
+
+// FR-612: the chosen date format reaches every cell and the snapshot.
+func TestSnapshotWritesDatesInTheChosenFormat(t *testing.T) {
+	t.Parallel()
+	initial := withEntries(
+		settings.Entry{ID: "ny", Zone: "America/New_York", Label: "New York"},
+		settings.Entry{ID: "syd", Zone: "Australia/Sydney", Label: "Sydney"},
+	)
+	initial.DateFormat = clock.MonthDayYear
+	snapshot := newRig(t, initial).service.Snapshot()
+	if snapshot.DateFormat != clock.MonthDayYear || snapshot.Cells[0].Date != "Mon 09/28/2026" || snapshot.Cells[1].Date != "Sun 09/27/2026" {
+		t.Errorf("format %s, dates %q and %q", snapshot.DateFormat, snapshot.Cells[0].Date, snapshot.Cells[1].Date)
 	}
 }
 

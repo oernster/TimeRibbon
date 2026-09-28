@@ -21,12 +21,36 @@ const (
 	TwelveHour     Format = "12h"
 )
 
-// Go reference layouts for each piece of text a cell shows.
+// DateFormat is how a date is written (FR-612): the day and month in words either way round; else the
+// short weekday with the whole date in numbers in one of three orders.
+type DateFormat string
+
+// The date formats. The string values are what the settings file holds.
+const (
+	DayMonth     DateFormat = "day-month"
+	MonthDay     DateFormat = "month-day"
+	DayMonthYear DateFormat = "dmy"
+	MonthDayYear DateFormat = "mdy"
+	YearMonthDay DateFormat = "ymd"
+)
+
+// DateFormats lists the date formats in the order they are offered.
+var DateFormats = []DateFormat{DayMonth, MonthDay, DayMonthYear, MonthDayYear, YearMonthDay}
+
+// Go reference layouts for the time in each format.
 const (
 	layoutTwentyFour = "15:04"
 	layoutTwelve     = "3:04 PM"
-	layoutDate       = "Monday, 2 January"
 )
+
+// dateLayouts is the Go reference layout of each date format, its one home.
+var dateLayouts = map[DateFormat]string{
+	DayMonth:     "Monday, 2 January",
+	MonthDay:     "Monday, January 2",
+	DayMonthYear: "Mon 02/01/2006",
+	MonthDayYear: "Mon 01/02/2006",
+	YearMonthDay: "Mon 2006/01/02",
+}
 
 // Dial geometry. A full turn is 360 degrees; the hour hand makes one turn in twelve hours and
 // the minute hand one in sixty minutes.
@@ -44,7 +68,8 @@ const offsetPrefix = "UTC"
 type Reading struct {
 	// Time is the local time in the chosen format, such as "21:37" or "9:37 PM".
 	Time string
-	// Date is the local weekday, day and month, such as "Sunday, 27 September".
+	// Date is the local date in the chosen date format, such as "Sunday, 27 September" or
+	// "Sun 27/09/2026".
 	Date string
 	// ZoneMark is the zone's abbreviation where it has one of letters; else its UTC offset.
 	ZoneMark string
@@ -57,8 +82,9 @@ type Reading struct {
 	OffsetSeconds int
 }
 
-// Read answers what a cell shows at instant in location, writing times in format.
-func Read(instant time.Time, location *time.Location, format Format) Reading {
+// Read answers what a cell shows at instant in location, writing times in format and dates in
+// dateFormat. The settings are normalised before they reach here, so dateFormat is always known.
+func Read(instant time.Time, location *time.Location, format Format, dateFormat DateFormat) Reading {
 	local := instant.In(location)
 	abbreviation, offset := local.Zone()
 	layout := layoutTwentyFour
@@ -68,7 +94,7 @@ func Read(instant time.Time, location *time.Location, format Format) Reading {
 	minutes := float64(local.Minute())
 	return Reading{
 		Time:          local.Format(layout),
-		Date:          local.Format(layoutDate),
+		Date:          local.Format(dateLayouts[dateFormat]),
 		ZoneMark:      ZoneMark(abbreviation, offset),
 		HourAngle:     float64(local.Hour()%hoursPerDial)*degreesPerTurn/hoursPerDial + minutes*degreesPerTurn/(hoursPerDial*minutesPerHour),
 		MinuteAngle:   minutes * degreesPerTurn / minutesPerHour,

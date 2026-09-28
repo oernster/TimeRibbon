@@ -25,6 +25,16 @@ describe('Settings', () => {
     expect(reload).toHaveBeenCalled()
   })
 
+  it('offers every date format with the current one chosen, applying one at once (FR-612)', async () => {
+    const { bridge } = await open()
+    const group = screen.getByText('Date format').closest('fieldset') as HTMLElement
+    const offered = Array.from(group.querySelectorAll('label'), (label) => label.textContent)
+    expect(offered).toEqual(['28 September', 'September 28', 'DD/MM/YYYY', 'MM/DD/YYYY', 'YYYY/MM/DD'])
+    expect((screen.getByLabelText('28 September') as HTMLInputElement).checked).toBe(true)
+    await act(async () => fireEvent.click(screen.getByLabelText('DD/MM/YYYY')))
+    expect(bridge.SetDateFormat).toHaveBeenCalledWith('dmy')
+  })
+
   it('names the sign-in switch in the words the snapshot gives, so no platform is named here (FR-605)', async () => {
     const { bridge } = await open()
     await act(async () => fireEvent.click(screen.getByLabelText('Start at sign-in')))

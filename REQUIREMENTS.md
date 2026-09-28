@@ -49,6 +49,10 @@ Amendment 15 (Oliver, 2026-09-28): an update check against GitHub's releases (FR
 application's one network request; NFR-S-1 is restated to allow it and nothing else. Help gains
 `Check for updates` (FR-508); the settings file gains the skipped release (NFR-C-1 allows the key).
 
+Amendment 16 (Oliver, 2026-09-28): a date format chosen in Settings (FR-612): the day and month in
+words either way round; else the short weekday with the whole date in numbers, day, month or year
+first, separated by slashes. The settings file gains the choice (NFR-C-1 allows the key).
+
 Source: the initial product specification of 2026-09-27, written under the product's former name,
 plus Oliver's rulings of 2026-09-27: the stack is Go with Wails; orientation is a setting offering
 both horizontal and vertical, both in the first release; a setup program ships with the first
@@ -734,13 +738,28 @@ The contrast was measured over `frontend/src/colours.css` on 2026-09-28, the wea
 Distinctness was measured the same day as the mean CIEDE2000 difference over the colours the ribbon
 paints: every pair of schemes differs by at least 10 on each side.
 
+**FR-612 Date format**
+Priority: Should (Amendment 16, Oliver, 2026-09-28).
+Settings shall offer a `Date format` choice, every cell writing its local date in the format held in
+settings: `28 September` (the weekday, day and month in words, as before; the default when none is
+held), `September 28` (the same with the month first), `DD/MM/YYYY`, `MM/DD/YYYY` or `YYYY/MM/DD`
+(the short weekday, then the whole date in numbers with two-digit day and month). Choosing one applies
+it at once as FR-602 does.
+Acceptance: given the instant 2026-12-31T12:00:00Z, when `DD/MM/YYYY` is chosen, then
+`Pacific/Kiritimati` reads `Fri 01/01/2027` while `America/Los_Angeles` reads `Thu 31/12/2026`; when
+`September 28` is chosen, then they read `Friday, January 1` and `Thursday, December 31`.
+Verified by: `TestEachDateFormatWritesTheLocalDate`, `TestUnknownChoicesAreNormalisedToDefaults`
+(domain); `TestSnapshotWritesDatesInTheChosenFormat`, `TestChangingASettingPersistsIt`,
+`TestAValueASettingDoesNotOfferIsRefused` (application); `TestSettingsRoundTrip` (infrastructure,
+store); `settings.test.tsx`; each format fitting its cell by check M-12.
+
 ### 3.7 Persistence and recovery
 
 **FR-701 Settings file**
 Priority: Must.
 The application shall keep its settings in the settings file as indented JSON holding the file's
 format `version`, style, size, colour, format, orientation, theme, Always on Top, placement, clocks
-plus `skippedUpdate`, the release the user skipped (FR-509); each clock holding a stable id, its zone
+plus `skippedUpdate`, the release the user skipped (FR-509) and `dateFormat` (FR-612); each clock holding a stable id, its zone
 id, its label and its position. Derived values (offset, abbreviation, time, date) shall not be stored.
 Verified by: `TestSettingsRoundTrip` and `TestNoDerivedValueIsStored` (infrastructure).
 
@@ -974,7 +993,7 @@ recover, snapshot) is executable from a Go test with no window open before the f
 | Priority | Content |
 |---|---|
 | **Must** | FR-101 to FR-107, FR-201 to FR-209, FR-301 to FR-305, FR-401 to FR-409, FR-501, FR-502, FR-504 to FR-508, FR-601 to FR-604, FR-607 to FR-610, FR-701 to FR-707, FR-801 to FR-811, NFR-P-1 to NFR-P-4, NFR-U-1 to NFR-U-5, NFR-S-1 to NFR-S-3, NFR-M-1, NFR-M-2, NFR-C-1, NFR-O-1 |
-| **Should** | FR-108, FR-307, FR-503, FR-509, FR-605, FR-606, FR-611 |
+| **Should** | FR-108, FR-307, FR-503, FR-509, FR-605, FR-606, FR-611, FR-612 |
 | **Could** | FR-308 |
 | **Withdrawn** | FR-306 (Amendment 6) |
 | **Won't this time** | Everything in the out-of-scope table of section 1.3 |
@@ -1041,5 +1060,5 @@ is installing and removing the DMG on macOS and the Flatpak on Linux.
 | M-9 | Setup installs, updates, repairs and uninstalls on a real machine without asking for administrator rights, closing a running copy first. |
 | M-10 | Both menus open a Help submenu whose About and Licence each show their panel; the licence reads itself down after 5 s, a wheel stops it and it resumes; setup's Licence screen does the same. |
 | M-11 | The donate button at the foot of Settings opens the default browser on the donation page. |
-| M-12 | Each Position item puts the ribbon flush against its edge and centred along it on the display it is on; it opens there next time; choosing Horizontal or Vertical from either menu sends it to the top or right edge; small clocks show their whole date and time in both styles; the Settings title and Close stay put while the panel scrolls; each colour scheme looks right and unmistakably its own in Light, Dark and System, Neon glowing on its dark side only. |
+| M-12 | Each Position item puts the ribbon flush against its edge and centred along it on the display it is on; it opens there next time; choosing Horizontal or Vertical from either menu sends it to the top or right edge; small clocks show their whole date and time in both styles; the Settings title and Close stay put while the panel scrolls; each colour scheme looks right and unmistakably its own in Light, Dark and System, Neon glowing on its dark side only; every date format shows its whole date in large and small cells, a Wednesday in September the widest. |
 | M-13 | Help's Check for updates says this is the latest version with the network on and that GitHub could not be reached with it off; a build older than the latest release shows the update panel a few seconds after it starts; Download opens this platform's download in the browser; after Skip this version the next start shows nothing; the Flatpak build reaches GitHub too. |

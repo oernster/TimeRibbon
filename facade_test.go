@@ -23,6 +23,7 @@ func TestEveryChangeFitsTheRibbonAndAnswersTheServicesError(t *testing.T) {
 		"SetSize":         func(app *App) error { return app.SetSize("small") },
 		"SetColour":       func(app *App) error { return app.SetColour("neon") },
 		"SetFormat":       func(app *App) error { return app.SetFormat("12h") },
+		"SetDateFormat":   func(app *App) error { return app.SetDateFormat("dmy") },
 		"SetTheme":        func(app *App) error { return app.SetTheme("dark") },
 		"SetAlwaysOnTop":  func(app *App) error { return app.SetAlwaysOnTop(true) },
 		"SetScrollbar":    func(app *App) error { return app.SetScrollbar(12) },

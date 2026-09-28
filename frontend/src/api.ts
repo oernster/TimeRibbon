@@ -20,6 +20,7 @@ interface Bridge {
   SearchPlaces(query: string): Promise<Place[]>
   SetSize(size: string): Promise<void>
   SetFormat(format: string): Promise<void>
+  SetDateFormat(dateFormat: string): Promise<void>
   SetTheme(theme: string): Promise<void>
   SetAlwaysOnTop(on: boolean): Promise<void>
   StartWithWindows(): Promise<boolean>
@@ -76,6 +77,7 @@ export const api = {
   searchPlaces: (query: string, refused: Refused) => call((b) => b.SearchPlaces(query), refused),
   setSize: (size: string, refused: Refused) => call((b) => b.SetSize(size), refused),
   setFormat: (format: string, refused: Refused) => call((b) => b.SetFormat(format), refused),
+  setDateFormat: (dateFormat: string, refused: Refused) => call((b) => b.SetDateFormat(dateFormat), refused),
   setTheme: (theme: string, refused: Refused) => call((b) => b.SetTheme(theme), refused),
   setAlwaysOnTop: (on: boolean, refused: Refused) => call((b) => b.SetAlwaysOnTop(on), refused),
   startWithWindows: (refused: Refused) => call((b) => b.StartWithWindows(), refused),

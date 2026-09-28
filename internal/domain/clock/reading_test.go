@@ -26,12 +26,36 @@ func instant(t *testing.T, text string) time.Time {
 	return parsed
 }
 
+// FR-612: each date format writes the zone's own local date, the year included where it is shown;
+// Kiritimati is already on the next day and in the next year.
+func TestEachDateFormatWritesTheLocalDate(t *testing.T) {
+	t.Parallel()
+	at := instant(t, "2026-12-31T12:00:00Z")
+	want := map[DateFormat][2]string{
+		DayMonth:     {"Thursday, 31 December", "Friday, 1 January"},
+		MonthDay:     {"Thursday, December 31", "Friday, January 1"},
+		DayMonthYear: {"Thu 31/12/2026", "Fri 01/01/2027"},
+		MonthDayYear: {"Thu 12/31/2026", "Fri 01/01/2027"},
+		YearMonthDay: {"Thu 2026/12/31", "Fri 2027/01/01"},
+	}
+	if len(want) != len(DateFormats) {
+		t.Fatalf("%d formats are offered but %d are checked", len(DateFormats), len(want))
+	}
+	for _, format := range DateFormats {
+		losAngeles := Read(at, zone(t, "America/Los_Angeles"), TwentyFourHour, format).Date
+		kiritimati := Read(at, zone(t, "Pacific/Kiritimati"), TwentyFourHour, format).Date
+		if losAngeles != want[format][0] || kiritimati != want[format][1] {
+			t.Errorf("%s wrote %q and %q, want %q", format, losAngeles, kiritimati, want[format])
+		}
+	}
+}
+
 // FR-201.
 func TestLocalTimeInDistantZones(t *testing.T) {
 	t.Parallel()
 	at := instant(t, "2026-09-27T01:37:00Z")
 	for name, want := range map[string]string{"America/New_York": "21:37", "Australia/Sydney": "11:37"} {
-		if got := Read(at, zone(t, name), TwentyFourHour).Time; got != want {
+		if got := Read(at, zone(t, name), TwentyFourHour, DayMonth).Time; got != want {
 			t.Errorf("%s: got %q, want %q", name, got, want)
 		}
 	}
@@ -41,8 +65,8 @@ func TestLocalTimeInDistantZones(t *testing.T) {
 func TestLocalDateCrossesMidnightByZone(t *testing.T) {
 	t.Parallel()
 	at := instant(t, "2026-09-27T20:37:00Z")
-	newYork := Read(at, zone(t, "America/New_York"), TwentyFourHour)
-	sydney := Read(at, zone(t, "Australia/Sydney"), TwentyFourHour)
+	newYork := Read(at, zone(t, "America/New_York"), TwentyFourHour, DayMonth)
+	sydney := Read(at, zone(t, "Australia/Sydney"), TwentyFourHour, DayMonth)
 	if newYork.Date != "Sunday, 27 September" || newYork.Time != "16:37" {
 		t.Errorf("New York: got %q %q", newYork.Date, newYork.Time)
 	}
@@ -65,7 +89,7 @@ func TestDaylightSavingTransitionIsFollowed(t *testing.T) {
 		{"2026-03-08T07:00:00Z", "03:00", "EDT", -4 * time.Hour},
 	}
 	for _, each := range cases {
-		got := Read(instant(t, each.at), newYork, TwentyFourHour)
+		got := Read(instant(t, each.at), newYork, TwentyFourHour, DayMonth)
 		if got.Time != each.time || got.ZoneMark != each.mark || got.OffsetSeconds != int(each.offset.Seconds()) {
 			t.Errorf("%s: got %s %s %d, want %s %s %v", each.at, got.Time, got.ZoneMark, got.OffsetSeconds, each.time, each.mark, each.offset)
 		}
@@ -76,10 +100,10 @@ func TestDaylightSavingTransitionIsFollowed(t *testing.T) {
 func TestYearBoundaryDiffersByZone(t *testing.T) {
 	t.Parallel()
 	at := instant(t, "2026-12-31T12:00:00Z")
-	if got := Read(at, zone(t, "Pacific/Kiritimati"), TwentyFourHour).Date; got != "Friday, 1 January" {
+	if got := Read(at, zone(t, "Pacific/Kiritimati"), TwentyFourHour, DayMonth).Date; got != "Friday, 1 January" {
 		t.Errorf("Kiritimati: got %q", got)
 	}
-	if got := Read(at, zone(t, "America/Los_Angeles"), TwentyFourHour).Date; got != "Thursday, 31 December" {
+	if got := Read(at, zone(t, "America/Los_Angeles"), TwentyFourHour, DayMonth).Date; got != "Thursday, 31 December" {
 		t.Errorf("Los Angeles: got %q", got)
 	}
 }
@@ -95,10 +119,10 @@ func TestTwelveAndTwentyFourHourFormats(t *testing.T) {
 	}
 	for _, each := range cases {
 		at := instant(t, each.at)
-		if got := Read(at, time.UTC, TwentyFourHour).Time; got != each.twentyFour {
+		if got := Read(at, time.UTC, TwentyFourHour, DayMonth).Time; got != each.twentyFour {
 			t.Errorf("%s 24-hour: got %q, want %q", each.at, got, each.twentyFour)
 		}
-		if got := Read(at, time.UTC, TwelveHour).Time; got != each.twelve {
+		if got := Read(at, time.UTC, TwelveHour, DayMonth).Time; got != each.twelve {
 			t.Errorf("%s 12-hour: got %q, want %q", each.at, got, each.twelve)
 		}
 	}
@@ -114,7 +138,7 @@ func TestZoneMarkPrefersLettersElseOffset(t *testing.T) {
 		"Asia/Kathmandu":    "UTC+5:45",
 		"Asia/Dubai":        "UTC+4",
 	} {
-		if got := Read(at, zone(t, name), TwentyFourHour).ZoneMark; got != want {
+		if got := Read(at, zone(t, name), TwentyFourHour, DayMonth).ZoneMark; got != want {
 			t.Errorf("%s: got %q, want %q", name, got, want)
 		}
 	}
@@ -152,7 +176,7 @@ func TestHandAnglesForLocalTime(t *testing.T) {
 		{"2026-09-27T21:37:00Z", 288.5, 222},
 	}
 	for _, each := range cases {
-		got := Read(instant(t, each.at), time.UTC, TwentyFourHour)
+		got := Read(instant(t, each.at), time.UTC, TwentyFourHour, DayMonth)
 		if got.HourAngle != each.hour || got.MinuteAngle != each.minutes {
 			t.Errorf("%s: got hour %v minute %v, want %v %v", each.at, got.HourAngle, got.MinuteAngle, each.hour, each.minutes)
 		}

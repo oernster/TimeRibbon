@@ -105,6 +105,7 @@ type Settings struct {
 	Size        Size
 	Colour      Colour
 	Format      clock.Format
+	DateFormat  clock.DateFormat
 	Orientation Orientation
 	Theme       Theme
 	AlwaysOnTop bool
@@ -125,6 +126,7 @@ func Defaults() Settings {
 		Size:        Large,
 		Colour:      Classic,
 		Format:      clock.TwentyFourHour,
+		DateFormat:  clock.DayMonth,
 		Orientation: Vertical,
 		Theme:       System,
 	}
@@ -145,6 +147,9 @@ func (s Settings) Normalised() Settings {
 	}
 	if s.Format != clock.TwentyFourHour && s.Format != clock.TwelveHour {
 		s.Format = defaults.Format
+	}
+	if !slices.Contains(clock.DateFormats, s.DateFormat) {
+		s.DateFormat = defaults.DateFormat
 	}
 	if s.Orientation != Horizontal && s.Orientation != Vertical {
 		s.Orientation = defaults.Orientation

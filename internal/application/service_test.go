@@ -74,6 +74,7 @@ func TestChangingASettingPersistsIt(t *testing.T) {
 	steps := []error{
 		r.service.SetStyle(settings.Analogue),
 		r.service.SetFormat(clock.TwelveHour),
+		r.service.SetDateFormat(clock.DayMonthYear),
 		r.service.SetOrientation(settings.Vertical),
 		r.service.SetTheme(settings.Dark),
 		r.service.SetAlwaysOnTop(true),
@@ -84,8 +85,8 @@ func TestChangingASettingPersistsIt(t *testing.T) {
 		}
 	}
 	saved := r.store.last(t)
-	if saved.Style != settings.Analogue || saved.Format != clock.TwelveHour || saved.Orientation != settings.Vertical ||
-		saved.Theme != settings.Dark || !saved.AlwaysOnTop {
+	if saved.Style != settings.Analogue || saved.Format != clock.TwelveHour || saved.DateFormat != clock.DayMonthYear ||
+		saved.Orientation != settings.Vertical || saved.Theme != settings.Dark || !saved.AlwaysOnTop {
 		t.Errorf("saved %+v", saved)
 	}
 }
@@ -96,6 +97,7 @@ func TestAValueASettingDoesNotOfferIsRefused(t *testing.T) {
 	for name, err := range map[string]error{
 		"style":       r.service.SetStyle("sundial"),
 		"format":      r.service.SetFormat("36h"),
+		"date format": r.service.SetDateFormat("stardate"),
 		"orientation": r.service.SetOrientation("diagonal"),
 		"theme":       r.service.SetTheme("sepia"),
 	} {

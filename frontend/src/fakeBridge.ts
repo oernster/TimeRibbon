@@ -21,7 +21,7 @@ export function cell(overrides: Partial<Cell> = {}): Cell {
 export function snapshot(overrides: Partial<Snapshot> = {}): Snapshot {
   return {
     cells: [cell(), cell({ id: 'syd', label: 'Sydney', zone: 'Australia/Sydney', zoneMark: 'AEST', time: '06:37', date: 'Monday, 28 September' })],
-    style: 'digital', size: 'large', colour: 'classic', format: '24h', orientation: 'horizontal', theme: 'system', alwaysOnTop: false,
+    style: 'digital', size: 'large', colour: 'classic', format: '24h', dateFormat: 'day-month', orientation: 'horizontal', theme: 'system', alwaysOnTop: false,
     layout: { digital: { width: 176, height: 92 }, analogue: { width: 176, height: 176 }, prompt: { width: 176, height: 184 }, padding: 6 },
     refreshInMs: 60000, notices: [], scrolls: false, dragThreshold: { width: 4, height: 4 }, startLabel: 'Start at sign-in',
     ...overrides,
@@ -44,6 +44,7 @@ export function installBridge() {
     SearchPlaces: vi.fn(async () => places),
     SetSize: vi.fn(async () => undefined),
     SetFormat: vi.fn(async () => undefined),
+    SetDateFormat: vi.fn(async () => undefined),
     SetTheme: vi.fn(async () => undefined),
     SetAlwaysOnTop: vi.fn(async () => undefined),
     StartWithWindows: vi.fn(async () => false),

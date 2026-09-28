@@ -28,15 +28,28 @@ interface Choice {
  * Each choice Settings offers, with its values in the words shown (FR-601). Style and orientation
  * are chosen from the menus instead, so they are not repeated here.
  */
-const choices: { name: string; key: 'size' | 'format' | 'theme'; options: Choice[] }[] = [
+const choices: { name: string; key: 'size' | 'format' | 'dateFormat' | 'theme'; options: Choice[] }[] = [
   { name: 'Size', key: 'size', options: [{ label: 'Large', value: 'large' }, { label: 'Small', value: 'small' }] },
   { name: 'Time format', key: 'format', options: [{ label: '24-hour', value: '24h' }, { label: '12-hour', value: '12h' }] },
+  {
+    // FR-612: each labelled by its order, so no sample date goes stale.
+    name: 'Date format',
+    key: 'dateFormat',
+    options: [
+      { label: '28 September', value: 'day-month' },
+      { label: 'September 28', value: 'month-day' },
+      { label: 'DD/MM/YYYY', value: 'dmy' },
+      { label: 'MM/DD/YYYY', value: 'mdy' },
+      { label: 'YYYY/MM/DD', value: 'ymd' },
+    ],
+  },
   { name: 'Theme', key: 'theme', options: [{ label: 'System', value: 'system' }, { label: 'Light', value: 'light' }, { label: 'Dark', value: 'dark' }] },
 ]
 
 const setters = {
   size: api.setSize,
   format: api.setFormat,
+  dateFormat: api.setDateFormat,
   theme: api.setTheme,
 }
 

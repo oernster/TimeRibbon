@@ -72,6 +72,8 @@ func (s *scriptedService) SetColour(settings.Colour) error { return s.change("Se
 
 func (s *scriptedService) SetFormat(clock.Format) error { return s.change("SetFormat") }
 
+func (s *scriptedService) SetDateFormat(clock.DateFormat) error { return s.change("SetDateFormat") }
+
 // SetOrientation takes the choice unless it is refused as one the setting does not offer, as the
 // service does: a save that fails still leaves the choice in effect.
 func (s *scriptedService) SetOrientation(orientation settings.Orientation) error {

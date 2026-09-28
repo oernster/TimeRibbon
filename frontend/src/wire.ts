@@ -39,6 +39,7 @@ export interface Snapshot {
   notices: string[]
   scrolls: boolean
   dragThreshold: Size
+  startLabel: string
 }
 
 export interface Place {

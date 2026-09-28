@@ -140,7 +140,7 @@ export function Settings({ snapshot, startAdding, reload, onClose }: Props) {
               void api.setStartWithWindows(on, setProblem).then(() => api.startWithWindows(setProblem).then(setStartWithWindows))
             }}
           />
-          Start with Windows
+          {snapshot.startLabel}
         </label>
       </fieldset>
 

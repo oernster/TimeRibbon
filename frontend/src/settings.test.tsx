@@ -25,6 +25,13 @@ describe('Settings', () => {
     expect(reload).toHaveBeenCalled()
   })
 
+  it('names the sign-in switch in the words the snapshot gives, so no platform is named here (FR-605)', async () => {
+    const { bridge } = await open()
+    await act(async () => fireEvent.click(screen.getByLabelText('Start at sign-in')))
+    expect(bridge.SetStartWithWindows).toHaveBeenCalledWith(true)
+    expect(screen.queryByText(/Windows/)).toBeNull()
+  })
+
   it('leaves style and orientation to the menus (FR-601)', async () => {
     await open()
     for (const gone of ['Style', 'Digital', 'Analogue', 'Orientation', 'Horizontal', 'Vertical']) {

@@ -7,6 +7,7 @@ package main
 import (
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/internal/domain/placement"
+	"github.com/oernster/timeribbon/internal/product"
 )
 
 // sizeDTO is a width and a height in DIP.
@@ -51,6 +52,7 @@ type snapshotDTO struct {
 	Notices       []string  `json:"notices"`
 	Scrolls       bool      `json:"scrolls"`
 	DragThreshold sizeDTO   `json:"dragThreshold"`
+	StartLabel    string    `json:"startLabel"`
 }
 
 // placeDTO is one entry of the place search.
@@ -99,6 +101,7 @@ func snapshotOf(s application.Snapshot, scrolls bool, threshold placement.Size) 
 		Notices:       notices,
 		Scrolls:       scrolls,
 		DragThreshold: sizeOf(threshold),
+		StartLabel:    product.StartAtSignIn,
 	}
 }
 

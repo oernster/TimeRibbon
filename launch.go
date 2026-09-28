@@ -17,7 +17,7 @@ import (
 var assets embed.FS
 
 // instanceID names the lock that keeps one TimeRibbon per user (FR-506).
-const instanceID = "uk.codecrafter." + product.Name
+const instanceID = product.AppID
 
 // webViewFolder names the web view's own data folder inside the settings folder. Left to Wails, it
 // would be a folder named for the executable beside the settings folder, which uninstalling with

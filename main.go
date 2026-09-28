@@ -83,8 +83,8 @@ func keepLog() io.Writer {
 	return log
 }
 
-// settingsDir answers %APPDATA%\TimeRibbon; a folder of the same name in the temporary folder when
-// the environment names none, so the ribbon still opens.
+// settingsDir answers the settings folder appdata names; a folder of the same name in the temporary
+// folder when the environment names none, so the ribbon still opens.
 func settingsDir() (string, error) {
 	dir, err := appdata.Dir(os.LookupEnv)
 	if err != nil {

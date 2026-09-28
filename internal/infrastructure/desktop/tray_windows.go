@@ -18,35 +18,6 @@ import (
 // className is the hidden window's class, unique to TimeRibbon.
 const className = product.Name + "Desktop"
 
-// eventBuffer is how many events may wait unread before the next is dropped rather than block the
-// thread Windows calls in on.
-const eventBuffer = 32
-
-// EventKind names what happened.
-type EventKind int
-
-// The events the desktop reports.
-const (
-	// EventMenu is a menu item chosen; Event.Action names it.
-	EventMenu EventKind = iota
-	// EventIconClicked is a left click on the tray icon (FR-503).
-	EventIconClicked
-	// EventMoveEnded is the end of a move of the ribbon's window (FR-404).
-	EventMoveEnded
-	// EventDisplayChanged is a change of displays, resolution or arrangement (FR-406).
-	EventDisplayChanged
-	// EventTimeChanged is a change of the system time or time zone (FR-209).
-	EventTimeChanged
-	// EventResumed is a resume from sleep (FR-209).
-	EventResumed
-)
-
-// Event is one thing that happened on the desktop.
-type Event struct {
-	Kind   EventKind
-	Action application.MenuAction
-}
-
 // Desktop is the hidden window that owns the tray icon and hears the desktop's broadcasts. Every
 // Win32 handle it holds belongs to one locked thread; other goroutines only post to it.
 type Desktop struct {

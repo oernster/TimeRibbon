@@ -60,7 +60,7 @@ func (d *Desktop) track(items []application.MenuItem) {
 // given out depth first from next, the order numbered answers them in.
 func fill(menu uintptr, items []application.MenuItem, next *int) {
 	for _, item := range items {
-		if item.Action == application.ActionExit {
+		if separatedBefore(item) {
 			_, _, _ = procAppendMenu.Call(menu, mfSeparator, 0, 0)
 		}
 		if len(item.Children) > 0 {

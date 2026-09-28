@@ -56,6 +56,46 @@ func TestTheRibbonGoesWhereItIsPlaced(t *testing.T) {
 	}
 }
 
+// CON-6, FR-405: closing a panel shrinks the window back to the ribbon where it was left. Measured
+// 2026-09-28 in the running app: after a 560x760 panel, a ribbon placed at (1252,358) stood at
+// (880,152) instead.
+func TestTheRibbonReturnsFromAPanelToWhereItIsPlaced(t *testing.T) {
+	ribbon := newTestWindow()
+	defer closeTestWindow(ribbon)
+	work := primaryWorkArea(t)
+	ribbonAt := placement.Point{X: work.Right - testSize.Width, Y: work.Top + work.Height()/3}
+	panelSize := placement.Size{Width: 560, Height: 760}
+	panelAt := placement.Point{X: work.Left + (work.Width()-panelSize.Width)/2, Y: work.Top + (work.Height()-panelSize.Height)/2}
+	for _, step := range []struct {
+		at   placement.Point
+		size placement.Size
+	}{{ribbonAt, testSize}, {panelAt, panelSize}, {ribbonAt, testSize}} {
+		if err := Place(ribbon, step.at, step.size); err != nil {
+			t.Fatal(err)
+		}
+		at, got := settled(ribbon, step.at, step.size)
+		t.Logf("placed at %+v size %+v; stands at %+v size %+v", step.at, step.size, at, got)
+		if at != step.at || got != step.size {
+			t.Errorf("stands at %+v size %+v, not where it was placed", at, got)
+		}
+	}
+}
+
+// settled answers where ribbon stands once it has reached at and size; failing that, once
+// settleLimit passes.
+func settled(ribbon Window, at placement.Point, want placement.Size) (placement.Point, placement.Size) {
+	var stands placement.Point
+	var got placement.Size
+	for deadline := time.Now().Add(settleLimit); time.Now().Before(deadline); time.Sleep(settlePause) {
+		stands, _ = Position(ribbon)
+		got, _ = size(ribbon)
+		if stands == at && got == want {
+			break
+		}
+	}
+	return stands, got
+}
+
 // FR-101.
 func TestTheRibbonIsKeptOffTheTaskbar(t *testing.T) {
 	ribbon := newTestWindow()

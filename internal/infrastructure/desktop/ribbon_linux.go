@@ -38,13 +38,12 @@ static gboolean ribbon_skips_taskbar(GtkWindow *window)
     return gtk_window_get_skip_taskbar_hint(window) && gtk_window_get_skip_pager_hint(window);
 }
 
-// ribbon_place sizes then moves the window. Wails makes its window non-resizable; GTK sizes such a
-// window to what it requests, so the request is set as well as the size.
-static void ribbon_place(GtkWindow *window, int x, int y, int width, int height)
+// ribbon_resize sizes the window. Wails makes its window non-resizable; GTK sizes such a window to
+// what it requests, so the request is set as well as the size.
+static void ribbon_resize(GtkWindow *window, int width, int height)
 {
     gtk_widget_set_size_request(GTK_WIDGET(window), width, height);
     gtk_window_resize(window, width, height);
-    gtk_window_move(window, x, y);
 }
 
 static int drag_threshold(void)
@@ -84,16 +83,33 @@ import (
 	"github.com/oernster/timeribbon/internal/product"
 )
 
+// sizeLimit and sizePause bound the wait for a new size to take before the ribbon is moved.
+const (
+	sizeLimit = 500 * time.Millisecond
+	sizePause = 10 * time.Millisecond
+)
+
 // errUnknownWindow is answered for a Window this package never handed out.
 var errUnknownWindow = errors.New("that window was never found")
 
 // GTK's windows are C pointers, which a Window cannot carry as a number without the garbage
 // collector's rules being bent, so each one found is kept here under the Window handed out for it.
+// Where Place last put each window is kept beside it, so the end of a move can be told from the
+// window arriving where it was placed.
 var (
 	known      sync.Mutex
 	windows    = map[Window]*C.GtkWindow{}
+	placed     = map[Window]placement.Point{}
 	lastWindow Window
 )
+
+// placedAt answers where Place last put ribbon; false before it has.
+func placedAt(ribbon Window) (placement.Point, bool) {
+	known.Lock()
+	defer known.Unlock()
+	at, ok := placed[ribbon]
+	return at, ok
+}
 
 // remember answers the Window for window, handing out a new one the first time it is seen.
 func remember(window *C.GtkWindow) Window {
@@ -114,6 +130,7 @@ func forget(ribbon Window) {
 	known.Lock()
 	defer known.Unlock()
 	delete(windows, ribbon)
+	delete(placed, ribbon)
 }
 
 // gtkWindow answers the GTK window a Window stands for.
@@ -156,9 +173,31 @@ func KeepOnDisplays(Window, io.Writer) error { return nil }
 
 // Place moves and sizes the ribbon in GTK's units (FR-405).
 func Place(ribbon Window, at placement.Point, size placement.Size) error {
-	return onWindow(ribbon, func(window *C.GtkWindow) {
-		C.ribbon_place(window, C.int(at.X), C.int(at.Y), C.int(size.Width), C.int(size.Height))
-	})
+	window, err := gtkWindow(ribbon)
+	if err != nil {
+		return err
+	}
+	known.Lock()
+	placed[ribbon] = at
+	known.Unlock()
+	gtkmain.Do(func() { C.ribbon_resize(window, C.int(size.Width), C.int(size.Height)) })
+	awaitSize(window, size)
+	gtkmain.Do(func() { C.gtk_window_move(window, C.gint(at.X), C.gint(at.Y)) })
+	return nil
+}
+
+// awaitSize waits, within sizeLimit, for window to take size. The window manager keeps a window on
+// screen by the size it has when the move arrives, so a move sent before a shrink has landed is
+// clamped as if the window were still large (measured 2026-09-28: a ribbon returning from a
+// 560x760 panel was pushed to that panel's corner of the work area).
+func awaitSize(window *C.GtkWindow, want placement.Size) {
+	for deadline := time.Now().Add(sizeLimit); time.Now().Before(deadline); time.Sleep(sizePause) {
+		var width, height C.gint
+		gtkmain.Do(func() { C.gtk_window_get_size(window, &width, &height) })
+		if int(width) == want.Width && int(height) == want.Height {
+			return
+		}
+	}
 }
 
 // Position answers the ribbon's top-left corner in GTK's units.

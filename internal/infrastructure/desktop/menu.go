@@ -17,6 +17,10 @@ func numbered(items []application.MenuItem) []application.MenuAction {
 	return out
 }
 
+// separatedBefore answers whether a native menu draws a separator above item: Exit stands apart
+// from everything before it.
+func separatedBefore(item application.MenuItem) bool { return item.Action == application.ActionExit }
+
 // actionAt answers the action numbered index; false for a number no item carries.
 func actionAt(items []application.MenuItem, index int) (application.MenuAction, bool) {
 	actions := numbered(items)

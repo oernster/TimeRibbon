@@ -1,11 +1,9 @@
-// Package monitors reads the displays from Win32 (CON-7): each one's device name, work area,
-// effective DPI and whether it is the primary. Wails' own screen list carries none of the first
-// three, which is why this exists.
-//
-// Coordinates are physical pixels. Measured on 2026-09-27 from the test binary, which declares no
-// DPI awareness: a display at 250 percent reported a work area 3840 pixels wide with a DPI of 240.
-// The application's manifest declares per-monitor awareness as well.
 package monitors
+
+// On Windows the displays are read from Win32 and coordinates are physical pixels. Measured on
+// 2026-09-27 from the test binary, which declares no DPI awareness: a display at 250 percent
+// reported a work area 3840 pixels wide with a DPI of 240. The application's manifest declares
+// per-monitor awareness as well.
 
 import (
 	"fmt"

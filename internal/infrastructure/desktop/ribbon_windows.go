@@ -1,22 +1,12 @@
 package desktop
 
 import (
-	"errors"
 	"fmt"
 	"time"
 	"unsafe"
 
 	"github.com/oernster/timeribbon/internal/domain/placement"
 )
-
-// findAttempts and findPause bound the wait for the ribbon's window to exist after Wails starts.
-const (
-	findAttempts = 50
-	findPause    = 20 * time.Millisecond
-)
-
-// ErrRibbonNotFound is answered when no window of the ribbon's class appears.
-var ErrRibbonNotFound = errors.New("the ribbon's window was not found")
 
 // FindRibbon answers the window of class, the class name the ribbon's window is created with.
 func FindRibbon(class string) (Window, error) {

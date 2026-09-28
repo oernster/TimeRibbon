@@ -87,6 +87,7 @@ $measured = [ordered]@{
     '.'                                  = 72
     './internal/infrastructure/appdata'  = 100
     './internal/infrastructure/desktop'  = 14
+    './internal/infrastructure/iconscale' = 100
     './internal/infrastructure/runlog'   = 76
     './internal/infrastructure/monitors' = 82
     './internal/infrastructure/setup'    = 84
@@ -95,6 +96,8 @@ $measured = [ordered]@{
     './internal/infrastructure/system'   = 100
     './internal/infrastructure/zones'    = 100
     './tools/genplaces'                  = 38
+    './tools/identity'                   = 75
+    './tools/linuxicons'                 = 67
     './tools/payload'                    = 82
     './tools/versioninfo'                = 86
 }

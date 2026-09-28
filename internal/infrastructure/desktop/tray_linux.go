@@ -3,7 +3,6 @@ package desktop
 import (
 	"errors"
 	"fmt"
-	"os"
 	"reflect"
 	"sync"
 
@@ -52,7 +51,6 @@ type tooltip struct {
 type tray struct {
 	desktop *Desktop
 	conn    *dbus.Conn
-	name    string
 
 	guard    sync.Mutex
 	revision uint32
@@ -66,7 +64,7 @@ func startTray(d *Desktop, icon []byte) (*tray, error) {
 	if err != nil {
 		return nil, fmt.Errorf("reaching the session bus: %w", err)
 	}
-	t := &tray{desktop: d, conn: conn, name: fmt.Sprintf("%s-%d-1", itemInterface, os.Getpid())}
+	t := &tray{desktop: d, conn: conn}
 	t.refresh()
 	if err := t.export(icon); err != nil {
 		_ = conn.Close()
@@ -80,7 +78,7 @@ func startTray(d *Desktop, icon []byte) (*tray, error) {
 	return t, nil
 }
 
-// export offers the icon and its menu on the bus under the tray's own name.
+// export offers the icon and its menu on the tray's connection.
 func (t *tray) export(icon []byte) error {
 	pixmaps := []pixmap{}
 	if image, err := pixmapOf(icon, trayIconSize); err == nil {
@@ -109,16 +107,15 @@ func (t *tray) export(icon []byte) error {
 	}}); err != nil {
 		return fmt.Errorf("describing the tray menu: %w", err)
 	}
-	reply, err := t.conn.RequestName(t.name, dbus.NameFlagDoNotQueue)
-	if err != nil || reply != dbus.RequestNameReplyPrimaryOwner {
-		return fmt.Errorf("taking the bus name %s: reply %d, %v", t.name, reply, err)
-	}
 	return nil
 }
 
-// register tells the tray host the icon is there.
+// register tells the tray host where the icon is: by its object path, which the host joins to the
+// connection that called (read in Ubuntu's statusNotifierWatcher.js, 2026-09-28). A bus name of the
+// form org.kde.StatusNotifierItem-<pid>-1 would need a sandbox permission to own and would clash
+// between Flatpaks, which each see small process ids of their own.
 func (t *tray) register() error {
-	if err := t.conn.Object(watcherName, watcherPath).Call(watcherRegister, 0, t.name).Err; err != nil {
+	if err := t.conn.Object(watcherName, watcherPath).Call(watcherRegister, 0, string(itemPath)).Err; err != nil {
 		return fmt.Errorf("%w: %v", errNoTrayHost, err)
 	}
 	return nil

@@ -7,6 +7,7 @@ import (
 	"image/png"
 	"io"
 	"slices"
+	"strings"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -103,24 +104,27 @@ func TestTheTrayIsHostedAndAnswersTheHost(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer client.Close()
-	// Ubuntu's host lists an icon registered by bus name under that name (read in its
-	// statusNotifierWatcher.js, 2026-09-28). It lists it once the icon is built, after registering
-	// returns, so the list is read until it appears.
+	// Registered by path, the icon is known by its connection's own name. The host lists it once the
+	// icon is built, after registering returns, so the list is read until it appears.
+	own := d.tray.conn.Names()[0]
+	listed := func(items []string) bool {
+		return slices.ContainsFunc(items, func(item string) bool { return strings.HasPrefix(item, own) })
+	}
 	var items []string
 	for deadline := time.Now().Add(settleLimit); time.Now().Before(deadline); time.Sleep(settlePause) {
 		registered, err := client.Object(watcherName, watcherPath).GetProperty(watcherName + ".RegisteredStatusNotifierItems")
 		if err != nil {
 			t.Fatal(err)
 		}
-		if items, _ = registered.Value().([]string); slices.Contains(items, d.tray.name) {
+		if items, _ = registered.Value().([]string); listed(items) {
 			break
 		}
 	}
 	t.Logf("the host lists %v", items)
-	if !slices.Contains(items, d.tray.name) {
-		t.Errorf("the host does not list %s", d.tray.name)
+	if !listed(items) {
+		t.Errorf("the host does not list the icon on %s", own)
 	}
-	menu := client.Object(d.tray.name, menuPath)
+	menu := client.Object(own, menuPath)
 	var revision uint32
 	var layout menuNode
 	if err := menu.Call(menuInterface+".GetLayout", 0, int32(0), int32(-1), []string{}).Store(&revision, &layout); err != nil {
@@ -140,7 +144,7 @@ func TestTheTrayIsHostedAndAnswersTheHost(t *testing.T) {
 	if err := menu.Call(menuInterface+".AboutToShow", 0, int32(0)).Store(&changed); err != nil || !changed {
 		t.Errorf("a changed menu was not reported changed (%v)", err)
 	}
-	if err := client.Object(d.tray.name, itemPath).Call(itemInterface+".Activate", 0, int32(0), int32(0)).Err; err != nil {
+	if err := client.Object(own, itemPath).Call(itemInterface+".Activate", 0, int32(0), int32(0)).Err; err != nil {
 		t.Fatal(err)
 	}
 	if event := <-d.Events(); event.Kind != EventIconClicked {

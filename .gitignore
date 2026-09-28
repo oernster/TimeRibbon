@@ -48,6 +48,16 @@ dist-installer/
 
 frontend/package.json.md5
 
+# The Flatpak's build output, all written by build_flatpak.sh and removed by cleanup_flatpak.sh:
+# its build folders, the bundle, the manifest named for the app id, the packaging files and icons
+.flatpak-build/
+.flatpak-repo/
+.flatpak-builder/
+*.flatpak
+/*.yml
+packaging/
+build/linux/
+
 # Local Claude session files: the resume snapshot and this machine's site preview settings
 .claude/
 NOTES.md

@@ -56,6 +56,13 @@ first, separated by slashes. The settings file gains the choice (NFR-C-1 allows 
 Amendment 17 (Oliver, 2026-09-28): launching TimeRibbon while it runs toggles the ribbon rather
 than only showing it (FR-506), so a Stream Deck button can both show and hide it.
 
+Amendment 18 (Oliver, 2026-09-28): the ribbon can be unpinned (FR-613). Unpinned, it shrinks to a
+thin tab in the scheme's accent on its side nearer the display's edge (FR-614), opens while the
+pointer rests on the tab (FR-615) and shrinks again a second after the pointer leaves (FR-616); it
+stays on top (FR-617) and counts as shown (FR-618). NFR-U-5 exempts the tab. Section 1.3, FR-108,
+FR-502, FR-506, FR-611 and FR-701 carry notes of it; the settings file gains the pin (NFR-C-1
+allows the key). Section 11 records the four rulings behind it (OQ-6 to OQ-9).
+
 Source: the initial product specification of 2026-09-27, written under the product's former name,
 plus Oliver's rulings of 2026-09-27: the stack is Go with Wails; orientation is a setting offering
 both horizontal and vertical, both in the first release; a setup program ships with the first
@@ -92,6 +99,8 @@ Oliver Ernster as author and decision owner; contributors to the open source pro
 - Dragging the whole ribbon anywhere, including onto another monitor; restoring its monitor and
   position at the next launch; recovering it onto a visible display when its place has gone.
 - A notification-area (tray) icon with a menu; optional Always on Top; optional Start with Windows.
+- An unpinned ribbon that waits as a thin tab and opens while the pointer rests on it (FR-613 to
+  FR-618).
 - Light, dark and system themes, in ten colour schemes (FR-611).
 - A check for a newer release on GitHub, the application's one network request (FR-509).
 - Local persistence in one human-readable file.
@@ -113,6 +122,7 @@ Oliver Ernster as author and decision owner; contributors to the open source pro
 | Network time synchronisation | Windows owns the clock; TimeRibbon reads it (NFR-S-2) |
 | Downloading time zone rule updates | Rules are built into the binary; macOS and Linux read the system's zone files first (CON-5, NFR-S-3) |
 | Fixed UTC offsets as clocks | The spec's section 4 forbids them |
+| Opening an unpinned ribbon by touch | A touch screen reports no resting pointer; pinned, the default, serves it. Claude's proposal, Amendment 18 |
 
 ### 1.4 Definitions
 
@@ -133,6 +143,9 @@ Oliver Ernster as author and decision owner; contributors to the open source pro
 | **Placement** | The monitor the ribbon is on plus the ribbon's position relative to that monitor's work area. |
 | **Invalid clock** | A stored clock entry that cannot be used: its zone is not recognised or its fields cannot be read. |
 | **Settings file** | `%APPDATA%\TimeRibbon\settings.json`. |
+| **Pinned** | The ribbon always shows in full while shown; the default. Unpinned, it collapses (FR-613). |
+| **Tab** | The 8 DIP accent strip an unpinned ribbon shrinks to (FR-614). |
+| **Collapsed** | Unpinned and showing only its tab; **expanded** is unpinned and showing in full. |
 | **DIP** | Device-independent pixel: one pixel at 100 percent Windows scaling. |
 
 ### 1.5 References
@@ -219,6 +232,7 @@ recorded at the first measured build.
 | ASM-1 | The Windows clock is correct; TimeRibbon shows what it implies. | Oliver | Baselining |
 | ASM-2 | Up to 12 clocks covers real use; beyond that the ribbon scrolls rather than grows (FR-106). The number sizes tests, not a limit. | Oliver | Baselining |
 | ASM-3 | English weekday and month names suffice. | Oliver | Baselining |
+| ASM-4 | The pointer arriving on and leaving the ribbon's window can be seen on Windows, macOS and Linux under X11, for a window as thin as the tab. Unmeasured; FR-615 and FR-616 depend on it. | Claude | Before FR-613 to FR-618 are designed |
 
 ---
 
@@ -307,6 +321,7 @@ Amendment 8 (Oliver, 2026-09-28): a `Position` submenu (FR-408) sits after `Sett
 Amendment 9 (Oliver, 2026-09-28): `Style` and `Orientation` submenus sit between `Settings` and
 `Position`, as in the tray menu (FR-502).
 Amendment 12 (Oliver, 2026-09-28): a `Colour` submenu (FR-611) sits after `Style`.
+Amendment 18 (Oliver, 2026-09-28): `Pin ribbon` (FR-613) follows `Always on top`.
 Verified by: `TestContextMenuOffersTheRibbonsActions`,
 `TestBothMenusOfferStyleAndOrientationWithTheCurrentTicked` (application).
 
@@ -550,6 +565,8 @@ Amendment 9 (Oliver, 2026-09-28): `Style` (`Digital`, `Analogue`) and `Orientati
 `Vertical`) submenus sit between `Settings` and `Position`, each ticking the current choice; choosing
 an item applies it at once as FR-602 does.
 Amendment 12 (Oliver, 2026-09-28): a `Colour` submenu (FR-611) sits after `Style`.
+Amendment 18 (Oliver, 2026-09-28): `Pin ribbon` (FR-613) follows `Always on top`; a collapsed ribbon
+counts as shown (FR-618).
 Verified by: `TestTrayMenuNamesTheOppositeOfTheVisibility`,
 `TestBothMenusOfferStyleAndOrientationWithTheCurrentTicked` (application); check M-4.
 
@@ -582,6 +599,8 @@ Stream Deck button (its Open action pointed at TimeRibbon) both shows and hides 
 Rationale: a friend asked for one press to show or hide the clocks. Consequence accepted: a ribbon
 shown but covered by other windows counts as shown, so launching TimeRibbon to find it hides it; a
 second launch shows it again.
+Amendment 18 (Oliver, 2026-09-28): a collapsed ribbon counts as shown, so a launch hides its tab
+(FR-618).
 Acceptance: given TimeRibbon running with the ribbon shown, when it is launched again, then the
 second process exits and the ribbon is hidden; when it is launched once more, then the ribbon is
 shown. Given a launch before the running copy has finished starting, then nothing is toggled.
@@ -738,6 +757,8 @@ and a dark side, chosen by the theme as Classic's are (FR-606); Neon's digits an
 dark side. A scheme's hue shall be carried by the colours the ribbon paints (its surface, cells,
 dividers and text), never by the accent alone, which only Settings shows. Text, muted text and
 problem text meet 4.5:1 against the cell and the surface on every side (NFR-U-1).
+Amendment 18 (Oliver, 2026-09-28): the tab of an unpinned ribbon is painted in the accent (FR-614),
+so the accent shows there as well as in Settings.
 Acceptance: given the theme Light, when `Neon` is chosen, then the cells are white with deep cyan
 digits and labels and magenta zone marks; given the theme Dark, then they are near black with
 glowing cyan digits. When `Ocean` is chosen, then the cells are pale aqua in Light and deep teal in Dark.
@@ -765,13 +786,99 @@ Verified by: `TestEachDateFormatWritesTheLocalDate`, `TestUnknownChoicesAreNorma
 `TestAValueASettingDoesNotOfferIsRefused` (application); `TestSettingsRoundTrip` (infrastructure,
 store); `settings.test.tsx`; each format fitting its cell by check M-12.
 
+**FR-613 Pin ribbon**
+Priority: Should (Amendment 18, Oliver, 2026-09-28).
+The tray menu and the ribbon's right-click menu shall each hold a `Pin ribbon` item directly after
+`Always on top`, ticked while the ribbon is pinned; choosing it flips the pin, applied at once as
+FR-602 does. The ribbon is pinned while the settings file holds no pin, so a file written before the
+pin existed keeps the ribbon it had.
+Rationale: a friend asked for the clocks to stay out of the way until wanted, as the flyout of the
+Windows taskbar clock does. Pinned by default keeps today's ribbon for everyone else.
+Acceptance: given a 2.2.0 settings file, when TimeRibbon starts, then `Pin ribbon` is ticked and the
+ribbon shows in full; when `Pin ribbon` is chosen, then it is unticked, the settings file holds
+`"pinned": false` and the ribbon collapses once the pointer is off it (FR-616).
+Verified by: planned `TestAFileWithoutAPinIsPinned` (infrastructure, store),
+`TestBothMenusOfferPinAfterAlwaysOnTop` (application), `TestChoosingPinFlipsAndKeepsIt` (facade);
+`TestA1Point0SettingsFileIsReadWhole`, `TestSettingsRoundTrip` (infrastructure, store); check M-14.
+
+**FR-614 The tab**
+Priority: Should (Amendment 18, Oliver, 2026-09-28).
+While the ribbon is collapsed, the application shall show in the ribbon's place only its tab: a
+strip 8 DIP deep along the ribbon's whole length, painted in the colour scheme's accent (FR-611),
+covering the side of the ribbon nearer the matching edge of its monitor's work area. That side is
+left or right for a vertical ribbon and top or bottom for a horizontal one; at an equal distance it
+is the side of the orientation's home edge (FR-409).
+Rationale: Oliver, 2026-09-28: a thin tab about 8 DIP deep in the accent. OQ-6: a ribbon standing
+away from every edge keeps its tab where it stands, on its side nearer an edge. Collapsing moves
+nothing: the stored placement (FR-404) is the expanded ribbon's.
+Acceptance: given a vertical ribbon 196 DIP long flush against the right edge of its work area,
+when it collapses, then only an 8 by 196 DIP strip in the accent shows, flush against that right
+edge. Given the same ribbon dragged so its left side is 100 DIP from the work area's left edge and
+its right side 900 DIP from the right, when it collapses, then the strip covers its left side.
+Verified by: planned `TestTheTabCoversTheSideNearerItsEdge`, `TestAnEvenDistanceGoesToTheHomeEdge`
+(domain, placement); `TestCollapsingKeepsThePlacement` (application); `ribbon.test.tsx` for the
+accent; check M-14.
+
+**FR-615 The ribbon opens on a resting pointer**
+Priority: Should (Amendment 18, Oliver, 2026-09-28).
+While the ribbon is collapsed, when the pointer has stayed on the tab for 0.3 s, the application
+shall expand the ribbon to its stored placement without taking keyboard focus from the window that
+holds it. If the pointer leaves the tab before 0.3 s have passed, then the application shall leave
+the ribbon collapsed, counting afresh from the pointer's next arrival.
+Rationale: Oliver, 2026-09-28: expand after a rest of 0.3 s, so a pointer crossing the tab on its
+way elsewhere does not open it. The focus clause keeps typing in another window unbroken.
+Acceptance: given a collapsed ribbon, when the pointer rests on the tab for 0.3 s, then the ribbon
+shows in full at its stored placement while the focused window keeps focus; when the
+pointer crosses the tab in 0.1 s, then the ribbon stays collapsed.
+Verified by: planned `TestTheRibbonOpensAfterTheRest`, `TestAPassingPointerDoesNotOpenIt`
+(application, with the instant injected); focus by check M-14.
+
+**FR-616 The ribbon collapses after the pointer leaves**
+Priority: Should (Amendment 18, Oliver, 2026-09-28).
+While the ribbon is unpinned and expanded, with no drag under way (FR-401), none of its menus open
+and no panel shown, when the pointer has been off the ribbon for 1 s, the application shall collapse
+it to its tab. If the pointer returns within that second, then the application shall keep the
+ribbon expanded, counting afresh from the pointer's next departure.
+Rationale: Oliver, 2026-09-28: collapse 1 s after the pointer leaves. Settings, Help and the update
+panel never collapse (Claude's proposal, keeping today's panels whole).
+Acceptance: given an expanded unpinned ribbon, when the pointer leaves it and stays away 1 s, then
+only the tab shows; when the pointer leaves and returns after 0.5 s, then it stays expanded; while
+its right-click menu is open, it stays expanded whatever the pointer does.
+Verified by: planned `TestTheRibbonCollapsesASecondAfterThePointerLeaves`,
+`TestAReturningPointerKeepsItOpen`, `TestNothingCollapsesDuringADragAMenuOrAPanel` (application);
+check M-14.
+
+**FR-617 An unpinned ribbon stays on top**
+Priority: Should (Amendment 18, Oliver, 2026-09-28).
+While the ribbon is unpinned, the application shall keep the ribbon and its tab above windows that
+are not themselves topmost, whatever Always on top holds.
+Rationale: OQ-8. A tab covered by a maximised window could not be reached again; the flyout this
+copies stays on top. Always on top keeps its stored value, taking effect again once the ribbon is
+pinned (FR-505).
+Acceptance: given Always on top off and an unpinned ribbon, when a window is maximised on its
+display, then the tab shows above that window; when `Pin ribbon` is chosen, then the ribbon is no
+longer kept above other windows while `Always on top` stays unticked.
+Verified by: planned `TestAnUnpinnedRibbonIsKeptOnTop` (application); check M-14.
+
+**FR-618 A collapsed ribbon counts as shown**
+Priority: Should (Amendment 18, Oliver, 2026-09-28).
+While the ribbon is collapsed, the application shall treat it as shown for the tray menu (FR-502),
+the tray click (FR-503) and a second launch (FR-506), so each of them hides it, tab included.
+Rationale: OQ-9. One meaning for every toggle; a Stream Deck button hides the tab and brings it back.
+Acceptance: given a collapsed ribbon, when TimeRibbon is launched again, then neither ribbon nor tab
+shows and the tray menu offers `Show ribbon`; when it is launched once more, then the tab shows and
+the ribbon stays collapsed until the pointer rests on the tab.
+Verified by: planned `TestTheTrayMenuTreatsACollapsedRibbonAsShown` (application),
+`TestASecondLaunchHidesACollapsedRibbon` (facade); check M-14.
+
 ### 3.7 Persistence and recovery
 
 **FR-701 Settings file**
 Priority: Must.
 The application shall keep its settings in the settings file as indented JSON holding the file's
 format `version`, style, size, colour, format, orientation, theme, Always on Top, placement, clocks
-plus `skippedUpdate`, the release the user skipped (FR-509) and `dateFormat` (FR-612); each clock
+plus `skippedUpdate`, the release the user skipped (FR-509), `dateFormat` (FR-612) and `pinned`
+(FR-613, Amendment 18); each clock
 holding a stable id, its zone id, its label and its position. Derived values (offset, abbreviation,
 time, date) shall not be stored.
 Verified by: `TestSettingsRoundTrip` and `TestNoDerivedValueIsStored` (infrastructure).
@@ -829,7 +936,7 @@ Verified by: `TestWriteFailureIsReportedAndCleared` (application).
 | NFR-U-2 | No state shall be told by colour alone; an invalid clock carries words (FR-706). | Inspection |
 | NFR-U-3 | Every control in Settings and the place search shall be reachable and operable from the keyboard, with a visible focus indicator on the focused control. | `settings.test.tsx`; check M-8 |
 | NFR-U-4 | Every icon-only control shall carry an accessible name and a tooltip. | Planned `a11y.test.tsx` |
-| NFR-U-5 | Interactive targets shall be at least 24 by 24 DIP. | Inspection; WCAG 2.2 criterion 2.5.8 |
+| NFR-U-5 | Interactive targets shall be at least 24 by 24 DIP. Amendment 18 (Oliver, 2026-09-28, OQ-7): the tab of FR-614 is exempt at 8 DIP; it is rested on rather than pressed, while against a display's edge the pointer stops on it. | Inspection; WCAG 2.2 criterion 2.5.8 |
 | NFR-S-1 | The application shall make no network request other than the update check of FR-509: one unauthenticated request to GitHub's latest-release endpoint, sending nothing about the user or their clocks. Amendment 15 (Oliver, 2026-09-28): before it, no network request at all. | `TestOnlyTheUpdateCheckImportsANetworkPackage`, `TestTheNetworkExemptionNamesTheUpdatePackage` (structural) |
 | NFR-S-2 | The application shall not change the Windows clock or time zone. | Inspection |
 | NFR-S-3 | Non-claim: time zone rules are those of the tz database embedded at build time wherever the system offers none, which on Windows is always (CON-5). There a rule change made by a government after the build is shown only after a new release. The README states this. | Inspection of the README |
@@ -983,6 +1090,14 @@ proposed before the first build had one `internal/infrastructure/windows` packag
 | Upgrade from a previous version | The settings file carries a `version` field from the first release; an unknown later field is kept on write |
 | No permission | CON-8: nothing needs elevation |
 | GitHub out of reach | FR-509: an automatic check says nothing; `Check for updates` says it could not reach GitHub |
+| Unpinned ribbon dragged, moved to an edge, re-oriented, resized or its display changed | FR-614: the tab follows the placement, whatever set it; a drag holds the ribbon open (FR-616) |
+| Unpinned ribbon covered by other windows | FR-617 |
+| A panel or a menu open while unpinned | FR-616: neither collapses |
+| Unpinned ribbon hidden, then shown | FR-618: hidden takes the tab too; shown brings back the tab |
+| A notice raised while collapsed | Claude's proposal: it is read when the ribbon next opens; the tab carries no words, so it tells nothing by colour (NFR-U-2) |
+| Keyboard only | `Pin ribbon` is in both menus (FR-613); a collapsed ribbon opens only to the pointer, while its menus reach every action |
+| Touch only | Out of scope (section 1.3); pinned, the default, serves it |
+| Pointer tracking on macOS and Linux | ASM-4, measured before design |
 
 ---
 
@@ -1006,7 +1121,7 @@ recover, snapshot) is executable from a Go test with no window open before the f
 | Priority | Content |
 |---|---|
 | **Must** | FR-101 to FR-107, FR-201 to FR-209, FR-301 to FR-305, FR-401 to FR-409, FR-501, FR-502, FR-504 to FR-508, FR-601 to FR-604, FR-607 to FR-610, FR-701 to FR-707, FR-801 to FR-811, NFR-P-1 to NFR-P-4, NFR-U-1 to NFR-U-5, NFR-S-1 to NFR-S-3, NFR-M-1, NFR-M-2, NFR-C-1, NFR-O-1 |
-| **Should** | FR-108, FR-307, FR-503, FR-509, FR-605, FR-606, FR-611, FR-612 |
+| **Should** | FR-108, FR-307, FR-503, FR-509, FR-605, FR-606, FR-611 to FR-618 |
 | **Could** | FR-308 |
 | **Withdrawn** | FR-306 (Amendment 6) |
 | **Won't this time** | Everything in the out-of-scope table of section 1.3 |
@@ -1042,7 +1157,8 @@ implementation; where no test can hold it, its `Verified by:` line names the che
 
 ## 11. Open questions
 
-There are no open questions. The five raised while drafting were ruled by Oliver on 2026-09-27:
+There are no open questions. The five raised while drafting were ruled by Oliver on 2026-09-27;
+the four raised by Amendment 18 on 2026-09-28:
 
 | ID | Question | Ruling | Now held by |
 |---|---|---|---|
@@ -1051,6 +1167,10 @@ There are no open questions. The five raised while drafting were ruled by Oliver
 | OQ-3 | Does a setup program ship with the first release? | Yes | Section 5 |
 | OQ-4 | What does `Alt+F4` on the ribbon do? | Hide the ribbon | FR-507 |
 | OQ-5 | Is the vertical orientation in the first useful release? | Yes | FR-103, FR-104 |
+| OQ-6 | Where does the tab of a ribbon standing away from every edge go? | Where the ribbon stands, on its side nearer an edge | FR-614 |
+| OQ-7 | The 8 DIP tab or the 24 DIP minimum target: which gives? | The tab is exempt | NFR-U-5 |
+| OQ-8 | Can a window cover an unpinned ribbon's tab? | No: unpinned stays on top | FR-617 |
+| OQ-9 | Does a collapsed ribbon count as shown to the toggles? | Yes | FR-618 |
 
 ---
 
@@ -1075,3 +1195,4 @@ is installing and removing the DMG on macOS and the Flatpak on Linux.
 | M-11 | The donate button at the foot of Settings opens the default browser on the donation page. |
 | M-12 | Each Position item puts the ribbon flush against its edge and centred along it on the display it is on; it opens there next time; choosing Horizontal or Vertical from either menu sends it to the top or right edge; small clocks show their whole date and time in both styles; the Settings title and Close stay put while the panel scrolls; each colour scheme looks right and unmistakably its own in Light, Dark and System, Neon glowing on its dark side only; every date format shows its whole date in large and small cells, a Wednesday in September the widest. |
 | M-13 | Help's Check for updates says this is the latest version with the network on and that GitHub could not be reached with it off; a build older than the latest release shows the update panel a few seconds after it starts; Download opens this platform's download in the browser; after Skip this version the next start shows nothing; the Flatpak build reaches GitHub too. |
+| M-14 | Unticking Pin ribbon in either menu shrinks the ribbon to an accent tab on its side nearer the display's edge a second after the pointer leaves; resting the pointer on the tab for 0.3 s opens it while the window being typed in keeps focus; crossing the tab quickly does not; the tab stays above a maximised window with Always on top off; a Stream Deck press hides the tab and the next brings it back; ticking Pin ribbon ends all of it. |

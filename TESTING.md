@@ -62,7 +62,7 @@ and what stops it. An unexplained shortfall cannot be told from an oversight.
 | `internal/infrastructure/appdata` | 100% | 100% | `test.ps1` |
 | `internal/infrastructure/runlog` | 76.5% | 76% | `test.ps1` |
 | the root package (the Wails facade) | 76.5% | 76% | `test.ps1` |
-| `internal/infrastructure/desktop` | 14.8% | 14% | `test.ps1` |
+| `internal/infrastructure/desktop` | 14.7% | 14% | `test.ps1` |
 | `internal/product` | 100% | none | not gated |
 | `installer` | 0%, no tests | none | not gated |
 
@@ -70,16 +70,18 @@ Every figure is the Windows build's, which is what `test.ps1` measures. The Wind
 258 Go test functions, counted from the test files `go list` selects for it; each runs once with no
 subtests, plus one `TestMain` in `internal/infrastructure/setup`. Twenty-four of them are the
 structural tests in `tests/structural`, which read the source rather than run it and are the same
-on every platform; [ARCHITECTURE.md](ARCHITECTURE.md) lists each against the rule it holds. The
-macOS and Linux builds compile 239 each ([On macOS and Linux](#on-macos-and-linux)). One more holds a promise rather than a rule of structure:
-`TestA1Point0SettingsFileIsReadWhole` reads a frozen settings file of the first release (NFR-C-1); see
-ARCHITECTURE.md, The settings file.
+on every platform; [ARCHITECTURE.md](ARCHITECTURE.md) lists each against the rule it holds. One
+test in `store` holds a promise rather than a rule of structure:
+`TestA1Point0SettingsFileIsReadWhole` reads a frozen settings file of the first release (NFR-C-1);
+see ARCHITECTURE.md, The settings file. The macOS and Linux builds compile 239 each
+([On macOS and Linux](#on-macos-and-linux)).
 
 ### The front end
 
-81 tests across 8 files, under Vitest with jsdom: the ribbon, Settings, About, Licence and the update panel, the
-self-reading cycle, then the setup page's screens, keyboard ring and unreachable-program cases. The
-front end has no coverage figure: no coverage provider is installed, so none is measured or claimed.
+81 tests across 8 files, under Vitest with jsdom: the ribbon, Settings, About, Licence and the
+update panel; the self-reading cycle; the watch on the page's `devicePixelRatio`; then the setup
+page's screens, keyboard ring and unreachable-program cases. The front end has no coverage figure:
+no coverage provider is installed, so none is measured or claimed.
 
 ## How each layer is tested
 
@@ -87,16 +89,17 @@ front end has no coverage figure: no coverage provider is installed, so none is 
 |---|---|---|
 | `internal/domain` | pure unit, over fixed instants and zones from the embedded tz database | nothing |
 | `internal/application` | unit, over hand-written fakes of the seven ports | nothing |
-| `internal/infrastructure` | integration, over temporary folders and scratch registry keys | the filesystem, `HKCU` under a scratch key, child processes |
+| `internal/infrastructure` | integration, over temporary folders and scratch registry keys | the filesystem, `HKCU` under a scratch key, child processes, the real displays |
 | the root package | unit, over a scripted service with Wails and the desktop stood in for by the facade's own fields | nothing |
-| `tests/structural` | source and AST scans, plus one `go list` and one `git ls-files` | reads files |
+| `tests/structural` | source and AST scans, plus a `go list` for each platform and one `git ls-files` | reads files |
 | the front end | component tests under jsdom | nothing |
 
 No Go test uses a mocking library; every double is a hand-written fake with the real interface
-behind it. The front end stands in for Go through `src/fakeBridge.ts`, which answers every facade
-call the way the real one does. **No test writes to the user's own settings, sign-in entry or Apps
-list**: the store and the log are tested in temporary folders; `startup` under a scratch key beneath
-`HKCU` on Windows and in a temporary folder on macOS and Linux; the setup record under a scratch key.
+behind it. The front end stands in for Go through `src/fakeBridge.ts`, which records every facade
+call the page makes and gives each a canned answer of the real one's shape. **No test writes to the
+user's own settings, sign-in entry or Apps list**: the store and the log are tested in temporary
+folders; `startup` under a scratch key beneath `HKCU` on Windows and in a temporary folder on macOS
+and Linux; the setup record under a scratch key.
 **No test reaches the network**: the update check's adapter is tested over a stand-in HTTP client, so
 GitHub is asked only by the running application (M-13).
 
@@ -104,25 +107,29 @@ GitHub is asked only by the running application (M-13).
 
 ### The platform owns it
 
-- **`internal/infrastructure/desktop` (14.8%).** The tray icon, the native menus, the move fence and
+- **`internal/infrastructure/desktop` (14.7%).** The tray icon, the native menus, the move fence and
   the desktop's broadcasts all run on a hidden window's message loop; the ribbon functions act on the
-  real ribbon window. The tests cover what is portable: the menu identifier numbering (a submenu
-  included), the fence's rectangle arithmetic, a work area read at a point, Windows' drag distance
-  and an address Windows cannot open being refused. The loop itself, the menus as drawn, the
+  real ribbon window. `PixelsPerDIP`, which on Windows hands the page's ratio straight back, is
+  called only by the root package's tests, which this figure does not count. The tests cover what
+  is portable: the menu identifier numbering (a submenu included), the fence's rectangle
+  arithmetic, a work area read at a point, Windows' drag distance and an address Windows cannot open
+  being refused. The loop itself, the menus as drawn, the
   broadcasts arriving and a browser actually opening (M-11) are checks for a person.
 - **`internal/infrastructure/monitors` (82.6%).** The displays are read for real; what is not reached
   is Windows refusing to enumerate them or to describe one.
 - **`internal/infrastructure/runlog` (76.5%).** Opening the log and pointing standard error at it are
-  tested; making the folder failing, the start line failing to write and `SetStdHandle` refusing only
-  fail inside the system.
-- **The root package (76.5%).** The facade's tests are `facade_test.go`, `window_life_test.go` and
-  `updates_test.go`, over the scripted service in `fakes_test.go`. The facade's decisions are tested:
-  which calls fit the ribbon, that a drag whose save failed is still fitted, the panel state, the menu
-  actions, the close, the recover round each desktop event and each update check, the update watch's
-  timing and what Download and Skip act on. Not reached: the composition root (`main.go`, `launch.go`),
-  `startup`, `listen` and `shutdown`, which need the real ribbon window and the tray's message loop.
-  Nor are the one-line calls in `wails_calls.go` and `window_life.go` that hand a request to Wails
-  or Win32 and do nothing else.
+  tested, as is the folder refusing to be made; the log file refusing to open, the start line failing
+  to write and `SetStdHandle` refusing only fail inside the system.
+- **The root package (76.5%).** The facade's tests are `facade_test.go`, `window_life_test.go`,
+  `updates_test.go` and `quit_signal_test.go`, over the scripted service in `fakes_test.go`. The
+  facade's decisions are tested: which calls fit the ribbon, that a drag whose save failed is still
+  fitted, the panel state, the menu actions, the close, a signal from outside ending the application
+  even with the tray up, the recover round each desktop event and each update check, the update
+  watch's timing and what Download and Skip act on. Not reached: the composition root (`main.go`,
+  `launch.go`), `startup`, `listen` and `shutdown`, which need the real ribbon window and the tray's
+  message loop. Nor are the one-line calls in `wails_calls.go` and `window_life.go` that hand a
+  request to Wails or Win32 and do nothing else, nor `preparePlatform` in `platform_windows.go`,
+  which does nothing on Windows.
 
 ### It would change the machine
 
@@ -139,29 +146,32 @@ GitHub is asked only by the running application (M-13).
   refusing to start or a shortcut refusing to save, a copy or removal failing part way, giving the
   setup window the keyboard (`TakeFocus`) and finding the ribbon's own window after a launch.
 - **`internal/infrastructure/startup` (80.6%).** Written, read and removed under a scratch key; the
-  registry refusing to open or write the key is not reached.
-- **`internal/infrastructure/store` (92.8%).** Not reached: the folder or temporary file refusing to
-  be made or flushed; the rename over the old file failing. Only a failing disk produces either.
+  registry refusing to open the key or to read, write or delete its value is not reached.
+- **`internal/infrastructure/store` (92.8%).** The folder refusing to be made and the rename over the
+  old file failing are tested. Not reached: the temporary file refusing to be made, written, flushed
+  or closed, which only a failing disk produces; the error returns in `encode` and `extrasOf`, which
+  guard values and a file already known to be well formed.
 - **`tools/versioninfo` (86.7%).** `main` hands `run` the real arguments; an output folder that
   cannot be made is not reached. What it writes was read back from both released executables through
   Windows' own version API on 2026-09-27.
-- **`tools/payload` (82.8%).** `main` hands `run` the real arguments; the archive failing to write
-  part way is not reached.
+- **`tools/payload` (82.8%).** `main` hands `run` the real arguments; the archive failing to close
+  or to move into place is not reached.
 - **`tools/genplaces` (38.8%).** `main`, `run`, `readTable` and `readVersion` read the tz database's
   own files, which a test machine need not have. The parsing and the writing of the catalogue are
   tested; a test in `zones` holds every zone in the committed catalogue to resolving.
 
 ## On macOS and Linux
 
-The macOS and Linux halves of infrastructure build only with cgo against AppKit or GTK, so Windows
-cannot compile them and `test.ps1` does not reach them. They are checked on a machine of their own
+The macOS and Linux halves of infrastructure compile only for their own platform; the parts that
+face the desktop (`cocoamain`, `gtkmain`, `monitors`, `desktop`) also need cgo against AppKit or
+GTK. `test.ps1` reaches none of them. They are checked on a machine of their own
 platform, set up as [DEVELOPMENT.md](DEVELOPMENT.md) says, from a checkout with the page built. Each
 build compiles 239 Go test functions: the shared ones, the structural tests and its own.
 
 | What | macOS | Linux |
 |---|---|---|
 | Tags | `desktop,production` | `desktop,production,webkit2_41` |
-| Tests of its own | `cocoamain` 3, `monitors` 3, `desktop` 16 (with the shared `_unix` tests) | `gtkmain` 3, `monitors` 2, `desktop` 17 (with the shared `_unix` tests) |
+| Tests that need cgo | `cocoamain` 3, `monitors` 3, `desktop` 16 (with the shared `_unix` tests) | `gtkmain` 3, `monitors` 2, `desktop` 17 (with the shared `_unix` tests) |
 | Needs | a signed-in desktop | a signed-in desktop session with a display and a tray host |
 
 With the tags for the platform in `TAGS`, run each check and read its exit code:
@@ -175,7 +185,7 @@ go vet -tags "$TAGS" ./...
 ```
 
 ```bash
-go run honnef.co/go/tools/cmd/staticcheck@latest -tags "$TAGS" ./...
+go run honnef.co/go/tools/cmd/staticcheck@v0.8.1 -tags "$TAGS" ./...
 ```
 
 ```bash
@@ -186,8 +196,12 @@ go test -count=1 -tags "$TAGS" ./internal/...
 go build -tags "$TAGS" -o /tmp/timeribbon .
 ```
 
+staticcheck is the version `test.ps1` pins. The test line covers `./internal/...`, where every
+macOS and Linux test lives; the root package, the tools and the structural tests are the same tests
+on every platform, which `test.ps1` runs on Windows.
+
 To run the application from source, with a scratch settings folder so a real one is not touched
-(`HOME` on macOS, `XDG_CONFIG_HOME` on Linux):
+(point `HOME` at one on macOS; `XDG_CONFIG_HOME` on Linux):
 
 ```bash
 go run -tags "$TAGS" .
@@ -200,11 +214,12 @@ they need a desktop; a person at it sees windows open and close. The Linux `Test
 (`gtkmain.ServeTests`) fails at once, saying so, where no display can be opened. What they proved
 when they were written, measured 2026-09-28: a ribbon stands exactly where it is placed; it returns
 exactly from a panel's size (on Linux only once the size is awaited); a position `Place` chose is
-never taken for a drag; the Dock guard fails when the switch to an accessory is taken out.
+never taken for a drag.
 
 **What has no figure.** These packages have no coverage gate: the parts that matter act on a real
 desktop, which a coverage run on another machine cannot reach; a floor measured on one person's
-desktop would not hold on another's. The checks above are run before each release.
+desktop would not hold on another's. The practice, which nothing enforces: the checks above are run
+before each release.
 
 ## Checks a person settles
 
@@ -229,7 +244,7 @@ Windows, installing and removing the DMG on macOS and the Flatpak on Linux.
 | M-11 | The donate button at the foot of Settings opens the default browser on the donation page |
 | M-12 | Each Position item puts the ribbon flush against its edge and centred along it on the display it is on; it opens there next time; choosing Horizontal or Vertical from either menu sends it to the top or right edge; small clocks show their whole date and time in both styles; the Settings title and Close stay put while the panel scrolls; each colour scheme looks right and unmistakably its own in Light, Dark and System, Neon glowing on its dark side only |
 | M-13 | Help's Check for updates says this is the latest version with the network on and that GitHub could not be reached with it off; a build older than the latest release shows the update panel a few seconds after it starts; Download opens this platform's download in the browser; after Skip this version the next start shows nothing; the Flatpak build reaches GitHub too |
-| Wheel at 250% | On a display at 250%, one notch of a plain wheel over a scrolling horizontal ribbon moves it as far as a native notch moves a vertical one. In headless Edge through the DevTools protocol it moved 48 against 120; whether a physical wheel does the same is not known |
+| Wheel at 250% | On a display at 250%, one notch of a plain wheel over a scrolling horizontal ribbon moves it as far as a native notch moves a vertical one; only a physical wheel settles it |
 
 The ribbon's layout at its full size was measured in headless Edge 154.0.4258.37, the version of the
 installed WebView2 runtime, with the application's own stylesheets. At 100% and 250% a scrolling
@@ -278,8 +293,7 @@ go tool cover -func=cover.out
 **Prove a new guard bites.** A test that has never been seen to fail is not yet a guard: plant the
 violation, read the exit code, then restore the file in a `finally` so a failed run cannot leave the
 plant behind. The structural package's own header records that each of its assertions was proved
-this way; the credits test was proved on 2026-09-27 in both directions and again on 2026-09-28,
-once it held each platform's credits, by taking out the Linux-only godbus credit.
+this way.
 
 **Re-measure before quoting.** Every figure above was measured when it was written; copying one
 forward is how a document starts describing a repository that no longer exists.

@@ -50,10 +50,9 @@ application's one network request; NFR-S-1 is restated to allow it and nothing e
 `Check for updates` (FR-508); the settings file gains the skipped release (NFR-C-1 allows the key).
 
 Source: the initial product specification of 2026-09-27, written under the product's former name,
-plus Oliver's rulings
-of 2026-09-27: the stack is Go with Wails; orientation is a setting offering both horizontal and
-vertical, both in the first release; a setup program ships with the first release; this document is
-baselined before any code.
+plus Oliver's rulings of 2026-09-27: the stack is Go with Wails; orientation is a setting offering
+both horizontal and vertical, both in the first release; a setup program ships with the first
+release; this document is baselined before any code.
 
 ---
 
@@ -86,7 +85,8 @@ Oliver Ernster as author and decision owner; contributors to the open source pro
 - Dragging the whole ribbon anywhere, including onto another monitor; restoring its monitor and
   position at the next launch; recovering it onto a visible display when its place has gone.
 - A notification-area (tray) icon with a menu; optional Always on Top; optional Start with Windows.
-- Light, dark and system themes.
+- Light, dark and system themes, in ten colour schemes (FR-611).
+- A check for a newer release on GitHub, the application's one network request (FR-509).
 - Local persistence in one human-readable file.
 - A setup program that installs, updates, repairs and removes the application for one user
   (section 5).
@@ -154,6 +154,7 @@ graph LR
   UI --> ST
   WI["Windows integration<br/>tray, monitors, placement, Run key"] --> UI
   WI --> ST
+  GH["GitHub latest release<br/>update check, FR-509"] --> UI
 ```
 
 The clock service takes an instant and the configured clocks and answers, for each clock, the text
@@ -200,7 +201,7 @@ recorded at the first measured build.
 | CON-3 | The coverage floor over `internal/domain` and `internal/application` stays at 100 percent. |
 | CON-4 | `VERSION` is the single source of truth for the version. No version literal elsewhere. |
 | CON-5 | Zones resolve through Go's `time.LoadLocation` with the `time/tzdata` package embedded, so no rule depends on files present on the machine. Measured 2026-09-27 with `ZONEINFO` pointed at a missing path: `America/New_York` answered EST in January and EDT in July; `Not/AZone` answered an error. No DST rule is written by hand. |
-| CON-6 | The ribbon, its context menu and the Settings surface share one window, since Wails v2 offers one. Settings is shown by resizing that window to a settings layout and returning it to the ribbon afterwards. Amendment 2: About and Licence (FR-607, FR-608) are shown the same way, as panels of that one window. |
+| CON-6 | The ribbon, its context menu and the Settings surface share one window, since Wails v2 offers one. Settings is shown by resizing that window to a settings layout and returning it to the ribbon afterwards. Amendment 2: About and Licence (FR-607, FR-608) are shown the same way, as panels of that one window. The update panel of FR-509 is another such panel. |
 | CON-7 | Monitor enumeration, work areas, monitor identity and window placement go through Win32 (`EnumDisplayMonitors`, `GetMonitorInfoW`, `SetWindowPos`) in infrastructure, never through Wails' position calls. Amendment 13: through GDK and GTK on Linux and AppKit (`NSScreen`, `NSWindow`) on macOS, in DIP. |
 | CON-8 | Everything written stays per user: the settings file under `%APPDATA%` and the Start with Windows value under `HKCU`. Windows never asks for administrator rights. Amendment 13: on macOS the settings under `~/Library/Application Support` and the sign-in agent under `~/Library/LaunchAgents`; on Linux the settings in the Flatpak's own configuration folder and the sign-in entry under `~/.config/autostart`. |
 
@@ -357,7 +358,7 @@ Verified by: `TestTwelveAndTwentyFourHourFormats` (domain).
 Priority: Must.
 The clock service shall take the instant as an argument; no domain or application code shall read
 the wall clock.
-Verified by: `tests/structural` domain purity test, proved by a planted `time.Now()`.
+Verified by: `TestDomainIsPure` (structural), proved by a planted `time.Now()`.
 
 **FR-208 Minute-aligned updates**
 Priority: Must.
@@ -486,7 +487,15 @@ Verified by: `TestDisplayChangeRecoversARibbonLeftOffscreen` (domain); check M-3
 Priority: Must.
 The ribbon shall keep its size in DIP when moved between monitors with different scaling, with text
 drawn at the destination monitor's resolution.
-Verified by: section 12, check M-3.
+Note: on Windows the window is sized by the scale the page is drawn at, which the page reports as its
+`devicePixelRatio` once it has loaded and again whenever that changes; the display's DPI sets the
+scale only until the first report. Windows' text size enlarges the page without changing the DPI, so
+above 100 percent the DPI alone left the page cut off. A reported scale that is not a positive finite
+number is refused. On macOS and Linux the window is sized in DIP, so the ratio is left to the toolkit.
+Verified by: section 12, check M-3; `TestTheRibbonIsSizedByTheScaleThePageIsDrawnAt`,
+`TestTheReportedScaleHoldsOnADisplayAtAnotherDPI`, `TestAPanelIsSizedByTheScaleThePageIsDrawnAt`,
+`TestAScaledRibbonFitsTheRoomTheDisplayOffersAtThatScale`, `TestAnUnusableScaleIsRefused`
+(application); `pixelRatio.test.ts`.
 
 **FR-408 Centre on an edge**
 Priority: Must (Amendment 8, Oliver, 2026-09-28).
@@ -550,6 +559,18 @@ Priority: Must.
 Hiding the ribbon shall leave the application running with its tray icon; only `Exit` ends it.
 Verified by: check M-4.
 
+**FR-505 Always on Top**
+Priority: Must.
+Where Always on Top is on, the ribbon shall stay above windows that are not themselves topmost; the
+setting shall be off by default and persisted.
+Verified by: `TestDefaultsAreDigitalTwentyFourHourVerticalAndNotOnTop` (domain); `TestChangingASettingPersistsIt` (application); check M-4.
+
+**FR-506 One instance**
+Priority: Must.
+If TimeRibbon is launched while it is already running for the same Windows user, then the new
+process shall show the running ribbon and exit.
+Verified by: check M-6.
+
 **FR-507 Alt+F4 hides**
 Priority: Must.
 When `Alt+F4` is pressed while the ribbon has focus, the application shall hide the ribbon as
@@ -578,9 +599,9 @@ could not reach GitHub. Please try again later." `Download` shall open this plat
 asset (`.exe` on Windows, `.dmg` on macOS, `.flatpak` on Linux), else the release page, in the
 default browser. `Skip this version` shall keep that version in the settings file as
 `skippedUpdate`. A version that is not dotted integers, as a prerelease tag, is never newer.
-Acceptance: given 2.0.0 running and v2.1.0 published, when the automatic check runs, then the
+Acceptance: given 1.2.0 running and v1.3.0 published, when the automatic check runs, then the
 ribbon shows the update panel; after `Skip this version`, the next automatic check shows nothing,
-while `Check for updates` offers v2.1.0 again. Given GitHub out of reach, the automatic check shows
+while `Check for updates` offers v1.3.0 again. Given GitHub out of reach, the automatic check shows
 nothing and `Check for updates` says it could not reach GitHub.
 Verified by: `TestIsNewerVersionComparesDottedIntegers`, `TestEachSystemDownloadsItsOwnAsset`,
 `TestANewerReleaseIsOffered`, `TestAnUnreachableSourceOffersNothing`,
@@ -591,18 +612,6 @@ Verified by: `TestIsNewerVersionComparesDottedIntegers`, `TestEachSystemDownload
 `TestAManualCheckAlwaysAnswers`, `TestTheWatchChecksAfterTheStartThenAtEachIntervalUntilTheEnd`,
 `TestDownloadOpensWhatWasOffered`, `TestSkipKeepsTheOfferedVersion` (facade); `TestSettingsRoundTrip`
 (infrastructure, store); `help.test.tsx`; the real request and browser by check M-13.
-
-**FR-505 Always on Top**
-Priority: Must.
-Where Always on Top is on, the ribbon shall stay above windows that are not themselves topmost; the
-setting shall be off by default and persisted.
-Verified by: `TestDefaultsAreDigitalTwentyFourHourVerticalAndNotOnTop` (domain); `TestChangingASettingPersistsIt` (application); check M-4.
-
-**FR-506 One instance**
-Priority: Must.
-If TimeRibbon is launched while it is already running for the same Windows user, then the new
-process shall show the running ribbon and exit.
-Verified by: check M-6.
 
 ### 3.6 Settings and startup
 
@@ -714,8 +723,8 @@ dark side. A scheme's hue shall be carried by the colours the ribbon paints (its
 dividers and text), never by the accent alone, which only Settings shows. Text, muted text and
 problem text meet 4.5:1 against the cell and the surface on every side (NFR-U-1).
 Acceptance: given the theme Light, when `Neon` is chosen, then the cells are white with deep cyan
-digits and magenta zone names; given the theme Dark, then they are near black with glowing cyan
-digits. When `Ocean` is chosen, then the cells are pale aqua in Light and deep teal in Dark.
+digits and labels and magenta zone marks; given the theme Dark, then they are near black with
+glowing cyan digits. When `Ocean` is chosen, then the cells are pale aqua in Light and deep teal in Dark.
 Verified by: `TestUnknownChoicesAreNormalisedToDefaults` (domain);
 `TestBothMenusOfferEveryColourWithTheCurrentTicked` (application);
 `TestStyleAndOrientationItemsChooseAndRedraw` (facade); `TestSettingsRoundTrip`,
@@ -729,9 +738,10 @@ paints: every pair of schemes differs by at least 10 on each side.
 
 **FR-701 Settings file**
 Priority: Must.
-The application shall keep its settings in the settings file as indented JSON holding style, size, colour, format,
-orientation, theme, Always on Top, placement and clocks; each clock holding a stable id, its zone id,
-its label and its position. Derived values (offset, abbreviation, time, date) shall not be stored.
+The application shall keep its settings in the settings file as indented JSON holding the file's
+format `version`, style, size, colour, format, orientation, theme, Always on Top, placement, clocks
+plus `skippedUpdate`, the release the user skipped (FR-509); each clock holding a stable id, its zone
+id, its label and its position. Derived values (offset, abbreviation, time, date) shall not be stored.
 Verified by: `TestSettingsRoundTrip` and `TestNoDerivedValueIsStored` (infrastructure).
 
 **FR-702 Atomic writes**
@@ -782,7 +792,7 @@ Verified by: `TestWriteFailureIsReportedAndCleared` (application).
 | NFR-P-1 | From launch to the ribbon showing current times shall take at most 1.5 s on the reference machine. | Timed from the log's first line to the first snapshot, median of 5 launches |
 | NFR-P-2 | While running normally, each cell shall show the new minute within 1 s after the Windows clock reaches it. | Log timestamps against the refresh, over 10 boundaries |
 | NFR-P-3 | After a resume or a system time change, every cell shall be correct within 2 s. | Check M-5 |
-| NFR-P-4 | While shown, the application shall schedule no periodic timer more frequent than once per minute. | Inspection plus a planned structural test over the front end's timer calls |
+| NFR-P-4 | While the ribbon is shown, its page shall schedule no periodic timer more frequent than once per minute. The self-reading cycle of a Help panel (FR-609) runs only while that panel is shown. Off Windows, where no broadcast reports a time change or a resume, the Go side compares the wall clock with the monotonic clock every 2 s to see one (FR-209). | Inspection plus a planned structural test over the front end's timer calls |
 | NFR-U-1 | Label, time, date and zone mark text shall meet a contrast ratio of at least 4.5:1 against the cell in both themes. | Planned theme token contrast test |
 | NFR-U-2 | No state shall be told by colour alone; an invalid clock carries words (FR-706). | Inspection |
 | NFR-U-3 | Every control in Settings and the place search shall be reachable and operable from the keyboard, with a visible focus indicator on the focused control. | `settings.test.tsx`; check M-8 |
@@ -801,7 +811,8 @@ Verified by: `TestWriteFailureIsReportedAndCleared` (application).
 ## 4. Documents
 
 README.md, ARCHITECTURE.md, TESTING.md and DEVELOPMENT.md, ported in shape from BridgeTalk, are
-written with the first build and kept true by the docs pass.
+written with the first build and kept true by the docs pass. NOTES.md holds the release notes;
+TECH_DEBT.md holds the known technical debt.
 
 ---
 
@@ -816,7 +827,8 @@ shape from BridgeTalk's.
 Amendment 13 (Oliver, 2026-09-28): the setup program and FR-801 to FR-811 are Windows only. macOS is
 delivered by `builddmg.sh` as a DMG signed with a Developer ID and notarised, the application
 dragged to Applications; Linux by `build_flatpak.sh` as a Flatpak installed for the user, granted
-only X11, the tray host's and the single-instance lock's bus names and the autostart folder.
+X11 with IPC and the GPU, the tray host's and the single-instance lock's bus names, the autostart
+folder plus the network for the update check (FR-509).
 
 **FR-801 Setup opens on the screen the machine calls for**
 Priority: Must.
@@ -899,18 +911,28 @@ Verified by: `setupScreens.test.ts`.
 
 ## 6. Architecture sketch
 
-Proposed, to be fixed in ARCHITECTURE.md:
+The packages as built; ARCHITECTURE.md holds the layering and the tests that enforce it. The sketch
+proposed before the first build had one `internal/infrastructure/windows` package, which was built as
+`desktop`, `monitors` and `startup`.
 
 | Layer | Package | Holds |
 |---|---|---|
 | Domain | `internal/domain/clock` | Clock, zone mark rule, time and date formatting, hand angles; takes an instant |
-| Domain | `internal/domain/placement` | Monitors as rectangles, default placement, DPI scaling, recovery by clamping |
-| Domain | `internal/domain/settings` | Settings value, defaults, clock order operations |
-| Application | `internal/application` | Use cases: snapshot (in time order), add, edit, remove, change setting, place, recover; ports for store, monitors, startup entry, zone catalogue |
+| Domain | `internal/domain/placement` | Monitors as rectangles, default placement, edges, DPI scaling, recovery by clamping |
+| Domain | `internal/domain/settings` | Settings value, defaults, clock operations |
+| Application | `internal/application` | Use cases: snapshot (in time order), add, edit, remove, change setting, place, recover, menus, update check; ports for store, monitors, startup entry, zone catalogue, release source |
 | Infrastructure | `internal/infrastructure/store` | JSON settings file, atomic write, tolerant clock decoding |
 | Infrastructure | `internal/infrastructure/zones` | Zone resolution through `time/tzdata`; the place catalogue |
-| Infrastructure | `internal/infrastructure/windows` | Monitors, `SetWindowPos`, drag, tray, Run key, time change and resume messages |
-| UI | `frontend/` | The ribbon, the cells in both styles, Settings, the place search |
+| Infrastructure | `internal/infrastructure/desktop` | The ribbon's window, drag, tray, native menus, time change and resume |
+| Infrastructure | `internal/infrastructure/monitors` | Each display's device name, work area and DPI |
+| Infrastructure | `internal/infrastructure/startup` | The one entry that starts TimeRibbon at sign-in |
+| Infrastructure | `internal/infrastructure/update` | The latest release, asked of GitHub (FR-509) |
+| Infrastructure | `internal/infrastructure/appdata`, `runlog`, `system` | The settings folder, the log, the wall clock and clock ids |
+| Infrastructure | `internal/infrastructure/setup` | The setup program's install policy (section 5) |
+| Infrastructure | `internal/infrastructure/cocoamain`, `gtkmain`, `iconscale` | The macOS and Linux main threads; the Linux tray's icon sizes |
+| Product | `internal/product` | Name, version, credits, the sign-in entry's words |
+| Facade | the root package `main` | The composition root and the methods the page calls |
+| UI | `frontend/` | The ribbon, the cells in both styles, Settings, the place search, Help |
 
 ---
 
@@ -928,6 +950,7 @@ Proposed, to be fixed in ARCHITECTURE.md:
 | Monitor removed or scaling changed | FR-405, FR-406, FR-407 |
 | Upgrade from a previous version | The settings file carries a `version` field from the first release; an unknown later field is kept on write |
 | No permission | CON-8: nothing needs elevation |
+| GitHub out of reach | FR-509: an automatic check says nothing; `Check for updates` says it could not reach GitHub |
 
 ---
 
@@ -953,6 +976,7 @@ recover, snapshot) is executable from a Go test with no window open before the f
 | **Must** | FR-101 to FR-107, FR-201 to FR-209, FR-301 to FR-305, FR-401 to FR-409, FR-501, FR-502, FR-504 to FR-508, FR-601 to FR-604, FR-607 to FR-610, FR-701 to FR-707, FR-801 to FR-811, NFR-P-1 to NFR-P-4, NFR-U-1 to NFR-U-5, NFR-S-1 to NFR-S-3, NFR-M-1, NFR-M-2, NFR-C-1, NFR-O-1 |
 | **Should** | FR-108, FR-307, FR-503, FR-509, FR-605, FR-606, FR-611 |
 | **Could** | FR-308 |
+| **Withdrawn** | FR-306 (Amendment 6) |
 | **Won't this time** | Everything in the out-of-scope table of section 1.3 |
 
 ---

@@ -14,7 +14,8 @@
 #
 # The sandbox's permissions are only what TimeRibbon uses: X11 and no Wayland, since the ribbon
 # must place its own window; the tray host's bus name; the bus name of Wails' single-instance lock;
-# the session's autostart folder for Start at sign-in. No network and no files.
+# the session's autostart folder for Start at sign-in; the network, for the update check alone
+# (FR-509), which asks GitHub for the latest release. No files.
 #
 # Outputs: timeribbon.flatpak (installable anywhere) and a user install of the app.
 set -euo pipefail
@@ -92,7 +93,8 @@ cat > "${PACKAGING_DIR}/${APP_ID}.metainfo.xml" << METAINFO
   <description>
     <p>
       A slim ribbon of clocks that stands against an edge of the screen, one clock for each place
-      chosen, with the time zone rules built in. It reads nothing from the network.
+      chosen, with the time zone rules built in. Its one network request asks GitHub for the
+      latest release, to say when a newer one is out; it sends nothing about you or your clocks.
     </p>
   </description>
   <launchable type="desktop-id">${APP_ID}.desktop</launchable>

@@ -45,14 +45,15 @@ window's build can import a script from the setup page's folder, so that one has
 
 **The setup program holds no install logic of its own.** Every act the setup window performs goes
 through `internal/infrastructure/setup`; `installer/app.go` decides only which screen to open and when
-to refuse. The portable half of `setup` is unit tested; `installer` has no tests, since every method
-on it acts on the machine.
+to refuse. `setup` builds for Windows only and is unit tested there; `installer` has no tests, since
+every method on it acts on the machine.
 
-**The donation page opens through the desktop, not through Wails.** Wails' `BrowserOpenURL` answers
-no error, so a desktop with no browser left the button doing nothing with nothing said.
+**The browser opens through the desktop, not through Wails.** Wails' `BrowserOpenURL` answers no
+error, so a desktop with no browser left the donation button doing nothing with nothing said.
 `desktop.OpenInBrowser` calls `ShellExecute` on Windows, `open` on macOS and `xdg-open` on Linux,
-each of which reports a refusal; Settings shows it with the address. Moving it back to Wails would
-bring the silence back.
+each of which reports a refusal. The donation page and an offered update (FR-509) both open through
+it; Settings or Help shows the refusal with the address. Moving it back to Wails would bring the
+silence back.
 
 **Nothing holds the ribbon on a display during a drag on macOS and Linux.** `KeepOnDisplays` does
 nothing there, since neither AppKit nor the window manager offers a say while a drag lasts; a ribbon
@@ -64,8 +65,9 @@ because Wails' macOS half uses it and only the `wails` command adds it, which Ti
 build with. Removing the line breaks the link, measured 2026-09-28.
 
 **Linux has a tray icon of its own rather than a library's.** The StatusNotifierItem and its menu in
-`desktop/tray*_linux.go` look like something a library would do. `fyne.io/systray` was measured and
-rejected (ARCHITECTURE.md, Design decisions); going back to it would lose a menu rebuilt as it opens.
+`desktop/tray*_linux.go` and `desktop/dbusmenu_linux.go` look like something a library would do.
+`fyne.io/systray` was measured and rejected (ARCHITECTURE.md, Design decisions); going back to it
+would lose a menu rebuilt as it opens.
 
 **The scroll bar's thickness comes from the page.** It is the web engine's bar, which Windows' own
 scroll bar metric does not describe, so the page is the only place that can measure it.

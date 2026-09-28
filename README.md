@@ -2,7 +2,7 @@
 
 A simple ribbon of configurable world clocks, horizontal or vertical, for Windows, macOS and Linux.
 
-> **Commercial licences available.** TimeRibbon is free and open source under the GPL-3.0. If those terms do not suit what you are building, such as a closed-source product, a commercial licence can be bought from me separately. It covers my own code; third-party libraries keep their own licences. See [commercial licensing](https://ernster.dev/commercial-licensing.html).
+> **Commercial licences available.** TimeRibbon is free and open source under the GNU General Public License, version 3 (GPL-3.0). If those terms do not suit what you are building, such as a closed-source product, a commercial licence can be bought from me separately. It covers my own code; third-party libraries keep their own licences. See [commercial licensing](https://ernster.dev/commercial-licensing.html).
 
 TimeRibbon answers one question at a glance: what time and what day is it where the people you talk
 to are? It shows one clock per place you choose, each with its own local time, weekday and date,
@@ -44,8 +44,8 @@ in a small frameless ribbon you can put anywhere on any monitor.
   Linux. The icon's menu and the ribbon's own right-click menu both add a clock, open Settings,
   choose digital or analogue, choose a colour scheme, choose horizontal or vertical, centre the
   ribbon on an edge, turn Always on top on or off, open Help (About, Licence and Check for updates)
-  and exit. The icon's
-  menu also shows or hides the ribbon. Hiding it leaves TimeRibbon running; only Exit ends it.
+  and exit. The icon's menu also shows or hides the ribbon; the ribbon's own menu hides it. Hiding
+  it leaves TimeRibbon running; only Exit ends it.
 - **Answers the icon the way each desktop expects.** On Windows a left click on the icon shows or
   hides the ribbon and a right click opens the menu. On macOS a click opens the menu, as every menu
   bar icon does. On Linux the tray decides: on Ubuntu a click opens the menu and a double click
@@ -67,9 +67,9 @@ in a small frameless ribbon you can put anywhere on any monitor.
 - **Digital or analogue, large or small, ten colour schemes, 12-hour or 24-hour, horizontal or
   vertical, light or dark.** Every choice applies at once, with no Save step. The schemes are
   Classic, Neon (glowing digits and hands when dark), Ocean, Sunset, Forest, Amber, Ruby, Indigo,
-  Berry and Contrast (black and white); each follows the light or dark theme. Style, colour and orientation are in the menus; size, time format
-  and theme are in Settings. Small clocks suit a small screen such as a 13 inch laptop. The theme
-  can follow the system's.
+  Berry and Contrast (black and white); each follows the light or dark theme. Style, colour and
+  orientation are in the menus; size, time format and theme are in Settings. Small clocks suit a
+  small screen such as a 13 inch laptop. The theme can follow the system's.
 - **Keeps your clocks in one readable file,** `settings.json`, written whole or not at all (where
   it lives is in [Your settings](#your-settings)). A damaged file is kept aside under another name
   and never overwritten; a notice on the ribbon says so. A save that fails keeps the change in
@@ -85,9 +85,9 @@ in a small frameless ribbon you can put anywhere on any monitor.
   more than fits.
 - **Tells you when a new release is out.** A few seconds after it starts, then once a day, it asks
   GitHub for the latest release. Only when that is newer than yours does the ribbon show it, with
-  Download (the file for your platform, opened in your browser), Skip this version and Later. A
-  skipped version is never offered again unasked. Help's Check for updates asks at any time and
-  always answers, including when GitHub cannot be reached.
+  Download (the file for your platform opened in your browser, else the release's page), Skip this
+  version and Later. A skipped version is never offered again unasked. Help's Check for updates
+  asks at any time and always answers, including when GitHub cannot be reached.
 
 ## What it does not do
 
@@ -163,7 +163,8 @@ flatpak uninstall --user uk.codecrafter.TimeRibbon
 ## Testing
 
 On Windows the gate checks formatting, runs vet and staticcheck, runs every Go test and the front
-end's lint, type check and tests, then holds each package to its coverage floor:
+end's lint, type check and tests, then holds the domain and application layers to 100 percent
+coverage and most other packages to a floor at the coverage each reaches:
 
 ```powershell
 ./test.ps1
@@ -185,7 +186,7 @@ nothing. [ARCHITECTURE.md](ARCHITECTURE.md) explains the layering and the reason
 decision. [TECH_DEBT.md](TECH_DEBT.md) lists what is still open, what is deliberately left and what
 only looks like debt.
 
-## Supporting TimeRibbon
+## Supporting the project
 
 TimeRibbon is free and stays free: there is no paid tier, no licence key and no feature held back
 behind a donation. If it earns its place on your screen, a donation is welcome. The same button sits

@@ -1,13 +1,14 @@
 # TimeRibbon Architecture
 
 A small desktop application for Windows, macOS and Linux showing a ribbon of clocks, one per chosen
-place. It reads the system clock plus GitHub's latest release for the update check, nothing else
-from outside itself; the time zone rules are built into the executable. Everything above
-infrastructure is the same code on every platform; each platform's own half of infrastructure sits
-in files its build tags or file names select ([The desktop on Linux and macOS](#the-desktop-on-linux-and-macos)).
-Its one network request is the update check (FR-509): only `internal/infrastructure/update` imports
-a network package, which `TestOnlyTheUpdateCheckImportsANetworkPackage` holds. The donation page and
-a release's download are handed to the desktop's browser rather than fetched.
+place. What it reads from outside itself is the system clock, its settings file, the desktop (the
+displays, the tray, the sign-in entry) and GitHub's latest release for the update check; the time
+zone rules are built into the executable. Everything above infrastructure is the same code on every
+platform; each platform's own half of infrastructure sits in files its build tags or file names
+select ([The desktop on Linux and macOS](#the-desktop-on-linux-and-macos)). Its one network request
+is the update check (FR-509): of this module's Go files only those in `internal/infrastructure/update`
+import a network package, which `TestOnlyTheUpdateCheckImportsANetworkPackage` holds. The donation
+page and a release's download are handed to the desktop's browser rather than fetched.
 
 The requirements are in [REQUIREMENTS.md](REQUIREMENTS.md); the FR, NFR and CON numbers below are
 its.
@@ -45,7 +46,7 @@ does not exist.
 | Each `wails.json` names its executable as `internal/product` does | `TestEachWailsConfigNamesItsExecutableAsTheProductDoes` | [`names_test.go`](tests/structural/names_test.go) |
 | Every scheme the menus offer has its own block in `colours.css` stating each of Classic's tokens (the problem colour aside); every block is offered (FR-611) | `TestEveryOfferedSchemeHasItsOwnCompleteBlock` | [`colours_test.go`](tests/structural/colours_test.go) |
 | The Licence panel is sized for the LICENSE's widest line, so it shows unwrapped | `TestTheLicencePanelIsSizedForTheLicencesWidestLine` | [`licence_test.go`](tests/structural/licence_test.go) |
-| No tracked or new file holds the product's former name or the word its window went by before the ribbon; the npm lock file aside | `TestNoTrackedFileHoldsTheRetiredWord` | [`retired_test.go`](tests/structural/retired_test.go) |
+| No tracked or new file holds the product's former name or the word its window went by before the ribbon; the npm lock file and calls of Python's string method of that name aside | `TestNoTrackedFileHoldsTheRetiredWord` | [`retired_test.go`](tests/structural/retired_test.go) |
 | That word is recognised in any case and inside names while the current names pass | `TestTheRetiredWordIsFoundInAnyCaseAndInsideNames` | [`retired_test.go`](tests/structural/retired_test.go) |
 
 ## Layers
@@ -141,7 +142,7 @@ show a tray icon.
                      |        infrastructure          |
                      | store, zones, monitors,        |
                      | startup, system, appdata,      |
-                     | runlog, desktop, setup,        |
+                     | runlog, desktop, setup, update,|
                      | iconscale, gtkmain, cocoamain  |
                      +--------------------------------+
 ```
@@ -183,8 +184,13 @@ arrangement of a run never counts as one. A length that changed while a panel wa
 as the panel closes. Should the save fail, its notice is one more cell, so the ribbon is arranged once
 more to fit it and that arrangement is not saved again. Apart from Position and a change of
 orientation, nothing else moves the ribbon, so a drag holds until the length next changes. Sizes
-are computed in DIP and scaled to the display's DPI, so a ribbon moved between displays at
-different scaling keeps its size in DIP (FR-407).
+are computed in DIP, so a ribbon moved between displays at different scaling keeps its size in DIP
+(FR-407). They are turned into window pixels at the scale the page is really drawn at: the page
+reports its `devicePixelRatio` once it has loaded and again whenever it changes
+(`frontend/src/pixelRatio.ts`, `SetPixelRatio`); the display's DPI stands in only until it has.
+On Windows that ratio includes the user's text size, which enlarges the page without changing the
+display's DPI, so a window sized by the DPI alone cut the page off above 100%. On Linux and macOS
+the toolkit sizes the window in DIP, so one CSS pixel is one unit (`desktop.PixelsPerDIP`).
 
 The cell sizes live in one table in `main.go`, one layout per size setting (FR-610): large and
 small, each giving a digital, an analogue and a prompt cell plus the padding. The service picks the
@@ -266,10 +272,9 @@ version does not know is written back as it was found.
 **The file is a contract from the first release (NFR-C-1).** Every later release of the same major
 version reads every file the first release writes to the same settings. No key it writes may be
 renamed, dropped or given another meaning. No stored word (such as `12h` or `analogue`) may change.
-A later release may add keys: `skippedUpdate` (FR-509), the release the user chose to skip, came
-after the first release, so it is written last and a file without it reads as nothing skipped. The
-guard is
-`TestA1Point0SettingsFileIsReadWhole`, which reads the frozen fixture
+A later release may add keys. `size` (FR-610), `colour` (FR-611) and `skippedUpdate` (FR-509, the
+release the user chose to skip) came after the first release; a file without them reads as the
+large size, Classic and nothing skipped. The guard is `TestA1Point0SettingsFileIsReadWhole`, which reads the frozen fixture
 `internal/infrastructure/store/testdata/settings-1.0.0.json` (every key set away from its default)
 and requires every key to be read rather than merely carried. It was proved by renaming a key and by
 changing a stored word: each failed it. The fixture is never regenerated from a later writer, since
@@ -279,7 +284,7 @@ what it proves is that the old shape still reads.
 
 Every colour has one home per scheme. `frontend/src/theme.css` holds Classic, light and dark;
 `frontend/src/colours.css` holds the other schemes (FR-611), keyed off the `data-colour` attribute
-the page sets from the snapshot. Each of their tokens is stated once as `light-dark(light, dark)`, so
+the page sets from the snapshot. Each of those schemes' tokens is stated once as `light-dark(light, dark)`, so
 the `color-scheme` the theme sets picks the side and no dark value is written twice; Neon's glow is
 itself a `light-dark()` token, transparent on the light side. A scheme's hue lives in the tokens the
 ribbon paints (surface, cell, divider and both texts), because the accent reaches only Settings: an
@@ -297,16 +302,17 @@ called in on; the facade's `listen` loop acts on it. Both the window procedure a
 recover a panic and log it, so one fault cannot leave a ribbon that reacts to nothing.
 
 Both menus are native popup menus, so the ribbon's small window never clips them. Their items and
-words have one home, `internal/application/menus.go`. The tray menu offers Show ribbon or Hide ribbon
+words have one home, `internal/application/menus.go` with its submenus of choices in
+`menu_choices.go` beside it. The tray menu offers Show ribbon or Hide ribbon
 (whichever applies), Add clock, Settings, Style, Colour, Orientation, Position, Always on top, Help and Exit;
 the ribbon's right-click menu offers Add clock, Settings, Style, Colour, Orientation, Position, Always on top,
 Help, Hide ribbon and Exit. Style, Colour and Orientation are submenus ticking the current choice, whose
-items reach the same facade calls the page's would (`menu_choices.go`, FR-502); style and orientation
-are not offered in Settings. Position is a submenu holding the two edges the ribbon runs along
-(FR-408); Help is a submenu holding About and Licence in both. On Windows a left click on the tray
+items reach the same facade calls the page's would (FR-502); style, colour and orientation are not
+offered in Settings. Position is a submenu holding the two edges the ribbon runs along (FR-408);
+Help is a submenu holding About, Licence and Check for updates in both. On Windows a left click on the tray
 icon shows or hides the ribbon; on Linux the tray host's activation does the same (a double click on
 Ubuntu); on macOS a click opens the menu, as every menu bar icon does. A menu item may hold children,
-which become a submenu (Style, Orientation, Position, then the Help submenu of FR-508); identifiers
+which become a submenu (Style, Colour, Orientation, Position, then the Help submenu of FR-508); identifiers
 are numbered depth first (`desktop/menu.go`, shared by every platform), so a choice inside a submenu
 still names its action. A tray icon that cannot be created is not fatal: the ribbon still runs.
 Closing it then quits, since nothing would bring it back.
@@ -403,8 +409,8 @@ The house update check, ported from PigeonPost (FR-509). `internal/infrastructur
 GitHub's `releases/latest` endpoint, which answers only a published release that is neither a draft
 nor a prerelease, so a tag pushed during development can never prompt; the guard is the endpoint's
 own contract. It is unauthenticated, bounded by a 5 second timeout, never retried and never reads
-more than a megabyte of the answer. The service compares the release's tag with the version
-`build.ps1` stamps, as dotted integers; anything else is never newer. It picks this platform's asset
+more than a megabyte of the answer. The service compares the release's tag with the version the
+build stamped into `internal/product`, as dotted integers; anything else is never newer. It picks this platform's asset
 by its ending and reads the skipped release from the settings, which a manual check ignores.
 
 `updates.go` in the facade owns the timing: a goroutine started with the window checks 3 seconds in,
@@ -430,10 +436,11 @@ result. `tools/identity` hands both scripts the product's names.
   macOS 26 were linked into an executable claiming 12).
 - **Linux, `build_flatpak.sh`** (ported from PigeonPost's): writes the desktop entry, metainfo and
   manifest, then builds inside the GNOME 50 runtime's sandbox with the golang and node22 SDK
-  extensions, against WebKitGTK 4.1 (`-tags webkit2_41`). The sandbox is granted only what TimeRibbon
-  uses: X11 and not Wayland; the tray host's bus name; the bus name of Wails' single-instance lock;
-  the session's autostart folder; the network, for the update check alone (FR-509), without which
-  every check would report GitHub out of reach. No files. `cleanup_flatpak.sh` uninstalls it and
+  extensions, against WebKitGTK 4.1 (`-tags webkit2_41`). The sandbox is granted these alone: X11
+  with its shared memory (`--share=ipc`) and not Wayland; the GPU (`--device=dri`); the tray host's
+  bus name; the bus name of Wails' single-instance lock; the session's autostart folder; the
+  network, for the update check alone (FR-509), without which every check would report GitHub out
+  of reach. No other part of the file system. `cleanup_flatpak.sh` uninstalls it and
   removes its sign-in entry and build outputs, leaving the settings alone.
 
 ## The setup program
@@ -503,12 +510,13 @@ own web view data and step log sit under the temporary folder.
 Errors are wrapped with context at each boundary using `%w`; `errors.Is` sentinels mark the ones a
 caller acts on.
 
-- **Before the window, a run is ended only by a failure to run the window at all.** Standard error is
+- **Before the window, a run is ended only by a failure to run the window at all or to read the
+  embedded place catalogue.** Standard error is
   pointed at the log as the first act of the run (`runlog.Keep`), so even the Go runtime's own panic
   report is kept. A settings folder that cannot be found falls back to a folder in the temporary
   folder; settings that cannot be read, a tray icon that cannot be made and a missing executable path
-  are logged and the ribbon still opens. The embedded place catalogue failing to parse is a build
-  defect, which a test holds.
+  are logged and the ribbon still opens. A catalogue that fails to parse is a build defect, which a
+  test holds against.
 - **Shown on the ribbon, which keeps working:** a settings file kept aside and a save that failed, as
   notices with OK; an invalid clock, in words in its own cell.
 - **Refused beneath the control that was pressed:** every page call that Go can refuse. Each `api`

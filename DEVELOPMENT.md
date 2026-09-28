@@ -89,7 +89,7 @@ It does these things in order and stops at the first failure:
    the front end's `npm run build`, which runs `eslint` and `tsc --noEmit` before bundling.
 6. Packs the built application and `LICENSE` into `installer/payload.zip` through
    `go run ./tools/payload`.
-7. Copies the icon into the setup program's build folder, writes its version resource the same way
+7. Copies the two icons into the setup program's build folder, writes its version resource the same way
    (described as the setup program), builds it with the same `-ldflags` and copies it to
    `dist-installer`.
 8. Writes the empty placeholder back over `installer/payload.zip` whether or not step 7 succeeded,
@@ -130,7 +130,8 @@ lives.
 
 Each run appends to `TimeRibbon.log` in the settings folder (`%APPDATA%\TimeRibbon` on Windows;
 the other platforms' folders are in [ARCHITECTURE.md](ARCHITECTURE.md#data-locations)), which is
-where a fault in a windowed run goes, the Go runtime's own panic report included. The settings are
+where a fault in a windowed run goes, the Go runtime's own panic report included. A run that finds
+the log over 1 MiB starts it afresh. The settings are
 in `settings.json` beside it; on Windows the web view keeps its data in `WebView2` in the same
 folder. Only one copy runs per user: a second launch shows the first and exits.
 
@@ -163,8 +164,10 @@ An Apple Silicon Mac, with:
 | A Developer ID Application certificate | signing | the Apple Developer account, in the login keychain |
 
 No `wails` command is needed. Store the notary credential once, in a Terminal at the Mac: the script
-reads it from the keychain as the profile `TimeRibbon` and asks for nothing else. The command asks
-for an app-specific password from appleid.apple.com:
+reads it from the keychain as the profile `TimeRibbon` and asks for nothing else.
+`APPLE_KEYCHAIN_PROFILE` names another profile; with `APPLE_ID` and `APPLE_APP_PASSWORD` both set it
+notarises as that Apple ID instead. The command asks for an app-specific password from
+appleid.apple.com:
 
 ```bash
 xcrun notarytool store-credentials TimeRibbon --apple-id <Apple ID> --team-id W7K465GKFJ
@@ -183,7 +186,7 @@ It does these things in order and stops at the first failure:
 1. Refuses to run anywhere but an Apple Silicon Mac; reads the names from `tools/identity` and the
    version from `VERSION`; checks the notarisation credentials before building anything.
 2. Builds the page with npm.
-3. Builds a two-line pure Go program and reads from it the oldest macOS the Go toolchain supports;
+3. Builds an empty pure Go program and reads from it the oldest macOS the Go toolchain supports;
    hands that to the compiler through `CGO_CFLAGS` and `CGO_LDFLAGS`.
 4. Builds the executable with `go build -tags desktop,production` and the version through
    `-ldflags`, refusing it if the linker reports code built for a newer macOS or if the executable
@@ -202,7 +205,8 @@ opens only on the Mac that built it and is never released.
 
 ## Building on Linux
 
-Measured on Ubuntu 26.04 LTS; another distribution needs the same pieces under its own names:
+The packages as Ubuntu and Debian name them; another distribution needs the same pieces under its
+own names:
 
 ```bash
 sudo apt-get install -y build-essential pkg-config libgtk-3-dev libwebkit2gtk-4.1-dev nodejs npm flatpak flatpak-builder
@@ -241,8 +245,9 @@ python tools/genicons.py
 
 It writes `build/windows/icon.ico` (the one icon both executables, their shortcuts and the tray
 wear), `build/appicon.png`, the setup page's header mark and theme toggles, then the page's
-artwork: the donate mark, the Add clock button and the icon at the head of About. Each is rendered at about
-four times the size it is drawn at, so it stays sharp under display scaling.
+artwork: the donate mark, the Add clock button and the icon at the head of About. The page's
+artwork is rendered at four times the size the page draws it at and the setup page's header mark
+and toggles at about twice theirs, so each stays sharp under display scaling.
 
 **The place catalogue**, `internal/infrastructure/zones/places.tsv`, after a new tz database release,
 from a folder holding its `zone.tab`, `iso3166.tab` and `tzdata.zi`:
@@ -258,10 +263,18 @@ newer Go; `zones_test.go` fails where a catalogue zone does not resolve in them.
 ## Versioning
 
 `VERSION` holds the one version string. `build.ps1`, `builddmg.sh` and `build_flatpak.sh` each pass
-it into what they build through the same `-ldflags`; the DMG's `Info.plist` and the Flatpak's
-metainfo are written from it too. Nothing in the source holds the release's version, only the
-development placeholder above. The setup program
-compares the version it carries with the one the Apps list records to choose between Install, Update, Go back and the Installed screen.
+it into what they build through the same `-X` flag in `-ldflags`; the Windows version resources, the
+DMG's `Info.plist`, the Flatpak's metainfo and the site's version tokens under `docs/` are written
+from it too. Nothing in the source holds the release's version, only the development placeholder
+above.
+
+The setup program compares the version it carries with the one the Apps list records to choose its
+first screen: Install where nothing is recorded, Update over an older version, Go back over a newer
+one; Repair, Reinstall or Uninstall over the same one.
+
+The update check (FR-509) compares the running build's version with the tag of the latest release
+GitHub publishes, a leading `v` allowed. A version that is not dotted whole numbers is never newer,
+so a build carrying the development placeholder is never offered a release.
 
 ## Cutting a release
 
@@ -272,7 +285,10 @@ compares the version it carries with the one the Apps list records to choose bet
    and Linux checks in [TESTING.md](TESTING.md#on-macos-and-linux) on each.
 4. Run the checks a person settles in [TESTING.md](TESTING.md#checks-a-person-settles) against
    `dist-installer/TimeRibbonSetup.exe`, `TimeRibbon.dmg` and `timeribbon.flatpak`.
-5. Tag the commit and attach the three to the release.
+5. Tag the commit as `v` and the version, then publish a release on it with the three attached.
+   The update check reads only GitHub's latest published release, never a draft or a prerelease.
+   It offers each platform the first asset whose name ends in `.exe`, `.dmg` or `.flatpak`; the setup
+   program must therefore be the release's only `.exe`.
 
 ## Where things live
 
@@ -281,7 +297,9 @@ compares the version it carries with the one the Apps list records to choose bet
 | `main.go` | the composition root and the cell and panel sizes |
 | `app.go`, `window_life.go` | the facade: the calls the page makes; the window's own life with the desktop's events |
 | `wails_calls.go` | the facade's calls into Wails (show, hide, quit, always on top, events), held as fields so its tests can stand in for them |
-| `facade_test.go`, `window_life_test.go`, `fakes_test.go` | the facade's tests, over a scripted service and a stand-in window |
+| `updates.go` | the facade's side of the update check (FR-509): its timing, the check itself whether automatic or asked for from Help and the calls the update panel makes |
+| `quit_signal.go` | ending the run when a signal from outside asks, which a close would only turn into hiding while the tray is up |
+| `facade_test.go`, `window_life_test.go`, `updates_test.go`, `quit_signal_test.go`, `fakes_test.go` | the facade's tests, over a scripted service and a stand-in window |
 | `identity.go`, `dto.go`, `launch.go` | About and Licence, the wire, the window's options |
 | `platform_windows.go`, `platform_unix.go`, `platform_linux.go`, `platform_darwin.go` | what each platform's run needs before Wails opens: the tray's image and ending on a signal off Windows, X11 on Linux, a framework to link on macOS |
 | `bindings_on.go`, `bindings_off.go` | keep the binding-generation run from writing the log or showing a tray icon |
@@ -315,6 +333,9 @@ compares the version it carries with the one the Apps list records to choose bet
   `tests/structural/retired_test.go` holds that.
 - **The wire is written twice**, in `dto.go` and `frontend/src/wire.ts`. Change both; the
   structural test fails otherwise.
+- **The update check is the one network request.** No Go file outside
+  `internal/infrastructure/update` may import a network package;
+  `tests/structural/network_test.go` holds that.
 - **A call the page makes that Go can refuse takes a refusal handler.** It answers null rather than
   rejecting; a call without one does not compile.
 - **Every new guard is proved by planting a violation**; [TESTING.md](TESTING.md#keeping-this-honest)

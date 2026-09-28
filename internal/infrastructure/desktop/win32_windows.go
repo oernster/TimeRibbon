@@ -44,6 +44,7 @@ const (
 	wsCaption         = 0x00C00000
 	wsSysMenu         = 0x00080000
 	wsMinimizeBox     = 0x00020000
+	wsPopup           = 0x80000000
 	swpNoZOrder       = 0x0004
 	swpNoActivate     = 0x0010
 	swpFrameChanged   = 0x0020

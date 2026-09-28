@@ -38,8 +38,19 @@ func TestTheTabFrameTakesTheCaptionStylesOffAndGivesThemBack(t *testing.T) {
 	if err := SetTabFrame(window, true); err != nil {
 		t.Fatal(err)
 	}
-	if style, _, _ := procGetWindowLongPtr.Call(uintptr(window), uintptr(styleIndex)); style&tabStyles != 0 || style != wailsStyle&^tabStyles {
-		t.Errorf("as the tab, the style is %#x, want %#x", style, wailsStyle&^tabStyles)
+	if style, _, _ := procGetWindowLongPtr.Call(uintptr(window), uintptr(styleIndex)); style != wailsStyle&^tabStyles|wsPopup {
+		t.Errorf("as the tab, the style is %#x, want %#x", style, wailsStyle&^tabStyles|wsPopup)
+	}
+	// As a popup without those styles the window takes 8 either way, which a horizontal tab needs.
+	for _, want := range []placement.Size{{Width: placement.TabThickness, Height: 300}, {Width: 300, Height: placement.TabThickness}} {
+		if err := Place(window, placement.Point{}, want); err != nil {
+			t.Fatal(err)
+		}
+		var bounds rect
+		_, _, _ = procGetWindowRect.Call(uintptr(window), uintptr(unsafe.Pointer(&bounds)))
+		if got := (placement.Size{Width: int(bounds.right - bounds.left), Height: int(bounds.bottom - bounds.top)}); got != want {
+			t.Errorf("as the tab, asked %+v, took %+v", want, got)
+		}
 	}
 	if err := SetTabFrame(window, true); err != nil {
 		t.Errorf("taking the styles off twice: %v", err)

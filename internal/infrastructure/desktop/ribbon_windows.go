@@ -70,8 +70,12 @@ func pointerInside(ribbon Window) (bool, error) {
 }
 
 // tabStyles are the styles Wails gives its frameless window (style 0x4ca0000, measured 2026-09-28)
-// that hold it at least 42 pixels wide; without them it takes the tab's 8 (FR-614).
+// that hold it at least 42 pixels wide; without them it takes the tab's 8 across (FR-614).
 const tabStyles = wsCaption | wsSysMenu | wsMinimizeBox
+
+// An overlapped window, as Wails' is, is still held at least 39 pixels tall (SM_CYMINTRACK) without
+// those styles, which kept a horizontal ribbon's tab at 39; as a popup it takes 8 (measured
+// 2026-09-28). So the tab is a popup as well.
 
 // styleIndex is GWL_STYLE held in a variable, as exStyleIndex is.
 var styleIndex int32 = gwlStyle
@@ -84,9 +88,9 @@ func SetTabFrame(ribbon Window, tab bool) error {
 	if style == 0 {
 		return fmt.Errorf("reading the ribbon's frame: %w", err)
 	}
-	next := style | tabStyles
+	next := style&^wsPopup | tabStyles
 	if tab {
-		next = style &^ tabStyles
+		next = style&^tabStyles | wsPopup
 	}
 	if next == style {
 		return nil

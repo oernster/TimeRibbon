@@ -208,7 +208,11 @@ tab of FR-614 (ASM-4):
   `0x4ca0000`), which hold it at least 42 px wide: an 8 px `SetWindowPos` gave 42, the surplus
   hanging off the display's edge. Neither removing `WS_THICKFRAME` nor setting Wails' `MinWidth` to 1
   changed that. With those three styles removed, the same call gave 8 px and the page read an
-  `innerWidth` of 8.
+  `innerWidth` of 8. That settles the width alone: the window is still overlapped, which Windows
+  holds at least 39 px tall (`SM_CYMINTRACK`), so a horizontal tab stood 39 tall (Oliver, measured
+  the same day on the built app: asked for 8, 20 or 38 it took 39). As a popup (`WS_POPUP` added) it
+  took 8, 20 and 38 as asked; the tab is a popup while collapsed and Wails' style returns exactly
+  when it opens.
 - The page of a window never activated, placed topmost with `SWP_NOACTIVATE`, saw every arrival and
   departure of the pointer at 8 px: `mouseenter` and `mouseleave` on the document element matched a
   1 ms Go poll of the cursor against the window's rectangle on all 28 passes (a slow approach, a

@@ -175,8 +175,8 @@ func TestOpenDonationHandsTheAddressToTheBrowser(t *testing.T) {
 	}
 }
 
-// A browser Windows could not open is reported with the reason and the address, so the page can
-// still be reached by hand rather than the button doing nothing.
+// A browser the desktop could not open is reported with the reason and the address, so the page can
+// still be reached by hand rather than the button doing nothing. The words name no system.
 func TestADonationPageThatCouldNotBeOpenedIsReportedWithItsAddress(t *testing.T) {
 	app, _, seen, _ := newTestApp(t)
 	seen.browseErr = errPlanted
@@ -186,6 +186,11 @@ func TestADonationPageThatCouldNotBeOpenedIsReportedWithItsAddress(t *testing.T)
 	}
 	if !strings.Contains(err.Error(), product.DonateURL) {
 		t.Errorf("the refusal %q does not give the address", err)
+	}
+	for _, system := range []string{"Windows", "macOS", "Linux"} {
+		if strings.Contains(err.Error(), system) {
+			t.Errorf("the refusal %q names %s, though every platform can give it", err, system)
+		}
 	}
 }
 

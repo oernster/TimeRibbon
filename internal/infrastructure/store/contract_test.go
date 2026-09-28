@@ -1,8 +1,9 @@
 package store
 
-// NFR-C-1, the settings file contract of 1.0.0: every later 1.x reads every file 1.0.0 writes, to
-// the same settings. testdata/settings-1.0.0.json is a file in 1.0.0's shape with every key set away
-// from its default, so a version that stops reading any one of them fails here. The fixture is
+// NFR-C-1, the settings file contract of 1.0.0: every later release, the next major version
+// included (Amendment 11), reads every file 1.0.0 writes to the same settings.
+// testdata/settings-1.0.0.json is a file in 1.0.0's shape with every key set away from its default,
+// so a version that stops reading any one of them fails here. The fixture is
 // frozen: it is never regenerated from a later writer, since what it proves is that the old shape
 // still reads. A later version may add keys; it may not stop reading or change these.
 

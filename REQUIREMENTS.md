@@ -108,7 +108,7 @@ Oliver Ernster as author and decision owner; contributors to the open source pro
 | Any platform but Windows | The spec's section 20. Withdrawn by Amendment 13: macOS and Linux are in scope |
 | Languages other than English | Not asked for; weekday and month names are English |
 | Network time synchronisation | Windows owns the clock; TimeRibbon reads it (NFR-S-2) |
-| Downloading time zone rule updates | Rules are built into the binary (CON-5, NFR-S-3) |
+| Downloading time zone rule updates | Rules are built into the binary; macOS and Linux read the system's zone files first (CON-5, NFR-S-3) |
 | Fixed UTC offsets as clocks | The spec's section 4 forbids them |
 
 ### 1.4 Definitions
@@ -116,7 +116,7 @@ Oliver Ernster as author and decision owner; contributors to the open source pro
 | Term | Meaning, fixed for this document |
 |---|---|
 | **Clock** | One configured entry: a zone plus a label, at a position in the order. |
-| **Zone** | An IANA time zone identifier such as `America/New_York`, resolved through the tz database built into the application. |
+| **Zone** | An IANA time zone identifier such as `America/New_York`, resolved as CON-5 describes. |
 | **Label** | The place name a clock is shown by, such as `New York`. |
 | **Default label** | The label derived from a zone id: its last segment with underscores read as spaces. `America/Argentina/Buenos_Aires` gives `Buenos Aires`. |
 | **Ribbon** | The application's frameless window holding the clocks in order. |
@@ -204,7 +204,7 @@ recorded at the first measured build.
 | CON-2 | Every Go source file and every TypeScript and CSS file under `frontend/src` stays at or below 400 lines; one landing between 381 and 400 lines is reduced to 350 or fewer. Build and packaging scripts are not counted. |
 | CON-3 | The coverage floor over `internal/domain` and `internal/application` stays at 100 percent. |
 | CON-4 | `VERSION` is the single source of truth for the version. No version literal elsewhere. |
-| CON-5 | Zones resolve through Go's `time.LoadLocation` with the `time/tzdata` package embedded, so no rule depends on files present on the machine. Measured 2026-09-27 with `ZONEINFO` pointed at a missing path: `America/New_York` answered EST in January and EDT in July; `Not/AZone` answered an error. No DST rule is written by hand. |
+| CON-5 | Zones resolve through Go's `time.LoadLocation` with the `time/tzdata` package embedded. Windows has no zone files, so there the embedded rules are the ones read (unless the `ZONEINFO` variable names others) and no rule depends on files present on the machine; on macOS and Linux `LoadLocation` reads the system's zone files first and uses the embedded rules only for a zone missing there (Go's `time` source, read 2026-09-28). Measured 2026-09-27 with `ZONEINFO` pointed at a missing path: `America/New_York` answered EST in January and EDT in July; `Not/AZone` answered an error. No DST rule is written by hand. |
 | CON-6 | The ribbon, its context menu and the Settings surface share one window, since Wails v2 offers one. Settings is shown by resizing that window to a settings layout and returning it to the ribbon afterwards. Amendment 2: About and Licence (FR-607, FR-608) are shown the same way, as panels of that one window. The update panel of FR-509 is another such panel. |
 | CON-7 | Monitor enumeration, work areas, monitor identity and window placement go through Win32 (`EnumDisplayMonitors`, `GetMonitorInfoW`, `SetWindowPos`) in infrastructure, never through Wails' position calls. Amendment 13: through GDK and GTK on Linux and AppKit (`NSScreen`, `NSWindow`) on macOS, in DIP. |
 | CON-8 | Everything written stays per user: the settings file under `%APPDATA%` and the Start with Windows value under `HKCU`. Windows never asks for administrator rights. Amendment 13: on macOS the settings under `~/Library/Application Support` and the sign-in agent under `~/Library/LaunchAgents`; on Linux the settings in the Flatpak's own configuration folder and the sign-in entry under `~/.config/autostart`. |
@@ -386,9 +386,9 @@ Verified by: `TestAddingAClockAppendsItWithTheDefaultLabel` (application).
 
 **FR-302 Place search**
 Priority: Must.
-The place search shall list every canonical zone of the embedded tz database by default label and
-region, filtering as the user types by case-insensitive substring over the default label, the zone
-id and the country name.
+The place search shall list every zone of the tz database's `zone.tab`, built into the binary, by
+default label, country and zone id, filtering as the user types by case-insensitive substring over
+the default label, the zone id and the country name.
 Acceptance: typing `york` offers `New York (America/New_York)`; typing `kolkata` offers `Kolkata`.
 Note: a city without a zone of its own (Manchester, Brighton) is not searchable; the user picks its
 zone and types the label (FR-303). Ruled on OQ-1 by Oliver, 2026-09-27.
@@ -701,11 +701,11 @@ Verified by: `autoScroll.test.ts`; `help.test.tsx`.
 **FR-610 Clock size**
 Priority: Must (Amendment 8, Oliver, 2026-09-28).
 The ribbon shall draw every clock cell at the size held in settings, large or small, in either style;
-large when none is held, so a settings file written before the size existed keeps the clocks it had. Small cells are 146 by 72
-DIP digital and 146 by 116 DIP analogue against large's 176 by 92 and 176 by 176, with their text and
-dial reduced to fit; the empty ribbon's prompt is the same at either size. A ribbon lying flush against
-an edge of its display stays against that edge when the size changes, as it does when its cells
-change for any other reason (Oliver, 2026-09-28).
+large when none is held, so a settings file written before the size existed keeps the clocks it
+had. Small cells are 146 by 72 DIP digital and 146 by 116 DIP analogue against large's 176 by 92 and
+176 by 176, with their text and dial reduced to fit; the empty ribbon's prompt is the same at either
+size. A ribbon lying flush against an edge of its display stays against that edge when the size
+changes, as it does when its cells change for any other reason (Oliver, 2026-09-28).
 Rationale: small screens such as a 13 inch laptop, where large analogue cells leave room for few
 clocks.
 Acceptance: given two analogue clocks in a vertical ribbon at 100 percent with 6 DIP padding, when the
@@ -759,8 +759,9 @@ store); `settings.test.tsx`; each format fitting its cell by check M-12.
 Priority: Must.
 The application shall keep its settings in the settings file as indented JSON holding the file's
 format `version`, style, size, colour, format, orientation, theme, Always on Top, placement, clocks
-plus `skippedUpdate`, the release the user skipped (FR-509) and `dateFormat` (FR-612); each clock holding a stable id, its zone
-id, its label and its position. Derived values (offset, abbreviation, time, date) shall not be stored.
+plus `skippedUpdate`, the release the user skipped (FR-509) and `dateFormat` (FR-612); each clock
+holding a stable id, its zone id, its label and its position. Derived values (offset, abbreviation,
+time, date) shall not be stored.
 Verified by: `TestSettingsRoundTrip` and `TestNoDerivedValueIsStored` (infrastructure).
 
 **FR-702 Atomic writes**
@@ -819,7 +820,7 @@ Verified by: `TestWriteFailureIsReportedAndCleared` (application).
 | NFR-U-5 | Interactive targets shall be at least 24 by 24 DIP. | Inspection; WCAG 2.2 criterion 2.5.8 |
 | NFR-S-1 | The application shall make no network request other than the update check of FR-509: one unauthenticated request to GitHub's latest-release endpoint, sending nothing about the user or their clocks. Amendment 15 (Oliver, 2026-09-28): before it, no network request at all. | `TestOnlyTheUpdateCheckImportsANetworkPackage`, `TestTheNetworkExemptionNamesTheUpdatePackage` (structural) |
 | NFR-S-2 | The application shall not change the Windows clock or time zone. | Inspection |
-| NFR-S-3 | Non-claim: time zone rules are those of the tz database embedded at build time. A rule change made by a government after the build is shown only after a new release. The README states this. | Inspection of the README |
+| NFR-S-3 | Non-claim: time zone rules are those of the tz database embedded at build time wherever the system offers none, which on Windows is always (CON-5). There a rule change made by a government after the build is shown only after a new release. The README states this. | Inspection of the README |
 | NFR-M-1 | The coverage floor of CON-3, the size limit of CON-2 and the layering of CON-1 are enforced by `test.ps1`, which `build.ps1` runs first with no switch to skip it. | `build.ps1` |
 | NFR-M-2 | Go code passes gofmt, go vet and staticcheck; the front end passes eslint, `tsc --noEmit` and Vitest. | `test.ps1` |
 | NFR-C-1 | From 1.0.0, every later 1.x release shall read every settings file 1.0.0 writes to the same settings: no key 1.0.0 writes is renamed, dropped or given another meaning; no stored word changes. A later release may add keys; 1.0.0 keeps a key it does not know and writes it back. Amendment 4 (Oliver, 2026-09-27). Amendment 11 (Oliver, 2026-09-28): the next major version still reads that shape to the same settings; the file now lives in the renamed folder and nothing is read from the former one. | `TestA1Point0SettingsFileIsReadWhole` over the frozen fixture `internal/infrastructure/store/testdata/settings-1.0.0.json` |
@@ -941,7 +942,7 @@ proposed before the first build had one `internal/infrastructure/windows` packag
 | Domain | `internal/domain/settings` | Settings value, defaults, clock operations |
 | Application | `internal/application` | Use cases: snapshot (in time order), add, edit, remove, change setting, place, recover, menus, update check; ports for store, monitors, startup entry, zone catalogue, release source |
 | Infrastructure | `internal/infrastructure/store` | JSON settings file, atomic write, tolerant clock decoding |
-| Infrastructure | `internal/infrastructure/zones` | Zone resolution through `time/tzdata`; the place catalogue |
+| Infrastructure | `internal/infrastructure/zones` | Zone resolution through `time.LoadLocation` with `time/tzdata` built in (CON-5); the place catalogue |
 | Infrastructure | `internal/infrastructure/desktop` | The ribbon's window, drag, tray, native menus, time change and resume |
 | Infrastructure | `internal/infrastructure/monitors` | Each display's device name, work area and DPI |
 | Infrastructure | `internal/infrastructure/startup` | The one entry that starts TimeRibbon at sign-in |

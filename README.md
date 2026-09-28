@@ -38,7 +38,8 @@ in a small frameless ribbon you can put anywhere on any monitor.
   where it moves its offset. Clocks keeping the same time stay in the order they were added.
 - **Finds places by city, zone or country.** Search the 418 zones of the tz database by name, zone
   id or country; label a clock whatever you like, up to 32 characters (a city with no zone of its
-  own, such as Manchester, takes its zone's clock and your label).
+  own, such as Manchester, takes its zone's clock and your label). Settings lists your clocks, where
+  each can be renamed, moved to another place or removed; removing one asks first.
 - **Stays out of the way.** The ribbon has no title bar, no border and no taskbar or Dock button;
   its icon lives in the notification area on Windows, the menu bar on macOS and the system tray on
   Linux. The icon's menu and the ribbon's own right-click menu both add a clock, open Settings,
@@ -76,8 +77,8 @@ in a small frameless ribbon you can put anywhere on any monitor.
   it lives is in [Your settings](#your-settings)). A damaged file is kept aside under another name
   and never overwritten; a notice on the ribbon says so. A save that fails keeps the change in
   effect with a notice until a later save succeeds. One clock that cannot be read leaves the others
-  working. The file is a promise: every later release of the same major version reads a file this
-  release wrote to the same clocks and choices.
+  working. The file is a promise: a file 1.0.0 wrote still reads to the same clocks and choices. A
+  later release may add keys but never renames, drops or changes the meaning of one 1.0.0 wrote.
 - **Starts when you sign in, when asked.** Off until you turn it on in Settings (or in setup on
   Windows). Each platform names it in its own words: Start with Windows, Open at Login on macOS,
   Start when I sign in on Linux.
@@ -99,8 +100,11 @@ in a small frameless ribbon you can put anywhere on any monitor.
   TimeRibbon itself.
 - **It never installs an update by itself.** Download opens the file in your browser; installing it
   is yours to do.
-- **Its time zone rules are the ones built into it.** A government that changes its clocks after a
-  release is shown correctly only from the next release that carries the new rules.
+- **On Windows its time zone rules are the ones built into it.** Windows keeps no rules TimeRibbon
+  can read, so a government that changes its clocks after a release is shown correctly there only
+  from the next release carrying the new rules. On macOS and Linux it reads the system's own rules
+  first, which the system's updates keep current; the built-in rules stand in only for a zone the
+  system lacks.
 - **It never changes the system clock or time zone.** It reads them.
 - **On Linux it draws through X11, never Wayland directly.** A window on Wayland may not choose
   where it stands, which the ribbon must; on a Wayland desktop it runs through XWayland.
@@ -112,7 +116,7 @@ in a small frameless ribbon you can put anywhere on any monitor.
 | Backend | Go |
 | Desktop shell | Wails v2: over WebView2 on Windows, WKWebView on macOS, WebKitGTK on Linux |
 | Front end | React and TypeScript, built with Vite |
-| Time zone rules | the tz database, built into the executable through Go's `time/tzdata` |
+| Time zone rules | the tz database, built into the executable through Go's `time/tzdata`; on macOS and Linux the system's own copy is read first |
 | The desktop below the window | Win32 on Windows; AppKit on macOS; GTK 3 with a D-Bus tray icon on Linux |
 | Delivery | a setup program on Windows, a signed and notarised DMG on macOS, a Flatpak on Linux |
 

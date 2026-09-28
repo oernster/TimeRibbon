@@ -1,7 +1,7 @@
 // Command TimeRibbon shows a ribbon of clocks, one per chosen place in the world.
 //
-// This file is the composition root. It and app.go are the only files permitted to wire concrete
-// infrastructure to the application layer.
+// This file is the composition root. It, app.go and window_life.go are the only files permitted to
+// import both the application layer and concrete infrastructure (TestCompositionRootIsWhitelisted).
 package main
 
 import (

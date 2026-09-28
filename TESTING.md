@@ -50,7 +50,7 @@ and what stops it. An unexplained shortfall cannot be told from an oversight.
 | `internal/infrastructure/update` | 100% | 100% | `test.ps1` |
 | `internal/infrastructure/zones` | 100% | 100% | `test.ps1` |
 | `internal/infrastructure/iconscale` | 100% | 100% | `test.ps1` |
-| `internal/infrastructure/store` | 92.8% | 92% | `test.ps1` |
+| `internal/infrastructure/store` | 92.9% | 92% | `test.ps1` |
 | `internal/infrastructure/setup` | 84.0% | 84% | `test.ps1` |
 | `tools/versioninfo` | 86.7% | 86% | `test.ps1` |
 | `tools/payload` | 82.8% | 82% | `test.ps1` |
@@ -61,7 +61,7 @@ and what stops it. An unexplained shortfall cannot be told from an oversight.
 | `tools/genplaces` | 38.8% | 38% | `test.ps1` |
 | `internal/infrastructure/appdata` | 100% | 100% | `test.ps1` |
 | `internal/infrastructure/runlog` | 76.5% | 76% | `test.ps1` |
-| the root package (the Wails facade) | 76.5% | 76% | `test.ps1` |
+| the root package (the Wails facade) | 76.6% | 76% | `test.ps1` |
 | `internal/infrastructure/desktop` | 14.7% | 14% | `test.ps1` |
 | `internal/product` | 100% | none | not gated |
 | `installer` | 0%, no tests | none | not gated |
@@ -87,7 +87,7 @@ no coverage provider is installed, so none is measured or claimed.
 
 | Layer | Kind of test | Touches |
 |---|---|---|
-| `internal/domain` | pure unit, over fixed instants and zones from the embedded tz database | nothing |
+| `internal/domain` | pure unit, over fixed instants and zones loaded through `time.LoadLocation` with the tz database embedded (the only source on Windows; the system's zone files come first on macOS and Linux) | nothing |
 | `internal/application` | unit, over hand-written fakes of the seven ports | nothing |
 | `internal/infrastructure` | integration, over temporary folders and scratch registry keys | the filesystem, `HKCU` under a scratch key, child processes, the real displays |
 | the root package | unit, over a scripted service with Wails and the desktop stood in for by the facade's own fields | nothing |
@@ -110,17 +110,18 @@ GitHub is asked only by the running application (M-13).
 - **`internal/infrastructure/desktop` (14.7%).** The tray icon, the native menus, the move fence and
   the desktop's broadcasts all run on a hidden window's message loop; the ribbon functions act on the
   real ribbon window. `PixelsPerDIP`, which on Windows hands the page's ratio straight back, is
-  called only by the root package's tests, which this figure does not count. The tests cover what
-  is portable: the menu identifier numbering (a submenu included), the fence's rectangle
-  arithmetic, a work area read at a point, Windows' drag distance and an address Windows cannot open
-  being refused. The loop itself, the menus as drawn, the
-  broadcasts arriving and a browser actually opening (M-11) are checks for a person.
+  called only by the root package's tests, which this figure does not count. The tests cover the
+  menu identifier numbering (a submenu included), the fence's rectangle arithmetic, a work area read
+  at a point, Windows' drag distance, an address Windows cannot open being refused and the clock
+  watch seeing a jump of the wall clock, then stopping. The loop itself, the menus as drawn (with
+  `separatedBefore`, which only drawing calls), the broadcasts arriving and a browser actually
+  opening (M-11) are checks for a person.
 - **`internal/infrastructure/monitors` (82.6%).** The displays are read for real; what is not reached
   is Windows refusing to enumerate them or to describe one.
 - **`internal/infrastructure/runlog` (76.5%).** Opening the log and pointing standard error at it are
   tested, as is the folder refusing to be made; the log file refusing to open, the start line failing
   to write and `SetStdHandle` refusing only fail inside the system.
-- **The root package (76.5%).** The facade's tests are `facade_test.go`, `window_life_test.go`,
+- **The root package (76.6%).** The facade's tests are `facade_test.go`, `window_life_test.go`,
   `updates_test.go` and `quit_signal_test.go`, over the scripted service in `fakes_test.go`. The
   facade's decisions are tested: which calls fit the ribbon, that a drag whose save failed is still
   fitted, the panel state, the menu actions, the close, a signal from outside ending the application
@@ -133,21 +134,23 @@ GitHub is asked only by the running application (M-13).
 
 ### It would change the machine
 
-- **`installer` (0%).** The setup program's facade. Every method acts on the machine: it writes the
-  install folder, the shortcuts, the record or Start with Windows; it closes or starts the
-  application; it drives the window. The policy beneath it is tested in
-  `internal/infrastructure/setup`. The page is tested in `setupScreens.test.ts`, `setupRing.test.ts`
-  and `setupUnreachable.test.ts`.
+- **`installer` (0%).** The setup program's facade. Its methods read the machine or act on it: they
+  read what is installed and whether the application runs; they write the install folder, the
+  shortcuts, the record or Start with Windows; they close or start the application; they drive the
+  window. `Licence` alone reads only the terms the setup program carries. The policy beneath it is
+  tested in `internal/infrastructure/setup`. The page is tested in `setupScreens.test.ts`,
+  `setupRing.test.ts` and `setupUnreachable.test.ts`.
 - **`internal/infrastructure/setup` (84.0%).** Tested over temporary folders and a scratch registry
   key. A running copy still there when the wait runs out (FR-807) is tested against a real stand-in
   process whose ending is refused, as it is for a copy setup cannot open. Not reached: the real Apps
   list record (`AppsList`), deleting the install folder after the real setup exits
   (`DeleteAfterExit`; the PowerShell hand-off itself is tested against a stand-in process), COM
   refusing to start or a shortcut refusing to save, a copy or removal failing part way, giving the
-  setup window the keyboard (`TakeFocus`) and finding the ribbon's own window after a launch.
+  setup window the keyboard (`TakeFocus`), finding the ribbon's own window after a launch and the
+  `Places` accessor, which only the setup program's facade reads.
 - **`internal/infrastructure/startup` (80.6%).** Written, read and removed under a scratch key; the
   registry refusing to open the key or to read, write or delete its value is not reached.
-- **`internal/infrastructure/store` (92.8%).** The folder refusing to be made and the rename over the
+- **`internal/infrastructure/store` (92.9%).** The folder refusing to be made and the rename over the
   old file failing are tested. Not reached: the temporary file refusing to be made, written, flushed
   or closed, which only a failing disk produces; the error returns in `encode` and `extrasOf`, which
   guard values and a file already known to be well formed.
@@ -197,8 +200,8 @@ go build -tags "$TAGS" -o /tmp/timeribbon .
 ```
 
 staticcheck is the version `test.ps1` pins. The test line covers `./internal/...`, where every
-macOS and Linux test lives; the root package, the tools and the structural tests are the same tests
-on every platform, which `test.ps1` runs on Windows.
+macOS and Linux test lives; the root package, the tools and the structural tests compile there only
+tests that `test.ps1` already runs on Windows (`tools/payload` builds for Windows alone).
 
 To run the application from source, with a scratch settings folder so a real one is not touched
 (point `HOME` at one on macOS; `XDG_CONFIG_HOME` on Linux):
@@ -210,11 +213,11 @@ go run -tags "$TAGS" .
 **What those tests do on the desktop.** The desktop tests open real windows through the toolkit, put
 the ribbon where they place it and read back where it stands; on macOS one puts the icon in the menu
 bar and takes it out; on Linux one registers the tray icon with the session's real tray host. So
-they need a desktop; a person at it sees windows open and close. The Linux `TestMain`
-(`gtkmain.ServeTests`) fails at once, saying so, where no display can be opened. What they proved
-when they were written, measured 2026-09-28: a ribbon stands exactly where it is placed; it returns
-exactly from a panel's size (on Linux only once the size is awaited); a position `Place` chose is
-never taken for a drag.
+they need a desktop; a person at it sees windows open and close. Each Linux `TestMain` runs its
+package under `gtkmain.ServeTests`, which fails at once, saying so, where no display can be opened.
+What they proved when they were written, measured 2026-09-28: a ribbon stands exactly where it is
+placed; it returns exactly from a panel's size (on Linux only once the size is awaited); a position
+`Place` chose is never taken for a drag.
 
 **What has no figure.** These packages have no coverage gate: the parts that matter act on a real
 desktop, which a coverage run on another machine cannot reach; a floor measured on one person's
@@ -287,6 +290,9 @@ go test -coverprofile=cover.out ./internal/infrastructure/store
 ```powershell
 go tool cover -func=cover.out
 ```
+
+The profile's total need not equal the `-cover` figure that the table and `test.ps1` use: for
+`monitors` it reads 81.0% against 82.6%. The floor holds the `-cover` figure.
 
 ## Keeping this honest
 

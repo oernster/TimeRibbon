@@ -1,5 +1,8 @@
-// Package zones resolves zone ids through the tz database built into the binary and lists the
-// places the search offers (CON-5, FR-302).
+// Package zones resolves zone ids through Go's time.LoadLocation and lists the places the search
+// offers (CON-5, FR-302). The tz database is built into the binary through time/tzdata. Windows has
+// no zone files of its own, so there the built-in rules are the only ones read; on macOS and Linux
+// LoadLocation reads the system's zone files first and falls back to the built-in rules only when a
+// zone is missing there.
 package zones
 
 import (
@@ -40,7 +43,7 @@ func fromText(text string) (*Zones, error) {
 	return &Zones{catalogue: catalogue}, nil
 }
 
-// Resolve answers the location for zone from the embedded tz database, caching each zone once
+// Resolve answers the location for zone as the package comment describes, caching each zone once
 // loaded. An empty id is refused rather than read as UTC, which is what Go would make of it.
 func (z *Zones) Resolve(zone string) (*time.Location, error) {
 	if cached, ok := z.resolved.Load(zone); ok {

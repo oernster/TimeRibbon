@@ -101,7 +101,7 @@ export function on(name: string, callback: (...data: unknown[]) => void): () => 
   return window.runtime?.EventsOn(name, callback) ?? (() => undefined)
 }
 
-/** startDrag hands the press to Windows' own move loop, as Wails' drag regions do (FR-401). */
+/** startDrag hands the press to the system's own window drag, as Wails' drag regions do (FR-401). */
 export function startDrag(): void {
   window.WailsInvoke?.('drag')
 }

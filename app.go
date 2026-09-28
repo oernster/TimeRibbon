@@ -252,11 +252,12 @@ func (a *App) ClosePanel() error {
 }
 
 // OpenDonation hands the donation page to the desktop's browser. The application never fetches it,
-// so the button adds no network request to the update check's one (NFR-S-1). Where Windows
+// so the button adds no network request to the update check's one (NFR-S-1). Where the desktop
 // cannot open it, the refusal says why and gives the address, so it can still be reached by hand.
+// The words name no system, since every platform's desktop can refuse.
 func (a *App) OpenDonation() error {
 	if err := a.browse(product.DonateURL); err != nil {
-		return fmt.Errorf("your browser could not be opened on the donation page (%w). Windows may have no default browser set; the page is %s", err, product.DonateURL)
+		return fmt.Errorf("your browser could not be opened on the donation page (%w). There may be no default browser set; the page is %s", err, product.DonateURL)
 	}
 	return nil
 }

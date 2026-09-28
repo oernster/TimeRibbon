@@ -2,10 +2,12 @@
 
 A small desktop application for Windows, macOS and Linux showing a ribbon of clocks, one per chosen
 place. What it reads from outside itself is the system clock, its settings file, the desktop (the
-displays, the tray, the sign-in entry) and GitHub's latest release for the update check; the time
-zone rules are built into the executable. Everything above infrastructure is the same code on every
-platform; each platform's own half of infrastructure sits in files its build tags or file names
-select ([The desktop on Linux and macOS](#the-desktop-on-linux-and-macos)). Its one network request
+displays, the tray, the sign-in entry) and GitHub's latest release for the update check. The time
+zone rules are built into the executable; on macOS and Linux the system's own zone files are read
+before them ([Time](#time)). The domain and application are the same code on every
+platform; each platform's own half sits in files its build tags or file names select, in
+infrastructure and in the root package's `platform_*.go` files
+([The desktop on Linux and macOS](#the-desktop-on-linux-and-macos)). Its one network request
 is the update check (FR-509): of this module's Go files only those in `internal/infrastructure/update`
 import a network package, which `TestOnlyTheUpdateCheckImportsANetworkPackage` holds. The donation
 page and a release's download are handed to the desktop's browser rather than fetched.
@@ -54,15 +56,16 @@ does not exist.
 - **Domain** (`internal/domain`: `clock`, `placement`, `settings`): pure Go. Time arrives as an
   argument and a zone arrives already resolved, so the domain holds no tz database and reads no
   clock. `clock` turns an instant and a zone into what a cell shows: the local time in either
-  format, the weekday and date in the chosen date format, the zone mark (the abbreviation where the tz database gives one of
-  letters, else `UTC` and the signed offset) and the hand angles; `NextRefresh` names the next minute
-  boundary. It also derives a zone's default label. `placement` decides where the ribbon goes, in
-  physical pixels: the default place, a stored placement restored on its monitor at that monitor's
-  DPI, the least move that brings a ribbon wholly inside a work area (`Clamp`, `Recover`), the
-  ribbon's length along its orientation (`Fit`) plus a ribbon centred along its length on a work area
-  with its position across kept (`CentredAlong`) or flush against one of its edges and centred
-  along it (`AgainstEdge`). `settings` is the user's choices as one value; every
-  operation answers a new value and leaves the old one as it was.
+  format, the date in the chosen date format (`DateFormat`, FR-612), the zone mark (the
+  abbreviation where the tz database gives one beginning with a letter, else `UTC` and the signed
+  offset) and the hand angles; `NextRefresh` names the next minute boundary. It also derives a
+  zone's default label. `placement` decides where the ribbon goes, in physical pixels: the default
+  place, a stored placement restored on its monitor at that monitor's DPI, the least move that
+  brings a ribbon wholly inside a work area (`Clamp`, `Recover`), the ribbon's length along its
+  orientation (`Fit`) plus a ribbon centred along its length on a work area with its position
+  across kept (`CentredAlong`) or flush against one of its edges and centred along it
+  (`AgainstEdge`). `settings` is the user's choices as one value; every operation answers a new
+  value and leaves the old one as it was.
 - **Application** (`internal/application`): one `Service` holding every use case over seven ports
   (`Store`, `Zones`, `Clock`, `IDs`, `Monitors`, `StartupEntry` in `ports.go`; `ReleaseSource` in
   `updates.go`). It builds the snapshot the ribbon draws, adds, edits and removes clocks, searches
@@ -91,7 +94,8 @@ does not exist.
 - **Outside the layers**: `internal/product` holds the product's name, its app id
   (`uk.codecrafter.TimeRibbon`), the setup program's name, the window class, the donation address,
   the version each build script stamps, the author, the copyright line, the sign-in label in each
-  platform's words and the credits for each platform. Every layer reads it, so it belongs to none.
+  platform's words and the credits for each platform. Infrastructure, the facade, the setup program
+  and the tools read it; the domain and application never do. It belongs to no layer.
 - **Tools**, never shipped: `tools/genplaces` writes the place catalogue from the tz database's
   `zone.tab` and `iso3166.tab`; `tools/payload` packs the built application for the setup program;
   `tools/versioninfo` writes each executable's Windows version resource from `VERSION` and
@@ -107,22 +111,24 @@ does not exist.
 anything can fail, builds the adapters, injects them into the service by constructor, prepares the
 platform, starts the tray and hands the facade to Wails. `preparePlatform` does nothing on Windows;
 on Linux and macOS (`platform_unix.go`) it hands the desktop the icon, which there is an image rather
-than a resource in the executable, then ends the run on SIGTERM or SIGINT through Exit.
-`platform_linux.go` sends GTK through X11 before Wails opens it; `platform_darwin.go` links the
-UniformTypeIdentifiers framework, which Wails' macOS half uses and which the `wails` command would
-otherwise have added. The cell sizes (`layouts`) and the panel size (`panelSize`) have their
-one home there. No service is held in a package-level variable and there is no service locator.
+than a resource in the executable, then ends the run on SIGTERM or SIGINT through Exit
+(`exitWhen` in `quit_signal.go`). `platform_linux.go` sends GTK through X11 before Wails opens it;
+`platform_darwin.go` links the UniformTypeIdentifiers framework, which Wails' macOS half uses and
+which the `wails` command would otherwise have added. The cell sizes (`layouts`) and the panel size
+(`panelSize`) have their one home there. No service is held in a package-level variable and there
+is no service locator.
 
 The facade is `app.go` (the calls the page makes) and `window_life.go` (startup, showing, hiding,
-closing and the desktop's events), split only to keep each file small; the structural whitelist names
-all three files. The facade holds the service through `ribbonService`, an interface in `app.go`. It
-holds each call into Wails and the desktop as a field, pointed by `newApp` at the real calls in
-`wails_calls.go` and `window_life.go`. That is what lets the facade's tests stand in for all three
-and read what it decided. `identity.go` answers About and Licence; `updates.go` runs the update
-check ([The update check](#the-update-check)); `dto.go` holds the wire;
-`launch.go` holds the window's options; `bindings_on.go` and `bindings_off.go` tell the run `wails build` makes to
-generate bindings, which carries the `bindings` build tag, not to write the log, read the settings or
-show a tray icon.
+closing and the desktop's events), split only to keep each file small; the structural whitelist
+names those two with `main.go`. The facade holds the service through `ribbonService`, an interface
+in `app.go`. It holds each call into Wails and the desktop as a field, pointed by `newApp` at the
+real calls: Wails' in `wails_calls.go`, the ribbon's position and placing in `window_life.go` and
+the desktop package's `OpenInBrowser` and `ShowMenu`. That is what lets the facade's tests stand in
+for the service, Wails and the desktop and read what it decided. `identity.go` answers About and
+Licence; `updates.go` runs the update check ([The update check](#the-update-check)); `dto.go` holds
+the wire; `launch.go` holds the window's options; `bindings_on.go` and `bindings_off.go` tell the
+run `wails build` makes to generate bindings, which carries the `bindings` build tag, not to write
+the log, read the settings or show a tray icon.
 
 ## Dependency direction
 
@@ -164,11 +170,12 @@ own way ([below](#the-desktop-on-linux-and-macos)).
 
 ## The ribbon's size and place
 
-**Size (FR-105, FR-106).** `ribbonSize` counts the cells the page draws: each notice, then each clock
-(the Add clock prompt standing in for them when there are none). Along the orientation the ribbon
-is that many cells plus padding, while that fits the work area of its display; beyond that it is the work area's length and
-its cells scroll. Across, it is one cell plus padding, plus the thickness of the scroll bar when the
-cells scroll, so the bar never covers them. The bar is the web engine's, not one Windows reports, so
+**Size (FR-105, FR-106).** `ribbonSize` in `arrange.go` sizes the ribbon from the cells the page
+draws: each notice, then each clock (the Add clock prompt standing in for them when there are
+none). Along the orientation the ribbon is that many cells plus padding, while that fits the work
+area of its display; beyond that it is the work area's length and its cells scroll. Across, it is
+one cell plus padding, plus the thickness of the scroll bar when the cells scroll, so the bar never
+covers them. The bar is the web engine's, not one Windows reports, so
 the page measures it once it has loaded and hands it to Go through `SetScrollbar`. The ribbon hides
 overflow on both axes and scrolls only along its own; hiding one axis alone let the browser turn the
 other into a second scroll bar, measured in Edge on 2026-09-27. A plain wheel moves a scrolling
@@ -183,7 +190,7 @@ that place (FR-104). The service remembers the length it last arranged to tell a
 arrangement of a run never counts as one. A length that changed while a panel was open is centred
 as the panel closes. Should the save fail, its notice is one more cell, so the ribbon is arranged once
 more to fit it and that arrangement is not saved again. Apart from Position and a change of
-orientation, nothing else moves the ribbon, so a drag holds until the length next changes. Sizes
+orientation, nothing else re-centres the ribbon, so a drag holds until the length next changes. Sizes
 are computed in DIP, so a ribbon moved between displays at different scaling keeps its size in DIP
 (FR-407). They are turned into window pixels at the scale the page is really drawn at: the page
 reports its `devicePixelRatio` once it has loaded and again whenever it changes
@@ -198,8 +205,8 @@ layout for the current size (`Layouts.For`) and hands it to the page in the snap
 size itself; the page marks the ribbon `small` so `app.css` reduces the text and the dial to fit. The
 small sizes were measured in Edge on 2026-09-28 against the longest date the cells show, `Wednesday,
 30 September`, so it fits whole. The other date formats (FR-612) were not measured: `Wednesday,
-September 30` holds the same characters in another order and the numeric ones are shorter, which
-check M-12 confirms on screen.
+September 30` holds the same characters in another order and the numeric ones are shorter; check
+M-12 is the one that looks at each on screen.
 
 **Centred on an edge (FR-408).** The Position submenu's items name an edge each (`EdgeOf` in
 `menus.go`); `ToEdge` puts the ribbon flush against that edge of the work area it overlaps most,
@@ -213,41 +220,46 @@ places the ribbon again on the same display with that corner unmoved it keeps th
 
 **An orientation's home edge (FR-409).** Choosing an orientation sends the ribbon to that
 orientation's home edge (`settings.HomeEdge`, a domain rule since the default place uses it too):
-the top for horizontal, the right for vertical. The facade's `SetOrientation` asks the service to choose, then reads the settings back:
-where the choice took, even with its save failed, it puts the ribbon against the home edge through
-`ToEdge`; where it was refused, it fits the ribbon where it stands.
+the top for horizontal, the right for vertical. The facade's `SetOrientation` asks the service to
+choose, then reads the settings back: where the choice took, even with its save failed, it puts the
+ribbon against the home edge through `ToEdge`; where it was refused, it fits the ribbon where it
+stands.
 
 **Place (FR-403 to FR-406).** On Windows, coordinates are physical pixels on the virtual desktop;
-Linux and macOS use DIP, as their section below says. Wails'
-`WindowSetPosition` places a window relative to the work area of the monitor it is on while
-`WindowGetPosition` answers absolute coordinates. Its screen list carries no origin, device name or
-work area either. So displays are read through `EnumDisplayMonitors` and `GetMonitorInfoW` (`monitors`)
-and the window is placed with `SetWindowPos` (`desktop.Place`). With nothing stored the ribbon goes
-flush against its orientation's home edge on the primary work area (the right for vertical, the top for
-horizontal), centred along it; a ribbon whose monitor has gone or which was left off every display
-goes there too. The end of a drag is heard
-through a WinEvent hook on `EVENT_SYSTEM_MOVESIZEEND`; the placement is stored as the monitor's device
-name, its work area, its DPI and the ribbon's offset from the work area's corner. At launch it is
-restored on that monitor, the offset scaled by any change of DPI; where that monitor is gone it goes
-to the default place on the primary. A display change refits the ribbon where it is.
+Linux and macOS use DIP, as their section below says. Wails' `WindowSetPosition` places a window
+relative to the work area of the monitor it is on while `WindowGetPosition` answers absolute
+coordinates. Its screen list carries no origin, device name or work area either. So displays are
+read through `EnumDisplayMonitors` and `GetMonitorInfoW` (`monitors`) and the window is placed with
+`SetWindowPos` (`desktop.Place`). With nothing stored the ribbon goes flush against its
+orientation's home edge on the primary work area (the right for vertical, the top for horizontal),
+centred along it; a ribbon whose monitor has gone or which was left off every display goes there
+too. The end of a drag is heard through a WinEvent hook on `EVENT_SYSTEM_MOVESIZEEND`; the placement
+is stored as the monitor's device name, its work area, its DPI and the ribbon's offset from the work
+area's corner. At launch it is restored on that monitor, the offset scaled by any change of DPI;
+where that monitor is gone it goes to the default place on the primary. A display change refits the
+ribbon where it is.
 
 **The drag (FR-401, FR-402).** A press on empty ribbon area that moves past the desktop's drag
 distance (Windows' `SM_CXDRAG` and `SM_CYDRAG`, GTK's `gtk-dnd-drag-threshold`; macOS publishes
 none, so it uses Windows' 4 DIP) hands the press to the platform's own move loop through
 `window.WailsInvoke('drag')`, the message Wails' own drag regions send. That message is internal to
 Wails v2 rather than a documented call; a press on a control never starts one. On Windows, while
-the window moves, a window procedure placed in front of Wails' own (`desktop.KeepOnDisplays`) answers each
-`WM_MOVING` by moving the proposed rectangle the least distance that keeps it inside the work area of
-the display under the pointer, so the ribbon can be carried onto another display but never left half
-off one.
+the window moves, a window procedure placed in front of Wails' own (`desktop.KeepOnDisplays`)
+answers each `WM_MOVING` by moving the proposed rectangle the least distance that keeps it inside
+the work area of the display under the pointer, so the ribbon can be carried onto another display
+but never left half off one.
 
 ## Time
 
-Zones resolve through `time.LoadLocation` with `time/tzdata` built in, so no rule depends on what the
-machine holds (CON-5); an empty zone id is refused rather than read as UTC. The place catalogue,
+Zones resolve through `time.LoadLocation` with `time/tzdata` built in (CON-5); an empty zone id is
+refused rather than read as UTC. `LoadLocation` reads a directory named by `ZONEINFO` first, then
+the platform's own zone files, then the built-in copy. Windows has no zone files Go reads, so there
+the built-in rules are the ones used; macOS and Linux use their own zone files (`/usr/share/zoneinfo`
+first) and fall back on the built-in rules only for a zone those lack (read in Go 1.26's
+`time/zoneinfo.go` and `zoneinfo_unix.go`). The place catalogue,
 `internal/infrastructure/zones/places.tsv`, is written by `tools/genplaces` from tz 2025b's
-`zone.tab` and `iso3166.tab` and holds 418 zones; a test holds every one of them to resolving in the
-tz database Go embeds.
+`zone.tab` and `iso3166.tab` and holds 418 zones; a test holds every one of them to resolving
+(`TestEveryPlaceResolvesInTheEmbeddedDatabase`).
 
 Each snapshot carries the milliseconds to the next minute boundary; the page takes the next snapshot
 then, so each refresh is scheduled from the current time rather than from the last one
@@ -271,12 +283,13 @@ overwritten. One clock that cannot be read or names an unknown zone is kept in t
 shown in words as an invalid clock while the others work (FR-705, FR-706). A top-level key this
 version does not know is written back as it was found.
 
-**The file is a contract from the first release (NFR-C-1).** Every later release of the same major
-version reads every file the first release writes to the same settings. No key it writes may be
+**The file is a contract from the first release (NFR-C-1).** Every later release, the next major
+version included (Amendment 11), reads every file the first release writes to the same settings. No key it writes may be
 renamed, dropped or given another meaning. No stored word (such as `12h` or `analogue`) may change.
 A later release may add keys. `size` (FR-610), `colour` (FR-611), `skippedUpdate` (FR-509, the
 release the user chose to skip) and `dateFormat` (FR-612) came after the first release; a file
-without them reads as the large size, Classic, nothing skipped and the date in words day first. The guard is `TestA1Point0SettingsFileIsReadWhole`, which reads the frozen fixture
+without them reads as the large size, Classic, nothing skipped and the date in words day first.
+The guard is `TestA1Point0SettingsFileIsReadWhole`, which reads the frozen fixture
 `internal/infrastructure/store/testdata/settings-1.0.0.json` (every key set away from its default)
 and requires every key to be read rather than merely carried. It was proved by renaming a key and by
 changing a stored word: each failed it. The fixture is never regenerated from a later writer, since
@@ -286,44 +299,48 @@ what it proves is that the old shape still reads.
 
 Every colour has one home per scheme. `frontend/src/theme.css` holds Classic, light and dark;
 `frontend/src/colours.css` holds the other schemes (FR-611), keyed off the `data-colour` attribute
-the page sets from the snapshot. Each of those schemes' tokens is stated once as `light-dark(light, dark)`, so
-the `color-scheme` the theme sets picks the side and no dark value is written twice; Neon's glow is
-itself a `light-dark()` token, transparent on the light side. A scheme's hue lives in the tokens the
-ribbon paints (surface, cell, divider and both texts), because the accent reaches only Settings: an
-Ocean whose only sea colour was its accent measured barely apart from Classic. The side each scheme
+the page sets from the snapshot. Each of those schemes' tokens is stated once as
+`light-dark(light, dark)`, so the `color-scheme` the theme sets picks the side and no dark value is
+written twice; Neon's glow is itself a `light-dark()` token, transparent on the light side. A
+scheme's hue lives in the tokens the ribbon paints (surface, cell, divider and both texts), because
+the accent reaches only Settings: an Ocean whose only sea colour was its accent measured barely
+apart from Classic. The side each scheme
 resolves to was measured in Edge under Light, Dark and System on 2026-09-28, before Amendment 14.
 
 ## The desktop
 
 On Windows, `desktop` owns a hidden top-level window on its own locked thread: the notification-area
-icon, the native menus and the desktop's broadcasts. A message-only window would not hear the broadcasts. The
-icon is read out of the executable itself. When Explorer restarts it re-adds the icon on the
-`TaskbarCreated` message. Nothing crosses the thread boundary by callback: the desktop reports on a
-buffered channel, dropping an event with a line in the log rather than blocking the thread Windows
-called in on; the facade's `listen` loop acts on it. Both the window procedure and the listen loop
-recover a panic and log it, so one fault cannot leave a ribbon that reacts to nothing.
+icon, the native menus and the desktop's broadcasts. A message-only window would not hear the
+broadcasts. The icon is read out of the executable itself. When Explorer restarts it re-adds the
+icon on the `TaskbarCreated` message. Nothing crosses the thread boundary by callback: the desktop
+reports on a buffered channel, dropping an event with a line in the log rather than blocking the
+thread Windows called in on; the facade's `listen` loop acts on it. Both the window procedure and
+the listen loop recover a panic and log it, so one fault cannot leave a ribbon that reacts to
+nothing.
 
 Both menus are native popup menus, so the ribbon's small window never clips them. Their items and
 words have one home, `internal/application/menus.go` with its submenus of choices in
-`menu_choices.go` beside it. The tray menu offers Show ribbon or Hide ribbon
-(whichever applies), Add clock, Settings, Style, Colour, Orientation, Position, Always on top, Help and Exit;
-the ribbon's right-click menu offers Add clock, Settings, Style, Colour, Orientation, Position, Always on top,
-Help, Hide ribbon and Exit. Style, Colour and Orientation are submenus ticking the current choice, whose
-items reach the same facade calls the page's would (FR-502); style, colour and orientation are not
-offered in Settings. Position is a submenu holding the two edges the ribbon runs along (FR-408);
-Help is a submenu holding About, Licence and Check for updates in both. On Windows a left click on the tray
-icon shows or hides the ribbon; on Linux the tray host's activation does the same (a double click on
-Ubuntu); on macOS a click opens the menu, as every menu bar icon does. A menu item may hold children,
-which become a submenu (Style, Colour, Orientation, Position, then the Help submenu of FR-508); identifiers
-are numbered depth first (`desktop/menu.go`, shared by every platform), so a choice inside a submenu
-still names its action. A tray icon that cannot be created is not fatal: the ribbon still runs.
-Closing it then quits, since nothing would bring it back.
+`menu_choices.go` beside it. The tray menu offers Show ribbon or Hide ribbon (whichever applies),
+Add clock, Settings, Style, Colour, Orientation, Position, Always on top, Help and Exit; the
+ribbon's right-click menu offers Add clock, Settings, Style, Colour, Orientation, Position, Always
+on top, Help, Hide ribbon and Exit. Style, Colour and Orientation are submenus ticking the current
+choice, whose items reach the facade's own `SetStyle`, `SetColour` and `SetOrientation` (FR-502);
+style, colour and orientation are not offered in Settings. Position is a submenu holding the two
+edges the ribbon runs along (FR-408); Help is a submenu holding About, Licence and Check for updates
+in both. On Windows a left click on the tray icon shows or hides the ribbon; on Linux the tray
+host's activation does the same (a double click on Ubuntu); on macOS a click opens the menu, as
+every menu bar icon does. A menu item may hold children, which become a submenu (Style, Colour,
+Orientation, Position, then the Help submenu of FR-508); identifiers are numbered depth first
+(`desktop/menu.go`, shared by every platform), so a choice inside a submenu still names its action.
+A tray icon that cannot be created is not fatal: the ribbon still runs. Closing it then quits,
+since nothing would bring it back.
 
 ## The desktop on Linux and macOS
 
 Both reach the desktop through cgo: GTK 3 on Linux, AppKit on macOS. What does not depend on the
-toolkit is written once in `_unix.go` files: the `Desktop` itself (its events, the move-end
-settling, the clock watch, starting and stopping the tray); the registry of native windows handed
+toolkit is written once, in `_unix.go` files and in `desktop/clockwatch.go`, built everywhere but
+Windows: the `Desktop` itself (its events, the move-end settling, the clock watch, starting and
+stopping the tray); the registry of native windows handed
 out as `desktop.Window`; the callbacks the C and Objective-C halves reach; the browser opener; the
 file behind the sign-in entry; the root package's icon and signal handling. Each toolkit supplies
 the rest in its own files.
@@ -389,8 +406,9 @@ platform's build ships, each naming its licence and what it does here. The credi
 `internal/product/credits.go`, each entry naming the platforms that ship it; `CreditsFor` reads it
 for a platform. `TestEveryLinkedModuleIsCredited` asks the Go tool which modules each platform's
 build links (the application and the setup program on Windows, the application alone on Linux and
-macOS) and holds that platform's credits to that list in both directions. Licence shows the `LICENSE` file embedded in the binary exactly as
-written: its own line breaks are kept and nothing wraps it again. Its type is sized so the widest
+macOS) and holds that platform's credits to that list in both directions. Licence shows the
+`LICENSE` file embedded in the binary exactly as written: its own line breaks are kept and nothing
+wraps it again. Its type is sized so the widest
 line fits the panel, 13px at most (`frontend/src/help.css`); the width `help.css` sizes for is held
 to the file's widest line by `TestTheLicencePanelIsSizedForTheLicencesWidestLine`.
 
@@ -412,8 +430,9 @@ GitHub's `releases/latest` endpoint, which answers only a published release that
 nor a prerelease, so a tag pushed during development can never prompt; the guard is the endpoint's
 own contract. It is unauthenticated, bounded by a 5 second timeout, never retried and never reads
 more than a megabyte of the answer. The service compares the release's tag with the version the
-build stamped into `internal/product`, as dotted integers; anything else is never newer. It picks this platform's asset
-by its ending and reads the skipped release from the settings, which a manual check ignores.
+build stamped into `internal/product`, as dotted integers; anything else is never newer. It picks
+this platform's asset by its ending and reads the skipped release from the settings, which a manual
+check ignores.
 
 `updates.go` in the facade owns the timing: a goroutine started with the window checks 3 seconds in,
 then every 24 hours, until the run ends; Help's `Check for updates` runs one more on a goroutine of
@@ -425,17 +444,17 @@ page's Download and Skip ask Go to act on what it offered, so no address crosses
 
 ## Delivery on macOS and Linux
 
-Neither builds with the `wails` command: each runs `go build` with Wails' `desktop,production` tags
-and the version from `VERSION` passed through `-ldflags`, as `build.ps1` does, then packages the
-result. `tools/identity` hands both scripts the product's names.
+Neither builds with the `wails` command: each runs `go build` with Wails' `desktop,production` tags,
+passing the version from `VERSION` through `-ldflags` as `build.ps1` passes it to `wails build`,
+then packages the result. `tools/identity` hands both scripts the product's names.
 
 - **macOS, `builddmg.sh`** (ported from PigeonPost's): builds the page and the executable for Apple
   Silicon, makes the icon with `sips` and `iconutil`, assembles `TimeRibbon.app` with its
   `Info.plist`, signs it with the hardened runtime, notarises and staples it, then does the same for
   the DMG `create-dmg` makes. The oldest macOS it claims is the one the Go toolchain needs, read from
   a pure Go program it builds, then handed to the compiler through the cgo flags; a build that links
-  code made for a newer macOS is refused (measured 2026-09-28: without the flags, objects built for
-  macOS 26 were linked into an executable claiming 12).
+  code made for a newer macOS is refused (measured 2026-09-28: with the target set only through
+  `MACOSX_DEPLOYMENT_TARGET`, objects built for macOS 26 were linked into an executable claiming 12).
 - **Linux, `build_flatpak.sh`** (ported from PigeonPost's): writes the desktop entry, metainfo and
   manifest, then builds inside the GNOME 50 runtime's sandbox with the golang and node22 SDK
   extensions, against WebKitGTK 4.1 (`-tags webkit2_41`). The sandbox is granted these alone: X11
@@ -447,13 +466,13 @@ result. `tools/identity` hands both scripts the product's names.
 
 ## The setup program
 
-Windows only. Delivery is a second Wails application. `installer/` is its own `main` package in the same module,
-embedding the built application as a zip and the setup page as assets, so one file is the whole
-distribution. `build.ps1` packs the built application and `LICENSE` into `installer/payload.zip`
-through `tools/payload`, builds the setup program with the version from `VERSION`, then writes the
-empty placeholder zip back whether or not that build succeeded, so the real payload never reaches a
-commit. The payload is embedded as a string rather than a byte slice, which Go keeps in the read-only
-image rather than charging to the process.
+Windows only. Delivery is a second Wails application. `installer/` is its own `main` package in the
+same module, embedding the built application as a zip and the setup page as assets, so one file is
+the whole distribution. `build.ps1` packs the built application and `LICENSE` into
+`installer/payload.zip` through `tools/payload`, builds the setup program with the version from
+`VERSION`, then writes the empty placeholder zip back whether or not that build succeeded, so the
+real payload never reaches a commit. The payload is embedded as a string rather than a byte slice,
+which Go keeps in the read-only image rather than charging to the process.
 
 `internal/infrastructure/setup` holds the install policy: the places, the payload extraction with its
 fence against an entry that leaves the install folder (checked for every entry before any is written,
@@ -498,27 +517,27 @@ own web view data and step log sit under the temporary folder.
 | What | Where |
 |---|---|
 | Settings | `settings.json` in the settings folder: `%APPDATA%\TimeRibbon` on Windows, `~/Library/Application Support/TimeRibbon` on macOS, `~/.var/app/uk.codecrafter.TimeRibbon/config/TimeRibbon` for the Flatpak (measured 2026-09-28) and `~/.config/TimeRibbon` for a Linux build run outside it; `settings.unreadable.json` beside it when a damaged file was kept aside |
-| Run log | `TimeRibbon.log` in the settings folder, started afresh once it passes 1 MB |
+| Run log | `TimeRibbon.log` in the settings folder, started afresh by a run that finds it over 1 MB |
 | The window's web view data on Windows | `%APPDATA%\TimeRibbon\WebView2`, named in `launch.go` inside the settings folder so uninstalling with **Also forget my settings** removes it; nothing of TimeRibbon's own is kept there |
-| Time zone rules and the place catalogue | built into the executable |
+| Time zone rules and the place catalogue | built into the executable; macOS and Linux read their own zone files first |
 | Installed files | Windows: `%LOCALAPPDATA%\Programs\TimeRibbon`, with `uninstall.exe`. macOS: wherever the user drags `TimeRibbon.app`. Linux: the user's Flatpak installation |
 | Shortcuts on Windows | the user's Start Menu Programs folder and Desktop |
-| Start at sign-in | Windows: the value `TimeRibbon` under `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`, holding the quoted path and no arguments. macOS: `~/Library/LaunchAgents/uk.codecrafter.TimeRibbon.plist`. Linux: `~/.config/autostart/uk.codecrafter.TimeRibbon.desktop` |
+| Start at sign-in | Windows: the value `TimeRibbon` under `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`, holding the quoted path and no arguments. macOS: `~/Library/LaunchAgents/uk.codecrafter.TimeRibbon.plist`. Linux: `~/.config/autostart/uk.codecrafter.TimeRibbon.desktop`; `$XDG_CONFIG_HOME/autostart` holds it instead for a build run outside the Flatpak with that set |
 | Apps list record on Windows | `HKCU\...\Uninstall\TimeRibbon` |
 | Setup's step log and web view data on Windows | `TimeRibbonSetup.log` and `TimeRibbonSetup` in the temporary folder |
 
 ## Errors
 
-Errors are wrapped with context at each boundary using `%w`; `errors.Is` sentinels mark the ones a
-caller acts on.
+Errors are wrapped with context at each boundary using `%w`, so `errors.Is` still finds a sentinel
+beneath. The adapters read a missing file or registry value as absence that way; the tests tell the
+module's own refusals (such as `ErrNoSuchClock` or `ErrNoMonitors`) apart by it.
 
 - **Before the window, a run is ended only by a failure to run the window at all or to read the
-  embedded place catalogue.** Standard error is
-  pointed at the log as the first act of the run (`runlog.Keep`), so even the Go runtime's own panic
-  report is kept. A settings folder that cannot be found falls back to a folder in the temporary
-  folder; settings that cannot be read, a tray icon that cannot be made and a missing executable path
-  are logged and the ribbon still opens. A catalogue that fails to parse is a build defect, which a
-  test holds against.
+  embedded place catalogue.** Standard error is pointed at the log as the first act of the run
+  (`runlog.Keep`), so even the Go runtime's own panic report is kept. A settings folder that cannot
+  be found falls back to a folder in the temporary folder; settings that cannot be read, a tray icon
+  that cannot be made and a missing executable path are logged and the ribbon still opens. A
+  catalogue that fails to parse is a build defect, which a test holds against.
 - **Shown on the ribbon, which keeps working:** a settings file kept aside and a save that failed, as
   notices with OK; an invalid clock, in words in its own cell.
 - **Refused beneath the control that was pressed:** every page call that Go can refuse. Each `api`
@@ -549,7 +568,7 @@ caller acts on.
 | Decision | Why | Rejected alternative |
 |---|---|---|
 | Go with Wails and a web front end | One executable with no runtime to install; the same stack draws the setup program | A Python and Qt desktop stack |
-| The tz database built into the executable | Every machine shows the same rules, whatever it has installed; no DST rule is written by hand | Reading the machine's zone files; offsets written by hand |
+| The tz database built into the executable | Windows has no zone files Go reads, so without it Windows would find no rules outside a Go installation; macOS and Linux fall back on it for a zone their own files lack; no DST rule is written by hand | Relying on the machine's zone files alone; offsets written by hand |
 | Displays and placement through Win32 | Wails' screen list has no origin, device name or work area; its position calls mix relative and absolute coordinates | Wails' own position calls |
 | One window for the ribbon and every panel | Wails v2 offers one window | A second window per panel |
 | Native popup menus | The ribbon's window is small; a menu drawn in the page would be clipped by it | A menu drawn in the page |

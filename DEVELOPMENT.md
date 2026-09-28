@@ -85,8 +85,8 @@ It does these things in order and stops at the first failure:
    `tools/genicons.py` makes and which are committed.
 5. Writes the application's Windows version resource, `build/windows/info.json`, from `VERSION` and
    `internal/product` through `go run ./tools/versioninfo`, then runs `wails build` for the
-   application with the version passed in through `-ldflags`. That runs
-   the front end's `npm run build`, which runs `eslint` and `tsc --noEmit` before bundling.
+   application with the version passed in through `-ldflags`. That runs the front end's
+   `npm run build`, which runs `eslint` and `tsc --noEmit` before bundling.
 6. Packs the built application and `LICENSE` into `installer/payload.zip` through
    `go run ./tools/payload`.
 7. Copies the two icons into the setup program's build folder, writes its version resource the same way
@@ -159,7 +159,7 @@ An Apple Silicon Mac, with:
 |---|---|---|
 | Xcode | the C and Objective-C compiler cgo uses, `codesign`, `notarytool`, `stapler`, `vtool` | the App Store |
 | Go, the version `go.mod` declares | the application | [go.dev/dl](https://go.dev/dl/) |
-| Node.js with npm | the front end | [nodejs.org](https://nodejs.org/) or `brew install node` |
+| Node.js with npm | the front end | [nodejs.org](https://nodejs.org/) or `brew install node`; the script installs it where missing |
 | create-dmg | the DMG | `brew install create-dmg`; the script installs it where missing |
 | A Developer ID Application certificate | signing | the Apple Developer account, in the login keychain |
 
@@ -184,7 +184,8 @@ bash builddmg.sh
 It does these things in order and stops at the first failure:
 
 1. Refuses to run anywhere but an Apple Silicon Mac; reads the names from `tools/identity` and the
-   version from `VERSION`; checks the notarisation credentials before building anything.
+   version from `VERSION`; where `APPLE_ID` and `APPLE_APP_PASSWORD` are set, refuses a password not
+   shaped like an app-specific one before building anything.
 2. Builds the page with npm.
 3. Builds an empty pure Go program and reads from it the oldest macOS the Go toolchain supports;
    hands that to the compiler through `CGO_CFLAGS` and `CGO_LDFLAGS`.
@@ -215,7 +216,8 @@ sudo apt-get install -y build-essential pkg-config libgtk-3-dev libwebkit2gtk-4.
 Go from the distribution or [go.dev/dl](https://go.dev/dl/); an older Go 1.26 fetches the version
 `go.mod` declares on first use. The packages above are for running and testing from source; the
 Flatpak build itself compiles inside the GNOME SDK, which `build_flatpak.sh` installs from Flathub
-with its golang and node22 extensions.
+with its golang and node22 extensions. The script still needs Go on the machine: it reads the names
+through `go run ./tools/identity` before the sandbox starts.
 
 ```bash
 bash build_flatpak.sh
@@ -256,9 +258,12 @@ from a folder holding its `zone.tab`, `iso3166.tab` and `tzdata.zi`:
 go run ./tools/genplaces -tzdir "C:\Program Files\Git\mingw64\share\zoneinfo"
 ```
 
-The catalogue records the tz release it came from in its first line. The rules the clocks follow are
-the ones Go embeds through `time/tzdata`, so a new release reaches the application only through a
-newer Go; `zones_test.go` fails where a catalogue zone does not resolve in them.
+The catalogue records the tz release it came from in its first line. The rules the clocks follow
+come through Go's `time.LoadLocation`, which reads the system's tz database first where there is
+one, as on macOS and Linux. Windows has none, so there the rules are the ones Go embeds through
+`time/tzdata` and a new release reaches the application only through a newer Go; elsewhere the
+embedded rules stand in only for a zone the system lacks. `zones_test.go` fails where a catalogue
+zone does not resolve.
 
 ## Versioning
 
@@ -307,6 +312,8 @@ so a build carrying the development placeholder is never offered a release.
 | `internal/application` | the use cases over their ports |
 | `internal/infrastructure` | appdata, cocoamain (macOS), desktop, gtkmain (Linux), iconscale, monitors, runlog, setup (Windows), startup, store, system, update, zones; a file's platform is in its name (`_windows`, `_linux`, `_darwin`, `_unix` for Linux and macOS together) |
 | `internal/product` | the name, the app id, the setup program's name, the window class, the donation address, the version, the author, the sign-in label and the credits for each platform |
+| `build.ps1`, `test.ps1` | the Windows build; the gate it runs first |
+| `VERSION`, `stamp_version.py` | the one version string; stamping it into the site |
 | `builddmg.sh` | the macOS DMG |
 | `build_flatpak.sh`, `cleanup_flatpak.sh` | building the Linux Flatpak; taking it away again |
 | `frontend/src` | the React front end |
@@ -314,6 +321,7 @@ so a build carrying the development placeholder is never offered a release.
 | `tests/structural` | the tests that hold the architecture in place |
 | `tools/` | the icons (committed and the Flatpak's), the place catalogue, the payload, the version resources and the names the Linux and macOS scripts read |
 | `assets/` | the master artwork `tools/genicons.py` reads |
+| `docs/` | the GitHub Pages site |
 
 ## House rules worth knowing before a first change
 

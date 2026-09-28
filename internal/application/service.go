@@ -64,6 +64,18 @@ type Service struct {
 	// arranged is the strip's length when it was last arranged, so a change of length can be told
 	// from anything else that arranges it (FR-104).
 	arranged stripLength
+	// last is where the strip was last arranged, so a strip placed again can keep the edge it lay
+	// against (FR-408, FR-610).
+	last lastPlaced
+}
+
+// lastPlaced is where the strip was last arranged: the display, its corner and its size, in that
+// display's pixels; known is false until it has been arranged once.
+type lastPlaced struct {
+	known  bool
+	device string
+	at     placement.Point
+	size   placement.Size
 }
 
 // stripLength is the strip's length in DIP along its orientation; known is false until the strip

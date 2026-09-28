@@ -74,6 +74,49 @@ func TestToEdgeThatCannotBeSavedMakesRoomForItsNotice(t *testing.T) {
 	}
 }
 
+// FR-610, FR-408: a strip against the right or bottom edge stays against it when its cells shrink,
+// whether it is placed again as a panel closes or refitted where it stands; the left and top edges
+// hold its corner, so they keep it anyway. Small vertical digital cells are 120 + 16 = 136 across,
+// small horizontal ones 60 + 16 = 76.
+func TestShrinkingKeepsTheStripAgainstItsEdge(t *testing.T) {
+	t.Parallel()
+	cases := []struct {
+		orientation settings.Orientation
+		edge        placement.Edge
+		flush       func(Arrangement) bool
+	}{
+		{settings.Vertical, placement.Right, func(a Arrangement) bool { return a.At.X+a.Size.Width == 1920 }},
+		{settings.Horizontal, placement.Bottom, func(a Arrangement) bool { return a.At.Y+a.Size.Height == 1032 }},
+		{settings.Vertical, placement.Left, func(a Arrangement) bool { return a.At.X == 0 }},
+		{settings.Horizontal, placement.Top, func(a Arrangement) bool { return a.At.Y == 0 }},
+	}
+	for _, each := range cases {
+		for name, replace := range map[string]func(r rig, at placement.Point) (Arrangement, error){
+			"launch":    func(r rig, _ placement.Point) (Arrangement, error) { return r.service.Launch() },
+			"rearrange": func(r rig, at placement.Point) (Arrangement, error) { return r.service.Rearrange(at) },
+		} {
+			r := newRig(t, draggedTo(2, each.orientation, placement.Point{X: 700, Y: 40}))
+			if _, err := r.service.Launch(); err != nil {
+				t.Fatal(err)
+			}
+			flush, err := r.service.ToEdge(placement.Point{X: 700, Y: 40}, each.edge)
+			if err != nil || !each.flush(flush) {
+				t.Fatalf("%s: not against the edge to begin with: %+v %v", each.edge, flush, err)
+			}
+			if err := r.service.SetSize(settings.Small); err != nil {
+				t.Fatal(err)
+			}
+			got, err := replace(r, flush.At)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !each.flush(got) || got.Size == flush.Size {
+				t.Errorf("%s, %s: shrank from %+v to %+v, off its edge", each.edge, name, flush, got)
+			}
+		}
+	}
+}
+
 // FR-610: small cells make a smaller strip, two small analogue cells stacked: 120 + 16 across,
 // 2 x 100 + 16 along; the snapshot carries the size and its layout, the size is saved; a size the
 // setting does not offer is refused.

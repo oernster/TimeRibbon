@@ -590,13 +590,16 @@ Priority: Must (Amendment 8, Oliver, 2026-09-28).
 The strip shall draw every clock cell at the size held in settings, large or small, in either style;
 large when none is held, so a 1.0.0 settings file keeps the clocks it had. Small cells are 146 by 72
 DIP digital and 146 by 116 DIP analogue against large's 176 by 92 and 176 by 176, with their text and
-dial reduced to fit; the empty strip's prompt is the same at either size.
+dial reduced to fit; the empty strip's prompt is the same at either size. A strip lying flush against
+an edge of its display stays against that edge when the size changes, as it does when its cells
+change for any other reason (Oliver, 2026-09-28).
 Rationale: small screens such as a 13 inch laptop, where large analogue cells leave room for few
 clocks.
 Acceptance: given two analogue clocks in a vertical strip at 100 percent with 6 DIP padding, when the
 size is small, then the strip is 158 DIP wide and 244 DIP long.
 Verified by: `TestUnknownChoicesAreNormalisedToDefaults` (domain);
-`TestTheSmallSizeFitsTheStripToSmallCells` (application); `TestA1Point0SettingsFileIsReadWhole`,
+`TestKeptFlushHoldsTheFarEdgeNotTheCorner` (domain); `TestTheSmallSizeFitsTheStripToSmallCells`,
+`TestShrinkingKeepsTheStripAgainstItsEdge` (application); `TestA1Point0SettingsFileIsReadWhole`,
 `TestSettingsRoundTrip` (infrastructure, store); `strip.test.tsx`, `settings.test.tsx`; the fit of
 the text by check M-12.
 

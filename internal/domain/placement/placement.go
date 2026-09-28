@@ -128,6 +128,21 @@ func AgainstEdge(size Size, work Rect, edge Edge) Point {
 	return Clamp(centred, size, work)
 }
 
+// KeptFlush answers at for a strip of size placed again on work, where it was last at was with size
+// wasSize: a strip that lay flush against work's right or bottom edge, its corner not since moved
+// along that axis, is kept flush against it, so a strip that shrinks or grows there keeps its far edge
+// rather than its corner (FR-408, FR-610); then clamped. The left and top edges hold the corner, so
+// they keep a strip without help.
+func KeptFlush(at Point, size Size, was Point, wasSize Size, work Rect) Point {
+	if at.X == was.X && was.X+wasSize.Width == work.Right {
+		at.X = work.Right - size.Width
+	}
+	if at.Y == was.Y && was.Y+wasSize.Height == work.Bottom {
+		at.Y = work.Bottom - size.Height
+	}
+	return Clamp(at, size, work)
+}
+
 // Restore answers where the strip goes at launch (FR-405): on the stored monitor at the stored
 // offset scaled by the change in its DPI; else at the default place on the primary monitor. Either
 // way it is clamped wholly inside the work area. home is the edge the default place is against. It

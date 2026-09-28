@@ -20,14 +20,15 @@ type Arrangement struct {
 
 // Launch arranges the strip at launch or as a panel closes: on its stored monitor and offset, else
 // at the default place on the primary monitor, always wholly inside a work area (FR-403, FR-405);
-// re-centred along its length where that length changed while the panel was open (FR-104).
+// kept against the right or bottom edge it lay against (FR-610); re-centred along its length where
+// that length changed while the panel was open (FR-104).
 func (s *Service) Launch() (Arrangement, error) {
 	return s.recentredKept(func() (Arrangement, placement.Monitor, bool, error) {
 		return s.arrange(func(monitors []placement.Monitor, current settings.Settings) placement.Monitor {
 			return storedOrPrimary(monitors, current.Placement)
 		}, func(size placement.Size, monitors []placement.Monitor, current settings.Settings) placement.Placed {
 			placed, _ := placement.Restore(current.Placement, monitors, size, homeOf(current))
-			return placed
+			return s.keptFlush(placed, size)
 		})
 	})
 }
@@ -116,7 +117,7 @@ func (s *Service) recovered(at placement.Point) (Arrangement, placement.Monitor,
 		return mostOverlapped(monitors, at)
 	}, func(size placement.Size, monitors []placement.Monitor, current settings.Settings) placement.Placed {
 		placed, _ := placement.Recover(at, size, monitors, homeOf(current))
-		return placed
+		return s.keptFlush(placed, size)
 	})
 }
 
@@ -151,7 +152,28 @@ func (s *Service) arrange(
 		placed.At = placement.CentredAlong(placed.At, size, placed.Monitor.Work, vertical)
 	}
 	arranged := Arrangement{At: placed.At, Size: size, Scrolls: scrolls, DPI: placed.Monitor.DPI}
+	s.remember(lastPlaced{known: true, device: placed.Monitor.Device, at: arranged.At, size: size})
 	return arranged, placed.Monitor, recentred, nil
+}
+
+// keptFlush answers placed kept against the right or bottom edge it lay against when the strip was
+// last arranged on the same display, so a strip that shrinks or grows there stays against it
+// (FR-408, FR-610).
+func (s *Service) keptFlush(placed placement.Placed, size placement.Size) placement.Placed {
+	s.mutex.Lock()
+	last := s.last
+	s.mutex.Unlock()
+	if last.known && last.device == placed.Monitor.Device {
+		placed.At = placement.KeptFlush(placed.At, size, last.at, last.size, placed.Monitor.Work)
+	}
+	return placed
+}
+
+// remember records now as where the strip was last arranged.
+func (s *Service) remember(now lastPlaced) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+	s.last = now
 }
 
 // lengthChanged records now as the strip's length, answering whether it differs from the length

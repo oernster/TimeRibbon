@@ -84,6 +84,34 @@ func TestAgainstEdgeIsFlushAndCentredAlongTheEdge(t *testing.T) {
 	}
 }
 
+// FR-408, FR-610: a strip flush against the right or bottom edge keeps it as it shrinks or grows;
+// one whose corner moved along that axis keeps its corner, as does one that was not flush.
+func TestKeptFlushHoldsTheFarEdgeNotTheCorner(t *testing.T) {
+	t.Parallel()
+	work := primary.Work
+	wide, narrow := Size{Width: 176, Height: 600}, Size{Width: 136, Height: 400}
+	right := Point{X: 1920 - 176, Y: 200}
+	if got := KeptFlush(right, narrow, right, wide, work); got != (Point{X: 1920 - 136, Y: 200}) {
+		t.Errorf("shrinking on the right: got %+v", got)
+	}
+	if got := KeptFlush(Point{X: 1920 - 136, Y: 200}, wide, Point{X: 1920 - 136, Y: 200}, narrow, work); got != right {
+		t.Errorf("growing on the right: got %+v, want %+v", got, right)
+	}
+	tall, short := Size{Width: 600, Height: 106}, Size{Width: 400, Height: 76}
+	bottom := Point{X: 700, Y: 1032 - 106}
+	if got := KeptFlush(bottom, short, bottom, tall, work); got != (Point{X: 700, Y: 1032 - 76}) {
+		t.Errorf("shrinking on the bottom: got %+v", got)
+	}
+	moved := Point{X: 1500, Y: 200}
+	if got := KeptFlush(moved, narrow, right, wide, work); got != moved {
+		t.Errorf("a strip moved off the edge was pulled back: %+v", got)
+	}
+	free := Point{X: 900, Y: 200}
+	if got := KeptFlush(free, narrow, free, wide, work); got != free {
+		t.Errorf("a strip against no edge was moved: %+v", got)
+	}
+}
+
 // FR-404, FR-405.
 func TestPlacementIsStoredRelativeToItsMonitorAndRestored(t *testing.T) {
 	t.Parallel()

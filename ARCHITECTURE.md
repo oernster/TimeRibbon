@@ -171,7 +171,11 @@ small sizes were measured in Edge on 2026-09-28 against the longest date the cel
 `menus.go`); `ToEdge` puts the strip flush against that edge of the work area it overlaps most,
 centred along it (`placement.AgainstEdge`); it stores the place through `recentredKept`, so a
 failed save fits the strip to its notice and keeps it flush. A later change of length re-centres it
-along that edge, since re-centring keeps the position across.
+along that edge, since re-centring keeps the position across. A strip is placed by its top-left
+corner, so against the right or bottom edge a change of thickness (a change of size or style, a
+scroll bar) would pull it off: the service remembers where it last arranged the strip. When it
+places the strip again on the same display with that corner unmoved it keeps the far edge flush
+(`placement.KeptFlush`), measured to fail without it by `TestShrinkingKeepsTheStripAgainstItsEdge`.
 
 **An orientation's home edge (FR-409).** Choosing an orientation sends the strip to that
 orientation's home edge (`settings.HomeEdge`, a domain rule since the default place uses it too): the top for horizontal, the right for

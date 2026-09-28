@@ -44,7 +44,7 @@ describe('Settings', () => {
     expect(bridge.RemoveClock).toHaveBeenCalledWith('syd')
   })
 
-  it('lists the clocks in the order the strip shows them, with nothing to move them by hand (FR-102)', async () => {
+  it('lists the clocks in the order the ribbon shows them, with nothing to move them by hand (FR-102)', async () => {
     await open()
     const rows = screen.getByRole('list', { name: 'Clocks' }).querySelectorAll('li')
     expect(Array.from(rows, (row) => (row.querySelector('input') as HTMLInputElement).value)).toEqual(['New York', 'Sydney'])

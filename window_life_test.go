@@ -12,10 +12,10 @@ import (
 	"github.com/oernster/timeribbon/internal/infrastructure/desktop"
 )
 
-func TestADragIsRecordedAndTheStripPlacedWhereTheServiceSays(t *testing.T) {
+func TestADragIsRecordedAndTheRibbonPlacedWhereTheServiceSays(t *testing.T) {
 	app, service, seen, _ := newTestApp(t)
 	app.handleSafely(desktop.Event{Kind: desktop.EventMoveEnded})
-	if !slices.Equal(service.calls, []string{"Moved"}) || service.at[0] != testStripAt {
+	if !slices.Equal(service.calls, []string{"Moved"}) || service.at[0] != testRibbonAt {
 		t.Errorf("the service heard %v from %v, want Moved from where the drag let go", service.calls, service.at)
 	}
 	if len(seen.placed) != 1 || seen.placed[0].At != testArrange.At || !app.scrolls.Load() {
@@ -23,7 +23,7 @@ func TestADragIsRecordedAndTheStripPlacedWhereTheServiceSays(t *testing.T) {
 	}
 }
 
-// A drag whose placement could not be saved raised a notice: the strip is still fitted where it
+// A drag whose placement could not be saved raised a notice: the ribbon is still fitted where it
 // stands, its new cell included, rather than left wherever the drag let go (FR-707).
 func TestADragWhoseSaveFailedIsStillFitted(t *testing.T) {
 	app, service, seen, log := newTestApp(t)
@@ -37,7 +37,7 @@ func TestADragWhoseSaveFailedIsStillFitted(t *testing.T) {
 	}
 }
 
-func TestADragIsIgnoredWhileAPanelIsOpenOrWhenTheStripCannotBeRead(t *testing.T) {
+func TestADragIsIgnoredWhileAPanelIsOpenOrWhenTheRibbonCannotBeRead(t *testing.T) {
 	app, service, seen, log := newTestApp(t)
 	app.panelOpen.Store(true)
 	app.moved()
@@ -73,7 +73,7 @@ func TestTheDesktopsEventsRefitOrRefresh(t *testing.T) {
 	}
 }
 
-func TestTheTrayIconTogglesTheStrip(t *testing.T) {
+func TestTheTrayIconTogglesTheRibbon(t *testing.T) {
 	app, _, seen, _ := newTestApp(t)
 	app.handleSafely(desktop.Event{Kind: desktop.EventIconClicked})
 	app.handleSafely(desktop.Event{Kind: desktop.EventIconClicked})
@@ -132,12 +132,12 @@ func TestAlwaysOnTopFromTheMenuTurnsTheSettingOver(t *testing.T) {
 	}
 }
 
-// FR-408: a Position item puts the strip where the service says and shows it; under an open panel
+// FR-408: a Position item puts the ribbon where the service says and shows it; under an open panel
 // the place is kept for the panel's close and the panel is left where it is.
-func TestAPositionItemPutsTheStripAgainstItsEdge(t *testing.T) {
+func TestAPositionItemPutsTheRibbonAgainstItsEdge(t *testing.T) {
 	app, service, seen, _ := newTestApp(t)
 	app.act(application.ActionRightEdge)
-	if !slices.Equal(service.calls, []string{"ToEdge"}) || service.at[0] != testStripAt || service.edges[0] != placement.Right {
+	if !slices.Equal(service.calls, []string{"ToEdge"}) || service.at[0] != testRibbonAt || service.edges[0] != placement.Right {
 		t.Errorf("the service heard %v at %v for %v, want ToEdge from the ribbon for the right edge", service.calls, service.at, service.edges)
 	}
 	if len(seen.placed) != 1 || seen.placed[0].At != testArrange.At || seen.shown != 1 || !app.scrolls.Load() {
@@ -151,8 +151,8 @@ func TestAPositionItemPutsTheStripAgainstItsEdge(t *testing.T) {
 	}
 }
 
-// FR-409: choosing an orientation puts the strip against its home edge, even where the save failed,
-// since the choice took; a refused choice fits the strip where it stands instead.
+// FR-409: choosing an orientation puts the ribbon against its home edge, even where the save failed,
+// since the choice took; a refused choice fits the ribbon where it stands instead.
 func TestChoosingAnOrientationGoesToItsHomeEdge(t *testing.T) {
 	for orientation, edge := range map[string]placement.Edge{"horizontal": placement.Top, "vertical": placement.Right} {
 		for _, failure := range []error{nil, errPlanted} {
@@ -195,10 +195,10 @@ func TestStyleAndOrientationItemsChooseAndRedraw(t *testing.T) {
 	}
 }
 
-// Before startup has found the strip there is nothing to put against an edge.
-func TestNoStripIsMovedBeforeStartupFindsIt(t *testing.T) {
+// Before startup has found the ribbon there is nothing to put against an edge.
+func TestNoRibbonIsMovedBeforeStartupFindsIt(t *testing.T) {
 	app, service, seen, _ := newTestApp(t)
-	app.strip = 0
+	app.ribbon = 0
 	app.act(application.ActionLeftEdge)
 	if len(service.calls) != 0 || len(seen.placed) != 0 {
 		t.Errorf("the service heard %v and the window was placed %d times", service.calls, len(seen.placed))
@@ -231,9 +231,9 @@ func TestExitQuitsAndLetsTheCloseThrough(t *testing.T) {
 	}
 }
 
-// A close such as Alt+F4 hides the strip while a tray icon can bring it back (FR-507); with none,
+// A close such as Alt+F4 hides the ribbon while a tray icon can bring it back (FR-507); with none,
 // the close goes ahead rather than leave a running program with nothing on screen.
-func TestACloseHidesTheStripOnlyWhileTheTrayIsUp(t *testing.T) {
+func TestACloseHidesTheRibbonOnlyWhileTheTrayIsUp(t *testing.T) {
 	app, _, seen, _ := newTestApp(t)
 	if app.beforeClose(context.Background()) {
 		t.Error("the close was held back with no tray icon to bring the ribbon back from")
@@ -256,7 +256,7 @@ func TestNothingReachesTheWindowBeforeStartup(t *testing.T) {
 	}
 }
 
-func TestDomReadyShowsTheStrip(t *testing.T) {
+func TestDomReadyShowsTheRibbon(t *testing.T) {
 	app, _, seen, _ := newTestApp(t)
 	app.domReady(context.Background())
 	if seen.shown != 1 {

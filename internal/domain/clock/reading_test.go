@@ -55,7 +55,7 @@ func TestLocalDateCrossesMidnightByZone(t *testing.T) {
 func TestDaylightSavingTransitionIsFollowed(t *testing.T) {
 	t.Parallel()
 	newYork := zone(t, "America/New_York")
-	// The offset follows the transition too, which is why the strip's order is worked out afresh
+	// The offset follows the transition too, which is why the ribbon's order is worked out afresh
 	// at each snapshot rather than stored (FR-102).
 	cases := []struct {
 		at, time, mark string

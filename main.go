@@ -1,4 +1,4 @@
-// Command TimeRibbon shows a strip of clocks, one per chosen place in the world.
+// Command TimeRibbon shows a ribbon of clocks, one per chosen place in the world.
 //
 // This file is the composition root. It and app.go are the only files permitted to wire concrete
 // infrastructure to the application layer.
@@ -24,28 +24,28 @@ import (
 	"github.com/oernster/timeribbon/internal/product"
 )
 
-// The empty strip's one cell and the padding round the cells, in DIP, the same at either size: the
+// The empty ribbon's one cell and the padding round the cells, in DIP, the same at either size: the
 // prompt holds the large Add clock button whatever size the clocks are drawn at.
 var (
-	promptCell   = placement.Size{Width: 176, Height: 184}
-	stripPadding = 6
+	promptCell    = placement.Size{Width: 176, Height: 184}
+	ribbonPadding = 6
 )
 
 // layouts is the size of one cell in each style at each size (FR-610), in DIP: its one home. The
 // page draws cells at these sizes from the snapshot; app.css sizes their text to fit, under
-// .strip.small for the small ones.
+// .ribbon.small for the small ones.
 var layouts = application.Layouts{
 	Large: application.Layout{
 		Digital:  placement.Size{Width: 176, Height: 92},
 		Analogue: placement.Size{Width: 176, Height: 176},
 		Prompt:   promptCell,
-		Padding:  stripPadding,
+		Padding:  ribbonPadding,
 	},
 	Small: application.Layout{
 		Digital:  placement.Size{Width: 146, Height: 72},
 		Analogue: placement.Size{Width: 146, Height: 116},
 		Prompt:   promptCell,
-		Padding:  stripPadding,
+		Padding:  ribbonPadding,
 	},
 }
 
@@ -84,7 +84,7 @@ func keepLog() io.Writer {
 }
 
 // settingsDir answers %APPDATA%\TimeRibbon; a folder of the same name in the temporary folder when
-// the environment names none, so the strip still opens.
+// the environment names none, so the ribbon still opens.
 func settingsDir() (string, error) {
 	dir, err := appdata.Dir(os.LookupEnv)
 	if err != nil {
@@ -94,7 +94,7 @@ func settingsDir() (string, error) {
 }
 
 // run wires everything together and hands the facade to Wails. Only a failure to run the window at
-// all ends it; every other fault is carried to the strip or the log (FR-704, FR-707).
+// all ends it; every other fault is carried to the ribbon or the log (FR-704, FR-707).
 func run(log io.Writer) error {
 	dir, err := settingsDir()
 	if err != nil {

@@ -34,10 +34,10 @@ const (
 	openAtLicence  = "licence"
 )
 
-// stripService is what the facade asks of the application layer: application.Service in
+// ribbonService is what the facade asks of the application layer: application.Service in
 // production, a scripted stand-in in the facade's tests, which read what the facade decided with
 // each answer.
-type stripService interface {
+type ribbonService interface {
 	Snapshot() application.Snapshot
 	Settings() settings.Settings
 	AddClock(zone string) (string, error)
@@ -66,7 +66,7 @@ type stripService interface {
 
 // App is the facade Wails binds.
 type App struct {
-	service stripService
+	service ribbonService
 	desktop *desktop.Desktop
 	log     io.Writer
 	panel   placement.Size
@@ -85,7 +85,7 @@ type App struct {
 	place      func(at placement.Point, size placement.Size) error
 
 	ctx       context.Context
-	strip     windows.HWND
+	ribbon    windows.HWND
 	trayUp    atomic.Bool
 	visible   atomic.Bool
 	quitting  atomic.Bool
@@ -94,7 +94,7 @@ type App struct {
 }
 
 // newApp answers the facade over service, reporting on desktop, with every panel drawn at panel DIP.
-func newApp(service stripService, desk *desktop.Desktop, log io.Writer, panelSize placement.Size) *App {
+func newApp(service ribbonService, desk *desktop.Desktop, log io.Writer, panelSize placement.Size) *App {
 	built := &App{service: service, desktop: desk, log: log, panel: panelSize}
 	built.emit = built.emitToWails
 	built.showWindow = built.showInWails
@@ -103,12 +103,12 @@ func newApp(service stripService, desk *desktop.Desktop, log io.Writer, panelSiz
 	built.setOnTop = built.setOnTopInWails
 	built.browse = desktop.OpenInBrowser
 	built.showMenu = desk.ShowMenu
-	built.position = built.stripPosition
-	built.place = built.placeStrip
+	built.position = built.ribbonPosition
+	built.place = built.placeRibbon
 	return built
 }
 
-// Snapshot answers what the strip shows now.
+// Snapshot answers what the ribbon shows now.
 func (a *App) Snapshot() snapshotDTO {
 	return snapshotOf(a.service.Snapshot(), a.scrolls.Load(), desktop.DragThreshold())
 }
@@ -157,9 +157,9 @@ func (a *App) SetFormat(format string) error {
 	return a.refitted(a.service.SetFormat(clock.Format(format)))
 }
 
-// SetOrientation chooses horizontal or vertical (FR-103), then puts the strip against that
+// SetOrientation chooses horizontal or vertical (FR-103), then puts the ribbon against that
 // orientation's home edge (FR-409). A choice that did not take, as one the setting does not offer,
-// fits the strip where it stands. One whose save failed has still taken, so it moves.
+// fits the ribbon where it stands. One whose save failed has still taken, so it moves.
 func (a *App) SetOrientation(orientation string) error {
 	chosen := settings.Orientation(orientation)
 	err := a.service.SetOrientation(chosen)
@@ -190,20 +190,20 @@ func (a *App) StartWithWindows() (bool, error) { return a.service.StartWithWindo
 // SetStartWithWindows writes or removes the Start with Windows value (FR-605).
 func (a *App) SetStartWithWindows(on bool) error { return a.service.SetStartWithWindows(on) }
 
-// DismissNotices clears the notices the user has read, then fits the strip without their cells.
+// DismissNotices clears the notices the user has read, then fits the ribbon without their cells.
 func (a *App) DismissNotices() {
 	a.service.DismissNotices()
 	a.contentChanged()
 }
 
 // SetScrollbar takes the thickness in DIP of the scroll bar the page draws, which it measures once
-// it has loaded, then fits the strip with room for it (FR-106).
+// it has loaded, then fits the ribbon with room for it (FR-106).
 func (a *App) SetScrollbar(dip int) error { return a.refitted(a.service.SetScrollbar(dip)) }
 
-// ShowContextMenu shows the strip's right-click menu as a native menu at the cursor (FR-108).
+// ShowContextMenu shows the ribbon's right-click menu as a native menu at the cursor (FR-108).
 func (a *App) ShowContextMenu() { a.showMenu(a.service.ContextMenu()) }
 
-// OpenPanel turns the window into a panel (Settings, About or Licence), centred on the strip's
+// OpenPanel turns the window into a panel (Settings, About or Licence), centred on the ribbon's
 // display (CON-6).
 func (a *App) OpenPanel() error {
 	a.panelOpen.Store(true)
@@ -218,7 +218,7 @@ func (a *App) OpenPanel() error {
 	return a.place(arranged.At, arranged.Size)
 }
 
-// ClosePanel returns the window to the strip, where it was last left (CON-6, FR-405).
+// ClosePanel returns the window to the ribbon, where it was last left (CON-6, FR-405).
 func (a *App) ClosePanel() error {
 	a.panelOpen.Store(false)
 	return a.placeLaunched()
@@ -234,20 +234,20 @@ func (a *App) OpenDonation() error {
 	return nil
 }
 
-// Hide hides the strip (FR-504).
+// Hide hides the ribbon (FR-504).
 func (a *App) Hide() { a.hide() }
 
-// refitted fits the strip after a change, then answers err. A change whose save failed raises a
+// refitted fits the ribbon after a change, then answers err. A change whose save failed raises a
 // notice, which is one more cell to fit (FR-707); one that saved may have ended an earlier notice.
 func (a *App) refitted(err error) error {
 	a.contentChanged()
 	return err
 }
 
-// contentChanged fits the strip to what it now holds, keeping its corner (FR-104, FR-105). While a
-// panel is open the window is that panel, so the strip is fitted when it closes instead.
+// contentChanged fits the ribbon to what it now holds, keeping its corner (FR-104, FR-105). While a
+// panel is open the window is that panel, so the ribbon is fitted when it closes instead.
 func (a *App) contentChanged() {
-	if a.panelOpen.Load() || a.strip == 0 {
+	if a.panelOpen.Load() || a.ribbon == 0 {
 		return
 	}
 	a.rearrange()

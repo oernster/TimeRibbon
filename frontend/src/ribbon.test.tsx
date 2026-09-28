@@ -4,12 +4,12 @@ import { api } from './api'
 import { addClockTip } from './ArtButton'
 import { cell, installBridge, snapshot } from './fakeBridge'
 import { scrollbarThickness } from './scrollbar'
-import { Strip } from './Strip'
+import { Ribbon } from './Ribbon'
 
-describe('Strip', () => {
+describe('Ribbon', () => {
   it('shows each clock in order with its own date (FR-102, FR-202)', () => {
     installBridge()
-    render(<Strip snapshot={snapshot()} onAddClock={vi.fn()} refused={vi.fn()} />)
+    render(<Ribbon snapshot={snapshot()} onAddClock={vi.fn()} refused={vi.fn()} />)
     const groups = screen.getAllByRole('group')
     expect(groups.map((group) => group.getAttribute('aria-label'))).toEqual([
       'New York, 16:37, Sunday, 27 September',
@@ -20,7 +20,7 @@ describe('Strip', () => {
   it('shows a clock that cannot be read in words, with no time (FR-706, NFR-U-2)', () => {
     installBridge()
     const broken = cell({ id: 'b', label: 'Gran', zoneMark: '', time: '', date: '', problem: 'Unknown time zone: Not/AZone' })
-    render(<Strip snapshot={snapshot({ cells: [broken] })} onAddClock={vi.fn()} refused={vi.fn()} />)
+    render(<Ribbon snapshot={snapshot({ cells: [broken] })} onAddClock={vi.fn()} refused={vi.fn()} />)
     expect(screen.getByText('Unknown time zone: Not/AZone')).toBeTruthy()
     expect(screen.queryByText(/\d\d:\d\d/)).toBeNull()
   })
@@ -28,29 +28,29 @@ describe('Strip', () => {
   it('draws cells at the size the snapshot names, marked for its text sizes (FR-610)', () => {
     installBridge()
     const small = { digital: { width: 144, height: 72 }, analogue: { width: 144, height: 124 }, prompt: { width: 176, height: 184 }, padding: 6 }
-    render(<Strip snapshot={snapshot({ size: 'small', layout: small })} onAddClock={vi.fn()} refused={vi.fn()} />)
-    const strip = screen.getAllByRole('group')[0].closest('.strip') as HTMLElement
-    expect(strip.classList.contains('small')).toBe(true)
-    expect(strip.style.getPropertyValue('--cell-w')).toBe('144px')
-    expect(strip.style.getPropertyValue('--cell-h')).toBe('72px')
+    render(<Ribbon snapshot={snapshot({ size: 'small', layout: small })} onAddClock={vi.fn()} refused={vi.fn()} />)
+    const ribbon = screen.getAllByRole('group')[0].closest('.ribbon') as HTMLElement
+    expect(ribbon.classList.contains('small')).toBe(true)
+    expect(ribbon.style.getPropertyValue('--cell-w')).toBe('144px')
+    expect(ribbon.style.getPropertyValue('--cell-h')).toBe('72px')
   })
 
-  it('offers Add clock on an empty strip (FR-107)', () => {
+  it('offers Add clock on an empty ribbon (FR-107)', () => {
     installBridge()
     const onAddClock = vi.fn()
-    render(<Strip snapshot={snapshot({ cells: [] })} onAddClock={onAddClock} refused={vi.fn()} />)
+    render(<Ribbon snapshot={snapshot({ cells: [] })} onAddClock={onAddClock} refused={vi.fn()} />)
     fireEvent.click(screen.getByLabelText(addClockTip))
     expect(onAddClock).toHaveBeenCalled()
   })
 
   it('starts a drag only past the threshold and never from a control (FR-401, FR-402)', () => {
     installBridge()
-    render(<Strip snapshot={snapshot({ cells: [], notices: ['kept aside'] })} onAddClock={vi.fn()} refused={vi.fn()} />)
-    const strip = screen.getByText('No clocks yet').closest('.strip') as HTMLElement
-    fireEvent.pointerDown(strip, { button: 0, screenX: 100, screenY: 100 })
-    fireEvent.pointerMove(strip, { buttons: 1, screenX: 103, screenY: 102 })
+    render(<Ribbon snapshot={snapshot({ cells: [], notices: ['kept aside'] })} onAddClock={vi.fn()} refused={vi.fn()} />)
+    const ribbon = screen.getByText('No clocks yet').closest('.ribbon') as HTMLElement
+    fireEvent.pointerDown(ribbon, { button: 0, screenX: 100, screenY: 100 })
+    fireEvent.pointerMove(ribbon, { buttons: 1, screenX: 103, screenY: 102 })
     expect(window.WailsInvoke).not.toHaveBeenCalled()
-    fireEvent.pointerMove(strip, { buttons: 1, screenX: 105, screenY: 100 })
+    fireEvent.pointerMove(ribbon, { buttons: 1, screenX: 105, screenY: 100 })
     expect(window.WailsInvoke).toHaveBeenCalledWith('drag')
     const invoke = window.WailsInvoke as ReturnType<typeof vi.fn>
     invoke.mockClear()
@@ -60,14 +60,14 @@ describe('Strip', () => {
     expect(invoke).not.toHaveBeenCalled()
   })
 
-  it('moves only a scrolling horizontal strip along with a plain wheel (FR-106)', () => {
+  it('moves only a scrolling horizontal ribbon along with a plain wheel (FR-106)', () => {
     installBridge()
     const along = (overrides: Parameters<typeof snapshot>[0], deltaX: number) => {
-      const view = render(<Strip snapshot={snapshot(overrides)} onAddClock={vi.fn()} refused={vi.fn()} />)
-      const strip = view.container.querySelector('.strip') as HTMLElement
+      const view = render(<Ribbon snapshot={snapshot(overrides)} onAddClock={vi.fn()} refused={vi.fn()} />)
+      const ribbon = view.container.querySelector('.ribbon') as HTMLElement
       let left = 0
-      Object.defineProperty(strip, 'scrollLeft', { get: () => left, set: (value: number) => (left = value) })
-      fireEvent.wheel(strip, { deltaX, deltaY: 100 })
+      Object.defineProperty(ribbon, 'scrollLeft', { get: () => left, set: (value: number) => (left = value) })
+      fireEvent.wheel(ribbon, { deltaX, deltaY: 100 })
       view.unmount()
       return left
     }
@@ -92,7 +92,7 @@ describe('Strip', () => {
 
   it('opens the native menu on right-click (FR-108)', () => {
     const bridge = installBridge()
-    render(<Strip snapshot={snapshot()} onAddClock={vi.fn()} refused={vi.fn()} />)
+    render(<Ribbon snapshot={snapshot()} onAddClock={vi.fn()} refused={vi.fn()} />)
     fireEvent.contextMenu(screen.getAllByRole('group')[0])
     expect(bridge.ShowContextMenu).toHaveBeenCalled()
   })

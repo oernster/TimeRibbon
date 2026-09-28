@@ -11,9 +11,9 @@ import (
 	"github.com/oernster/timeribbon/internal/product"
 )
 
-// Every change the page can make is followed by fitting the strip, whether or not it saved: a
+// Every change the page can make is followed by fitting the ribbon, whether or not it saved: a
 // change whose save failed raises a notice, which is one more cell to fit (FR-707).
-func TestEveryChangeFitsTheStripAndAnswersTheServicesError(t *testing.T) {
+func TestEveryChangeFitsTheRibbonAndAnswersTheServicesError(t *testing.T) {
 	changes := map[string]func(app *App) error{
 		"AddClock":       func(app *App) error { _, err := app.AddClock("Europe/London"); return err },
 		"RenameClock":    func(app *App) error { return app.RenameClock("id-1", "Home") },
@@ -44,14 +44,14 @@ func TestEveryChangeFitsTheStripAndAnswersTheServicesError(t *testing.T) {
 	}
 }
 
-// While a panel is open the window is that panel, so a change does not fit the strip; nor does one
+// While a panel is open the window is that panel, so a change does not fit the ribbon; nor does one
 // made before startup has found it.
-func TestAChangeLeavesThePanelOrAnUnfoundStripAlone(t *testing.T) {
+func TestAChangeLeavesThePanelOrAnUnfoundRibbonAlone(t *testing.T) {
 	app, service, seen, _ := newTestApp(t)
 	app.panelOpen.Store(true)
 	_ = app.RenameClock("id-1", "Home")
 	app.panelOpen.Store(false)
-	app.strip = 0
+	app.ribbon = 0
 	_ = app.RenameClock("id-1", "Home")
 	if slices.Contains(service.calls, "Rearrange") || len(seen.placed) != 0 {
 		t.Errorf("the ribbon was fitted %d times, want none", len(seen.placed))
@@ -61,8 +61,8 @@ func TestAChangeLeavesThePanelOrAnUnfoundStripAlone(t *testing.T) {
 func TestFittingPlacesTheArrangementAndKeepsWhetherItScrolls(t *testing.T) {
 	app, service, seen, _ := newTestApp(t)
 	_ = app.SetScrollbar(12)
-	if service.at[0] != testStripAt {
-		t.Errorf("fitted from %v, want where the ribbon stands, %v", service.at[0], testStripAt)
+	if service.at[0] != testRibbonAt {
+		t.Errorf("fitted from %v, want where the ribbon stands, %v", service.at[0], testRibbonAt)
 	}
 	if seen.placed[0].At != testArrange.At || seen.placed[0].Size != testArrange.Size {
 		t.Errorf("placed %+v, want the service's arrangement %+v", seen.placed[0], testArrange)
@@ -108,12 +108,12 @@ func TestSetAlwaysOnTopAppliesTheSettingAtOnce(t *testing.T) {
 	}
 }
 
-func TestOpenPanelCentresThePanelOnTheStripsDisplay(t *testing.T) {
+func TestOpenPanelCentresThePanelOnTheRibbonsDisplay(t *testing.T) {
 	app, service, seen, _ := newTestApp(t)
 	if err := app.OpenPanel(); err != nil {
 		t.Fatal(err)
 	}
-	if !app.panelOpen.Load() || service.at[0] != testStripAt || service.centred != testPanel {
+	if !app.panelOpen.Load() || service.at[0] != testRibbonAt || service.centred != testPanel {
 		t.Errorf("open %v, centred %v from %v; want open, the panel's size from the ribbon", app.panelOpen.Load(), service.centred, service.at)
 	}
 	if len(seen.placed) != 1 || seen.placed[0].At != testArrange.At {
@@ -138,7 +138,7 @@ func TestOpenPanelAnswersWhatStoppedIt(t *testing.T) {
 	}
 }
 
-func TestClosePanelPutsTheStripWhereItWasLastLeft(t *testing.T) {
+func TestClosePanelPutsTheRibbonWhereItWasLastLeft(t *testing.T) {
 	app, service, seen, _ := newTestApp(t)
 	app.panelOpen.Store(true)
 	if err := app.ClosePanel(); err != nil {

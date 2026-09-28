@@ -28,7 +28,7 @@ describe('About (FR-607)', () => {
     expect(credits).toEqual(about.credits.map((c) => `${c.name}, ${c.licence}: ${c.role}`))
   })
 
-  it('opens on Close; Close and Escape both return to the strip', async () => {
+  it('opens on Close; Close and Escape both return to the ribbon', async () => {
     const { onClose } = await open('about')
     expect(document.activeElement?.textContent).toBe('Close')
     fireEvent.click(screen.getByText('Close'))

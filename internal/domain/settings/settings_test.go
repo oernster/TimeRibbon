@@ -35,7 +35,7 @@ func TestDefaultsAreDigitalTwentyFourHourVerticalAndNotOnTop(t *testing.T) {
 	}
 }
 
-// FR-409: a horizontal strip goes to the top edge, a vertical one to the right.
+// FR-409: a horizontal ribbon goes to the top edge, a vertical one to the right.
 func TestEachOrientationHasAHomeEdge(t *testing.T) {
 	t.Parallel()
 	for orientation, want := range map[Orientation]placement.Edge{Horizontal: placement.Top, Vertical: placement.Right} {

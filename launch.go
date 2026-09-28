@@ -43,7 +43,7 @@ func launch(app *App, dir string) error {
 			OnSecondInstanceLaunch: func(options.SecondInstanceData) { app.secondInstance() },
 		},
 		Windows: &windows.Options{
-			WindowClassName:      product.StripClass,
+			WindowClassName:      product.RibbonClass,
 			WebviewUserDataPath:  webViewData,
 			Theme:                windows.SystemDefault,
 			DisablePinchZoom:     true,

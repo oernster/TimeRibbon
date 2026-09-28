@@ -10,7 +10,7 @@ import (
 	"github.com/oernster/timeribbon/internal/domain/settings"
 )
 
-// FR-704: the store's notice reaches the strip.
+// FR-704: the store's notice reaches the ribbon.
 func TestALoadNoticeIsShownUntilDismissed(t *testing.T) {
 	t.Parallel()
 	store := &fakeStore{loaded: Loaded{Settings: settings.Defaults(), Notice: "kept aside"}}

@@ -16,7 +16,7 @@ const (
 	unreadablePrefix  = "This clock could not be read: "
 )
 
-// Cell is what one cell of the strip shows.
+// Cell is what one cell of the ribbon shows.
 type Cell struct {
 	ID    string
 	Label string
@@ -32,7 +32,7 @@ type Cell struct {
 	Problem string
 }
 
-// Snapshot is everything the strip draws at one instant.
+// Snapshot is everything the ribbon draws at one instant.
 type Snapshot struct {
 	Cells       []Cell
 	Style       settings.Style
@@ -84,7 +84,7 @@ func eastFromGreenwich(a, b timedCell) int {
 	return cmp.Compare(eastOfGreenwich(a.offsetSeconds), eastOfGreenwich(b.offsetSeconds))
 }
 
-// Snapshot answers what the strip shows now, one cell per clock ordered east from Greenwich, the
+// Snapshot answers what the ribbon shows now, one cell per clock ordered east from Greenwich, the
 // reference; clocks keeping the same time keep the order they were added in (FR-102, FR-201 to
 // FR-206). The order is worked out at each snapshot, since daylight saving moves it. One clock
 // that cannot be shown leaves every other one working (FR-705).

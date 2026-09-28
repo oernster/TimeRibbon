@@ -44,7 +44,7 @@ func TestLaunchWithNothingStoredGoesToTheDefaultPlace(t *testing.T) {
 	}
 }
 
-// FR-405, FR-407: the stored monitor at 150 percent sizes the strip in its pixels.
+// FR-405, FR-407: the stored monitor at 150 percent sizes the ribbon in its pixels.
 func TestLaunchRestoresTheStoredMonitorAtItsScaling(t *testing.T) {
 	t.Parallel()
 	initial := clocks(2)
@@ -61,7 +61,7 @@ func TestLaunchRestoresTheStoredMonitorAtItsScaling(t *testing.T) {
 }
 
 // FR-103: three analogue cells stacked: 160 + 16 across, 3 x 150 + 16 along.
-func TestVerticalStripsStackTheirCells(t *testing.T) {
+func TestVerticalRibbonsStackTheirCells(t *testing.T) {
 	t.Parallel()
 	initial := clocks(3)
 	initial.Orientation = settings.Vertical
@@ -74,7 +74,7 @@ func TestVerticalStripsStackTheirCells(t *testing.T) {
 }
 
 // draggedTo answers settings holding n London clocks in orientation, stored where a drag left the
-// strip at at on the primary monitor.
+// ribbon at at on the primary monitor.
 func draggedTo(n int, orientation settings.Orientation, at placement.Point) settings.Settings {
 	s := clocks(n)
 	s.Orientation = orientation
@@ -82,10 +82,10 @@ func draggedTo(n int, orientation settings.Orientation, at placement.Point) sett
 	return s
 }
 
-// FR-104: a vertical strip dragged near the top gains a clock. Its length changes from
+// FR-104: a vertical ribbon dragged near the top gains a clock. Its length changes from
 // 2 x 90 + 8 = 188 to 3 x 90 + 2 x 8 = 286, so it is centred top to bottom, (1032 - 286) / 2,
 // its left edge kept; the place is saved, so the next launch finds it there.
-func TestAStripWhoseLengthChangesIsRecentredAndKept(t *testing.T) {
+func TestARibbonWhoseLengthChangesIsRecentredAndKept(t *testing.T) {
 	t.Parallel()
 	dragged := placement.Point{X: 1700, Y: 40}
 	r := newRig(t, draggedTo(2, settings.Vertical, dragged))
@@ -108,8 +108,8 @@ func TestAStripWhoseLengthChangesIsRecentredAndKept(t *testing.T) {
 	}
 }
 
-// FR-104: a horizontal strip is centred left to right, its top kept.
-func TestAHorizontalStripIsRecentredLeftToRight(t *testing.T) {
+// FR-104: a horizontal ribbon is centred left to right, its top kept.
+func TestAHorizontalRibbonIsRecentredLeftToRight(t *testing.T) {
 	t.Parallel()
 	dragged := placement.Point{X: 30, Y: 800}
 	r := newRig(t, draggedTo(2, settings.Horizontal, dragged))
@@ -121,9 +121,9 @@ func TestAHorizontalStripIsRecentredLeftToRight(t *testing.T) {
 	}
 }
 
-// FR-104, FR-404: only a change of length re-centres the strip; a rearrange or a move with the
+// FR-104, FR-404: only a change of length re-centres the ribbon; a rearrange or a move with the
 // same clocks leaves it where it was put. Nothing is saved but the move.
-func TestNothingButAChangeOfLengthRecentresTheStrip(t *testing.T) {
+func TestNothingButAChangeOfLengthRecentresTheRibbon(t *testing.T) {
 	t.Parallel()
 	dragged := placement.Point{X: 1700, Y: 40}
 	r := newRig(t, draggedTo(2, settings.Vertical, dragged))
@@ -137,8 +137,8 @@ func TestNothingButAChangeOfLengthRecentresTheStrip(t *testing.T) {
 	}
 }
 
-// FR-107: an empty strip is sized for its prompt, whatever the style: 160 + 16 by 190 + 16.
-func TestAnEmptyStripIsSizedForItsPrompt(t *testing.T) {
+// FR-107: an empty ribbon is sized for its prompt, whatever the style: 160 + 16 by 190 + 16.
+func TestAnEmptyRibbonIsSizedForItsPrompt(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, clocks(0))
 	got, _ := r.service.Launch()
@@ -148,7 +148,7 @@ func TestAnEmptyStripIsSizedForItsPrompt(t *testing.T) {
 }
 
 // FR-106.
-func TestAStripThatWillNotFitScrollsAtTheWidthOfTheWorkArea(t *testing.T) {
+func TestARibbonThatWillNotFitScrollsAtTheWidthOfTheWorkArea(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, clocks(12))
 	got, _ := r.service.Launch()
@@ -157,9 +157,9 @@ func TestAStripThatWillNotFitScrollsAtTheWidthOfTheWorkArea(t *testing.T) {
 	}
 }
 
-// FR-106, FR-707: a notice is drawn as one more cell, so the strip makes room for it; two clocks and
-// a notice are 3 x 160 + 2 x 8 = 496 along. Once the notice is dismissed the strip is 336 again.
-func TestTheStripMakesRoomForANotice(t *testing.T) {
+// FR-106, FR-707: a notice is drawn as one more cell, so the ribbon makes room for it; two clocks and
+// a notice are 3 x 160 + 2 x 8 = 496 along. Once the notice is dismissed the ribbon is 336 again.
+func TestTheRibbonMakesRoomForANotice(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, clocks(2))
 	r.store.saveErr = errPlanted
@@ -178,7 +178,7 @@ func TestTheStripMakesRoomForANotice(t *testing.T) {
 	}
 }
 
-// FR-104, FR-707: a strip re-centred where its place cannot be saved raises the notice again, so it
+// FR-104, FR-707: a ribbon re-centred where its place cannot be saved raises the notice again, so it
 // is arranged once more with room for that cell rather than left too short for it.
 func TestARecentringThatCannotBeSavedMakesRoomForItsNotice(t *testing.T) {
 	t.Parallel()
@@ -198,9 +198,9 @@ func TestARecentringThatCannotBeSavedMakesRoomForItsNotice(t *testing.T) {
 	}
 }
 
-// FR-106: a strip that scrolls is made thicker by the scroll bar the page reports, so the bar never
+// FR-106: a ribbon that scrolls is made thicker by the scroll bar the page reports, so the bar never
 // covers the cells; one that fits is not. 12 cells overflow the primary: 90 + 16 + 15 = 121 across.
-func TestAScrollingStripMakesRoomForItsScrollBar(t *testing.T) {
+func TestAScrollingRibbonMakesRoomForItsScrollBar(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, clocks(12))
 	const bar = 15
@@ -238,7 +238,7 @@ func TestPlacementIsStoredRelativeToItsMonitor(t *testing.T) {
 	}
 }
 
-// FR-406: a horizontal strip dragged off every display comes back to the default place, flush
+// FR-406: a horizontal ribbon dragged off every display comes back to the default place, flush
 // against the primary's top (FR-403, FR-409), 336 x 106; the place it comes back to is stored.
 func TestADragOffEveryDisplayIsBroughtBack(t *testing.T) {
 	t.Parallel()
@@ -268,9 +268,9 @@ func TestRearrangingClampsAndSavesNothing(t *testing.T) {
 	}
 }
 
-// FR-407: at (1800, 1000) the strip overlaps the secondary most, so it is sized in the secondary's
+// FR-407: at (1800, 1000) the ribbon overlaps the secondary most, so it is sized in the secondary's
 // pixels (504 by 159 at 150 percent) and clamped onto it.
-func TestAStripLandingOnAnotherDisplayIsSizedForIt(t *testing.T) {
+func TestARibbonLandingOnAnotherDisplayIsSizedForIt(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, clocks(2))
 	got, err := r.service.Rearrange(placement.Point{X: 1800, Y: 1000})
@@ -283,8 +283,8 @@ func TestAStripLandingOnAnotherDisplayIsSizedForIt(t *testing.T) {
 	}
 }
 
-// CON-6: Settings opens centred on the strip's display, sized in its pixels.
-func TestSettingsOpenCentredOnTheStripsDisplay(t *testing.T) {
+// CON-6: Settings opens centred on the ribbon's display, sized in its pixels.
+func TestSettingsOpenCentredOnTheRibbonsDisplay(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, clocks(1))
 	got, err := r.service.Centred(placement.Point{X: 2100, Y: 300}, placement.Size{Width: 400, Height: 300})

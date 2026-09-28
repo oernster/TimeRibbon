@@ -29,7 +29,7 @@ const saveFailedPrefix = "Settings could not be saved: "
 type Layout struct {
 	Digital  placement.Size
 	Analogue placement.Size
-	// Prompt is the one cell an empty strip shows, holding the large Add clock button (FR-107).
+	// Prompt is the one cell an empty ribbon shows, holding the large Add clock button (FR-107).
 	Prompt  placement.Size
 	Padding int
 }
@@ -61,15 +61,15 @@ type Service struct {
 	// scrollbar is the thickness in DIP of the scroll bar the page draws, as the page measured it;
 	// zero until it says (FR-106).
 	scrollbar int
-	// arranged is the strip's length when it was last arranged, so a change of length can be told
+	// arranged is the ribbon's length when it was last arranged, so a change of length can be told
 	// from anything else that arranges it (FR-104).
-	arranged stripLength
-	// last is where the strip was last arranged, so a strip placed again can keep the edge it lay
+	arranged ribbonLength
+	// last is where the ribbon was last arranged, so a ribbon placed again can keep the edge it lay
 	// against (FR-408, FR-610).
 	last lastPlaced
 }
 
-// lastPlaced is where the strip was last arranged: the display, its corner and its size, in that
+// lastPlaced is where the ribbon was last arranged: the display, its corner and its size, in that
 // display's pixels; known is false until it has been arranged once.
 type lastPlaced struct {
 	known  bool
@@ -78,16 +78,16 @@ type lastPlaced struct {
 	size   placement.Size
 }
 
-// stripLength is the strip's length in DIP along its orientation; known is false until the strip
+// ribbonLength is the ribbon's length in DIP along its orientation; known is false until the ribbon
 // has been arranged once, when there is nothing yet for a length to differ from.
-type stripLength struct {
+type ribbonLength struct {
 	known    bool
 	vertical bool
 	length   int
 }
 
 // SetScrollbar records the thickness in DIP of the scroll bar the page draws, which a scrolling
-// strip makes room for across its cells (FR-106). Only the page can measure it: it is the web
+// ribbon makes room for across its cells (FR-106). Only the page can measure it: it is the web
 // engine's bar, not one Windows reports.
 func (s *Service) SetScrollbar(dip int) error {
 	if dip < 0 {
@@ -105,7 +105,7 @@ func New(ports Ports, layouts Layouts) *Service {
 }
 
 // Start loads the stored settings. A fault reading them is answered and the defaults are kept, so
-// the strip still opens (FR-703, FR-704).
+// the ribbon still opens (FR-703, FR-704).
 func (s *Service) Start() error {
 	loaded, err := s.ports.Store.Load()
 	s.mutex.Lock()

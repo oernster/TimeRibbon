@@ -10,7 +10,7 @@ interface Props {
   onClick: () => void
 }
 
-/** The Add clock button's tooltip and accessible name, shared by the strip and Settings. */
+/** The Add clock button's tooltip and accessible name, shared by the ribbon and Settings. */
 export const addClockTip = 'Add a clock for another place: search by city, zone or country'
 
 /** ArtButton is a button whose face is artwork, drawn at the height genicons renders it for. */

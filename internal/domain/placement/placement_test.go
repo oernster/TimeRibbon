@@ -13,32 +13,32 @@ var (
 		Device: `\\.\DISPLAY2`, Work: Rect{Left: 1920, Top: 0, Right: 4480, Bottom: 1392},
 		DPI: 144,
 	}
-	strip = Size{Width: 600, Height: 120}
+	ribbon = Size{Width: 600, Height: 120}
 )
 
 // FR-403.
 func TestDefaultPlacementIsRightEdgeCentred(t *testing.T) {
 	t.Parallel()
-	got := Default(primary, strip, Right)
+	got := Default(primary, ribbon, Right)
 	want := Point{X: 1920 - 600, Y: (1032 - 120) / 2}
 	if got.At != want || got.Monitor.Device != primary.Device {
 		t.Errorf("got %+v, want %+v on the primary", got.At, want)
 	}
-	scaled := Default(secondary, strip, Right)
-	if gap := secondary.Work.Right - (scaled.At.X + strip.Width); gap != 0 {
+	scaled := Default(secondary, ribbon, Right)
+	if gap := secondary.Work.Right - (scaled.At.X + ribbon.Width); gap != 0 {
 		t.Errorf("at 150 percent the ribbon is %d pixels in from the right edge, want flush", gap)
 	}
-	// FR-409: the default place is against the home edge given, so a horizontal strip's is the top,
+	// FR-409: the default place is against the home edge given, so a horizontal ribbon's is the top,
 	// whether it has nothing stored, its monitor has gone or it was left off every display.
 	top := Point{X: (1920 - 600) / 2, Y: 0}
-	if got := Default(primary, strip, Top); got.At != top {
+	if got := Default(primary, ribbon, Top); got.At != top {
 		t.Errorf("top: got %+v, want %+v", got.At, top)
 	}
 	gone := Stored{Device: `\\.\DISPLAY9`, DPI: BaseDPI}
-	if got, _ := Restore(&gone, []Monitor{primary}, strip, Top); got.At != top {
+	if got, _ := Restore(&gone, []Monitor{primary}, ribbon, Top); got.At != top {
 		t.Errorf("a gone monitor with the top as home: got %+v, want %+v", got.At, top)
 	}
-	if got, _ := Recover(Point{X: 9000, Y: 0}, strip, []Monitor{primary}, Top); got.At != top {
+	if got, _ := Recover(Point{X: 9000, Y: 0}, ribbon, []Monitor{primary}, Top); got.At != top {
 		t.Errorf("off every display with the top as home: got %+v, want %+v", got.At, top)
 	}
 }
@@ -51,7 +51,7 @@ func TestCentredAlongKeepsThePositionAcross(t *testing.T) {
 	if got, want := CentredAlong(Point{X: 1700, Y: 9}, tall, primary.Work, true), (Point{X: 1700, Y: (1032 - 600) / 2}); got != want {
 		t.Errorf("vertical: got %+v, want %+v", got, want)
 	}
-	if got, want := CentredAlong(Point{X: 9, Y: 800}, strip, primary.Work, false), (Point{X: (1920 - 600) / 2, Y: 800}); got != want {
+	if got, want := CentredAlong(Point{X: 9, Y: 800}, ribbon, primary.Work, false), (Point{X: (1920 - 600) / 2, Y: 800}); got != want {
 		t.Errorf("horizontal: got %+v, want %+v", got, want)
 	}
 	if got := CentredAlong(Point{X: 5000, Y: 0}, tall, primary.Work, true); got.X != 1920-120 {
@@ -70,8 +70,8 @@ func TestAgainstEdgeIsFlushAndCentredAlongTheEdge(t *testing.T) {
 	}{
 		Left:   {tall, Point{X: 1920, Y: (1392 - 600) / 2}},
 		Right:  {tall, Point{X: 4480 - 120, Y: (1392 - 600) / 2}},
-		Top:    {strip, Point{X: 1920 + (2560-600)/2, Y: 0}},
-		Bottom: {strip, Point{X: 1920 + (2560-600)/2, Y: 1392 - 120}},
+		Top:    {ribbon, Point{X: 1920 + (2560-600)/2, Y: 0}},
+		Bottom: {ribbon, Point{X: 1920 + (2560-600)/2, Y: 1392 - 120}},
 	}
 	for edge, each := range cases {
 		if got := AgainstEdge(each.size, work, edge); got != each.want {
@@ -84,7 +84,7 @@ func TestAgainstEdgeIsFlushAndCentredAlongTheEdge(t *testing.T) {
 	}
 }
 
-// FR-408, FR-610: a strip flush against the right or bottom edge keeps it as it shrinks or grows;
+// FR-408, FR-610: a ribbon flush against the right or bottom edge keeps it as it shrinks or grows;
 // one whose corner moved along that axis keeps its corner, as does one that was not flush.
 func TestKeptFlushHoldsTheFarEdgeNotTheCorner(t *testing.T) {
 	t.Parallel()
@@ -120,7 +120,7 @@ func TestPlacementIsStoredRelativeToItsMonitorAndRestored(t *testing.T) {
 	if stored.Offset != (Point{X: 180, Y: 300}) || stored.Device != secondary.Device || stored.DPI != 144 {
 		t.Fatalf("stored %+v", stored)
 	}
-	got, ok := Restore(&stored, []Monitor{primary, secondary}, strip, Right)
+	got, ok := Restore(&stored, []Monitor{primary, secondary}, ribbon, Right)
 	if !ok || got.At != at || got.Monitor.Device != secondary.Device {
 		t.Errorf("restored %+v on %s, want %+v on the secondary", got.At, got.Monitor.Device, at)
 	}
@@ -130,16 +130,16 @@ func TestPlacementIsStoredRelativeToItsMonitorAndRestored(t *testing.T) {
 func TestMissingMonitorFallsBackToPrimary(t *testing.T) {
 	t.Parallel()
 	stored := Stored{Device: `\\.\DISPLAY2`, DPI: BaseDPI, Offset: Point{X: 1700, Y: 500}}
-	got, ok := Restore(&stored, []Monitor{primary}, strip, Right)
-	if !ok || got != Default(primary, strip, Right) {
+	got, ok := Restore(&stored, []Monitor{primary}, ribbon, Right)
+	if !ok || got != Default(primary, ribbon, Right) {
 		t.Errorf("got %+v, want the default place on the primary", got)
 	}
 }
 
 func TestNothingStoredMeansTheDefaultPlace(t *testing.T) {
 	t.Parallel()
-	got, ok := Restore(nil, []Monitor{secondary, primary}, strip, Right)
-	if !ok || got != Default(primary, strip, Right) {
+	got, ok := Restore(nil, []Monitor{secondary, primary}, ribbon, Right)
+	if !ok || got != Default(primary, ribbon, Right) {
 		t.Errorf("got %+v, want the default place on the primary", got)
 	}
 }
@@ -148,7 +148,7 @@ func TestNothingStoredMeansTheDefaultPlace(t *testing.T) {
 func TestOffscreenPlacementIsClampedIntoWorkArea(t *testing.T) {
 	t.Parallel()
 	stored := Stored{Device: primary.Device, DPI: BaseDPI, Offset: Point{X: 1800, Y: -40}}
-	got, _ := Restore(&stored, []Monitor{primary}, strip, Right)
+	got, _ := Restore(&stored, []Monitor{primary}, ribbon, Right)
 	if got.At != (Point{X: 1920 - 600, Y: 0}) {
 		t.Errorf("got %+v", got.At)
 	}
@@ -158,20 +158,20 @@ func TestOffscreenPlacementIsClampedIntoWorkArea(t *testing.T) {
 func TestDpiChangeScalesTheOffset(t *testing.T) {
 	t.Parallel()
 	stored := Stored{Device: secondary.Device, DPI: BaseDPI, Offset: Point{X: 200, Y: 100}}
-	got, _ := Restore(&stored, []Monitor{secondary}, strip, Right)
+	got, _ := Restore(&stored, []Monitor{secondary}, ribbon, Right)
 	if got.At != (Point{X: 1920 + 300, Y: 150}) {
 		t.Errorf("got %+v, want the offset scaled by 144/96", got.At)
 	}
 }
 
 // FR-406.
-func TestDisplayChangeRecoversAStripLeftOffscreen(t *testing.T) {
+func TestDisplayChangeRecoversARibbonLeftOffscreen(t *testing.T) {
 	t.Parallel()
-	got, ok := Recover(Point{X: 3000, Y: 200}, strip, []Monitor{primary}, Right)
-	if !ok || got != Default(primary, strip, Right) {
+	got, ok := Recover(Point{X: 3000, Y: 200}, ribbon, []Monitor{primary}, Right)
+	if !ok || got != Default(primary, ribbon, Right) {
 		t.Errorf("a ribbon on no monitor goes to the default place: got %+v", got)
 	}
-	half, _ := Recover(Point{X: 1700, Y: 200}, strip, []Monitor{primary, secondary}, Right)
+	half, _ := Recover(Point{X: 1700, Y: 200}, ribbon, []Monitor{primary, secondary}, Right)
 	if half.Monitor.Device != secondary.Device || half.At.X != secondary.Work.Left {
 		t.Errorf("a ribbon mostly on the secondary is clamped onto it: got %+v", half)
 	}
@@ -179,10 +179,10 @@ func TestDisplayChangeRecoversAStripLeftOffscreen(t *testing.T) {
 
 func TestNoMonitorsIsReportedRatherThanGuessed(t *testing.T) {
 	t.Parallel()
-	if _, ok := Restore(nil, nil, strip, Right); ok {
+	if _, ok := Restore(nil, nil, ribbon, Right); ok {
 		t.Error("Restore with no monitors answered a place")
 	}
-	if _, ok := Recover(Point{}, strip, nil, Right); ok {
+	if _, ok := Recover(Point{}, ribbon, nil, Right); ok {
 		t.Error("Recover with no monitors answered a place")
 	}
 }
@@ -203,7 +203,7 @@ func TestARectangleMeasuresItsOwnSides(t *testing.T) {
 	}
 }
 
-func TestAStripLargerThanTheWorkAreaAlignsToItsStart(t *testing.T) {
+func TestARibbonLargerThanTheWorkAreaAlignsToItsStart(t *testing.T) {
 	t.Parallel()
 	got := Clamp(Point{X: 500, Y: 500}, Size{Width: 3000, Height: 2000}, primary.Work)
 	if got != (Point{X: 0, Y: 0}) {
@@ -228,7 +228,7 @@ func TestScaleRoundsToTheNearestPixelEitherSide(t *testing.T) {
 }
 
 // FR-105, FR-106, FR-107.
-func TestStripLengthFollowsClockCountAndNeverExceedsWorkArea(t *testing.T) {
+func TestRibbonLengthFollowsClockCountAndNeverExceedsWorkArea(t *testing.T) {
 	t.Parallel()
 	cases := []struct {
 		name                       string

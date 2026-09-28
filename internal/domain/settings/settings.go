@@ -40,11 +40,11 @@ const (
 	Vertical   Orientation = "vertical"
 )
 
-// homeEdges is each orientation's home edge (FR-409): a horizontal strip goes to the top, a
+// homeEdges is each orientation's home edge (FR-409): a horizontal ribbon goes to the top, a
 // vertical one to the right.
 var homeEdges = map[Orientation]placement.Edge{Horizontal: placement.Top, Vertical: placement.Right}
 
-// HomeEdge answers the edge a strip of orientation goes to when that orientation is chosen and
+// HomeEdge answers the edge a ribbon of orientation goes to when that orientation is chosen and
 // wherever it has no place of its own (FR-403, FR-409); false for an orientation not offered.
 func HomeEdge(orientation Orientation) (placement.Edge, bool) {
 	edge, ok := homeEdges[orientation]
@@ -87,7 +87,7 @@ type Settings struct {
 	Orientation Orientation
 	Theme       Theme
 	AlwaysOnTop bool
-	// Placement is where the strip was last left; nil until it has been placed (FR-403).
+	// Placement is where the ribbon was last left; nil until it has been placed (FR-403).
 	Placement *placement.Stored
 	// Clocks is the configured clocks in their order (FR-102).
 	Clocks []Entry

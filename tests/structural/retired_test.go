@@ -1,29 +1,40 @@
 package structural
 
-// The product carried another name until 2.0.0 and was renamed over a trademark concern. Nothing
-// carries over from the old name (Oliver, 2026-09-28), so no file has a reason to hold it: this test
-// fails on any tracked text file that does, so a rename that misses a corner is caught here rather
-// than shipped. The name is only ever spelt in pieces, so this file does not hold it either. Git
-// lists only tracked files, so a new file is checked once it is added.
+// The product carried another name until 2.0.0 and was renamed over a trademark concern. Its window
+// was called by the word that name ended in; it is now the ribbon. Nothing carries over from the
+// old names (Oliver, 2026-09-28), so no file has a reason to hold them: this test fails on any
+// tracked text file that does, so a rename that misses a corner is caught here rather than shipped.
+// The retired word is only ever spelt in pieces, so this file does not hold it either. New files
+// are checked before they are added, so the check holds on a working tree as well as on a commit.
 
 import (
 	"bytes"
+	"errors"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 )
 
-// retiredNames are the names no tracked file may hold, compared without regard to case.
-var retiredNames = []string{"time" + "strip"}
+// retiredWord is the word no tracked file may hold, compared without regard to case. The old
+// product name contains it, so it retires both.
+var retiredWord = "st" + "rip"
 
-// trackedTextFiles answers every file git tracks that holds text, as paths from the repository's
-// root. A file holding a NUL byte is binary and is left out.
+// thirdPartyFiles are tracked files other people's names fill: the lock file names npm packages,
+// one of which has the retired word in its own name.
+var thirdPartyFiles = []string{"frontend/package-lock.json"}
+
+// trackedTextFiles answers every file git tracks or would track (a new file not yet added, unless
+// it is ignored) that holds text, as paths from the repository's root. A file holding a NUL byte is
+// binary and is left out; one git still lists that is no longer there, as a rename not yet added
+// leaves behind, holds nothing and is left out too.
 func trackedTextFiles(t *testing.T) []string {
 	t.Helper()
 	root := repoRoot(t)
-	command := exec.Command("git", "ls-files", "-z")
+	command := exec.Command("git", "ls-files", "-z", "--cached", "--others", "--exclude-standard")
 	command.Dir = root
 	listing, err := command.Output()
 	if err != nil {
@@ -35,6 +46,9 @@ func trackedTextFiles(t *testing.T) []string {
 			continue
 		}
 		raw, err := os.ReadFile(filepath.Join(root, name))
+		if errors.Is(err, fs.ErrNotExist) {
+			continue
+		}
 		if err != nil {
 			t.Fatalf("reading %s: %v", name, err)
 		}
@@ -45,43 +59,43 @@ func trackedTextFiles(t *testing.T) []string {
 	return out
 }
 
-// holdsRetiredName answers the first retired name text holds; empty when it holds none.
-func holdsRetiredName(text string) string {
-	lowered := strings.ToLower(text)
-	for _, name := range retiredNames {
-		if strings.Contains(lowered, name) {
-			return name
-		}
-	}
-	return ""
+// holdsRetiredWord reports whether text holds the retired word in any case.
+func holdsRetiredWord(text string) bool {
+	return strings.Contains(strings.ToLower(text), retiredWord)
 }
 
-func TestNoTrackedFileHoldsARetiredName(t *testing.T) {
+func TestNoTrackedFileHoldsTheRetiredWord(t *testing.T) {
 	root := repoRoot(t)
 	files := trackedTextFiles(t)
 	if len(files) == 0 {
 		t.Fatal("git listed no tracked text files, so nothing was checked")
 	}
 	for _, name := range files {
+		if slices.Contains(thirdPartyFiles, name) {
+			continue
+		}
 		raw, err := os.ReadFile(filepath.Join(root, name))
 		if err != nil {
 			t.Fatalf("reading %s: %v", name, err)
 		}
 		for number, line := range strings.Split(string(raw), "\n") {
-			if found := holdsRetiredName(line); found != "" {
-				t.Errorf("%s:%d holds the retired name %q", name, number+1, found)
+			if holdsRetiredWord(line) {
+				t.Errorf("%s:%d holds the retired word", name, number+1)
 			}
 		}
 	}
 }
 
-func TestRetiredNamesAreFoundInAnyCase(t *testing.T) {
-	for _, text := range []string{"Time" + "Strip", "time" + "strip.exe", "TIME" + "STRIP_RUNLOG"} {
-		if holdsRetiredName(text) == "" {
+func TestTheRetiredWordIsFoundInAnyCaseAndInsideNames(t *testing.T) {
+	for _, text := range []string{
+		"Time" + "St" + "rip", "time" + "st" + "rip.exe", "TIME" + "ST" + "RIP_RUNLOG",
+		"Show " + "st" + "rip", "find" + "St" + "rip", "." + "st" + "rip {",
+	} {
+		if !holdsRetiredWord(text) {
 			t.Errorf("%q was not recognised", text)
 		}
 	}
-	if found := holdsRetiredName("TimeRibbon shows a ribbon of clocks"); found != "" {
-		t.Errorf("the current name was taken for %q", found)
+	if holdsRetiredWord("TimeRibbon shows a ribbon of clocks") {
+		t.Error("the current names were taken for the retired word")
 	}
 }

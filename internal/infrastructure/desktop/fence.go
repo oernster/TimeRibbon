@@ -46,11 +46,11 @@ type moveFence struct {
 	log      io.Writer
 }
 
-// KeepOnDisplays fences the strip's moves (FR-401, FR-405), placing a window procedure in front of
+// KeepOnDisplays fences the ribbon's moves (FR-401, FR-405), placing a window procedure in front of
 // Wails' own. Every other message goes on to Wails unchanged.
-func KeepOnDisplays(strip windows.HWND, log io.Writer) error {
+func KeepOnDisplays(ribbon windows.HWND, log io.Writer) error {
 	fence := &moveFence{log: log}
-	previous, _, err := procSetWindowLongPtr.Call(uintptr(strip), uintptr(wndProcIndex), windows.NewCallback(fence.proc))
+	previous, _, err := procSetWindowLongPtr.Call(uintptr(ribbon), uintptr(wndProcIndex), windows.NewCallback(fence.proc))
 	if previous == 0 {
 		return fmt.Errorf("fencing the ribbon's moves: %w", err)
 	}

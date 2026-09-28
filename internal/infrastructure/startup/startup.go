@@ -36,7 +36,7 @@ func At(key, program string) Entry {
 }
 
 // Command answers what the value holds: the quoted program path and no arguments, so a sign-in
-// start shows the strip as a normal launch does (FR-605).
+// start shows the ribbon as a normal launch does (FR-605).
 func (e Entry) Command() string {
 	return `"` + e.program + `"`
 }

@@ -95,7 +95,7 @@ func TestBothMenusOfferStyleAndOrientationWithTheCurrentTicked(t *testing.T) {
 }
 
 // FR-108.
-func TestContextMenuOffersTheStripsActions(t *testing.T) {
+func TestContextMenuOffersTheRibbonsActions(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, settings.Defaults())
 	if got := labels(r.service.ContextMenu()); !slices.Equal(got, []string{"Add clock", "Settings", "Style", "Orientation", "Position", "Always on top", "Help", "Hide ribbon", "Exit"}) {
@@ -123,7 +123,7 @@ func TestBothMenusOfferHelpWithAboutAndLicence(t *testing.T) {
 	}
 }
 
-// FR-408: Position offers the two edges the strip runs along, in both menus; each item names an
+// FR-408: Position offers the two edges the ribbon runs along, in both menus; each item names an
 // edge and nothing else does.
 func TestPositionOffersTheEdgesAlongTheOrientation(t *testing.T) {
 	t.Parallel()

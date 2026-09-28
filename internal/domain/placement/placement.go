@@ -1,4 +1,4 @@
-// Package placement decides where the strip goes: its default position, the position restored
+// Package placement decides where the ribbon goes: its default position, the position restored
 // from what was stored and the recovery that brings it back wholly onto a work area.
 //
 // Every coordinate is in physical pixels on the virtual desktop, as Windows reports it. A length
@@ -49,7 +49,7 @@ type Stored struct {
 	Device string
 	Work   Rect
 	DPI    int
-	// Offset is the strip's top-left corner relative to Work's top-left corner.
+	// Offset is the ribbon's top-left corner relative to Work's top-left corner.
 	Offset Point
 }
 
@@ -59,7 +59,7 @@ type Placed struct {
 	Monitor Monitor
 }
 
-// Record answers what to store for a strip at at on monitor.
+// Record answers what to store for a ribbon at at on monitor.
 func Record(at Point, monitor Monitor) Stored {
 	return Stored{
 		Device: monitor.Device,
@@ -79,13 +79,13 @@ func Primary(monitors []Monitor) (Monitor, bool) {
 	return monitors[max(index, 0)], true
 }
 
-// Default answers the default place on monitor for a strip of size (FR-403): flush against home,
-// the edge of the strip's orientation (FR-409), centred along it.
+// Default answers the default place on monitor for a ribbon of size (FR-403): flush against home,
+// the edge of the ribbon's orientation (FR-409), centred along it.
 func Default(monitor Monitor, size Size, home Edge) Placed {
 	return Placed{At: AgainstEdge(size, monitor.Work, home), Monitor: monitor}
 }
 
-// CentredAlong answers at with a strip of size centred on work along its length (top to bottom
+// CentredAlong answers at with a ribbon of size centred on work along its length (top to bottom
 // when vertical, else left to right), its position across kept; then clamped (FR-104).
 func CentredAlong(at Point, size Size, work Rect, vertical bool) Point {
 	if vertical {
@@ -96,7 +96,7 @@ func CentredAlong(at Point, size Size, work Rect, vertical bool) Point {
 	return Clamp(at, size, work)
 }
 
-// Edge is one side of a work area a strip can be put against (FR-408).
+// Edge is one side of a work area a ribbon can be put against (FR-408).
 type Edge string
 
 // The edges.
@@ -107,9 +107,9 @@ const (
 	Bottom Edge = "bottom"
 )
 
-// AgainstEdge answers a strip of size flush against edge of work, centred along that edge: top to
+// AgainstEdge answers a ribbon of size flush against edge of work, centred along that edge: top to
 // bottom for the left and right edges, left to right for the top and bottom (FR-408); then clamped,
-// so a strip longer than work is aligned to its top or left.
+// so a ribbon longer than work is aligned to its top or left.
 func AgainstEdge(size Size, work Rect, edge Edge) Point {
 	centred := Point{
 		X: work.Left + (work.Width()-size.Width)/2,
@@ -128,11 +128,11 @@ func AgainstEdge(size Size, work Rect, edge Edge) Point {
 	return Clamp(centred, size, work)
 }
 
-// KeptFlush answers at for a strip of size placed again on work, where it was last at was with size
-// wasSize: a strip that lay flush against work's right or bottom edge, its corner not since moved
-// along that axis, is kept flush against it, so a strip that shrinks or grows there keeps its far edge
+// KeptFlush answers at for a ribbon of size placed again on work, where it was last at was with size
+// wasSize: a ribbon that lay flush against work's right or bottom edge, its corner not since moved
+// along that axis, is kept flush against it, so a ribbon that shrinks or grows there keeps its far edge
 // rather than its corner (FR-408, FR-610); then clamped. The left and top edges hold the corner, so
-// they keep a strip without help.
+// they keep a ribbon without help.
 func KeptFlush(at Point, size Size, was Point, wasSize Size, work Rect) Point {
 	if at.X == was.X && was.X+wasSize.Width == work.Right {
 		at.X = work.Right - size.Width
@@ -143,7 +143,7 @@ func KeptFlush(at Point, size Size, was Point, wasSize Size, work Rect) Point {
 	return Clamp(at, size, work)
 }
 
-// Restore answers where the strip goes at launch (FR-405): on the stored monitor at the stored
+// Restore answers where the ribbon goes at launch (FR-405): on the stored monitor at the stored
 // offset scaled by the change in its DPI; else at the default place on the primary monitor. Either
 // way it is clamped wholly inside the work area. home is the edge the default place is against. It
 // answers false only when there are no monitors.
@@ -167,7 +167,7 @@ func Restore(stored *Stored, monitors []Monitor, size Size, home Edge) (Placed, 
 	return Placed{At: Clamp(at, size, monitor.Work), Monitor: monitor}, true
 }
 
-// Recover answers where a strip now at at belongs after the displays changed (FR-406): clamped
+// Recover answers where a ribbon now at at belongs after the displays changed (FR-406): clamped
 // into the monitor it overlaps most; the default place on the primary monitor when it overlaps
 // none, against home. It answers false only when there are no monitors.
 func Recover(at Point, size Size, monitors []Monitor, home Edge) (Placed, bool) {
@@ -175,10 +175,10 @@ func Recover(at Point, size Size, monitors []Monitor, home Edge) (Placed, bool) 
 	if !ok {
 		return Placed{}, false
 	}
-	strip := Rect{Left: at.X, Top: at.Y, Right: at.X + size.Width, Bottom: at.Y + size.Height}
+	ribbon := Rect{Left: at.X, Top: at.Y, Right: at.X + size.Width, Bottom: at.Y + size.Height}
 	best, bestArea := -1, 0
 	for index, monitor := range monitors {
-		if area := overlap(strip, monitor.Work); area > bestArea {
+		if area := overlap(ribbon, monitor.Work); area > bestArea {
 			best, bestArea = index, area
 		}
 	}
@@ -188,7 +188,7 @@ func Recover(at Point, size Size, monitors []Monitor, home Edge) (Placed, bool) 
 	return Placed{At: Clamp(at, size, monitors[best].Work), Monitor: monitors[best]}, true
 }
 
-// Clamp answers at moved the least distance that brings a strip of size wholly inside work. A strip
+// Clamp answers at moved the least distance that brings a ribbon of size wholly inside work. A ribbon
 // larger than work along an axis is aligned to work's left or top edge on that axis.
 func Clamp(at Point, size Size, work Rect) Point {
 	return Point{

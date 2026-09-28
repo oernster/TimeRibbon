@@ -23,7 +23,7 @@ type layoutDTO struct {
 	Padding  int     `json:"padding"`
 }
 
-// cellDTO is one cell of the strip.
+// cellDTO is one cell of the ribbon.
 type cellDTO struct {
 	ID          string  `json:"id"`
 	Label       string  `json:"label"`
@@ -36,7 +36,7 @@ type cellDTO struct {
 	Problem     string  `json:"problem"`
 }
 
-// snapshotDTO is everything the strip draws.
+// snapshotDTO is everything the ribbon draws.
 type snapshotDTO struct {
 	Cells         []cellDTO `json:"cells"`
 	Style         string    `json:"style"`

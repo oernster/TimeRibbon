@@ -31,7 +31,7 @@ const (
 	EventMenu EventKind = iota
 	// EventIconClicked is a left click on the tray icon (FR-503).
 	EventIconClicked
-	// EventMoveEnded is the end of a move of the strip's window (FR-404).
+	// EventMoveEnded is the end of a move of the ribbon's window (FR-404).
 	EventMoveEnded
 	// EventDisplayChanged is a change of displays, resolution or arrangement (FR-406).
 	EventDisplayChanged
@@ -54,7 +54,7 @@ type Desktop struct {
 	events chan Event
 	log    io.Writer
 
-	strip   atomic.Uintptr
+	ribbon  atomic.Uintptr
 	window  windows.HWND
 	posted  atomic.Uintptr
 	icon    windows.Handle
@@ -76,8 +76,8 @@ func New(menu func() []application.MenuItem, log io.Writer) *Desktop {
 // Events yields what happened. The channel is closed when the desktop stops.
 func (d *Desktop) Events() <-chan Event { return d.events }
 
-// Watch names the strip's window, so the end of its moves is reported.
-func (d *Desktop) Watch(strip windows.HWND) { d.strip.Store(uintptr(strip)) }
+// Watch names the ribbon's window, so the end of its moves is reported.
+func (d *Desktop) Watch(ribbon windows.HWND) { d.ribbon.Store(uintptr(ribbon)) }
 
 // Start shows the tray icon and runs the message loop on its own locked thread, returning once the
 // icon is there or with the reason it is not.
@@ -223,7 +223,7 @@ func (d *Desktop) windowProc(hwnd windows.HWND, message uint32, wParam, lParam u
 
 // moveEnded is the WinEvent callback for the end of a move anywhere in this process.
 func (d *Desktop) moveEnded(_, _, hwnd, _, _, _, _ uintptr) uintptr {
-	if hwnd != 0 && hwnd == d.strip.Load() {
+	if hwnd != 0 && hwnd == d.ribbon.Load() {
 		d.send(Event{Kind: EventMoveEnded})
 	}
 	return 0

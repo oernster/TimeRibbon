@@ -15,8 +15,8 @@ type pendingMenu struct {
 	items atomic.Pointer[[]application.MenuItem]
 }
 
-// ShowMenu shows items as a native menu at the cursor, from any goroutine: the strip's right-click
-// menu (FR-108). A native menu is not clipped by the strip's small window, as one drawn in the page
+// ShowMenu shows items as a native menu at the cursor, from any goroutine: the ribbon's right-click
+// menu (FR-108). A native menu is not clipped by the ribbon's small window, as one drawn in the page
 // would be. The choice arrives as an EventMenu like the tray's.
 func (d *Desktop) ShowMenu(items []application.MenuItem) {
 	d.pending.items.Store(&items)

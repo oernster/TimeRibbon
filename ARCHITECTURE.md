@@ -93,7 +93,7 @@ one home there. No service is held in a package-level variable and there is no s
 
 The facade is `app.go` (the calls the page makes) and `window_life.go` (startup, showing, hiding,
 closing and the desktop's events), split only to keep each file small; the structural whitelist names
-all three files. The facade holds the service through `stripService`, an interface in `app.go`. It
+all three files. The facade holds the service through `ribbonService`, an interface in `app.go`. It
 holds each call into Wails and the desktop as a field, pointed by `newApp` at the real calls in
 `wails_calls.go` and `window_life.go`. That is what lets the facade's tests stand in for all three
 and read what it decided. `identity.go` answers About and Licence; `dto.go` holds the wire; `launch.go` holds
@@ -131,14 +131,14 @@ the ribbon's display and never larger than its work area (`Service.Centred`); cl
 window to where the ribbon was last left. While a panel is open, a move of the window is not recorded
 as the ribbon's and a change of content is fitted when the panel closes.
 
-The window opens hidden. `startup` finds its handle by the class `TimeRibbonStrip`, takes it off the
+The window opens hidden. `startup` finds its handle by the class `TimeRibbonWindow`, takes it off the
 taskbar, fences its moves and places it, all before the page is shown, so it never appears blank or
 in the wrong place. Wails always marks its window as an application window, which forces a taskbar
 button; `HideFromTaskbar` takes that style off and marks it a tool window once, before it is shown.
 
 ## The ribbon's size and place
 
-**Size (FR-105, FR-106).** `stripSize` counts the cells the page draws: each notice, then each clock
+**Size (FR-105, FR-106).** `ribbonSize` counts the cells the page draws: each notice, then each clock
 (the Add clock prompt standing in for them when there are none). Along the orientation the ribbon is that many cells plus
 padding, while that fits the work area of its display; beyond that it is the work area's length and
 its cells scroll. Across, it is one cell plus padding, plus the thickness of the scroll bar when the
@@ -175,7 +175,7 @@ along that edge, since re-centring keeps the position across. A ribbon is placed
 corner, so against the right or bottom edge a change of thickness (a change of size or style, a
 scroll bar) would pull it off: the service remembers where it last arranged the ribbon. When it
 places the ribbon again on the same display with that corner unmoved it keeps the far edge flush
-(`placement.KeptFlush`), measured to fail without it by `TestShrinkingKeepsTheStripAgainstItsEdge`.
+(`placement.KeptFlush`), measured to fail without it by `TestShrinkingKeepsTheRibbonAgainstItsEdge`.
 
 **An orientation's home edge (FR-409).** Choosing an orientation sends the ribbon to that
 orientation's home edge (`settings.HomeEdge`, a domain rule since the default place uses it too): the top for horizontal, the right for

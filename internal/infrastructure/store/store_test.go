@@ -149,7 +149,7 @@ func TestOneBadClockLeavesTheOthersWorking(t *testing.T) {
 	}
 }
 
-// The stored position keeps the order clocks were added in, which settles ties in the strip's time
+// The stored position keeps the order clocks were added in, which settles ties in the ribbon's time
 // order (FR-102) and is part of the file's contract (NFR-C-1); an entry with none keeps its place.
 func TestOrderingPersistsByPosition(t *testing.T) {
 	t.Parallel()

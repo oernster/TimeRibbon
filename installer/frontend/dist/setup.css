@@ -1,6 +1,6 @@
 /*
  * The setup program's own sheet. Its colours are sampled from the application's artwork (the navy
- * globe, its blue rim), so setup and the strip read as one product; light and dark name their own
+ * globe, its blue rim), so setup and the ribbon read as one product; light and dark name their own
  * accent and ring, since a blue that reads on navy is weak on paper.
  *
  * Ring model, three states and no more: no ring at rest; a green ring while an enabled control is

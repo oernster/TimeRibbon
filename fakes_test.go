@@ -146,7 +146,7 @@ type window struct {
 	browsed   []string
 	menus     [][]application.MenuItem
 	placed    []application.Arrangement
-	stripAt   placement.Point
+	ribbonAt  placement.Point
 	readErr   error
 	placeErr  error
 	browseErr error
@@ -163,28 +163,28 @@ func (w *window) sawEvent(event string, data ...any) bool {
 	return false
 }
 
-// Where the tests' strip stands, the arrangement the stand-in service answers and the panel's size.
+// Where the tests' ribbon stands, the arrangement the stand-in service answers and the panel's size.
 var (
-	testStripAt = placement.Point{X: 40, Y: 60}
-	testArrange = application.Arrangement{
+	testRibbonAt = placement.Point{X: 40, Y: 60}
+	testArrange  = application.Arrangement{
 		At: placement.Point{X: 10, Y: 20}, Size: placement.Size{Width: 300, Height: 90}, Scrolls: true,
 	}
 	testPanel = placement.Size{Width: 560, Height: 760}
 )
 
-// testStrip is the strip's window handle once startup has found it: any value that is not none.
-const testStrip = 1
+// testRibbon is the ribbon's window handle once startup has found it: any value that is not none.
+const testRibbon = 1
 
-// newTestApp answers a facade over a scripted service, started and with its strip found, whose
+// newTestApp answers a facade over a scripted service, started and with its ribbon found, whose
 // Wails and desktop calls land in the window answered with it.
 func newTestApp(t *testing.T) (*App, *scriptedService, *window, *bytes.Buffer) {
 	t.Helper()
 	service := &scriptedService{arrangement: testArrange}
-	seen := &window{stripAt: testStripAt}
+	seen := &window{ribbonAt: testRibbonAt}
 	log := &bytes.Buffer{}
 	app := newApp(service, nil, log, testPanel)
 	app.ctx = context.Background()
-	app.strip = testStrip
+	app.ribbon = testRibbon
 	app.emit = func(event string, data ...any) { seen.events = append(seen.events, emitted{event, data}) }
 	app.showWindow = func() { seen.shown++ }
 	app.hideWindow = func() { seen.hidden++ }
@@ -197,7 +197,7 @@ func newTestApp(t *testing.T) (*App, *scriptedService, *window, *bytes.Buffer) {
 	app.showMenu = func(items []application.MenuItem) { seen.menus = append(seen.menus, items) }
 	app.position = func() (placement.Point, error) {
 		seen.positions++
-		return seen.stripAt, seen.readErr
+		return seen.ribbonAt, seen.readErr
 	}
 	app.place = func(at placement.Point, size placement.Size) error {
 		seen.placed = append(seen.placed, application.Arrangement{At: at, Size: size})

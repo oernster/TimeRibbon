@@ -25,7 +25,7 @@ const (
 	ActionBottomEdge  MenuAction = "bottom-edge"
 )
 
-// edgeActions maps each Position item to the edge it puts the strip against (FR-408).
+// edgeActions maps each Position item to the edge it puts the ribbon against (FR-408).
 var edgeActions = map[MenuAction]placement.Edge{
 	ActionLeftEdge:   placement.Left,
 	ActionRightEdge:  placement.Right,
@@ -33,7 +33,7 @@ var edgeActions = map[MenuAction]placement.Edge{
 	ActionBottomEdge: placement.Bottom,
 }
 
-// EdgeOf answers the edge a Position item puts the strip against; false for any other action.
+// EdgeOf answers the edge a Position item puts the ribbon against; false for any other action.
 func EdgeOf(action MenuAction) (placement.Edge, bool) {
 	edge, ok := edgeActions[action]
 	return edge, ok
@@ -68,7 +68,7 @@ const (
 	labelExit        = "Exit"
 )
 
-// TrayMenu answers the tray menu for a strip that is or is not visible (FR-502): the visibility
+// TrayMenu answers the tray menu for a ribbon that is or is not visible (FR-502): the visibility
 // item names the opposite of what is, so it says what pressing it will do.
 func (s *Service) TrayMenu(visible bool) []MenuItem {
 	toggle := MenuItem{Action: ActionShow, Label: labelShow}
@@ -81,7 +81,7 @@ func (s *Service) TrayMenu(visible bool) []MenuItem {
 	}
 }
 
-// ContextMenu answers the menu the strip offers when right-clicked (FR-108).
+// ContextMenu answers the menu the ribbon offers when right-clicked (FR-108).
 func (s *Service) ContextMenu() []MenuItem {
 	return []MenuItem{
 		addClockItem(), settingsItem(), s.styleItem(), s.orientationItem(), s.positionItem(),
@@ -90,7 +90,7 @@ func (s *Service) ContextMenu() []MenuItem {
 }
 
 // positionItem is the Position submenu both menus hold (FR-408): the two edges along which the
-// strip runs its length, so a vertical strip is offered the left and right edges and a horizontal
+// ribbon runs its length, so a vertical ribbon is offered the left and right edges and a horizontal
 // one the top and bottom.
 func (s *Service) positionItem() MenuItem {
 	children := []MenuItem{{Action: ActionTopEdge, Label: labelTopEdge}, {Action: ActionBottomEdge, Label: labelBottomEdge}}
@@ -111,8 +111,8 @@ func helpItem() MenuItem {
 	}}
 }
 
-// CloseRequested answers what a request to close the strip does, such as Alt+F4: it hides the
-// strip and the application keeps running; only Exit ends it (FR-504, FR-507).
+// CloseRequested answers what a request to close the ribbon does, such as Alt+F4: it hides the
+// ribbon and the application keeps running; only Exit ends it (FR-504, FR-507).
 func (s *Service) CloseRequested() MenuAction {
 	return ActionHide
 }

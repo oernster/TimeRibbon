@@ -14,7 +14,7 @@ import (
 const (
 	// progressEvent carries each step's progress to the page.
 	progressEvent = "progress"
-	// launchWait bounds how long setup waits for the strip to show before it closes.
+	// launchWait bounds how long setup waits for the ribbon to show before it closes.
 	launchWait = 5 * time.Second
 )
 
@@ -181,10 +181,10 @@ func (a *App) perform(name string, steps func() ([]setup.Step, error)) error {
 	return setup.Run(list, a.log, a.progress)
 }
 
-// LaunchApp starts TimeRibbon and waits for the strip to come forward, so setup closes behind it.
+// LaunchApp starts TimeRibbon and waits for the ribbon to come forward, so setup closes behind it.
 func (a *App) LaunchApp() error {
 	a.log.Record("starting " + setup.AppName)
-	err := setup.Launch(a.machine.Places().Program(), product.StripClass, launchWait)
+	err := setup.Launch(a.machine.Places().Program(), product.RibbonClass, launchWait)
 	if err != nil {
 		a.log.Record(err.Error())
 	}

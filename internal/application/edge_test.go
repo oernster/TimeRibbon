@@ -10,7 +10,7 @@ import (
 
 // FR-408: two vertical digital cells, 160 + 16 across and 2 x 90 + 16 = 196 along, put against the
 // left then the right edge of the primary: flush, centred top to bottom, the place saved.
-func TestToEdgePutsAVerticalStripFlushAndKeepsIt(t *testing.T) {
+func TestToEdgePutsAVerticalRibbonFlushAndKeepsIt(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, draggedTo(2, settings.Vertical, placement.Point{X: 700, Y: 40}))
 	centredY := (1032 - 196) / 2
@@ -31,9 +31,9 @@ func TestToEdgePutsAVerticalStripFlushAndKeepsIt(t *testing.T) {
 	}
 }
 
-// FR-408, FR-407: a horizontal strip on the secondary at 150 percent, 336 x 106 DIP drawn as
+// FR-408, FR-407: a horizontal ribbon on the secondary at 150 percent, 336 x 106 DIP drawn as
 // 504 x 159 pixels, goes against that display's top and bottom, centred left to right on it.
-func TestToEdgeUsesTheDisplayTheStripIsOn(t *testing.T) {
+func TestToEdgeUsesTheDisplayTheRibbonIsOn(t *testing.T) {
 	t.Parallel()
 	at := placement.Point{X: 2500, Y: 100}
 	r := newRig(t, clocks(2))
@@ -55,7 +55,7 @@ func TestToEdgeUsesTheDisplayTheStripIsOn(t *testing.T) {
 	}
 }
 
-// FR-408, FR-707: a place that cannot be saved raises a notice, one more cell; the strip is fitted
+// FR-408, FR-707: a place that cannot be saved raises a notice, one more cell; the ribbon is fitted
 // to hold it and stays flush: 3 x 160 + 16 = 496 along, 106 across, on the bottom edge.
 func TestToEdgeThatCannotBeSavedMakesRoomForItsNotice(t *testing.T) {
 	t.Parallel()
@@ -74,11 +74,11 @@ func TestToEdgeThatCannotBeSavedMakesRoomForItsNotice(t *testing.T) {
 	}
 }
 
-// FR-610, FR-408: a strip against the right or bottom edge stays against it when its cells shrink,
+// FR-610, FR-408: a ribbon against the right or bottom edge stays against it when its cells shrink,
 // whether it is placed again as a panel closes or refitted where it stands; the left and top edges
 // hold its corner, so they keep it anyway. Small vertical digital cells are 120 + 16 = 136 across,
 // small horizontal ones 60 + 16 = 76.
-func TestShrinkingKeepsTheStripAgainstItsEdge(t *testing.T) {
+func TestShrinkingKeepsTheRibbonAgainstItsEdge(t *testing.T) {
 	t.Parallel()
 	cases := []struct {
 		orientation settings.Orientation
@@ -117,10 +117,10 @@ func TestShrinkingKeepsTheStripAgainstItsEdge(t *testing.T) {
 	}
 }
 
-// FR-610: small cells make a smaller strip, two small analogue cells stacked: 120 + 16 across,
+// FR-610: small cells make a smaller ribbon, two small analogue cells stacked: 120 + 16 across,
 // 2 x 100 + 16 along; the snapshot carries the size and its layout, the size is saved; a size the
 // setting does not offer is refused.
-func TestTheSmallSizeFitsTheStripToSmallCells(t *testing.T) {
+func TestTheSmallSizeFitsTheRibbonToSmallCells(t *testing.T) {
 	t.Parallel()
 	initial := clocks(2)
 	initial.Orientation = settings.Vertical

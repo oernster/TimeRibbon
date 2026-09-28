@@ -9,7 +9,7 @@ interface Props {
 }
 
 /**
- * ClockList is the configured clocks in the strip's order, east from Greenwich (FR-102,
+ * ClockList is the configured clocks in the ribbon's order, east from Greenwich (FR-102,
  * FR-303 to FR-305). The order follows the time, so rows are not moved by hand; Remove asks first,
  * naming the clock.
  */

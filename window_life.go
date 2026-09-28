@@ -12,31 +12,31 @@ import (
 	"github.com/oernster/timeribbon/internal/product"
 )
 
-// startup takes the strip off the taskbar and puts it in place while it is still hidden, then
-// starts listening to the desktop. Nothing here ends the run: a failure is logged and the strip
+// startup takes the ribbon off the taskbar and puts it in place while it is still hidden, then
+// starts listening to the desktop. Nothing here ends the run: a failure is logged and the ribbon
 // opens wherever Wails put it.
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
-	strip, err := desktop.FindStrip(product.StripClass)
+	ribbon, err := desktop.FindRibbon(product.RibbonClass)
 	if err != nil {
 		a.report("finding the ribbon", err)
 		return
 	}
-	a.strip = strip
-	a.report("hiding the taskbar button", desktop.HideFromTaskbar(strip))
-	a.report("keeping the ribbon on its displays", desktop.KeepOnDisplays(strip, a.log))
-	a.desktop.Watch(strip)
+	a.ribbon = ribbon
+	a.report("hiding the taskbar button", desktop.HideFromTaskbar(ribbon))
+	a.report("keeping the ribbon on its displays", desktop.KeepOnDisplays(ribbon, a.log))
+	a.desktop.Watch(ribbon)
 	a.report("placing the ribbon", a.placeLaunched())
 	a.applyAlwaysOnTop()
 	go a.listen()
 }
 
-// domReady shows the strip once the page has drawn, so it never appears blank.
+// domReady shows the ribbon once the page has drawn, so it never appears blank.
 func (a *App) domReady(context.Context) { a.show() }
 
-// beforeClose answers a request to close the strip, such as Alt+F4: it hides the strip and the
+// beforeClose answers a request to close the ribbon, such as Alt+F4: it hides the ribbon and the
 // application keeps running (FR-507). An Exit already decided passes through, as does any close
-// while there is no tray icon to bring the strip back from.
+// while there is no tray icon to bring the ribbon back from.
 func (a *App) beforeClose(context.Context) bool {
 	if a.quitting.Load() || !a.trayUp.Load() {
 		return false
@@ -49,11 +49,11 @@ func (a *App) beforeClose(context.Context) bool {
 
 func (a *App) shutdown(context.Context) { a.desktop.Stop() }
 
-// secondInstance answers a second launch by showing the strip that is already running (FR-506).
+// secondInstance answers a second launch by showing the ribbon that is already running (FR-506).
 func (a *App) secondInstance() { a.show() }
 
 // listen acts on what the desktop reports until it stops. A panic in one event is logged and the
-// next is still heard, so one fault cannot leave a strip that reacts to nothing.
+// next is still heard, so one fault cannot leave a ribbon that reacts to nothing.
 func (a *App) listen() {
 	for event := range a.desktop.Events() {
 		a.handleSafely(event)
@@ -83,7 +83,7 @@ func (a *App) handleSafely(event desktop.Event) {
 	}
 }
 
-// act carries out a menu action from the tray or the strip's own menu.
+// act carries out a menu action from the tray or the ribbon's own menu.
 func (a *App) act(action application.MenuAction) {
 	switch action {
 	case application.ActionShow:
@@ -133,11 +133,11 @@ func (a *App) actOnChoice(action application.MenuAction) {
 	}
 }
 
-// toEdge puts the strip against edge of its display and shows it there (FR-408). While a panel is
-// open the window is that panel, so the place is kept and the strip goes there as the panel closes.
-// Before startup has found the strip there is nothing to move.
+// toEdge puts the ribbon against edge of its display and shows it there (FR-408). While a panel is
+// open the window is that panel, so the place is kept and the ribbon goes there as the panel closes.
+// Before startup has found the ribbon there is nothing to move.
 func (a *App) toEdge(edge placement.Edge) {
-	if a.strip == 0 {
+	if a.ribbon == 0 {
 		return
 	}
 	at, err := a.position()
@@ -158,8 +158,8 @@ func (a *App) toEdge(edge placement.Edge) {
 	a.show()
 }
 
-// moved records where a drag left the strip, putting it back onto a display if the drag left part
-// of it off every one (FR-404, FR-406). A move of a panel is not the strip's.
+// moved records where a drag left the ribbon, putting it back onto a display if the drag left part
+// of it off every one (FR-404, FR-406). A move of a panel is not the ribbon's.
 func (a *App) moved() {
 	if a.panelOpen.Load() {
 		return
@@ -172,7 +172,7 @@ func (a *App) moved() {
 	arranged, err := a.service.Moved(at)
 	a.report("recording where the ribbon was left", err)
 	if err != nil {
-		// The placement could not be saved, which raised a notice: fit the strip where it stands,
+		// The placement could not be saved, which raised a notice: fit the ribbon where it stands,
 		// its new cell included, rather than leave it wherever the drag let go.
 		a.rearrange()
 		return
@@ -181,7 +181,7 @@ func (a *App) moved() {
 	a.report("placing the ribbon", a.place(arranged.At, arranged.Size))
 }
 
-// rearrange fits the strip where it stands (FR-104, FR-406).
+// rearrange fits the ribbon where it stands (FR-104, FR-406).
 func (a *App) rearrange() {
 	if a.panelOpen.Load() {
 		return
@@ -200,7 +200,7 @@ func (a *App) rearrange() {
 	a.report("placing the ribbon", a.place(arranged.At, arranged.Size))
 }
 
-// placeLaunched puts the strip where it was last left (FR-405).
+// placeLaunched puts the ribbon where it was last left (FR-405).
 func (a *App) placeLaunched() error {
 	arranged, err := a.service.Launch()
 	if err != nil {
@@ -210,12 +210,12 @@ func (a *App) placeLaunched() error {
 	return a.place(arranged.At, arranged.Size)
 }
 
-// stripPosition and placeStrip are the production position and place: the strip's window as the
+// ribbonPosition and placeRibbon are the production position and place: the ribbon's window as the
 // desktop reports and moves it.
-func (a *App) stripPosition() (placement.Point, error) { return desktop.Position(a.strip) }
+func (a *App) ribbonPosition() (placement.Point, error) { return desktop.Position(a.ribbon) }
 
-func (a *App) placeStrip(at placement.Point, size placement.Size) error {
-	return desktop.Place(a.strip, at, size)
+func (a *App) placeRibbon(at placement.Point, size placement.Size) error {
+	return desktop.Place(a.ribbon, at, size)
 }
 
 func (a *App) applyAlwaysOnTop() {

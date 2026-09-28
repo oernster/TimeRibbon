@@ -1,4 +1,4 @@
-// Package clock turns an instant and a zone into what one cell of the strip shows: the local
+// Package clock turns an instant and a zone into what one cell of the ribbon shows: the local
 // time, the local weekday and date, the zone mark and the angles of an analogue dial's hands.
 //
 // It takes the instant as an argument and never reads the wall clock (FR-207). The zone arrives
@@ -53,7 +53,7 @@ type Reading struct {
 	// MinuteAngle is the minute hand's angle in degrees clockwise from twelve.
 	MinuteAngle float64
 	// OffsetSeconds is the zone's offset from UTC at the instant, daylight saving included: what
-	// the strip is ordered by, east from Greenwich (FR-102).
+	// the ribbon is ordered by, east from Greenwich (FR-102).
 	OffsetSeconds int
 }
 

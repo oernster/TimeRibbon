@@ -9,9 +9,9 @@ const Name = "TimeRibbon"
 // its step log.
 const SetupName = Name + "Setup"
 
-// StripClass is the class the strip's window is created with, so it can be found by it (CON-7).
-// Setup looks for it to know the strip is up before it closes.
-const StripClass = Name + "Strip"
+// RibbonClass is the class the ribbon's window is created with, so it can be found by it (CON-7).
+// Setup looks for it to know the ribbon is up before it closes.
+const RibbonClass = Name + "Window"
 
 // DonateURL is where the donate button at the foot of Settings sends a browser: the only address
 // TimeRibbon knows. It is handed to the desktop to open rather than fetched, so the application

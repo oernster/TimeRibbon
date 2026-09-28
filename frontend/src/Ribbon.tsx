@@ -14,10 +14,10 @@ interface Props {
 const controls = 'button, input, select, a, [data-control]'
 
 /**
- * Strip is the clocks in order (FR-102). Pressing empty strip area and moving past Windows' drag
+ * Ribbon is the clocks in order (FR-102). Pressing empty ribbon area and moving past Windows' drag
  * distance moves the whole window (FR-401); a small wobble or a press on a control does not.
  */
-export function Strip({ snapshot, onAddClock, refused }: Props) {
+export function Ribbon({ snapshot, onAddClock, refused }: Props) {
   const pressed = useRef<{ x: number; y: number } | null>(null)
   const vertical = snapshot.orientation === 'vertical'
   const analogue = snapshot.style === 'analogue'
@@ -46,7 +46,7 @@ export function Strip({ snapshot, onAddClock, refused }: Props) {
   const up = () => {
     pressed.current = null
   }
-  // A plain wheel moves up and down, which a horizontal strip cannot; so while one scrolls, the
+  // A plain wheel moves up and down, which a horizontal ribbon cannot; so while one scrolls, the
   // wheel moves it along instead (FR-106). A sideways wheel or a trackpad already moves it along.
   const wheel = (event: WheelEvent<HTMLDivElement>) => {
     if (!vertical && snapshot.scrolls && event.deltaX === 0) {
@@ -54,7 +54,7 @@ export function Strip({ snapshot, onAddClock, refused }: Props) {
     }
   }
 
-  const classes = ['strip', vertical ? 'vertical' : 'horizontal', snapshot.size, snapshot.scrolls ? 'scrolls' : ''].join(' ')
+  const classes = ['ribbon', vertical ? 'vertical' : 'horizontal', snapshot.size, snapshot.scrolls ? 'scrolls' : ''].join(' ')
   return (
     <div
       className={classes}

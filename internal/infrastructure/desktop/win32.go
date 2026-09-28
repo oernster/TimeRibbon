@@ -1,6 +1,6 @@
 // Package desktop is TimeRibbon's Windows integration below the window (CON-7): the notification
 // area icon and its menu (FR-501 to FR-503), the end of a move (FR-404), the display, time and
-// resume broadcasts (FR-209, FR-406) and the Win32 operations on the strip's own window (FR-101,
+// resume broadcasts (FR-209, FR-406) and the Win32 operations on the ribbon's own window (FR-101,
 // FR-401, FR-405).
 package desktop
 

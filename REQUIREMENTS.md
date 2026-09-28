@@ -196,7 +196,7 @@ daylight saving included, so the order is worked out at each snapshot. Clocks ke
 time keep their stored order; a clock that cannot be shown goes last. Acceptance: given New York,
 Melbourne, Tokyo, Berlin and London added in that order, the ribbon shows London, Berlin, Tokyo,
 Melbourne, New York.
-Verified by: `TestTheStripRunsEastFromGreenwich`, `TestSnapshotFollowsClockOrderWithEachZonesDate` (application); `strip.test.tsx`.
+Verified by: `TestTheRibbonRunsEastFromGreenwich`, `TestSnapshotFollowsClockOrderWithEachZonesDate` (application); `ribbon.test.tsx`.
 
 **FR-103 Orientation setting**
 Priority: Must (OQ-5, Oliver, 2026-09-27).
@@ -206,7 +206,7 @@ Amendment 1 (Oliver, 2026-09-27, after the first build): the default changed fro
 vertical.
 Amendment 9 (Oliver, 2026-09-28): the orientation is chosen from the `Orientation` submenu of both
 menus rather than in Settings (FR-108, FR-502, FR-601).
-Verified by: `TestDefaultsAreDigitalTwentyFourHourVerticalAndNotOnTop` (domain); `strip.test.tsx`.
+Verified by: `TestDefaultsAreDigitalTwentyFourHourVerticalAndNotOnTop` (domain); `ribbon.test.tsx`.
 
 **FR-104 Changing orientation keeps the ribbon on screen**
 Priority: Must.
@@ -221,13 +221,13 @@ to bottom with its left edge where it was; it opens there next time.
 Amendment 9 (Oliver, 2026-09-28): a change of orientation no longer keeps the top-left corner; the
 ribbon goes to that orientation's home edge instead (FR-409). A change of length for any other reason
 is re-centred as above.
-Verified by: `TestAStripWhoseLengthChangesIsRecentredAndKept`, `TestAHorizontalStripIsRecentredLeftToRight`, `TestNothingButAChangeOfLengthRecentresTheStrip`, `TestARecentringThatCannotBeSavedMakesRoomForItsNotice` (application).
+Verified by: `TestARibbonWhoseLengthChangesIsRecentredAndKept`, `TestAHorizontalRibbonIsRecentredLeftToRight`, `TestNothingButAChangeOfLengthRecentresTheRibbon`, `TestARecentringThatCannotBeSavedMakesRoomForItsNotice` (application).
 
 **FR-105 Ribbon sized to its clocks**
 Priority: Must.
 The ribbon's length along its orientation shall equal the sum of its cells' lengths plus its padding,
 while that sum fits the work area of its monitor.
-Verified by: `TestStripLengthFollowsClockCountAndNeverExceedsWorkArea` (domain, placement).
+Verified by: `TestRibbonLengthFollowsClockCountAndNeverExceedsWorkArea` (domain, placement).
 
 **FR-106 Overflow scrolls**
 Priority: Must.
@@ -236,13 +236,13 @@ then the application shall size the ribbon to that work area and scroll the cell
 orientation, never clipping a cell out of reach and never wrapping to a second row or column.
 Acceptance: Given a work area 1920 DIP wide and 12 horizontal cells needing 2400 DIP, then the ribbon
 is 1920 DIP long and the last cell is reachable by scrolling.
-Verified by: `TestStripLengthFollowsClockCountAndNeverExceedsWorkArea` (domain); `strip.test.tsx` for the scroll.
+Verified by: `TestRibbonLengthFollowsClockCountAndNeverExceedsWorkArea` (domain); `ribbon.test.tsx` for the scroll.
 
 **FR-107 Empty ribbon**
 Priority: Must.
 While no clock is configured, the ribbon shall show one cell reading `No clocks yet` with an `Add clock`
 control opening the place search of FR-302.
-Verified by: `strip.test.tsx`.
+Verified by: `ribbon.test.tsx`.
 
 **FR-108 Context menu**
 Priority: Should.
@@ -254,7 +254,7 @@ does (FR-502).
 Amendment 8 (Oliver, 2026-09-28): a `Position` submenu (FR-408) sits after `Settings`.
 Amendment 9 (Oliver, 2026-09-28): `Style` and `Orientation` submenus sit between `Settings` and
 `Position`, as in the tray menu (FR-502).
-Verified by: `TestContextMenuOffersTheStripsActions`,
+Verified by: `TestContextMenuOffersTheRibbonsActions`,
 `TestBothMenusOfferStyleAndOrientationWithTheCurrentTicked` (application).
 
 ### 3.2 Time and date
@@ -397,7 +397,7 @@ Verified by: section 12, check M-2.
 **FR-402 Controls do not drag**
 Priority: Must.
 A press on a control (a button, the scroll bar, a menu) shall not start a drag.
-Verified by: `strip.test.tsx` for the drag regions; check M-2.
+Verified by: `ribbon.test.tsx` for the drag regions; check M-2.
 
 **FR-403 Default placement**
 Priority: Must.
@@ -432,7 +432,7 @@ Verified by: `TestMissingMonitorFallsBackToPrimary`,
 Priority: Must.
 When Windows reports a display configuration change while the ribbon is shown, the application shall
 apply the recovery of FR-405 to the ribbon's current position.
-Verified by: `TestDisplayChangeRecoversAStripLeftOffscreen` (domain); check M-3.
+Verified by: `TestDisplayChangeRecoversARibbonLeftOffscreen` (domain); check M-3.
 
 **FR-407 Scaling across monitors**
 Priority: Must.
@@ -453,9 +453,9 @@ Acceptance: given a vertical ribbon 196 DIP long on a work area 1032 DIP tall at
 `Centre on left edge` is chosen, then its left edge is the work area's left edge and its top is 418
 DIP down; it opens there next time.
 Verified by: `TestAgainstEdgeIsFlushAndCentredAlongTheEdge` (domain);
-`TestToEdgePutsAVerticalStripFlushAndKeepsIt`, `TestToEdgeUsesTheDisplayTheStripIsOn`,
+`TestToEdgePutsAVerticalRibbonFlushAndKeepsIt`, `TestToEdgeUsesTheDisplayTheRibbonIsOn`,
 `TestToEdgeThatCannotBeSavedMakesRoomForItsNotice`, `TestPositionOffersTheEdgesAlongTheOrientation`
-(application); `TestAPositionItemPutsTheStripAgainstItsEdge` (facade); check M-12.
+(application); `TestAPositionItemPutsTheRibbonAgainstItsEdge` (facade); check M-12.
 
 **FR-409 An orientation's home edge**
 Priority: Must (Amendment 9, Oliver, 2026-09-28).
@@ -598,9 +598,9 @@ clocks.
 Acceptance: given two analogue clocks in a vertical ribbon at 100 percent with 6 DIP padding, when the
 size is small, then the ribbon is 158 DIP wide and 244 DIP long.
 Verified by: `TestUnknownChoicesAreNormalisedToDefaults` (domain);
-`TestKeptFlushHoldsTheFarEdgeNotTheCorner` (domain); `TestTheSmallSizeFitsTheStripToSmallCells`,
-`TestShrinkingKeepsTheStripAgainstItsEdge` (application); `TestA1Point0SettingsFileIsReadWhole`,
-`TestSettingsRoundTrip` (infrastructure, store); `strip.test.tsx`, `settings.test.tsx`; the fit of
+`TestKeptFlushHoldsTheFarEdgeNotTheCorner` (domain); `TestTheSmallSizeFitsTheRibbonToSmallCells`,
+`TestShrinkingKeepsTheRibbonAgainstItsEdge` (application); `TestA1Point0SettingsFileIsReadWhole`,
+`TestSettingsRoundTrip` (infrastructure, store); `ribbon.test.tsx`, `settings.test.tsx`; the fit of
 the text by check M-12.
 
 **FR-609 Help content reads itself**
@@ -656,7 +656,7 @@ Priority: Must.
 An invalid clock shall keep its place in the order, show its stored label (else its stored zone
 text) with the words `Unknown time zone` and offer `Edit` and `Remove` in Settings. The application
 shall never substitute another zone.
-Verified by: `strip.test.tsx`; `TestInvalidClockIsNeverGivenAnotherZone` (application).
+Verified by: `ribbon.test.tsx`; `TestInvalidClockIsNeverGivenAnotherZone` (application).
 
 **FR-707 Write failure**
 Priority: Must.

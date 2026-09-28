@@ -3,11 +3,11 @@ import { api, on, type Snapshot } from './api'
 import { About, Licence } from './Help'
 import { scrollbarThickness } from './scrollbar'
 import { Settings } from './Settings'
-import { Strip } from './Strip'
+import { Ribbon } from './Ribbon'
 
 /** The panels the window can become (CON-6); app.go names each in its open-panel event. */
 type Panel = 'settings' | 'about' | 'licence'
-type View = 'strip' | Panel
+type View = 'ribbon' | Panel
 
 /**
  * The open-panel event's words, each naming the panel it opens; add-clock opens Settings on the place
@@ -24,7 +24,7 @@ const panelFor: Record<string, Panel> = { 'settings': 'settings', [addClock]: 's
 export function App() {
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null)
   const [problem, setProblem] = useState('')
-  const [view, setView] = useState<View>('strip')
+  const [view, setView] = useState<View>('ribbon')
   const [adding, setAdding] = useState(false)
 
   const load = useCallback(() => {
@@ -43,12 +43,12 @@ export function App() {
   }, [])
 
   const closePanel = useCallback(() => {
-    setView('strip')
+    setView('ribbon')
     void api.closePanel(setProblem).then(load)
   }, [load])
 
   useEffect(() => {
-    // Go makes room for the scroll bar a scrolling strip shows, which only the page can measure.
+    // Go makes room for the scroll bar a scrolling ribbon shows, which only the page can measure.
     void api.setScrollbar(scrollbarThickness(), setProblem)
   }, [])
 
@@ -91,5 +91,5 @@ export function App() {
   if (view === 'licence') {
     return <Licence onClose={closePanel} />
   }
-  return <Strip snapshot={snapshot} onAddClock={() => openPanel(addClock)} refused={setProblem} />
+  return <Ribbon snapshot={snapshot} onAddClock={() => openPanel(addClock)} refused={setProblem} />
 }

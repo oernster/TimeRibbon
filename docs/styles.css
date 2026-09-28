@@ -1,5 +1,5 @@
-/* TimeRibbon site. Light or dark, following the reader's system as the strip can
-   follow Windows. The tokens are the strip's own, from frontend/src/theme.css. */
+/* TimeRibbon site. Light or dark, following the reader's system as the ribbon can
+   follow Windows. The tokens are the ribbon's own, from frontend/src/theme.css. */
 
 :root {
     color-scheme: light;

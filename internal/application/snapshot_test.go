@@ -49,10 +49,10 @@ func TestOneBadClockLeavesTheOthersWorking(t *testing.T) {
 	}
 }
 
-// FR-102: the strip runs east from Greenwich, the reference, whatever order the clocks were added
+// FR-102: the ribbon runs east from Greenwich, the reference, whatever order the clocks were added
 // in: London, then places further ahead, then those behind Greenwich. Two zones keeping the same
 // time stay in the order they were added.
-func TestTheStripRunsEastFromGreenwich(t *testing.T) {
+func TestTheRibbonRunsEastFromGreenwich(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, withEntries(
 		settings.Entry{ID: "kol", Zone: "Asia/Kolkata"},

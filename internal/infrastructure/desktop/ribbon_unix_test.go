@@ -1,17 +1,15 @@
+//go:build linux || darwin
+
 package desktop
 
 import (
 	"errors"
-	"os"
 	"testing"
 	"time"
 
 	"github.com/oernster/timeribbon/internal/domain/placement"
-	"github.com/oernster/timeribbon/internal/infrastructure/gtkmain"
 	"github.com/oernster/timeribbon/internal/infrastructure/monitors"
 )
-
-func TestMain(m *testing.M) { os.Exit(gtkmain.ServeTests(m.Run)) }
 
 // The window manager acts on a placement when it gets to it, so the result is polled for.
 const (
@@ -19,7 +17,8 @@ const (
 	settlePause = 20 * time.Millisecond
 )
 
-// The test ribbon's size, in GTK's units: long and short, as a horizontal ribbon is.
+// The test ribbon's size, in DIP (GTK's units, AppKit's points): long and short, as a horizontal
+// ribbon is.
 var testSize = placement.Size{Width: 300, Height: 80}
 
 func TestTheRibbonIsFoundByItsTitle(t *testing.T) {
@@ -31,8 +30,8 @@ func TestTheRibbonIsFoundByItsTitle(t *testing.T) {
 	}
 }
 
-// FR-405 on X11: the ribbon stands where it is placed, at the size it is given. This is the
-// measurement the Linux design rests on.
+// FR-405: the ribbon stands where it is placed, at the size it is given. This is the measurement
+// the Linux design (on X11) and the macOS design both rest on.
 func TestTheRibbonGoesWhereItIsPlaced(t *testing.T) {
 	ribbon := newTestWindow()
 	defer closeTestWindow(ribbon)

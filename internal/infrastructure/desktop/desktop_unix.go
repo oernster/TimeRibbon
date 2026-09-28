@@ -1,3 +1,5 @@
+//go:build linux || darwin
+
 package desktop
 
 import (
@@ -12,14 +14,16 @@ import (
 )
 
 // moveSettle is how long the ribbon must stand still before a move counts as ended. The window
-// manager carries a drag through without saying when the button is let go, so the end is the
-// moment the position stops changing.
+// manager (AppKit's own drag on macOS) carries a move through without saying when the button is
+// let go, so the end is the moment the position stops changing.
 const moveSettle = 300 * time.Millisecond
 
-// Desktop hears the desktop on Linux: the tray icon and its menu, the end of the ribbon's moves,
-// changes of display and jumps of the clock, plus the ribbon's own menu. GTK is not open when Start
-// runs, so everything that needs GTK waits for Watch, which runs once the ribbon's window exists;
-// the tray talks to the session bus, not to GTK, so it starts with Start.
+// Desktop hears the desktop on Linux and macOS: the tray icon and its menu, the end of the ribbon's
+// moves, changes of display and jumps of the clock, plus the ribbon's own menu. The toolkit's loop
+// is not running when Start runs, so everything that needs the ribbon's window waits for Watch,
+// which runs once that window exists. The tray starts with Start: on Linux it talks to the session
+// bus rather than GTK; on macOS it is set up once AppKit's loop runs. Each platform supplies
+// startTray, watchWindow, popUp and the ribbon's operations in files of its own.
 type Desktop struct {
 	menu   func() []application.MenuItem
 	events chan Event
@@ -79,7 +83,7 @@ func (d *Desktop) Stop() {
 }
 
 // Watch names the ribbon's window, so the end of its moves is reported, then hears the changes of
-// display. It runs once GTK is open.
+// display. It runs once the toolkit's loop is running.
 func (d *Desktop) Watch(ribbon Window) {
 	d.watched.Do(func() {
 		d.guard.Lock()
@@ -128,7 +132,7 @@ func (d *Desktop) moved(at placement.Point) {
 }
 
 // send hands event on without waiting: one nobody is reading is dropped and said so, since the
-// desktop calls in on GTK's own thread, which must never block.
+// desktop calls in on the toolkit's own thread, which must never block.
 func (d *Desktop) send(event Event) {
 	d.guard.Lock()
 	defer d.guard.Unlock()

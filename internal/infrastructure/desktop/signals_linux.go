@@ -1,7 +1,8 @@
 package desktop
 
-// GTK's side of the Linux desktop: the signals it calls back on and the ribbon's popup menu. The C
-// half is in desktop_linux.c, since a Go file that exports to C may only declare C functions.
+// GTK's side of the Linux desktop: connecting the signals it calls back on and building the
+// ribbon's popup menu. The C half is in desktop_linux.c; the callbacks it reaches are in
+// callbacks_unix.go.
 
 /*
 #cgo pkg-config: gtk+-3.0
@@ -18,20 +19,10 @@ import "C"
 
 import (
 	"runtime/cgo"
-	"sync"
 	"unsafe"
 
 	"github.com/oernster/timeribbon/internal/application"
-	"github.com/oernster/timeribbon/internal/domain/placement"
 )
-
-// shown is the menu on screen: the desktop its choice goes to and the items it was built from. One
-// popup menu is open at a time, as GTK allows.
-var shown struct {
-	sync.Mutex
-	desktop *Desktop
-	items   []application.MenuItem
-}
 
 // watchWindow connects the ribbon's moves and the screen's changes of display to the desktop that
 // handle holds.
@@ -41,9 +32,7 @@ func watchWindow(ribbon Window, handle cgo.Handle) error {
 
 // popUp shows items over ribbon at the pointer, their choice going to d.
 func popUp(ribbon Window, d *Desktop, items []application.MenuItem) error {
-	shown.Lock()
-	shown.desktop, shown.items = d, items
-	shown.Unlock()
+	showing(d, items)
 	return onWindow(ribbon, func(window *C.GtkWindow) {
 		menu := C.menu_new()
 		next := 0
@@ -78,24 +67,4 @@ func gboolean(b bool) C.gboolean {
 		return C.TRUE
 	}
 	return C.FALSE
-}
-
-//export desktopMoved
-func desktopMoved(handle uintptr, x, y C.int) {
-	cgo.Handle(handle).Value().(*Desktop).moved(placement.Point{X: int(x), Y: int(y)})
-}
-
-//export desktopDisplaysChanged
-func desktopDisplaysChanged(handle uintptr) {
-	cgo.Handle(handle).Value().(*Desktop).send(Event{Kind: EventDisplayChanged})
-}
-
-//export desktopMenuChosen
-func desktopMenuChosen(index C.int) {
-	shown.Lock()
-	d, items := shown.desktop, shown.items
-	shown.Unlock()
-	if action, ok := actionAt(items, int(index)); ok && d != nil {
-		d.send(Event{Kind: EventMenu, Action: action})
-	}
 }

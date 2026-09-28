@@ -71,10 +71,7 @@ static void test_window_destroy(GtkWindow *window) { gtk_widget_destroy(GTK_WIDG
 import "C"
 
 import (
-	"errors"
-	"fmt"
 	"io"
-	"sync"
 	"time"
 	"unsafe"
 
@@ -89,58 +86,10 @@ const (
 	sizePause = 10 * time.Millisecond
 )
 
-// errUnknownWindow is answered for a Window this package never handed out.
-var errUnknownWindow = errors.New("that window was never found")
-
-// GTK's windows are C pointers, which a Window cannot carry as a number without the garbage
-// collector's rules being bent, so each one found is kept here under the Window handed out for it.
-// Where Place last put each window is kept beside it, so the end of a move can be told from the
-// window arriving where it was placed.
-var (
-	known      sync.Mutex
-	windows    = map[Window]*C.GtkWindow{}
-	placed     = map[Window]placement.Point{}
-	lastWindow Window
-)
-
-// placedAt answers where Place last put ribbon; false before it has.
-func placedAt(ribbon Window) (placement.Point, bool) {
-	known.Lock()
-	defer known.Unlock()
-	at, ok := placed[ribbon]
-	return at, ok
-}
-
-// remember answers the Window for window, handing out a new one the first time it is seen.
-func remember(window *C.GtkWindow) Window {
-	known.Lock()
-	defer known.Unlock()
-	for handed, held := range windows {
-		if held == window {
-			return handed
-		}
-	}
-	lastWindow++
-	windows[lastWindow] = window
-	return lastWindow
-}
-
-// forget drops a Window whose GTK window is gone.
-func forget(ribbon Window) {
-	known.Lock()
-	defer known.Unlock()
-	delete(windows, ribbon)
-	delete(placed, ribbon)
-}
-
 // gtkWindow answers the GTK window a Window stands for.
 func gtkWindow(ribbon Window) (*C.GtkWindow, error) {
-	known.Lock()
-	defer known.Unlock()
-	if window, ok := windows[ribbon]; ok {
-		return window, nil
-	}
-	return nil, errUnknownWindow
+	window, err := pointerOf(ribbon)
+	return (*C.GtkWindow)(window), err
 }
 
 // FindRibbon answers the ribbon's window. On Linux there is no window class to find it by, so
@@ -149,15 +98,11 @@ func gtkWindow(ribbon Window) (*C.GtkWindow, error) {
 func FindRibbon(_ string) (Window, error) {
 	title := C.CString(product.Name)
 	defer C.free(unsafe.Pointer(title))
-	for range findAttempts {
+	return findWith(func() unsafe.Pointer {
 		var found *C.GtkWindow
 		gtkmain.Do(func() { found = C.ribbon_toplevel(title) })
-		if found != nil {
-			return remember(found), nil
-		}
-		time.Sleep(findPause)
-	}
-	return 0, fmt.Errorf("%w: no window titled %s", ErrRibbonNotFound, product.Name)
+		return unsafe.Pointer(found)
+	})
 }
 
 // HideFromTaskbar asks the window manager to leave the ribbon off the taskbar and the workspace
@@ -177,9 +122,7 @@ func Place(ribbon Window, at placement.Point, size placement.Size) error {
 	if err != nil {
 		return err
 	}
-	known.Lock()
-	placed[ribbon] = at
-	known.Unlock()
+	notePlaced(ribbon, at)
 	gtkmain.Do(func() { C.ribbon_resize(window, C.int(size.Width), C.int(size.Height)) })
 	awaitSize(window, size)
 	gtkmain.Do(func() { C.gtk_window_move(window, C.gint(at.X), C.gint(at.Y)) })
@@ -246,7 +189,7 @@ func newTestWindow() Window {
 	defer C.free(unsafe.Pointer(title))
 	var window *C.GtkWindow
 	gtkmain.Do(func() { window = C.test_window(title) })
-	return remember(window)
+	return remember(unsafe.Pointer(window))
 }
 
 // closeTestWindow destroys a window newTestWindow made.

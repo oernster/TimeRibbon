@@ -1,9 +1,7 @@
 package startup
 
 import (
-	"errors"
 	"fmt"
-	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -25,8 +23,6 @@ const (
 	configFolder       = ".config"
 	autostartFolder    = "autostart"
 	entrySuffix        = ".desktop"
-	folderMode         = fs.FileMode(0o700)
-	entryMode          = fs.FileMode(0o644)
 )
 
 // The lines that mark an entry switched off. The desktop honours either over the file merely
@@ -48,16 +44,6 @@ NoDisplay=true
 X-GNOME-Autostart-enabled=true
 `
 
-// errNoHome is answered when the session names no home folder, so there is nowhere to write.
-var errNoHome = errors.New("the session names no home folder, so there is no autostart folder")
-
-// Entry is the application's StartupEntry port over one XDG autostart entry.
-type Entry struct {
-	dir     string
-	command string
-	problem error
-}
-
 // New answers the entry for program, the full path of TimeRibbon's executable, in the session's
 // autostart folder. Under a Flatpak the command is flatpak run with its id instead.
 func New(program string) Entry {
@@ -76,55 +62,14 @@ func At(dir, program string) Entry {
 	return Entry{dir: dir, command: execQuoted(program)}
 }
 
-// Command answers what the entry runs: the program with no arguments, so a sign-in start shows the
-// ribbon as a normal launch does (FR-605).
-func (e Entry) Command() string { return e.command }
-
-// path is the entry's file, named by the app id as the desktop convention has it.
-func (e Entry) path() string { return filepath.Join(e.dir, product.AppID+entrySuffix) }
-
-// Enabled answers whether the entry is present and not switched off. A missing entry is off; one
-// that is there and cannot be read is a fault, answered as one.
-func (e Entry) Enabled() (bool, error) {
-	if e.problem != nil {
-		return false, e.problem
-	}
-	raw, err := os.ReadFile(e.path())
-	if errors.Is(err, fs.ErrNotExist) {
-		return false, nil
-	}
-	if err != nil {
-		return false, fmt.Errorf("reading %s: %w", e.path(), err)
-	}
-	text := string(raw)
-	return !strings.Contains(text, hiddenLine) && !strings.Contains(text, gnomeDisabledLine), nil
+// entryText answers the autostart entry that runs command.
+func entryText(command string) string {
+	return fmt.Sprintf(entryTemplate, product.Name, command, product.AppID)
 }
 
-// Enable writes the entry, making the autostart folder where it is missing.
-func (e Entry) Enable() error {
-	if e.problem != nil {
-		return e.problem
-	}
-	if err := os.MkdirAll(e.dir, folderMode); err != nil {
-		return fmt.Errorf("making %s: %w", e.dir, err)
-	}
-	text := fmt.Sprintf(entryTemplate, product.Name, e.command, product.AppID)
-	if err := os.WriteFile(e.path(), []byte(text), entryMode); err != nil {
-		return fmt.Errorf("writing %s: %w", e.path(), err)
-	}
-	return nil
-}
-
-// Disable removes the entry; one that is already gone is not an error. Removal rather than a
-// Hidden line, so nothing is left behind for a later version to misread.
-func (e Entry) Disable() error {
-	if e.problem != nil {
-		return e.problem
-	}
-	if err := os.Remove(e.path()); err != nil && !errors.Is(err, fs.ErrNotExist) {
-		return fmt.Errorf("removing %s: %w", e.path(), err)
-	}
-	return nil
+// switchedOff answers whether an entry's text carries a line the desktop reads as off.
+func switchedOff(text string) bool {
+	return strings.Contains(text, hiddenLine) || strings.Contains(text, gnomeDisabledLine)
 }
 
 // autostartDir answers the folder the session starts programs from. Under a Flatpak it ignores

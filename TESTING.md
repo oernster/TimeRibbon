@@ -12,11 +12,20 @@ Go builds each test binary in its scratch directory. Some anti-virus programs qu
 built binary there, which stops the suite before a test runs. If a run fails with an
 access-denied or missing-file error on a test binary, allow the folder `go env GOTMPDIR` names (the
 system temporary folder where that prints nothing) in the anti-virus. The front end's checks need
-their packages installed once:
+their packages installed once. The application embeds the built page (`frontend/dist`, which git
+does not hold), so on a fresh checkout build it once too; without it `go list` stops the gate at
+its first step with `pattern all:frontend/dist: no matching files found`:
 
 ```powershell
 npm --prefix frontend install
 ```
+
+```powershell
+npm --prefix frontend run build
+```
+
+Every text file is checked out with LF endings (`.gitattributes`), since gofmt refuses CRLF. A
+checkout made before that file existed may hold CRLF; checking it out afresh brings it back to LF.
 
 ## The standard
 

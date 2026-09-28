@@ -39,7 +39,9 @@ const colourPrefix = "colour-"
 // colourLabels are the Colour items' words, one home each.
 var colourLabels = map[settings.Colour]string{
 	settings.Classic: "Classic", settings.Neon: "Neon", settings.Ocean: "Ocean",
-	settings.Sunset: "Sunset", settings.Forest: "Forest",
+	settings.Sunset: "Sunset", settings.Forest: "Forest", settings.Amber: "Amber",
+	settings.Ruby: "Ruby", settings.Indigo: "Indigo", settings.Berry: "Berry",
+	settings.Contrast: "Contrast",
 }
 
 // labelColour is the Colour submenu's own word.

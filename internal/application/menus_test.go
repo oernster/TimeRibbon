@@ -173,7 +173,9 @@ func TestBothMenusOfferEveryColourWithTheCurrentTicked(t *testing.T) {
 	r := newRig(t, initial)
 	for name, menu := range map[string][]MenuItem{"tray": r.service.TrayMenu(true), "context": r.service.ContextMenu()} {
 		colour := find(t, menu, labelColour)
-		if colour.Action != "" || !slices.Equal(labels(colour.Children), []string{"Classic", "Neon", "Ocean", "Sunset", "Forest"}) {
+		if colour.Action != "" || !slices.Equal(labels(colour.Children), []string{
+			"Classic", "Neon", "Ocean", "Sunset", "Forest", "Amber", "Ruby", "Indigo", "Berry", "Contrast",
+		}) {
 			t.Fatalf("%s: %+v", name, colour)
 		}
 		for index, item := range colour.Children {

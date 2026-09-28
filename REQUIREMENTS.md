@@ -41,6 +41,10 @@ macOS the drag distance is Windows' 4 DIP and a click on the menu bar icon opens
 the tray host's activation shows or hides the ribbon. Section 1.3, section 2.3, CON-7, CON-8,
 FR-401, FR-503, FR-605, FR-607, NFR-O-1, section 5 and section 12 carry notes of it.
 
+Amendment 14 (Oliver, 2026-09-28): five more colour schemes (Amber, Ruby, Indigo, Berry, Contrast);
+Neon gains a light side, so every scheme follows the theme; Ocean is redrawn to read as the sea rather
+than as Classic; each scheme's hue is carried by the colours the ribbon itself paints (FR-611).
+
 Source: the initial product specification of 2026-09-27, written under the product's former name,
 plus Oliver's rulings
 of 2026-09-27: the stack is Go with Wails; orientation is a setting offering both horizontal and
@@ -668,19 +672,24 @@ the text by check M-12.
 **FR-611 Colour schemes**
 Priority: Should (Amendment 12, Oliver, 2026-09-28).
 The ribbon shall draw every clock in the colour scheme held in settings: `Classic` (the look it
-had before schemes), `Neon`, `Ocean`, `Sunset` or `Forest`; Classic when none is held. Both menus
-shall hold a `Colour` submenu offering every scheme with the current one ticked; choosing one applies
-it at once as FR-602 does. Every scheme but Neon has a light and a dark side, chosen by the theme as
-Classic's are (FR-606); Neon is dark whatever the theme and its digits and hands glow. Text and
-muted text meet 4.5:1 against the cell and the surface on every side (NFR-U-1).
-Acceptance: given the theme Light, when `Neon` is chosen, then the cells are near black with cyan
-digits; when `Ocean` is chosen, then they are white with deep blue text.
+had before schemes), `Neon`, `Ocean`, `Sunset`, `Forest`, `Amber`, `Ruby`, `Indigo`, `Berry` or
+`Contrast`; Classic when none is held. Both menus shall hold a `Colour` submenu offering every scheme
+with the current one ticked; choosing one applies it at once as FR-602 does. Every scheme has a light
+and a dark side, chosen by the theme as Classic's are (FR-606); Neon's digits and hands glow on its
+dark side. A scheme's hue shall be carried by the colours the ribbon paints (its surface, cells,
+dividers and text), never by the accent alone, which only Settings shows. Text, muted text and
+problem text meet 4.5:1 against the cell and the surface on every side (NFR-U-1).
+Acceptance: given the theme Light, when `Neon` is chosen, then the cells are white with deep cyan
+digits and magenta zone names; given the theme Dark, then they are near black with glowing cyan
+digits. When `Ocean` is chosen, then the cells are pale aqua in Light and deep teal in Dark.
 Verified by: `TestUnknownChoicesAreNormalisedToDefaults` (domain);
 `TestBothMenusOfferEveryColourWithTheCurrentTicked` (application);
 `TestStyleAndOrientationItemsChooseAndRedraw` (facade); `TestSettingsRoundTrip`,
-`TestA1Point0SettingsFileIsReadWhole` (infrastructure, store); the colours on screen by check M-12.
-The contrast was measured over `frontend/src/colours.css` on 2026-09-28, the weakest pairing 5.2:1;
-the sides were measured resolving in Edge under Light, Dark and System.
+`TestA1Point0SettingsFileIsReadWhole` (infrastructure, store);
+`TestEveryOfferedSchemeHasItsOwnCompleteBlock` (structural); the colours on screen by check M-12.
+The contrast was measured over `frontend/src/colours.css` on 2026-09-28, the weakest pairing 5.8:1.
+Distinctness was measured the same day as the mean CIEDE2000 difference over the colours the ribbon
+paints: every pair of schemes differs by at least 10 on each side.
 
 ### 3.7 Persistence and recovery
 
@@ -974,4 +983,4 @@ is installing and removing the DMG on macOS and the Flatpak on Linux.
 | M-9 | Setup installs, updates, repairs and uninstalls on a real machine without asking for administrator rights, closing a running copy first. |
 | M-10 | Both menus open a Help submenu whose About and Licence each show their panel; the licence reads itself down after 5 s, a wheel stops it and it resumes; setup's Licence screen does the same. |
 | M-11 | The donate button at the foot of Settings opens the default browser on the donation page. |
-| M-12 | Each Position item puts the ribbon flush against its edge and centred along it on the display it is on; it opens there next time; choosing Horizontal or Vertical from either menu sends it to the top or right edge; small clocks show their whole date and time in both styles; the Settings title and Close stay put while the panel scrolls; each colour scheme looks right in Light, Dark and System, Neon glowing and dark in all three. |
+| M-12 | Each Position item puts the ribbon flush against its edge and centred along it on the display it is on; it opens there next time; choosing Horizontal or Vertical from either menu sends it to the top or right edge; small clocks show their whole date and time in both styles; the Settings title and Close stay put while the panel scrolls; each colour scheme looks right and unmistakably its own in Light, Dark and System, Neon glowing on its dark side only. |

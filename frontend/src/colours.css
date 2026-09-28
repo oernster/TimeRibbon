@@ -1,20 +1,46 @@
 /* The colour schemes other than Classic (FR-611), whose values are theme.css's own. Each token is
-   stated once as light-dark(light, dark): the theme sets color-scheme, which picks the side, so a
-   scheme follows Light, Dark and System exactly as Classic does. Neon is dark whatever the theme
-   and glows. Text and muted text meet 4.5:1 against the cell and the surface on both sides
-   (NFR-U-1), measured when these values were chosen. */
+   stated once as light-dark(light, dark): the theme sets color-scheme, which picks the side, so every
+   scheme follows Light, Dark and System exactly as Classic does. A scheme's hue is carried by the
+   tokens the ribbon itself paints (surface, cell, divider and both texts), never by the accent
+   alone, which only Settings shows. Neon glows on its dark side. Text, muted text and problem text
+   meet 4.5:1 against the cell and the surface on both sides (NFR-U-1), measured when these values
+   were chosen. */
+
+:root[data-colour='neon'] {
+  --surface: light-dark(#f3f2f8, #07070c);
+  --cell: light-dark(#ffffff, #0d0d16);
+  --divider: light-dark(#f1b1f1, #2a1f45);
+  --text: light-dark(#006675, #5ff5ff);
+  --text-muted: light-dark(#aa0e90, #ff7ae6);
+  --accent: light-dark(#148500, #39ff14);
+  --problem: light-dark(#994700, #ffb454);
+  --dial-face: light-dark(#ffffff, #0d0d16);
+  --dial-tick: light-dark(#aa0e90, #ff7ae6);
+  --dial-hand: light-dark(#006675, #5ff5ff);
+  --focus: light-dark(#148500, #39ff14);
+  --glow: light-dark(transparent, rgb(95 245 255 / 70%));
+}
+
+/* Neon's glow: the digits and the dial's hands light the dark around them. */
+:root[data-colour='neon'] .time {
+  text-shadow: 0 0 6px var(--glow), 0 0 14px var(--glow);
+}
+
+:root[data-colour='neon'] .dial line {
+  filter: drop-shadow(0 0 3px var(--glow));
+}
 
 :root[data-colour='ocean'] {
-  --surface: light-dark(#eef6f9, #06131c);
-  --cell: light-dark(#ffffff, #0b1f2c);
-  --divider: light-dark(#c3dbe4, #1b3a4d);
-  --text: light-dark(#0b2a3a, #d8f1fb);
-  --text-muted: light-dark(#2f5a6e, #8fc3d6);
-  --accent: light-dark(#0a6c8f, #4fc3e8);
-  --dial-face: light-dark(#ffffff, #0b1f2c);
-  --dial-tick: light-dark(#2f5a6e, #8fc3d6);
-  --dial-hand: light-dark(#0b2a3a, #d8f1fb);
-  --focus: light-dark(#0a6c8f, #4fc3e8);
+  --surface: light-dark(#d6eff5, #072431);
+  --cell: light-dark(#eefafb, #0d3c4a);
+  --divider: light-dark(#a6d2dd, #226977);
+  --text: light-dark(#063147, #c8f9f9);
+  --text-muted: light-dark(#115a74, #64d8d4);
+  --accent: light-dark(#087a91, #20dfd2);
+  --dial-face: light-dark(#eefafb, #0d3c4a);
+  --dial-tick: light-dark(#115a74, #64d8d4);
+  --dial-hand: light-dark(#063147, #c8f9f9);
+  --focus: light-dark(#087a91, #20dfd2);
 }
 
 :root[data-colour='sunset'] {
@@ -43,27 +69,69 @@
   --focus: light-dark(#2f6b2a, #7cc46f);
 }
 
-:root[data-colour='neon'] {
-  --surface: #07070c;
-  --cell: #0d0d16;
-  --divider: #2a1f45;
-  --text: #5ff5ff;
-  --text-muted: #ff7ae6;
-  --accent: #39ff14;
-  --problem: #ffb454;
-  --dial-face: #0d0d16;
-  --dial-tick: #ff7ae6;
-  --dial-hand: #5ff5ff;
-  --focus: #39ff14;
-  --glow: rgb(95 245 255 / 70%);
-  color-scheme: dark;
+:root[data-colour='amber'] {
+  --surface: light-dark(#fcf2d5, #1d160c);
+  --cell: light-dark(#fefaeb, #2b2112);
+  --divider: light-dark(#e3cda0, #51422a);
+  --text: light-dark(#3f260d, #fde7a5);
+  --text-muted: light-dark(#724a1d, #ebb447);
+  --accent: light-dark(#aa690e, #f9b81f);
+  --dial-face: light-dark(#fefaeb, #2b2112);
+  --dial-tick: light-dark(#724a1d, #ebb447);
+  --dial-hand: light-dark(#3f260d, #fde7a5);
+  --focus: light-dark(#aa690e, #f9b81f);
 }
 
-/* Neon's glow: the digits and the dial's hands light the dark around them. */
-:root[data-colour='neon'] .time {
-  text-shadow: 0 0 6px var(--glow), 0 0 14px var(--glow);
+:root[data-colour='ruby'] {
+  --surface: light-dark(#fae5e5, #2d0b0c);
+  --cell: light-dark(#fef4f4, #4e1214);
+  --divider: light-dark(#eab8b8, #7a292c);
+  --text: light-dark(#620e11, #ffe0e0);
+  --text-muted: light-dark(#931f1f, #ff938f);
+  --accent: light-dark(#b3191f, #f76464);
+  --dial-face: light-dark(#fef4f4, #4e1214);
+  --dial-tick: light-dark(#931f1f, #ff938f);
+  --dial-hand: light-dark(#620e11, #ffe0e0);
+  --focus: light-dark(#b3191f, #f76464);
 }
 
-:root[data-colour='neon'] .dial line {
-  filter: drop-shadow(0 0 3px var(--glow));
+:root[data-colour='indigo'] {
+  --surface: light-dark(#e1e4fa, #0e112f);
+  --cell: light-dark(#f4f5fe, #171d4f);
+  --divider: light-dark(#b5bbe3, #303a7e);
+  --text: light-dark(#11195f, #dbe2ff);
+  --text-muted: light-dark(#334199, #94a5f9);
+  --accent: light-dark(#2232c3, #7486fb);
+  --dial-face: light-dark(#f4f5fe, #171d4f);
+  --dial-tick: light-dark(#334199, #94a5f9);
+  --dial-hand: light-dark(#11195f, #dbe2ff);
+  --focus: light-dark(#2232c3, #7486fb);
+}
+
+:root[data-colour='berry'] {
+  --surface: light-dark(#f9e7f4, #250e1f);
+  --cell: light-dark(#fdf4fb, #3f1835);
+  --divider: light-dark(#e3bfda, #67325a);
+  --text: light-dark(#570f41, #ffdbf9);
+  --text-muted: light-dark(#822b6c, #f391df);
+  --accent: light-dark(#a51d83, #f764d9);
+  --dial-face: light-dark(#fdf4fb, #3f1835);
+  --dial-tick: light-dark(#822b6c, #f391df);
+  --dial-hand: light-dark(#570f41, #ffdbf9);
+  --focus: light-dark(#a51d83, #f764d9);
+}
+
+/* Contrast: black and white for the hardest-to-read conditions; yellow picks out the secondary text
+   on the dark side. */
+:root[data-colour='contrast'] {
+  --surface: light-dark(#ffffff, #000000);
+  --cell: light-dark(#ffffff, #000000);
+  --divider: light-dark(#000000, #ffffff);
+  --text: light-dark(#000000, #ffffff);
+  --text-muted: light-dark(#303030, #ffe94d);
+  --accent: light-dark(#0000c8, #ffe94d);
+  --dial-face: light-dark(#ffffff, #000000);
+  --dial-tick: light-dark(#303030, #ffe94d);
+  --dial-hand: light-dark(#000000, #ffffff);
+  --focus: light-dark(#0000c8, #ffe94d);
 }

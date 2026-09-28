@@ -36,15 +36,20 @@ type Colour string
 
 // The colour schemes. Classic is the look the ribbon has always had.
 const (
-	Classic Colour = "classic"
-	Neon    Colour = "neon"
-	Ocean   Colour = "ocean"
-	Sunset  Colour = "sunset"
-	Forest  Colour = "forest"
+	Classic  Colour = "classic"
+	Neon     Colour = "neon"
+	Ocean    Colour = "ocean"
+	Sunset   Colour = "sunset"
+	Forest   Colour = "forest"
+	Amber    Colour = "amber"
+	Ruby     Colour = "ruby"
+	Indigo   Colour = "indigo"
+	Berry    Colour = "berry"
+	Contrast Colour = "contrast"
 )
 
 // Colours lists the colour schemes in the order they are offered.
-var Colours = []Colour{Classic, Neon, Ocean, Sunset, Forest}
+var Colours = []Colour{Classic, Neon, Ocean, Sunset, Forest, Amber, Ruby, Indigo, Berry, Contrast}
 
 // Orientation is the direction cells run in (FR-103).
 type Orientation string

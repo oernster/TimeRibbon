@@ -41,6 +41,7 @@ does not exist.
 | The page listens for every event `app.go` emits and keys every panel it names | `TestThePageNamesEveryEventGoEmits` | [`wire_test.go`](tests/structural/wire_test.go) |
 | The setup page listens for every event `installer/app.go` emits | `TestTheSetupPageNamesEveryEventSetupEmits` | [`wire_test.go`](tests/structural/wire_test.go) |
 | Each `wails.json` names its executable as `internal/product` does | `TestEachWailsConfigNamesItsExecutableAsTheProductDoes` | [`names_test.go`](tests/structural/names_test.go) |
+| Every scheme the menus offer has its own block in `colours.css` stating each of Classic's tokens (the problem colour aside); every block is offered (FR-611) | `TestEveryOfferedSchemeHasItsOwnCompleteBlock` | [`colours_test.go`](tests/structural/colours_test.go) |
 | The Licence panel is sized for the LICENSE's widest line, so it shows unwrapped | `TestTheLicencePanelIsSizedForTheLicencesWidestLine` | [`licence_test.go`](tests/structural/licence_test.go) |
 | No tracked or new file holds the product's former name or the word its window went by before the ribbon; the npm lock file aside | `TestNoTrackedFileHoldsTheRetiredWord` | [`retired_test.go`](tests/structural/retired_test.go) |
 | That word is recognised in any case and inside names while the current names pass | `TestTheRetiredWordIsFoundInAnyCaseAndInsideNames` | [`retired_test.go`](tests/structural/retired_test.go) |
@@ -272,9 +273,11 @@ what it proves is that the old shape still reads.
 Every colour has one home per scheme. `frontend/src/theme.css` holds Classic, light and dark;
 `frontend/src/colours.css` holds the other schemes (FR-611), keyed off the `data-colour` attribute
 the page sets from the snapshot. Each of their tokens is stated once as `light-dark(light, dark)`, so
-the `color-scheme` the theme sets picks the side and no dark value is written twice; Neon sets
-`color-scheme: dark` itself and adds its glow. The side each scheme resolves to was measured in Edge
-under Light, Dark and System on 2026-09-28.
+the `color-scheme` the theme sets picks the side and no dark value is written twice; Neon's glow is
+itself a `light-dark()` token, transparent on the light side. A scheme's hue lives in the tokens the
+ribbon paints (surface, cell, divider and both texts), because the accent reaches only Settings: an
+Ocean whose only sea colour was its accent measured barely apart from Classic. The side each scheme
+resolves to was measured in Edge under Light, Dark and System on 2026-09-28, before Amendment 14.
 
 ## The desktop
 

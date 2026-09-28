@@ -25,13 +25,30 @@ func order(s Settings) []string {
 	return ids
 }
 
-// FR-703, FR-103, FR-505.
+// FR-703, FR-103, FR-505, FR-613.
 func TestDefaultsAreDigitalTwentyFourHourVerticalAndNotOnTop(t *testing.T) {
 	t.Parallel()
 	got := Defaults()
 	if got.Style != Digital || got.Size != Large || got.Colour != Classic || got.Format != clock.TwentyFourHour ||
 		got.DateFormat != clock.DayMonth || got.Orientation != Vertical || got.Theme != System || got.AlwaysOnTop || got.Placement != nil || len(got.Clocks) != 0 {
 		t.Errorf("got %+v", got)
+	}
+	if !got.Pinned || got.OnTop() {
+		t.Errorf("a first run is pinned %v and on top %v, want pinned and not on top", got.Pinned, got.OnTop())
+	}
+}
+
+// FR-617: an unpinned ribbon stays on top whatever Always on top holds; pinned, Always on top decides.
+func TestAnUnpinnedRibbonIsAlwaysOnTop(t *testing.T) {
+	t.Parallel()
+	for _, each := range []struct{ alwaysOnTop, pinned, want bool }{
+		{false, true, false}, {true, true, true}, {false, false, true}, {true, false, true},
+	} {
+		s := Defaults()
+		s.AlwaysOnTop, s.Pinned = each.alwaysOnTop, each.pinned
+		if got := s.OnTop(); got != each.want {
+			t.Errorf("Always on top %v, pinned %v: on top %v, want %v", each.alwaysOnTop, each.pinned, got, each.want)
+		}
 	}
 }
 

@@ -38,10 +38,16 @@ type Desktop struct {
 	lastAt placement.Point
 	settle *time.Timer
 
+	pointer pointerTracker
+
 	started sync.Once
 	watched sync.Once
 	stopped sync.Once
 }
+
+// SetTabFrame does nothing off Windows: GTK and AppKit take the tab's 8 as asked (measured
+// 2026-09-28, REQUIREMENTS section 2.3), so no style holds the window wider.
+func SetTabFrame(Window, bool) error { return nil }
 
 // New answers a desktop whose tray menu is menu, reporting failures to log.
 func New(menu func() []application.MenuItem, log io.Writer) *Desktop {

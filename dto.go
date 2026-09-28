@@ -54,6 +54,8 @@ type snapshotDTO struct {
 	Scrolls       bool      `json:"scrolls"`
 	DragThreshold sizeDTO   `json:"dragThreshold"`
 	StartLabel    string    `json:"startLabel"`
+	// Collapsed is true while the window is an unpinned ribbon's tab (FR-614).
+	Collapsed bool `json:"collapsed"`
 }
 
 // placeDTO is one entry of the place search.

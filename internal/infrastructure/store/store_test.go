@@ -62,6 +62,10 @@ func TestSettingsRoundTrip(t *testing.T) {
 		!slices.Equal(got.Clocks, want.Clocks) {
 		t.Errorf("got %+v", got)
 	}
+	// full is unpinned, away from the default, so the pin is proved written and read (FR-613).
+	if got.Pinned != want.Pinned {
+		t.Errorf("pinned read as %v, want %v", got.Pinned, want.Pinned)
+	}
 }
 
 // FR-701: the file is indented, in writing order, holding nothing derived.

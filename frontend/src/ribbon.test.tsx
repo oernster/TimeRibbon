@@ -35,6 +35,20 @@ describe('Ribbon', () => {
     expect(ribbon.style.getPropertyValue('--cell-h')).toBe('72px')
   })
 
+  it('draws only the tab while collapsed: no words, no drag, no menu (FR-614)', () => {
+    installBridge()
+    const menu = vi.spyOn(api, 'showContextMenu')
+    render(<Ribbon snapshot={snapshot({ collapsed: true })} onAddClock={vi.fn()} refused={vi.fn()} />)
+    const tab = screen.getByTestId('tab')
+    expect(tab.textContent).toBe('')
+    expect(screen.queryAllByRole('group')).toEqual([])
+    fireEvent.pointerDown(tab, { button: 0, screenX: 100, screenY: 100 })
+    fireEvent.pointerMove(tab, { buttons: 1, screenX: 140, screenY: 100 })
+    fireEvent.contextMenu(tab)
+    expect(window.WailsInvoke).not.toHaveBeenCalled()
+    expect(menu).not.toHaveBeenCalled()
+  })
+
   it('offers Add clock on an empty ribbon (FR-107)', () => {
     installBridge()
     const onAddClock = vi.fn()

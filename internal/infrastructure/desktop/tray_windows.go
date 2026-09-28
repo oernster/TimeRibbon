@@ -32,6 +32,7 @@ type Desktop struct {
 	hook    uintptr
 	created uint32
 	pending pendingMenu
+	pointer pointerTracker
 
 	started sync.Once
 	stopped sync.Once

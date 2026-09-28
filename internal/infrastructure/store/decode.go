@@ -23,15 +23,17 @@ const (
 	keyAlwaysOnTop = "alwaysOnTop"
 	keyPlacement   = "placement"
 	keyClocks      = "clocks"
-	// keySkippedUpdate and keyDateFormat came after 1.0.0, so they are written last (NFR-C-1).
+	// keySkippedUpdate, keyDateFormat and keyPinned came after 1.0.0, so they are written last
+	// (NFR-C-1).
 	keySkippedUpdate = "skippedUpdate"
 	keyDateFormat    = "dateFormat"
+	keyPinned        = "pinned"
 )
 
 // knownKeys lists the keys this version reads, in writing order.
 var knownKeys = []string{
 	keyVersion, keyStyle, keySize, keyColour, keyFormat, keyOrientation, keyTheme, keyAlwaysOnTop, keyPlacement, keyClocks,
-	keySkippedUpdate, keyDateFormat,
+	keySkippedUpdate, keyDateFormat, keyPinned,
 }
 
 // unreadableIDPrefix begins the id an unreadable clock is given for the session, so it can be
@@ -85,6 +87,7 @@ func decode(raw []byte) (settings.Settings, []pair, bool) {
 	readInto(object, keyAlwaysOnTop, &decoded.AlwaysOnTop)
 	readInto(object, keySkippedUpdate, &decoded.SkippedUpdate)
 	readInto(object, keyDateFormat, &decoded.DateFormat)
+	readInto(object, keyPinned, &decoded.Pinned)
 	decoded.Placement = decodePlacement(object[keyPlacement])
 	decoded.Clocks = decodeClocks(entries)
 	return decoded, extrasOf(raw, object), true

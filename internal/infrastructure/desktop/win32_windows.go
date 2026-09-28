@@ -38,8 +38,12 @@ const (
 	eventMoveSizeEnd  = 0x000B // EVENT_SYSTEM_MOVESIZEEND
 	winEventOutOfCtx  = 0x0000 // WINEVENT_OUTOFCONTEXT
 	gwlExStyle        = -20    // GWL_EXSTYLE
+	gwlStyle          = -16    // GWL_STYLE
 	wsExToolWindow    = 0x00000080
 	wsExAppWindow     = 0x00040000
+	wsCaption         = 0x00C00000
+	wsSysMenu         = 0x00080000
+	wsMinimizeBox     = 0x00020000
 	swpNoZOrder       = 0x0004
 	swpNoActivate     = 0x0010
 	swpFrameChanged   = 0x0020

@@ -23,6 +23,12 @@ const (
 	EventTimeChanged
 	// EventResumed is a resume from sleep (FR-209).
 	EventResumed
+	// EventPointerArrived is the pointer come onto the ribbon or its tab (FR-615).
+	EventPointerArrived
+	// EventPointerLeft is the pointer gone off the ribbon or its tab (FR-616).
+	EventPointerLeft
+	// EventMenuClosed is a popup menu closed, chosen from or not; one open holds the ribbon (FR-616).
+	EventMenuClosed
 )
 
 // Event is one thing that happened on the desktop.

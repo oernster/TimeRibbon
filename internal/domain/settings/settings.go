@@ -109,6 +109,8 @@ type Settings struct {
 	Orientation Orientation
 	Theme       Theme
 	AlwaysOnTop bool
+	// Pinned keeps the ribbon shown in full; unpinned, it waits as a tab (FR-613).
+	Pinned bool
 	// SkippedUpdate is the release the user chose to skip, which the automatic update check never
 	// offers again (FR-509); empty when none has been skipped.
 	SkippedUpdate string
@@ -119,7 +121,8 @@ type Settings struct {
 }
 
 // Defaults answers the settings of a first run (FR-703): digital, large (FR-610), 24-hour, vertical
-// (FR-103, amended by Oliver on 2026-09-27), system theme, not on top, not yet placed, no clocks.
+// (FR-103, amended by Oliver on 2026-09-27), system theme, not on top, pinned (FR-613), not yet
+// placed, no clocks.
 func Defaults() Settings {
 	return Settings{
 		Style:       Digital,
@@ -129,8 +132,13 @@ func Defaults() Settings {
 		DateFormat:  clock.DayMonth,
 		Orientation: Vertical,
 		Theme:       System,
+		Pinned:      true,
 	}
 }
+
+// OnTop answers whether the ribbon is kept above other windows: where Always on top is on; always
+// while unpinned, so a tab can never be covered for good (FR-505, FR-617).
+func (s Settings) OnTop() bool { return s.AlwaysOnTop || !s.Pinned }
 
 // Normalised answers the settings with any choice that is not one of the known values replaced by
 // its default, so a hand-edited file holding a word it should not cannot leave a choice unset.

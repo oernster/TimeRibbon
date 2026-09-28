@@ -53,7 +53,7 @@ does not exist.
 
 ## Layers
 
-- **Domain** (`internal/domain`: `clock`, `placement`, `settings`): pure Go. Time arrives as an
+- **Domain** (`internal/domain`: `clock`, `hover`, `placement`, `settings`): pure Go. Time arrives as an
   argument and a zone arrives already resolved, so the domain holds no tz database and reads no
   clock. `clock` turns an instant and a zone into what a cell shows: the local time in either
   format, the date in the chosen date format (`DateFormat`, FR-612), the zone mark (the
@@ -64,8 +64,15 @@ does not exist.
   brings a ribbon wholly inside a work area (`Clamp`, `Recover`), the ribbon's length along its
   orientation (`Fit`) plus a ribbon centred along its length on a work area with its position
   across kept (`CentredAlong`) or flush against one of its edges and centred along it
-  (`AgainstEdge`). `settings` is the user's choices as one value; every operation answers a new
-  value and leaves the old one as it was.
+  (`AgainstEdge`), plus the band an unpinned ribbon shrinks to (`Tab`, FR-614). `settings` is the
+  user's choices as one value; every operation answers a new value and leaves the old one as it
+  was. It holds the one rule for staying on top (`OnTop`: Always on top or unpinned, FR-617).
+  `hover` decides when an unpinned ribbon opens from its tab and collapses back (FR-615, FR-616). It
+  is told the pointer arrived or left and the time; it answers whether the ribbon is open and when
+  to ask again. The facade owns the one timer and carries the answer out (`unpinned.go`). Where the
+  pointer is comes from the desktop, differently on each system because each was measured to need
+  it: read every 50 ms on Windows and macOS, told by GTK's crossing events on Linux, since under
+  XWayland neither the page nor the X server sees it leave (REQUIREMENTS section 2.3).
 - **Application** (`internal/application`): one `Service` holding every use case over seven ports
   (`Store`, `Zones`, `Clock`, `IDs`, `Monitors`, `StartupEntry` in `ports.go`; `ReleaseSource` in
   `updates.go`). It builds the snapshot the ribbon draws, adds, edits and removes clocks, searches
@@ -287,8 +294,9 @@ version does not know is written back as it was found.
 version included (Amendment 11), reads every file the first release writes to the same settings. No key it writes may be
 renamed, dropped or given another meaning. No stored word (such as `12h` or `analogue`) may change.
 A later release may add keys. `size` (FR-610), `colour` (FR-611), `skippedUpdate` (FR-509, the
-release the user chose to skip) and `dateFormat` (FR-612) came after the first release; a file
-without them reads as the large size, Classic, nothing skipped and the date in words day first.
+release the user chose to skip), `dateFormat` (FR-612) and `pinned` (FR-613) came after the first
+release; a file without them reads as the large size, Classic, nothing skipped, the date in words
+day first and pinned.
 The guard is `TestA1Point0SettingsFileIsReadWhole`, which reads the frozen fixture
 `internal/infrastructure/store/testdata/settings-1.0.0.json` (every key set away from its default)
 and requires every key to be read rather than merely carried. It was proved by renaming a key and by

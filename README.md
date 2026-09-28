@@ -53,6 +53,11 @@ in a small frameless ribbon you can put anywhere on any monitor.
   shows or hides the ribbon. On Windows, Alt+F4 on the ribbon hides it too. Launching TimeRibbon
   again while it runs shows or hides the ribbon in the same way, so a single launcher button, such
   as a Stream Deck's Open action pointed at TimeRibbon, does both.
+- **Gets out of the way when you want it to.** Untick Pin ribbon in either menu and the ribbon
+  shrinks to a thin tab in the scheme's accent a second after the pointer leaves it. Rest the pointer
+  on the tab for a moment and the ribbon opens again, without taking the keyboard from what you are
+  typing in. Unpinned, it stays above other windows so the tab is never lost. It is pinned unless you
+  choose otherwise.
 - **Goes where you put it.** Drag the ribbon by any empty part onto any monitor. On Windows it is
   kept wholly on a display while it moves; on macOS and Linux one left partly off every display is
   put back when the drag ends. It opens there next time. When that monitor is gone, it opens on the

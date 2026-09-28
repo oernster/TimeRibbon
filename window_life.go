@@ -82,6 +82,10 @@ func (a *App) handleSafely(event desktop.Event) {
 	case desktop.EventTimeChanged, desktop.EventResumed:
 		fmt.Fprintf(a.log, "desktop event %d: refreshing\n", event.Kind)
 		a.emit(eventRefresh)
+	case desktop.EventPointerArrived, desktop.EventPointerLeft:
+		a.pointerMoved(event.Kind == desktop.EventPointerArrived)
+	case desktop.EventMenuClosed:
+		a.menuClosed()
 	}
 }
 
@@ -108,6 +112,9 @@ func (a *App) act(action application.MenuAction) {
 		go a.checkForUpdate(a.ctx, true)
 	case application.ActionAlwaysOnTop:
 		a.report("changing Always on top", a.SetAlwaysOnTop(!a.service.Settings().AlwaysOnTop))
+		a.emit(eventRefresh)
+	case application.ActionPin:
+		a.report("pinning the ribbon", a.setPinned(!a.pinned()))
 		a.emit(eventRefresh)
 	case application.ActionExit:
 		a.quitting.Store(true)
@@ -149,7 +156,7 @@ func (a *App) toEdge(edge placement.Edge) {
 	if a.ribbon == 0 {
 		return
 	}
-	at, err := a.position()
+	at, err := a.ribbonAt()
 	if err != nil {
 		a.report("reading where the ribbon is", err)
 		return
@@ -163,14 +170,14 @@ func (a *App) toEdge(edge placement.Edge) {
 		return
 	}
 	a.scrolls.Store(arranged.Scrolls)
-	a.report("placing the ribbon", a.place(arranged.At, arranged.Size))
+	a.report("placing the ribbon", a.arrangeWindow(arranged))
 	a.show()
 }
 
 // moved records where a drag left the ribbon, putting it back onto a display if the drag left part
-// of it off every one (FR-404, FR-406). A move of a panel is not the ribbon's.
+// of it off every one (FR-404, FR-406). A move of a panel is not the ribbon's, nor is one of the tab.
 func (a *App) moved() {
-	if a.panelOpen.Load() {
+	if a.panelOpen.Load() || a.collapsed() {
 		return
 	}
 	at, err := a.position()
@@ -187,7 +194,7 @@ func (a *App) moved() {
 		return
 	}
 	a.scrolls.Store(arranged.Scrolls)
-	a.report("placing the ribbon", a.place(arranged.At, arranged.Size))
+	a.report("placing the ribbon", a.arrangeWindow(arranged))
 }
 
 // rearrange fits the ribbon where it stands (FR-104, FR-406).
@@ -195,7 +202,7 @@ func (a *App) rearrange() {
 	if a.panelOpen.Load() {
 		return
 	}
-	at, err := a.position()
+	at, err := a.ribbonAt()
 	if err != nil {
 		a.report("reading where the ribbon is", err)
 		return
@@ -206,17 +213,17 @@ func (a *App) rearrange() {
 		return
 	}
 	a.scrolls.Store(arranged.Scrolls)
-	a.report("placing the ribbon", a.place(arranged.At, arranged.Size))
+	a.report("placing the ribbon", a.arrangeWindow(arranged))
 }
 
-// placeLaunched puts the ribbon where it was last left (FR-405).
+// placeLaunched puts the ribbon where it was last left (FR-405); an unpinned one as its tab.
 func (a *App) placeLaunched() error {
 	arranged, err := a.service.Launch()
 	if err != nil {
 		return err
 	}
 	a.scrolls.Store(arranged.Scrolls)
-	return a.place(arranged.At, arranged.Size)
+	return a.arrangeWindow(arranged)
 }
 
 // ribbonPosition and placeRibbon are the production position and place: the ribbon's window as the
@@ -227,27 +234,34 @@ func (a *App) placeRibbon(at placement.Point, size placement.Size) error {
 	return desktop.Place(a.ribbon, at, size)
 }
 
+// applyAlwaysOnTop keeps the ribbon above other windows where Always on top is on; always while
+// unpinned (FR-505, FR-617).
 func (a *App) applyAlwaysOnTop() {
 	if a.ctx != nil {
-		a.setOnTop(a.service.Settings().AlwaysOnTop)
+		a.setOnTop(a.service.Settings().OnTop())
 	}
 }
 
+// show shows the ribbon; an unpinned one as it stands, its tab while collapsed, which counts as shown
+// (FR-618), with the pointer watched for it to open.
 func (a *App) show() {
 	if a.ctx == nil {
 		return
 	}
 	a.showWindow()
 	a.visible.Store(true)
+	a.trackPointer(!a.pinned())
 	a.emit(eventRefresh)
 }
 
+// hide hides the ribbon, its tab included (FR-618).
 func (a *App) hide() {
 	if a.ctx == nil {
 		return
 	}
 	a.hideWindow()
 	a.visible.Store(false)
+	a.trackPointer(false)
 }
 
 func (a *App) toggle() {

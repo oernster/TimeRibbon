@@ -16,6 +16,7 @@ const (
 	ActionAddClock    MenuAction = "add-clock"
 	ActionSettings    MenuAction = "settings"
 	ActionAlwaysOnTop MenuAction = "always-on-top"
+	ActionPin         MenuAction = "pin"
 	ActionAbout       MenuAction = "about"
 	ActionLicence     MenuAction = "licence"
 	ActionUpdates     MenuAction = "check-updates"
@@ -63,6 +64,7 @@ const (
 	labelTopEdge     = "Centre on top edge"
 	labelBottomEdge  = "Centre on bottom edge"
 	labelAlwaysOnTop = "Always on top"
+	labelPin         = "Pin ribbon"
 	labelHelp        = "Help"
 	labelAbout       = "About"
 	labelLicence     = "Licence"
@@ -79,7 +81,7 @@ func (s *Service) TrayMenu(visible bool) []MenuItem {
 	}
 	return []MenuItem{
 		toggle, addClockItem(), settingsItem(), s.styleItem(), s.colourItem(), s.orientationItem(), s.positionItem(),
-		s.alwaysOnTopItem(), helpItem(), exitItem(),
+		s.alwaysOnTopItem(), s.pinItem(), helpItem(), exitItem(),
 	}
 }
 
@@ -87,7 +89,7 @@ func (s *Service) TrayMenu(visible bool) []MenuItem {
 func (s *Service) ContextMenu() []MenuItem {
 	return []MenuItem{
 		addClockItem(), settingsItem(), s.styleItem(), s.colourItem(), s.orientationItem(), s.positionItem(),
-		s.alwaysOnTopItem(), helpItem(), {Action: ActionHide, Label: labelHide}, exitItem(),
+		s.alwaysOnTopItem(), s.pinItem(), helpItem(), {Action: ActionHide, Label: labelHide}, exitItem(),
 	}
 }
 
@@ -129,4 +131,9 @@ func (s *Service) alwaysOnTopItem() MenuItem {
 		Action: ActionAlwaysOnTop, Label: labelAlwaysOnTop,
 		Checkable: true, Checked: s.Settings().AlwaysOnTop,
 	}
+}
+
+// pinItem follows Always on top in both menus, ticked while the ribbon is pinned (FR-613).
+func (s *Service) pinItem() MenuItem {
+	return MenuItem{Action: ActionPin, Label: labelPin, Checkable: true, Checked: s.Settings().Pinned}
 }

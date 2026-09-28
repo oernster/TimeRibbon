@@ -10,6 +10,7 @@ void ribbon_hide_from_dock(void);
 int ribbon_skips_dock(void);
 void ribbon_place(void *ribbon, int x, int y, int width, int height);
 void ribbon_frame(void *ribbon, int *x, int *y, int *width, int *height);
+int ribbon_pointer_inside(void *ribbon);
 void *test_window(const char *title);
 void test_window_close(void *ribbon);
 */
@@ -71,6 +72,14 @@ func Place(ribbon Window, at placement.Point, size placement.Size) error {
 func Position(ribbon Window) (placement.Point, error) {
 	at, _, err := frameOf(ribbon)
 	return at, err
+}
+
+// pointerInside answers whether the pointer is on the ribbon's window now (FR-615, FR-616), read on
+// AppKit's main thread, which owns the window's frame.
+func pointerInside(ribbon Window) (bool, error) {
+	var inside bool
+	err := onWindow(ribbon, func(window unsafe.Pointer) { inside = C.ribbon_pointer_inside(window) != 0 })
+	return inside, err
 }
 
 // DragThreshold answers how far the pointer must move before a press becomes a drag (FR-401).

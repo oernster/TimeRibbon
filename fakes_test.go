@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/internal/domain/clock"
@@ -89,6 +90,23 @@ func (s *scriptedService) SetAlwaysOnTop(on bool) error {
 	s.onTop = append(s.onTop, on)
 	s.settings.AlwaysOnTop = on
 	return s.change("SetAlwaysOnTop")
+}
+
+func (s *scriptedService) SetPinned(on bool) error {
+	err := s.change("SetPinned")
+	if err == nil {
+		s.settings.Pinned = on
+	}
+	return err
+}
+
+// Collapsed answers the tab as a band 8 wide against the arrangement's right side (FR-614).
+func (s *scriptedService) Collapsed(full application.Arrangement) (application.Arrangement, error) {
+	s.record("Collapsed")
+	return application.Arrangement{
+		At:   placement.Point{X: full.At.X + full.Size.Width - placement.TabThickness, Y: full.At.Y},
+		Size: placement.Size{Width: placement.TabThickness, Height: full.Size.Height},
+	}, s.arrangeErr
 }
 
 func (s *scriptedService) StartWithWindows() (bool, error) { return true, s.changeErr }
@@ -182,6 +200,13 @@ type window struct {
 	placeErr  error
 	browseErr error
 	positions int
+	// The unpinned ribbon's calls: the frames asked for, the pointer watching asked for, the time
+	// the tests set and the timer pending, which a test fires by hand.
+	tabFrames []bool
+	watching  []bool
+	now       time.Time
+	pending   func()
+	waited    time.Duration
 }
 
 // sawEvent reports whether the facade sent event with data first, when data is given.
@@ -234,5 +259,20 @@ func newTestApp(t *testing.T) (*App, *scriptedService, *window, *bytes.Buffer) {
 		seen.placed = append(seen.placed, application.Arrangement{At: at, Size: size})
 		return seen.placeErr
 	}
+	seen.now = testNow
+	app.now = func() time.Time { return seen.now }
+	app.after = func(wait time.Duration, do func()) func() bool {
+		seen.pending, seen.waited = do, wait
+		return func() bool { seen.pending = nil; return true }
+	}
+	app.tabFrame = func(tab bool) error {
+		seen.tabFrames = append(seen.tabFrames, tab)
+		return nil
+	}
+	app.watchPointer = func(on bool) { seen.watching = append(seen.watching, on) }
+	service.settings.Pinned = true
 	return app, service, seen, log
 }
+
+// testNow is the tests' present moment.
+var testNow = time.Date(2026, 9, 28, 21, 0, 0, 0, time.UTC)

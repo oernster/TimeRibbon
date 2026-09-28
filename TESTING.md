@@ -43,6 +43,7 @@ and what stops it. An unexplained shortfall cannot be told from an oversight.
 | Package | Coverage | Floor | Gated by |
 |---|---|---|---|
 | `internal/domain/clock` | 100% | 100% | `test.ps1`, with the application |
+| `internal/domain/hover` | 100% | 100% | `test.ps1`, with the application |
 | `internal/domain/placement` | 100% | 100% | `test.ps1`, with the application |
 | `internal/domain/settings` | 100% | 100% | `test.ps1`, with the application |
 | `internal/application` | 100% | 100% | `test.ps1`, with the domain |
@@ -61,8 +62,8 @@ and what stops it. An unexplained shortfall cannot be told from an oversight.
 | `tools/genplaces` | 38.8% | 38% | `test.ps1` |
 | `internal/infrastructure/appdata` | 100% | 100% | `test.ps1` |
 | `internal/infrastructure/runlog` | 76.5% | 76% | `test.ps1` |
-| the root package (the Wails facade) | 76.6% | 76% | `test.ps1` |
-| `internal/infrastructure/desktop` | 14.7% | 14% | `test.ps1` |
+| the root package (the Wails facade) | 81.8% | 76% | `test.ps1` |
+| `internal/infrastructure/desktop` | 32.8% | 14% | `test.ps1` |
 | `internal/product` | 100% | none | not gated |
 | `installer` | 0%, no tests | none | not gated |
 
@@ -247,6 +248,7 @@ Windows, installing and removing the DMG on macOS and the Flatpak on Linux.
 | M-11 | The donate button at the foot of Settings opens the default browser on the donation page |
 | M-12 | Each Position item puts the ribbon flush against its edge and centred along it on the display it is on; it opens there next time; choosing Horizontal or Vertical from either menu sends it to the top or right edge; small clocks show their whole date and time in both styles; the Settings title and Close stay put while the panel scrolls; each colour scheme looks right and unmistakably its own in Light, Dark and System, Neon glowing on its dark side only; every date format shows its whole date in large and small cells, a Wednesday in September the widest |
 | M-13 | Help's Check for updates says this is the latest version with the network on and that GitHub could not be reached with it off; a build older than the latest release shows the update panel a few seconds after it starts; Download opens this platform's download in the browser; after Skip this version the next start shows nothing; the Flatpak build reaches GitHub too |
+| M-14 | Unticking Pin ribbon in either menu shrinks the ribbon to an accent tab 8 wide on its side nearer the display's edge a second after the pointer leaves; resting the pointer on the tab for 0.3 s opens it while the window being typed in keeps focus; crossing the tab quickly does not; the tab stays above a maximised window with Always on top off; the right-click menu and a panel keep it open; dragging the open ribbon does not collapse it; a Stream Deck press hides the tab and the next brings it back; ticking Pin ribbon ends all of it. On Linux, dragging and the menu are the checks that matter most: crossings made by a grab are ignored, which no test can reach |
 | Wheel at 250% | On a display at 250%, one notch of a plain wheel over a scrolling horizontal ribbon moves it as far as a native notch moves a vertical one; only a physical wheel settles it |
 
 The ribbon's layout at its full size was measured in headless Edge 154.0.4258.37, the version of the

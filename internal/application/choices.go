@@ -48,6 +48,11 @@ func (s *Service) SetAlwaysOnTop(on bool) error {
 	return choose(s, on, func(c *settings.Settings) *bool { return &c.AlwaysOnTop })
 }
 
+// SetPinned pins or unpins the ribbon (FR-613).
+func (s *Service) SetPinned(on bool) error {
+	return choose(s, on, func(c *settings.Settings) *bool { return &c.Pinned })
+}
+
 // choose sets the field field picks to value and saves; a value the setting does not offer, which
 // normalising would replace, is refused and nothing changes (FR-602).
 func choose[T comparable](s *Service, value T, field func(*settings.Settings) *T) error {

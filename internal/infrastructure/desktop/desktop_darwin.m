@@ -65,6 +65,14 @@ void ribbon_frame(void *ribbon, int *x, int *y, int *width, int *height)
     *height = (int)lround(frame.size.height);
 }
 
+// ribbon_pointer_inside answers whether the pointer is on the window now (FR-615, FR-616). The page
+// hears nothing of the pointer while TimeRibbon is not the active application, so this is asked
+// instead (measured 2026-09-28).
+int ribbon_pointer_inside(void *ribbon)
+{
+    return NSMouseInRect([NSEvent mouseLocation], [(__bridge NSWindow *)ribbon frame], NO);
+}
+
 // The observers desktop_watch registers, held so they live as long as the process.
 static NSMutableArray *observers;
 
@@ -157,6 +165,8 @@ void desktop_popup(void *menu)
     NSMenu *owned = (__bridge_transfer NSMenu *)menu;
     dispatch_async(dispatch_get_main_queue(), ^{
         [owned popUpMenuPositioningItem:nil atLocation:[NSEvent mouseLocation] inView:nil];
+        // The menu has closed, its choice already sent (FR-616).
+        desktopMenuClosed();
     });
 }
 

@@ -41,6 +41,8 @@ export interface Snapshot {
   scrolls: boolean
   dragThreshold: Size
   startLabel: string
+  /** True while the window is an unpinned ribbon's tab (FR-614). */
+  collapsed: boolean
 }
 
 export interface Place {

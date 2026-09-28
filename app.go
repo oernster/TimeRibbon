@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"sync/atomic"
+	"time"
 
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/internal/domain/clock"
@@ -52,6 +53,7 @@ type ribbonService interface {
 	SetOrientation(orientation settings.Orientation) error
 	SetTheme(theme settings.Theme) error
 	SetAlwaysOnTop(on bool) error
+	SetPinned(on bool) error
 	StartWithWindows() (bool, error)
 	SetStartWithWindows(on bool) error
 	DismissNotices()
@@ -64,6 +66,7 @@ type ribbonService interface {
 	Moved(at placement.Point) (application.Arrangement, error)
 	ToEdge(at placement.Point, edge placement.Edge) (application.Arrangement, error)
 	Centred(at placement.Point, size placement.Size) (application.Arrangement, error)
+	Collapsed(full application.Arrangement) (application.Arrangement, error)
 	CheckForUpdate(ctx context.Context, manual bool) application.UpdateStatus
 	SkipUpdate(version string) error
 }
@@ -87,6 +90,12 @@ type App struct {
 	showMenu   func(items []application.MenuItem)
 	position   func() (placement.Point, error)
 	place      func(at placement.Point, size placement.Size) error
+	// The unpinned ribbon's calls (FR-613 to FR-618): the time, a timer that answers its own stop,
+	// the tab's frame and the desktop's reporting of the pointer.
+	now          func() time.Time
+	after        func(wait time.Duration, do func()) func() bool
+	tabFrame     func(tab bool) error
+	watchPointer func(on bool)
 
 	ctx       context.Context
 	ribbon    desktop.Window
@@ -98,6 +107,9 @@ type App struct {
 
 	// updates holds the update check's timing and the outcome it last offered (FR-509).
 	updates updateWatch
+
+	// unpin is the unpinned ribbon's hover state and what the window shows of it (FR-613 to FR-618).
+	unpin unpinned
 }
 
 // newApp answers the facade over service, reporting on desktop, with every panel drawn at panel DIP.
@@ -115,12 +127,20 @@ func newApp(service ribbonService, desk *desktop.Desktop, log io.Writer, panelSi
 	built.showMenu = desk.ShowMenu
 	built.position = built.ribbonPosition
 	built.place = built.placeRibbon
+	built.now = time.Now
+	built.after = func(wait time.Duration, do func()) func() bool { return time.AfterFunc(wait, do).Stop }
+	built.tabFrame = func(tab bool) error { return desktop.SetTabFrame(built.ribbon, tab) }
+	built.watchPointer = func(on bool) { desk.TrackPointer(built.ribbon, on) }
+	// The window opens as the full ribbon; it is collapsed only once it has been arranged.
+	built.unpin.shownOpen = true
 	return built
 }
 
-// Snapshot answers what the ribbon shows now.
+// Snapshot answers what the ribbon shows now, the tab included (FR-614).
 func (a *App) Snapshot() snapshotDTO {
-	return snapshotOf(a.service.Snapshot(), a.scrolls.Load(), desktop.DragThreshold())
+	shown := snapshotOf(a.service.Snapshot(), a.scrolls.Load(), desktop.DragThreshold())
+	shown.Collapsed = a.collapsed()
+	return shown
 }
 
 // AddClock adds a clock for zone and answers its id (FR-301).
@@ -227,14 +247,20 @@ func (a *App) SetPixelRatio(ratio float64) error {
 	return a.refitted(a.service.SetPixelsPerDIP(desktop.PixelsPerDIP(ratio)))
 }
 
-// ShowContextMenu shows the ribbon's right-click menu as a native menu at the cursor (FR-108).
-func (a *App) ShowContextMenu() { a.showMenu(a.service.ContextMenu()) }
+// ShowContextMenu shows the ribbon's right-click menu as a native menu at the cursor (FR-108). While
+// it is open the ribbon does not collapse (FR-616); the desktop reports it closed.
+func (a *App) ShowContextMenu() {
+	a.menuShown()
+	a.showMenu(a.service.ContextMenu())
+}
 
 // OpenPanel turns the window into a panel (Settings, About or Licence), centred on the ribbon's
-// display (CON-6).
+// display (CON-6). A panel holds an unpinned ribbon open until it closes (FR-616).
 func (a *App) OpenPanel() error {
-	a.panelOpen.Store(true)
-	at, err := a.position()
+	if !a.panelOpen.Swap(true) {
+		a.hold(true)
+	}
+	at, err := a.ribbonAt()
 	if err != nil {
 		return err
 	}
@@ -242,13 +268,19 @@ func (a *App) OpenPanel() error {
 	if err != nil {
 		return err
 	}
+	a.report("giving the panel its frame", a.tabFrame(false))
 	return a.place(arranged.At, arranged.Size)
 }
 
-// ClosePanel returns the window to the ribbon, where it was last left (CON-6, FR-405).
+// ClosePanel returns the window to the ribbon, where it was last left (CON-6, FR-405), then lets an
+// unpinned one collapse once the pointer is away (FR-616).
 func (a *App) ClosePanel() error {
-	a.panelOpen.Store(false)
-	return a.placeLaunched()
+	wasOpen := a.panelOpen.Swap(false)
+	err := a.placeLaunched()
+	if wasOpen {
+		a.release()
+	}
+	return err
 }
 
 // OpenDonation hands the donation page to the desktop's browser. The application never fetches it,

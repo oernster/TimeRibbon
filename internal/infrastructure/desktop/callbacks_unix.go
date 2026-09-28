@@ -40,6 +40,16 @@ func desktopDisplaysChanged(handle uintptr) {
 	cgo.Handle(handle).Value().(*Desktop).send(Event{Kind: EventDisplayChanged})
 }
 
+//export desktopMenuClosed
+func desktopMenuClosed() {
+	shown.Lock()
+	d := shown.desktop
+	shown.Unlock()
+	if d != nil {
+		d.send(Event{Kind: EventMenuClosed})
+	}
+}
+
 //export desktopMenuChosen
 func desktopMenuChosen(index C.int) {
 	shown.Lock()

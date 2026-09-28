@@ -54,6 +54,7 @@ func (d *Desktop) track(items []application.MenuItem) {
 	if action, ok := chosenAction(items, int(chosen)); ok {
 		d.send(Event{Kind: EventMenu, Action: action})
 	}
+	d.send(Event{Kind: EventMenuClosed})
 }
 
 // fill appends items to menu, a submenu for each item holding children (FR-508). Identifiers are

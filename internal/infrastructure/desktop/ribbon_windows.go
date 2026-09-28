@@ -56,6 +56,48 @@ func Position(ribbon Window) (placement.Point, error) {
 	return placement.Point{X: int(bounds.left), Y: int(bounds.top)}, nil
 }
 
+// pointerInside answers whether the pointer is on the ribbon's window now (FR-615, FR-616).
+func pointerInside(ribbon Window) (bool, error) {
+	var cursor point
+	if ok, _, err := procGetCursorPos.Call(uintptr(unsafe.Pointer(&cursor))); ok == 0 {
+		return false, fmt.Errorf("reading the pointer: %w", err)
+	}
+	var bounds rect
+	if ok, _, err := procGetWindowRect.Call(uintptr(ribbon), uintptr(unsafe.Pointer(&bounds))); ok == 0 {
+		return false, fmt.Errorf("reading the ribbon's rectangle: %w", err)
+	}
+	return cursor.x >= bounds.left && cursor.x < bounds.right && cursor.y >= bounds.top && cursor.y < bounds.bottom, nil
+}
+
+// tabStyles are the styles Wails gives its frameless window (style 0x4ca0000, measured 2026-09-28)
+// that hold it at least 42 pixels wide; without them it takes the tab's 8 (FR-614).
+const tabStyles = wsCaption | wsSysMenu | wsMinimizeBox
+
+// styleIndex is GWL_STYLE held in a variable, as exStyleIndex is.
+var styleIndex int32 = gwlStyle
+
+// SetTabFrame takes tabStyles off the ribbon's window while it is its tab and gives them back once
+// it is not, so the full ribbon keeps the window Wails made. The next Place applies the change.
+func SetTabFrame(ribbon Window, tab bool) error {
+	// Every window has a style here (WS_CLIPSIBLINGS at least), so zero is a failed read.
+	style, _, err := procGetWindowLongPtr.Call(uintptr(ribbon), uintptr(styleIndex))
+	if style == 0 {
+		return fmt.Errorf("reading the ribbon's frame: %w", err)
+	}
+	next := style | tabStyles
+	if tab {
+		next = style &^ tabStyles
+	}
+	if next == style {
+		return nil
+	}
+	// The previous style is never zero, as above; zero is failure.
+	if previous, _, err := procSetWindowLongPtr.Call(uintptr(ribbon), uintptr(styleIndex), next); previous == 0 {
+		return fmt.Errorf("changing the ribbon's frame: %w", err)
+	}
+	return nil
+}
+
 // DragThreshold answers how far the pointer must move, in DIP, before a press becomes a drag: the
 // Windows drag rectangle at 100 percent scaling (FR-401).
 func DragThreshold() placement.Size {

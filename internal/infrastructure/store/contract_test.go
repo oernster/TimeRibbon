@@ -48,4 +48,8 @@ func TestA1Point0SettingsFileIsReadWhole(t *testing.T) {
 	if got.Size != settings.Large {
 		t.Errorf("a 1.0.0 file read with size %q, want large", got.Size)
 	}
+	// 1.0.0 had no pin (FR-613): its ribbon was always shown in full, so it stays pinned.
+	if !got.Pinned {
+		t.Error("a 1.0.0 file read unpinned, want pinned")
+	}
 }

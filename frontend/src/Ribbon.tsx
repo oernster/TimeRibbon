@@ -54,6 +54,12 @@ export function Ribbon({ snapshot, onAddClock, refused }: Props) {
     }
   }
 
+  // An unpinned ribbon's tab is only a band in the scheme's accent: no words, no drag, no menu. It
+  // opens when the pointer rests on it, which the desktop reports rather than the page (FR-614).
+  if (snapshot.collapsed) {
+    return <div className="tab" data-testid="tab" />
+  }
+
   const classes = ['ribbon', vertical ? 'vertical' : 'horizontal', snapshot.size, snapshot.scrolls ? 'scrolls' : ''].join(' ')
   return (
     <div

@@ -53,6 +53,12 @@ button:focus-visible {
   height: 128px;
 }
 
+/* An unpinned ribbon's tab: the whole window in the scheme's accent (FR-614). */
+.tab {
+  height: 100%;
+  background: var(--accent);
+}
+
 .ribbon {
   display: flex;
   box-sizing: border-box;

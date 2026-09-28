@@ -27,9 +27,25 @@ static void on_monitors_changed(GdkScreen *screen, gpointer data)
     desktopDisplaysChanged((GoUintptr)data);
 }
 
+// on_crossing reports the pointer coming onto the ribbon's window or leaving it (FR-615, FR-616). A
+// crossing into or out of a child, the web view, leaves it on the window. A crossing made by a grab,
+// as a drag or a popup menu takes the pointer, is not a departure: the drag holds the ribbon and the
+// menu reports its own closing.
+static gboolean on_crossing(GtkWidget *widget, GdkEventCrossing *event, gpointer data)
+{
+    if (event->mode == GDK_CROSSING_GRAB) {
+        return FALSE;
+    }
+    desktopPointer((GoUintptr)data, event->type == GDK_ENTER_NOTIFY || event->detail == GDK_NOTIFY_INFERIOR);
+    return FALSE;
+}
+
 void desktop_watch(GtkWindow *ribbon, guintptr handle)
 {
     g_signal_connect(ribbon, "configure-event", G_CALLBACK(on_configure), (gpointer)handle);
+    gtk_widget_add_events(GTK_WIDGET(ribbon), GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK);
+    g_signal_connect(ribbon, "enter-notify-event", G_CALLBACK(on_crossing), (gpointer)handle);
+    g_signal_connect(ribbon, "leave-notify-event", G_CALLBACK(on_crossing), (gpointer)handle);
     g_signal_connect(gdk_screen_get_default(), "monitors-changed", G_CALLBACK(on_monitors_changed),
                      (gpointer)handle);
 }
@@ -74,10 +90,12 @@ void menu_add_separator(GtkWidget *menu)
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), gtk_separator_menu_item_new());
 }
 
-// destroy_later destroys a closed menu once the loop is idle, after its chosen item has activated.
+// destroy_later destroys a closed menu once the loop is idle, after its chosen item has activated,
+// then reports it closed, so the choice is heard first, as on Windows (FR-616).
 static gboolean destroy_later(gpointer menu)
 {
     gtk_widget_destroy(GTK_WIDGET(menu));
+    desktopMenuClosed();
     return G_SOURCE_REMOVE;
 }
 

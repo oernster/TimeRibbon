@@ -144,7 +144,7 @@ Oliver Ernster as author and decision owner; contributors to the open source pro
 | **Invalid clock** | A stored clock entry that cannot be used: its zone is not recognised or its fields cannot be read. |
 | **Settings file** | `%APPDATA%\TimeRibbon\settings.json`. |
 | **Pinned** | The ribbon always shows in full while shown; the default. Unpinned, it collapses (FR-613). |
-| **Tab** | The 8 DIP accent strip an unpinned ribbon shrinks to (FR-614). |
+| **Tab** | The 8 DIP accent band an unpinned ribbon shrinks to (FR-614). |
 | **Collapsed** | Unpinned and showing only its tab; **expanded** is unpinned and showing in full. |
 | **DIP** | Device-independent pixel: one pixel at 100 percent Windows scaling. |
 
@@ -853,7 +853,7 @@ Verified by: planned `TestAFileWithoutAPinIsPinned` (infrastructure, store),
 **FR-614 The tab**
 Priority: Should (Amendment 18, Oliver, 2026-09-28).
 While the ribbon is collapsed, the application shall show in the ribbon's place only its tab: a
-strip 8 DIP deep along the ribbon's whole length, painted in the colour scheme's accent (FR-611),
+band 8 DIP deep along the ribbon's whole length, painted in the colour scheme's accent (FR-611),
 covering the side of the ribbon nearer the matching edge of its monitor's work area. That side is
 left or right for a vertical ribbon and top or bottom for a horizontal one; at an equal distance it
 is the side of the orientation's home edge (FR-409).
@@ -861,9 +861,9 @@ Rationale: Oliver, 2026-09-28: a thin tab about 8 DIP deep in the accent. OQ-6: 
 away from every edge keeps its tab where it stands, on its side nearer an edge. Collapsing moves
 nothing: the stored placement (FR-404) is the expanded ribbon's.
 Acceptance: given a vertical ribbon 196 DIP long flush against the right edge of its work area,
-when it collapses, then only an 8 by 196 DIP strip in the accent shows, flush against that right
+when it collapses, then only an 8 by 196 DIP band in the accent shows, flush against that right
 edge. Given the same ribbon dragged so its left side is 100 DIP from the work area's left edge and
-its right side 900 DIP from the right, when it collapses, then the strip covers its left side.
+its right side 900 DIP from the right, when it collapses, then the band covers its left side.
 Verified by: planned `TestTheTabCoversTheSideNearerItsEdge`, `TestAnEvenDistanceGoesToTheHomeEdge`
 (domain, placement); `TestCollapsingKeepsThePlacement` (application); `ribbon.test.tsx` for the
 accent; check M-14.

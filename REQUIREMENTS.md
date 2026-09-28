@@ -234,6 +234,22 @@ Oliver's hand, as an accessory application at the status window level, with BBEd
   application or made the window key; BBEdit stayed in front throughout. The pointer returning
   within the second was not exercised.
 
+Measured on 2026-09-28 with the same probe on Ubuntu 26.04 (GNOME on Wayland, scale 2), GTK forced
+onto X11 as TimeRibbon runs, the pointer moved by Oliver's hand, a Wayland text editor in front:
+
+- The window took 8 by 300 as asked, kept above others and off the taskbar.
+- Neither the page nor a poll can see the pointer leave. The page reported one `mouseenter` per
+  run and never a `mouseleave`. `XQueryPointer` answers in device pixels (twice GTK's units at
+  scale 2). Once the pointer is over a Wayland window, it keeps answering the last place it was
+  over an X11 one: for 11 s over the editor and the dock it read the tab's own edge.
+- GTK's crossing events on the top-level window (`enter-notify-event`, `leave-notify-event`) saw
+  every arrival and departure, leaving onto Wayland windows included. Driven by them, the
+  prototype opened on all 8 rests, each 0.3 s after arrival; stayed shut for passes of 27 and 77 ms;
+  collapsed 1 s after each of 8 departures. Each grow raised a false departure followed within 7 ms
+  by an arrival, which the timers absorbed. The window never became active.
+- As TimeRibbon's `awaitSize` already records, the move must wait for a new size to land: moved
+  at once after shrinking, the tab kept the open window's left edge, 192 px in from the display's.
+
 Amendment 13 (Oliver, 2026-09-28): also macOS 12 or later on Apple Silicon (the oldest macOS the Go
 toolchain supports, read by `builddmg.sh`) and Linux desktops running Flatpaks, on the GNOME 50
 runtime with WebKitGTK 4.1, drawing through X11 (XWayland on a Wayland desktop). Both build with
@@ -265,7 +281,7 @@ recorded at the first measured build.
 | ASM-1 | The Windows clock is correct; TimeRibbon shows what it implies. | Oliver | Baselining |
 | ASM-2 | Up to 12 clocks covers real use; beyond that the ribbon scrolls rather than grows (FR-106). The number sizes tests, not a limit. | Oliver | Baselining |
 | ASM-3 | English weekday and month names suffice. | Oliver | Baselining |
-| ASM-4 | The pointer arriving on and leaving the ribbon's window can be seen on Windows, macOS and Linux under X11, for a window as thin as the tab. FR-615 and FR-616 depend on it. Confirmed on Windows 2026-09-28 by the page's own events; on macOS the same day by the pointer's position read in Go, the page being blind while inactive (section 2.3); unmeasured on Linux. | Claude | Before FR-613 to FR-618 are designed |
+| ASM-4 | The pointer arriving on and leaving the ribbon's window can be seen on Windows, macOS and Linux under X11, for a window as thin as the tab. FR-615 and FR-616 depend on it. Confirmed on Windows 2026-09-28 by the page's own events; on macOS the same day by the pointer's position read in Go, the page being blind while inactive; on Linux under X11 the same day by GTK's crossing events alone (section 2.3). Each platform needs its own source. | Claude | Confirmed 2026-09-28 |
 
 ---
 

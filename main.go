@@ -122,6 +122,7 @@ func run(log io.Writer) error {
 	var app *App
 	desk := desktop.New(func() []application.MenuItem { return service.TrayMenu(app.visible.Load()) }, log)
 	app = newApp(service, desk, log, panelSize)
+	preparePlatform(app, desk)
 	if err := desk.Start(); err != nil {
 		fmt.Fprintf(log, "starting the tray icon: %v; closing the ribbon will exit\n", err)
 	} else {

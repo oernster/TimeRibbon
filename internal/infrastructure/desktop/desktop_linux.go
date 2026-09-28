@@ -1,7 +1,6 @@
 package desktop
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"runtime/cgo"
@@ -12,23 +11,22 @@ import (
 	"github.com/oernster/timeribbon/internal/domain/placement"
 )
 
-// errNoTray is answered by Start until the Linux tray icon is built: without it, closing the ribbon
-// exits, as the facade already does wherever the icon could not start.
-var errNoTray = errors.New("the tray icon is not yet built on Linux")
-
 // moveSettle is how long the ribbon must stand still before a move counts as ended. The window
 // manager carries a drag through without saying when the button is let go, so the end is the
 // moment the position stops changing.
 const moveSettle = 300 * time.Millisecond
 
-// Desktop hears the desktop on Linux: the end of the ribbon's moves, changes of display and jumps
-// of the clock, plus the ribbon's own menu. GTK is not open when Start runs, so everything that
-// needs GTK waits for Watch, which runs once the ribbon's window exists.
+// Desktop hears the desktop on Linux: the tray icon and its menu, the end of the ribbon's moves,
+// changes of display and jumps of the clock, plus the ribbon's own menu. GTK is not open when Start
+// runs, so everything that needs GTK waits for Watch, which runs once the ribbon's window exists;
+// the tray talks to the session bus, not to GTK, so it starts with Start.
 type Desktop struct {
 	menu   func() []application.MenuItem
 	events chan Event
 	log    io.Writer
 	stop   chan struct{}
+	icon   []byte
+	tray   *tray
 
 	guard  sync.Mutex
 	closed bool
@@ -49,17 +47,26 @@ func New(menu func() []application.MenuItem, log io.Writer) *Desktop {
 // Events yields what happened. The channel is closed when the desktop stops.
 func (d *Desktop) Events() <-chan Event { return d.events }
 
-// Start begins watching the clock, then answers why there is no tray icon.
+// UseIcon gives the tray icon its image, a PNG. It must come before Start.
+func (d *Desktop) UseIcon(png []byte) { d.icon = png }
+
+// Start begins watching the clock and puts the icon in the tray, returning once the icon is there or
+// with the reason it is not.
 func (d *Desktop) Start() error {
+	var err error
 	d.started.Do(func() {
 		go watchClock(d.stop, func() { d.send(Event{Kind: EventTimeChanged}) })
+		d.tray, err = startTray(d, d.icon)
 	})
-	return errNoTray
+	return err
 }
 
-// Stop ends the watching and closes the events.
+// Stop takes the icon out of the tray, ends the watching and closes the events.
 func (d *Desktop) Stop() {
 	d.stopped.Do(func() {
+		if d.tray != nil {
+			d.tray.stop()
+		}
 		close(d.stop)
 		d.guard.Lock()
 		defer d.guard.Unlock()

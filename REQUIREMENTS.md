@@ -201,6 +201,24 @@ Measured on 2026-09-27 against Wails v2.12.0 in the module cache:
 - `WindowSetPosition` places the window relative to the work area of the monitor it is currently on,
   while `WindowGetPosition` answers absolute virtual-desktop coordinates (CON-7).
 
+Measured on 2026-09-28 with a throwaway Wails v2.12.0 probe on Windows 11 at 100 percent, for the
+tab of FR-614 (ASM-4):
+
+- A frameless Wails window keeps `WS_CAPTION`, `WS_SYSMENU` and `WS_MINIMIZEBOX` (style
+  `0x4ca0000`), which hold it at least 42 px wide: an 8 px `SetWindowPos` gave 42, the surplus
+  hanging off the display's edge. Neither removing `WS_THICKFRAME` nor setting Wails' `MinWidth` to 1
+  changed that. With those three styles removed, the same call gave 8 px and the page read an
+  `innerWidth` of 8.
+- The page of a window never activated, placed topmost with `SWP_NOACTIVATE`, saw every arrival and
+  departure of the pointer at 8 px: `mouseenter` and `mouseleave` on the document element matched a
+  1 ms Go poll of the cursor against the window's rectangle on all 28 passes (a slow approach, a
+  30 ms flick, a fast pass along the edge, a single jump 400 px away, a push against the display's
+  edge, a window grown under the pointer), never more than 2.1 ms apart.
+- Growing the window under the pointer with `SWP_NOACTIVATE` left the foreground window unchanged
+  throughout; the page never had focus.
+- A process launched from the shell is handed the foreground when its window is created, although
+  the window starts hidden.
+
 Amendment 13 (Oliver, 2026-09-28): also macOS 12 or later on Apple Silicon (the oldest macOS the Go
 toolchain supports, read by `builddmg.sh`) and Linux desktops running Flatpaks, on the GNOME 50
 runtime with WebKitGTK 4.1, drawing through X11 (XWayland on a Wayland desktop). Both build with
@@ -232,7 +250,7 @@ recorded at the first measured build.
 | ASM-1 | The Windows clock is correct; TimeRibbon shows what it implies. | Oliver | Baselining |
 | ASM-2 | Up to 12 clocks covers real use; beyond that the ribbon scrolls rather than grows (FR-106). The number sizes tests, not a limit. | Oliver | Baselining |
 | ASM-3 | English weekday and month names suffice. | Oliver | Baselining |
-| ASM-4 | The pointer arriving on and leaving the ribbon's window can be seen on Windows, macOS and Linux under X11, for a window as thin as the tab. Unmeasured; FR-615 and FR-616 depend on it. | Claude | Before FR-613 to FR-618 are designed |
+| ASM-4 | The pointer arriving on and leaving the ribbon's window can be seen on Windows, macOS and Linux under X11, for a window as thin as the tab. FR-615 and FR-616 depend on it. Confirmed on Windows 2026-09-28 (section 2.3); unmeasured on macOS and Linux. | Claude | Before FR-613 to FR-618 are designed |
 
 ---
 

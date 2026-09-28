@@ -81,26 +81,8 @@ func fill(menu uintptr, items []application.MenuItem, next *int) {
 	}
 }
 
-// numbered answers the action of every item that carries an identifier, in the order fill gives
-// them out: depth first, so a submenu's items follow every item before it.
-func numbered(items []application.MenuItem) []application.MenuAction {
-	var out []application.MenuAction
-	for _, item := range items {
-		if len(item.Children) > 0 {
-			out = append(out, numbered(item.Children)...)
-			continue
-		}
-		out = append(out, item.Action)
-	}
-	return out
-}
-
 // chosenAction answers the action of the menu identifier Windows answered; false for none.
+// Identifiers start at menuIDBase, since Windows answers zero for no choice.
 func chosenAction(items []application.MenuItem, id int) (application.MenuAction, bool) {
-	actions := numbered(items)
-	index := id - menuIDBase
-	if index < 0 || index >= len(actions) {
-		return "", false
-	}
-	return actions[index], true
+	return actionAt(items, id-menuIDBase)
 }

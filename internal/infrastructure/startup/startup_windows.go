@@ -1,5 +1,3 @@
-// Package startup reads and writes the Start with Windows value under HKCU (FR-605, FR-805).
-// Settings and setup both go through it, so the two write the same single value.
 package startup
 
 import (

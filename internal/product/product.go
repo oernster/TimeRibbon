@@ -9,6 +9,10 @@ const Name = "TimeRibbon"
 // its step log.
 const SetupName = Name + "Setup"
 
+// AppID is the reverse-domain id the Linux desktop knows TimeRibbon by: the Flatpak's id and the
+// name of its start-at-sign-in entry.
+const AppID = "uk.codecrafter." + Name
+
 // RibbonClass is the class the ribbon's window is created with, so it can be found by it (CON-7).
 // Setup looks for it to know the ribbon is up before it closes.
 const RibbonClass = Name + "Window"

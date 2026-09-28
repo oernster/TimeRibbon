@@ -34,6 +34,13 @@ version (NFR-C-1).
 Amendment 12 (Oliver, 2026-09-28): colour schemes, Neon among them, chosen from a Colour submenu
 (FR-611).
 
+Amendment 13 (Oliver, 2026-09-28): TimeRibbon runs on macOS (Apple Silicon, delivered as a signed
+and notarised DMG) and Linux (delivered as a Flatpak) as well as Windows. Off Windows it keeps a real
+tray icon; on Linux it runs through X11. The sign-in entry is named in each platform's words. On
+macOS the drag distance is Windows' 4 DIP and a click on the menu bar icon opens its menu; on Linux
+the tray host's activation shows or hides the ribbon. Section 1.3, section 2.3, CON-7, CON-8,
+FR-401, FR-503, FR-605, FR-607, NFR-O-1, section 5 and section 12 carry notes of it.
+
 Source: the initial product specification of 2026-09-27, written under the product's former name,
 plus Oliver's rulings
 of 2026-09-27: the stack is Go with Wails; orientation is a setting offering both horizontal and
@@ -50,6 +57,8 @@ TimeRibbon is a small Windows desktop application showing a ribbon of clocks, on
 the world. It answers one question at a glance: what time and what day is it where my friends are?
 
 It shows places, never people. It is not a calendar, a meeting planner or a productivity tool.
+
+Amendment 13 (Oliver, 2026-09-28): it runs on macOS and Linux as well as Windows.
 
 ### 1.2 Intended audience
 
@@ -84,7 +93,7 @@ Oliver Ernster as author and decision owner; contributors to the open source pro
 | Per-clock 12/24-hour format | The spec's section 7: a global preference until use shows otherwise |
 | Wrapping clocks onto several rows or columns | The spec's section 19; overflow scrolls instead (FR-106) |
 | Relative wording such as "tomorrow" or "+1 day" | The spec's section 14 prefers the local weekday and date |
-| Any platform but Windows | The spec's section 20 |
+| Any platform but Windows | The spec's section 20. Withdrawn by Amendment 13: macOS and Linux are in scope |
 | Languages other than English | Not asked for; weekday and month names are English |
 | Network time synchronisation | Windows owns the clock; TimeRibbon reads it (NFR-S-2) |
 | Downloading time zone rule updates | Rules are built into the binary (CON-5, NFR-S-3) |
@@ -161,6 +170,14 @@ Measured on 2026-09-27 against Wails v2.12.0 in the module cache:
 - `WindowSetPosition` places the window relative to the work area of the monitor it is currently on,
   while `WindowGetPosition` answers absolute virtual-desktop coordinates (CON-7).
 
+Amendment 13 (Oliver, 2026-09-28): also macOS 12 or later on Apple Silicon (the oldest macOS the Go
+toolchain supports, read by `builddmg.sh`) and Linux desktops running Flatpaks, on the GNOME 50
+runtime with WebKitGTK 4.1, drawing through X11 (XWayland on a Wayland desktop). Both build with
+cgo against their toolkit. Measured against Wails v2.12.0 on 2026-09-28: on macOS its window keeps
+its title, `WindowSetPosition` counts from the current screen's visible frame and the application
+is made regular as it finishes launching; on Linux `SetPosition` is monitor-relative while
+`GetPosition` is absolute.
+
 **The reference machine** for performance requirements is the development machine, to be read and
 recorded at the first measured build.
 
@@ -174,8 +191,8 @@ recorded at the first measured build.
 | CON-4 | `VERSION` is the single source of truth for the version. No version literal elsewhere. |
 | CON-5 | Zones resolve through Go's `time.LoadLocation` with the `time/tzdata` package embedded, so no rule depends on files present on the machine. Measured 2026-09-27 with `ZONEINFO` pointed at a missing path: `America/New_York` answered EST in January and EDT in July; `Not/AZone` answered an error. No DST rule is written by hand. |
 | CON-6 | The ribbon, its context menu and the Settings surface share one window, since Wails v2 offers one. Settings is shown by resizing that window to a settings layout and returning it to the ribbon afterwards. Amendment 2: About and Licence (FR-607, FR-608) are shown the same way, as panels of that one window. |
-| CON-7 | Monitor enumeration, work areas, monitor identity and window placement go through Win32 (`EnumDisplayMonitors`, `GetMonitorInfoW`, `SetWindowPos`) in infrastructure, never through Wails' position calls. |
-| CON-8 | Everything written stays per user: the settings file under `%APPDATA%` and the Start with Windows value under `HKCU`. Windows never asks for administrator rights. |
+| CON-7 | Monitor enumeration, work areas, monitor identity and window placement go through Win32 (`EnumDisplayMonitors`, `GetMonitorInfoW`, `SetWindowPos`) in infrastructure, never through Wails' position calls. Amendment 13: through GDK and GTK on Linux and AppKit (`NSScreen`, `NSWindow`) on macOS, in DIP. |
+| CON-8 | Everything written stays per user: the settings file under `%APPDATA%` and the Start with Windows value under `HKCU`. Windows never asks for administrator rights. Amendment 13: on macOS the settings under `~/Library/Application Support` and the sign-in agent under `~/Library/LaunchAgents`; on Linux the settings in the Flatpak's own configuration folder and the sign-in entry under `~/.config/autostart`. |
 
 ### 2.5 Assumptions
 
@@ -410,7 +427,10 @@ Priority: Must.
 When the user presses the primary button on any part of the ribbon that is not a control and moves
 further than the Windows drag threshold (`SM_CXDRAG`, `SM_CYDRAG`), the application shall move the
 whole ribbon with the pointer, onto any monitor.
-Verified by: section 12, check M-2.
+Amendment 13 (Oliver, 2026-09-28): on Linux the threshold is GTK's `gtk-dnd-drag-threshold`; macOS
+publishes none, so it is Windows' 4 DIP.
+Verified by: section 12, check M-2; `TestTheDragThresholdIsTheDesktopsOwn` (infrastructure, desktop,
+Linux and macOS).
 
 **FR-402 Controls do not drag**
 Priority: Must.
@@ -510,6 +530,9 @@ Verified by: `TestTrayMenuNamesTheOppositeOfTheVisibility`,
 **FR-503 Tray click**
 Priority: Should.
 When the tray icon is left-clicked, the application shall toggle the ribbon's visibility.
+Amendment 13 (Oliver, 2026-09-28): on Linux the tray host's activation toggles it (a double click on
+Ubuntu, where a single click opens the menu); on macOS a click opens the menu, as every menu bar icon
+does. There the menu's `Show ribbon` or `Hide ribbon` toggles it.
 Verified by: check M-4.
 
 **FR-504 Hide is not exit**
@@ -582,7 +605,14 @@ When Start with Windows is turned on, the application shall write the value `Tim
 shall delete that value. It shall be off by default and never written without the user turning it on.
 The value carries no arguments: a sign-in start shows the ribbon at once, as a normal launch does
 (ruled on OQ-2 by Oliver, 2026-09-27). Setup's box of FR-805 writes this same value.
-Verified by: `TestStartWithWindowsWritesAndRemovesOneValue` (infrastructure).
+Amendment 13 (Oliver, 2026-09-28): Settings names the entry in the platform's words: `Start with
+Windows`, `Open at Login` on macOS, `Start when I sign in` on Linux. On macOS it is a launchd agent
+named for the app id in `~/Library/LaunchAgents`; on Linux an XDG autostart entry named for the app
+id, in the real `~/.config/autostart` under a Flatpak with `flatpak run` as its command. Each is
+removed when turned off.
+Verified by: `TestStartWithWindowsWritesAndRemovesOneValue` (infrastructure);
+`TestOpenAtLoginWritesAndRemovesOneAgent` (macOS), `TestStartAtSignInWritesAndRemovesOneEntry`
+(Linux).
 
 **FR-606 Theme**
 Priority: Should.
@@ -596,7 +626,9 @@ The About panel shall show, in this order: the application icon; the product nam
 this build carries; `by Oliver Ernster`; `© Oliver Ernster`; then a credit for every component the
 application ships, each naming the component, its licence and what it does here. Close and Escape
 return the window to the ribbon.
-Verified by: `help.test.tsx`; `TestEveryLinkedModuleIsCredited` (structural).
+Amendment 13 (Oliver, 2026-09-28): the credits are those of the platform's own build.
+Verified by: `help.test.tsx`; `TestEveryLinkedModuleIsCredited`,
+`TestAModuleIsCreditedOncePerPlatform` (structural); `TestEachPlatformCreditsWhatItShips` (product).
 
 **FR-608 Licence**
 Priority: Must (Amendment 2, Oliver, 2026-09-27).
@@ -719,7 +751,7 @@ Verified by: `TestWriteFailureIsReportedAndCleared` (application).
 | NFR-M-1 | The coverage floor of CON-3, the size limit of CON-2 and the layering of CON-1 are enforced by `test.ps1`, which `build.ps1` runs first with no switch to skip it. | `build.ps1` |
 | NFR-M-2 | Go code passes gofmt, go vet and staticcheck; the front end passes eslint, `tsc --noEmit` and Vitest. | `test.ps1` |
 | NFR-C-1 | From 1.0.0, every later 1.x release shall read every settings file 1.0.0 writes to the same settings: no key 1.0.0 writes is renamed, dropped or given another meaning; no stored word changes. A later release may add keys; 1.0.0 keeps a key it does not know and writes it back. Amendment 4 (Oliver, 2026-09-27). Amendment 11 (Oliver, 2026-09-28): the next major version still reads that shape to the same settings; the file now lives in the renamed folder and nothing is read from the former one. | `TestA1Point0SettingsFileIsReadWhole` over the frozen fixture `internal/infrastructure/store/testdata/settings-1.0.0.json` |
-| NFR-O-1 | The application shall write a log to `%APPDATA%\TimeRibbon\TimeRibbon.log` recording launch, placement recovery decisions, settings failures and invalid clocks; standard error is pointed at it before anything can fail. | `TestLogReceivesStandardError` (infrastructure) |
+| NFR-O-1 | The application shall write a log to `%APPDATA%\TimeRibbon\TimeRibbon.log` recording launch, placement recovery decisions, settings failures and invalid clocks; standard error is pointed at it before anything can fail. Amendment 13: on macOS and Linux, `TimeRibbon.log` in the settings folder of CON-8. | `TestLogReceivesStandardError` (infrastructure) |
 
 ---
 
@@ -737,6 +769,11 @@ the application with `wails build`, then builds the setup program embedding it. 
 with the first release (ruled on OQ-3 by Oliver, 2026-09-27). It is a second Wails application in the
 same module, `installer/`, whose install policy lives in `internal/infrastructure/setup`; ported in
 shape from BridgeTalk's.
+
+Amendment 13 (Oliver, 2026-09-28): the setup program and FR-801 to FR-811 are Windows only. macOS is
+delivered by `builddmg.sh` as a DMG signed with a Developer ID and notarised, the application
+dragged to Applications; Linux by `build_flatpak.sh` as a Flatpak installed for the user, granted
+only X11, the tray host's and the single-instance lock's bus names and the autostart folder.
 
 **FR-801 Setup opens on the screen the machine calls for**
 Priority: Must.
@@ -919,6 +956,10 @@ There are no open questions. The five raised while drafting were ruled by Oliver
 ---
 
 ## 12. Checks a person settles
+
+Amendment 13 (Oliver, 2026-09-28): each check is made on Windows, macOS and Linux. M-1's taskbar is
+the Dock on macOS; M-4 follows FR-503 as amended; M-5 and M-7 use the platform's own settings; M-9
+is installing and removing the DMG on macOS and the Flatpak on Linux.
 
 | ID | Check |
 |---|---|

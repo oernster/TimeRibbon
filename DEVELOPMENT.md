@@ -1,12 +1,16 @@
 # Development
 
-How to build and run TimeRibbon on Windows, from a machine with nothing installed to a setup program.
+How to build and run TimeRibbon, from a machine with nothing installed to what ships: the setup
+program on Windows, the DMG on macOS ([Building on macOS](#building-on-macos)) and the Flatpak on
+Linux ([Building on Linux](#building-on-linux)). Each platform's build runs on a machine of that
+platform.
 
-Every command here is PowerShell, one command per block, run from the repository root unless it says
-otherwise. `README.md` is for somebody using the application; this is for somebody building it.
-Testing has a document of its own, [TESTING.md](TESTING.md).
+Every command is one per block, run from the repository root unless it says otherwise: PowerShell on
+Windows, the Terminal's own shell on macOS and Linux. `README.md` is for somebody using the
+application; this is for somebody building it. Testing has a document of its own,
+[TESTING.md](TESTING.md).
 
-## What the machine needs
+## What a Windows machine needs
 
 | Tool | Version | What for | Where from |
 |---|---|---|---|
@@ -62,7 +66,7 @@ npm --prefix frontend run build
 Without the packages the gate stops at its front-end step; without the page `go list` stops it at
 its first, with `pattern all:frontend/dist: no matching files found`.
 
-## Building
+## Building on Windows
 
 ```powershell
 ./build.ps1
@@ -124,10 +128,14 @@ It serves the front end from Vite and rebuilds the Go side on change. The Vite c
 the development server to read `installer/frontend/dist`, where the self-reading cycle's script
 lives.
 
-Each run appends to `%APPDATA%\TimeRibbon\TimeRibbon.log`, which is where a fault in a windowed run
-goes, the Go runtime's own panic report included. The settings are in `settings.json` beside it;
-the web view keeps its data in `WebView2` in the same folder.
-Only one copy runs per Windows user: a second launch shows the first and exits.
+Each run appends to `TimeRibbon.log` in the settings folder (`%APPDATA%\TimeRibbon` on Windows;
+the other platforms' folders are in [ARCHITECTURE.md](ARCHITECTURE.md#data-locations)), which is
+where a fault in a windowed run goes, the Go runtime's own panic report included. The settings are
+in `settings.json` beside it; on Windows the web view keeps its data in `WebView2` in the same
+folder. Only one copy runs per user: a second launch shows the first and exits.
+
+`wails dev` is the Windows loop. On macOS and Linux build the page, then run the application with
+`go run` and the build's tags, as [TESTING.md](TESTING.md#on-macos-and-linux) describes.
 
 ## Installing what you built
 
@@ -141,6 +149,85 @@ list; the Start Menu entry, the Desktop shortcut and Start with Windows are the 
 screen. Over the same version it opens on Repair, Reinstall and Uninstall. Its step log is
 `TimeRibbonSetup.log` in the temporary folder. Neither executable is signed: `build.ps1` has no
 signing step.
+
+## Building on macOS
+
+An Apple Silicon Mac, with:
+
+| Tool | What for | Where from |
+|---|---|---|
+| Xcode | the C and Objective-C compiler cgo uses, `codesign`, `notarytool`, `stapler`, `vtool` | the App Store |
+| Go, the version `go.mod` declares | the application | [go.dev/dl](https://go.dev/dl/) |
+| Node.js with npm | the front end | [nodejs.org](https://nodejs.org/) or `brew install node` |
+| create-dmg | the DMG | `brew install create-dmg`; the script installs it where missing |
+| A Developer ID Application certificate | signing | the Apple Developer account, in the login keychain |
+
+No `wails` command is needed. Store the notary credential once, in a Terminal at the Mac: the script
+reads it from the keychain as the profile `TimeRibbon` and asks for nothing else. The command asks
+for an app-specific password from appleid.apple.com:
+
+```bash
+xcrun notarytool store-credentials TimeRibbon --apple-id <Apple ID> --team-id W7K465GKFJ
+```
+
+Then build, in a Terminal at the Mac itself. Signing and notarising read the login keychain, which
+refuses a remote shell (measured 2026-09-28 over SSH: `codesign` failed with
+`errSecInternalComponent`):
+
+```bash
+bash builddmg.sh
+```
+
+It does these things in order and stops at the first failure:
+
+1. Refuses to run anywhere but an Apple Silicon Mac; reads the names from `tools/identity` and the
+   version from `VERSION`; checks the notarisation credentials before building anything.
+2. Builds the page with npm.
+3. Builds a two-line pure Go program and reads from it the oldest macOS the Go toolchain supports;
+   hands that to the compiler through `CGO_CFLAGS` and `CGO_LDFLAGS`.
+4. Builds the executable with `go build -tags desktop,production` and the version through
+   `-ldflags`, refusing it if the linker reports code built for a newer macOS or if the executable
+   claims another one.
+5. Makes `iconfile.icns` from `build/appicon.png` with `sips` and `iconutil`.
+6. Assembles `build/bin/TimeRibbon.app`: the executable, the icon and an `Info.plist` naming the app
+   id, the version, the minimum macOS and the copyright line.
+7. Signs the bundle with the hardened runtime, notarises it through the profile and staples the
+   ticket to it.
+8. Makes the DMG with `create-dmg`, stamps its file icon, signs it, notarises and staples it, then
+   runs `stapler validate` and `spctl --assess` as a user's machine would.
+
+The output is `TimeRibbon.dmg` in the repository root. For a local trial with no certificate,
+`DEVELOPER_ID_APPLICATION=-` signs ad hoc and `ALLOW_UNNOTARIZED=1` skips notarising; such a DMG
+opens only on the Mac that built it and is never released.
+
+## Building on Linux
+
+Measured on Ubuntu 26.04 LTS; another distribution needs the same pieces under its own names:
+
+```bash
+sudo apt-get install -y build-essential pkg-config libgtk-3-dev libwebkit2gtk-4.1-dev nodejs npm flatpak flatpak-builder
+```
+
+Go from the distribution or [go.dev/dl](https://go.dev/dl/); an older Go 1.26 fetches the version
+`go.mod` declares on first use. The packages above are for running and testing from source; the
+Flatpak build itself compiles inside the GNOME SDK, which `build_flatpak.sh` installs from Flathub
+with its golang and node22 extensions.
+
+```bash
+bash build_flatpak.sh
+```
+
+It writes the desktop entry, the metainfo and the manifest (named for the app id, all gitignored),
+builds the page, the icon sizes (`tools/linuxicons`) and the executable
+(`-tags desktop,production,webkit2_41`) inside the sandbox, installs the result for the current user
+and exports `timeribbon.flatpak`. Run what it installed:
+
+```bash
+flatpak run uk.codecrafter.TimeRibbon
+```
+
+`cleanup_flatpak.sh` uninstalls it, removes its sign-in entry and deletes the build outputs; the
+settings under `~/.var/app` are left alone.
 
 ## Generated files
 
@@ -170,8 +257,10 @@ newer Go; `zones_test.go` fails where a catalogue zone does not resolve in them.
 
 ## Versioning
 
-`VERSION` holds the one version string. `build.ps1` passes it into both executables; nothing in the
-source holds the release's version, only the development placeholder above. The setup program
+`VERSION` holds the one version string. `build.ps1`, `builddmg.sh` and `build_flatpak.sh` each pass
+it into what they build through the same `-ldflags`; the DMG's `Info.plist` and the Flatpak's
+metainfo are written from it too. Nothing in the source holds the release's version, only the
+development placeholder above. The setup program
 compares the version it carries with the one the Apps list records to choose between Install, Update, Go back and the Installed screen.
 
 ## Cutting a release
@@ -179,9 +268,11 @@ compares the version it carries with the one the Apps list records to choose bet
 1. Set `VERSION`.
 2. Run `./build.ps1` and read its exit code. It stamps the new version into the site under `docs/`;
    commit what it changed there with `VERSION`.
-3. Run the checks a person settles in [TESTING.md](TESTING.md#checks-a-person-settles) against
-   `dist-installer/TimeRibbonSetup.exe`.
-4. Tag the commit and attach `TimeRibbonSetup.exe` to the release.
+3. On the Mac, run `bash builddmg.sh`; on a Linux machine, `bash build_flatpak.sh`. Run the macOS
+   and Linux checks in [TESTING.md](TESTING.md#on-macos-and-linux) on each.
+4. Run the checks a person settles in [TESTING.md](TESTING.md#checks-a-person-settles) against
+   `dist-installer/TimeRibbonSetup.exe`, `TimeRibbon.dmg` and `timeribbon.flatpak`.
+5. Tag the commit and attach the three to the release.
 
 ## Where things live
 
@@ -192,15 +283,18 @@ compares the version it carries with the one the Apps list records to choose bet
 | `wails_calls.go` | the facade's calls into Wails (show, hide, quit, always on top, events), held as fields so its tests can stand in for them |
 | `facade_test.go`, `window_life_test.go`, `fakes_test.go` | the facade's tests, over a scripted service and a stand-in window |
 | `identity.go`, `dto.go`, `launch.go` | About and Licence, the wire, the window's options |
+| `platform_windows.go`, `platform_unix.go`, `platform_linux.go`, `platform_darwin.go` | what each platform's run needs before Wails opens: the tray's image and ending on a signal off Windows, X11 on Linux, a framework to link on macOS |
 | `bindings_on.go`, `bindings_off.go` | keep the binding-generation run from writing the log or showing a tray icon |
 | `internal/domain` | clock readings, placement and the settings value; no I/O |
 | `internal/application` | the use cases over their ports |
-| `internal/infrastructure` | appdata, desktop, monitors, runlog, setup, startup, store, system, zones |
-| `internal/product` | the name, the setup program's name, the window class, the donation address, the version, the author and the credits |
+| `internal/infrastructure` | appdata, cocoamain (macOS), desktop, gtkmain (Linux), iconscale, monitors, runlog, setup (Windows), startup, store, system, zones; a file's platform is in its name (`_windows`, `_linux`, `_darwin`, `_unix` for Linux and macOS together) |
+| `internal/product` | the name, the app id, the setup program's name, the window class, the donation address, the version, the author, the sign-in label and the credits for each platform |
+| `builddmg.sh` | the macOS DMG |
+| `build_flatpak.sh`, `cleanup_flatpak.sh` | building the Linux Flatpak; taking it away again |
 | `frontend/src` | the React front end |
 | `installer/` | the setup program, a Wails application of its own; its page in `installer/frontend/dist` has no build step |
 | `tests/structural` | the tests that hold the architecture in place |
-| `tools/` | the icons, the place catalogue, the payload and the version resources |
+| `tools/` | the icons (committed and the Flatpak's), the place catalogue, the payload, the version resources and the names the Linux and macOS scripts read |
 | `assets/` | the master artwork `tools/genicons.py` reads |
 
 ## House rules worth knowing before a first change

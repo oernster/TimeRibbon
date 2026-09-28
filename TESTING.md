@@ -48,31 +48,35 @@ and what stops it. An unexplained shortfall cannot be told from an oversight.
 | `internal/application` | 100% | 100% | `test.ps1`, with the domain |
 | `internal/infrastructure/system` | 100% | 100% | `test.ps1` |
 | `internal/infrastructure/zones` | 100% | 100% | `test.ps1` |
-| `internal/infrastructure/store` | 92.7% | 92% | `test.ps1` |
+| `internal/infrastructure/iconscale` | 100% | 100% | `test.ps1` |
+| `internal/infrastructure/store` | 92.8% | 92% | `test.ps1` |
 | `internal/infrastructure/setup` | 84.0% | 84% | `test.ps1` |
 | `tools/versioninfo` | 86.7% | 86% | `test.ps1` |
 | `tools/payload` | 82.8% | 82% | `test.ps1` |
 | `internal/infrastructure/monitors` | 82.6% | 82% | `test.ps1` |
 | `internal/infrastructure/startup` | 80.6% | 80% | `test.ps1` |
+| `tools/identity` | 75% | 75% | `test.ps1` |
+| `tools/linuxicons` | 67.7% | 67% | `test.ps1` |
 | `tools/genplaces` | 38.8% | 38% | `test.ps1` |
 | `internal/infrastructure/appdata` | 100% | 100% | `test.ps1` |
 | `internal/infrastructure/runlog` | 76.5% | 76% | `test.ps1` |
-| the root package (the Wails facade) | 72.5% | 72% | `test.ps1` |
+| the root package (the Wails facade) | 73% | 72% | `test.ps1` |
 | `internal/infrastructure/desktop` | 14.8% | 14% | `test.ps1` |
+| `internal/product` | 100% | none | not gated |
 | `installer` | 0%, no tests | none | not gated |
-| `internal/product` | no statements | none | not gated |
 
-217 Go test functions, each run once with no subtests (an uncached `go test -count=1 -json` over the
-packages `go list ./...` gives outside `node_modules`), plus one `TestMain` in
-`internal/infrastructure/setup`. Twenty-one of them are the structural tests in `tests/structural`,
-which read the source rather than run it; [ARCHITECTURE.md](ARCHITECTURE.md) lists each against the
-rule it holds. One more holds a promise rather than a rule of structure:
+Every figure is the Windows build's, which is what `test.ps1` measures. The Windows build compiles
+229 Go test functions, counted from the test files `go list` selects for it; each runs once with no
+subtests, plus one `TestMain` in `internal/infrastructure/setup`. Twenty-two of them are the
+structural tests in `tests/structural`, which read the source rather than run it and are the same
+on every platform; [ARCHITECTURE.md](ARCHITECTURE.md) lists each against the rule it holds. The
+macOS and Linux builds compile 210 each ([On macOS and Linux](#on-macos-and-linux)). One more holds a promise rather than a rule of structure:
 `TestA1Point0SettingsFileIsReadWhole` reads a frozen settings file of the first release (NFR-C-1); see
 ARCHITECTURE.md, The settings file.
 
 ### The front end
 
-74 tests across 7 files, under Vitest with jsdom: the ribbon, Settings, About and Licence, the
+75 tests across 7 files, under Vitest with jsdom: the ribbon, Settings, About and Licence, the
 self-reading cycle, then the setup page's screens, keyboard ring and unreachable-program cases. The
 front end has no coverage figure: no coverage provider is installed, so none is measured or claimed.
 
@@ -89,9 +93,9 @@ front end has no coverage figure: no coverage provider is installed, so none is 
 
 No Go test uses a mocking library; every double is a hand-written fake with the real interface
 behind it. The front end stands in for Go through `src/fakeBridge.ts`, which answers every facade
-call the way the real one does. **No test writes to the user's own settings, Start with Windows value
-or Apps list**: the store and the log are tested in temporary folders, `startup` and the setup record
-under scratch keys beneath `HKCU`.
+call the way the real one does. **No test writes to the user's own settings, sign-in entry or Apps
+list**: the store and the log are tested in temporary folders; `startup` under a scratch key beneath
+`HKCU` on Windows and in a temporary folder on macOS and Linux; the setup record under a scratch key.
 
 ## What is not tested and why
 
@@ -108,7 +112,7 @@ under scratch keys beneath `HKCU`.
 - **`internal/infrastructure/runlog` (76.5%).** Opening the log and pointing standard error at it are
   tested; making the folder failing, the start line failing to write and `SetStdHandle` refusing only
   fail inside the system.
-- **The root package (72.5%).** The facade's tests are `facade_test.go` and `window_life_test.go`,
+- **The root package (73%).** The facade's tests are `facade_test.go` and `window_life_test.go`,
   over the scripted service in `fakes_test.go`. The facade's decisions are tested: which calls fit
   the ribbon, that a drag whose save failed is still fitted, the panel state, the menu actions, the close and the
   recover round each desktop event. Not reached: the composition root (`main.go`, `launch.go`),
@@ -132,7 +136,7 @@ under scratch keys beneath `HKCU`.
   setup window the keyboard (`TakeFocus`) and finding the ribbon's own window after a launch.
 - **`internal/infrastructure/startup` (80.6%).** Written, read and removed under a scratch key; the
   registry refusing to open or write the key is not reached.
-- **`internal/infrastructure/store` (92.7%).** Not reached: the folder or temporary file refusing to
+- **`internal/infrastructure/store` (92.8%).** Not reached: the folder or temporary file refusing to
   be made or flushed; the rename over the old file failing. Only a failing disk produces either.
 - **`tools/versioninfo` (86.7%).** `main` hands `run` the real arguments; an output folder that
   cannot be made is not reached. What it writes was read back from both released executables through
@@ -143,10 +147,68 @@ under scratch keys beneath `HKCU`.
   own files, which a test machine need not have. The parsing and the writing of the catalogue are
   tested; a test in `zones` holds every zone in the committed catalogue to resolving.
 
+## On macOS and Linux
+
+The macOS and Linux halves of infrastructure build only with cgo against AppKit or GTK, so Windows
+cannot compile them and `test.ps1` does not reach them. They are checked on a machine of their own
+platform, set up as [DEVELOPMENT.md](DEVELOPMENT.md) says, from a checkout with the page built. Each
+build compiles 210 Go test functions: the shared ones, the structural tests and its own.
+
+| What | macOS | Linux |
+|---|---|---|
+| Tags | `desktop,production` | `desktop,production,webkit2_41` |
+| Tests of its own | `cocoamain` 3, `monitors` 3, `desktop` 16 (with the shared `_unix` tests) | `gtkmain` 3, `monitors` 2, `desktop` 17 (with the shared `_unix` tests) |
+| Needs | a signed-in desktop | a signed-in desktop session with a display and a tray host |
+
+With the tags for the platform in `TAGS`, run each check and read its exit code:
+
+```bash
+test -z "$(gofmt -l . | grep -v node_modules)"
+```
+
+```bash
+go vet -tags "$TAGS" ./...
+```
+
+```bash
+go run honnef.co/go/tools/cmd/staticcheck@latest -tags "$TAGS" ./...
+```
+
+```bash
+go test -count=1 -tags "$TAGS" ./internal/...
+```
+
+```bash
+go build -tags "$TAGS" -o /tmp/timeribbon .
+```
+
+To run the application from source, with a scratch settings folder so a real one is not touched
+(`HOME` on macOS, `XDG_CONFIG_HOME` on Linux):
+
+```bash
+go run -tags "$TAGS" .
+```
+
+**What those tests do on the desktop.** The desktop tests open real windows through the toolkit, put
+the ribbon where they place it and read back where it stands; on macOS one puts the icon in the menu
+bar and takes it out; on Linux one registers the tray icon with the session's real tray host. So
+they need a desktop; a person at it sees windows open and close. The Linux `TestMain`
+(`gtkmain.ServeTests`) fails at once, saying so, where no display can be opened. What they proved
+when they were written, measured 2026-09-28: a ribbon stands exactly where it is placed; it returns
+exactly from a panel's size (on Linux only once the size is awaited); a position `Place` chose is
+never taken for a drag; the Dock guard fails when the switch to an accessory is taken out.
+
+**What has no figure.** These packages have no coverage gate: the parts that matter act on a real
+desktop, which a coverage run on another machine cannot reach; a floor measured on one person's
+desktop would not hold on another's. The checks above are run before each release.
+
 ## Checks a person settles
 
 These need a real desktop, real input or a real install; no harness here reaches them. The M numbers
-are REQUIREMENTS.md's section 12.
+are REQUIREMENTS.md's section 12. Each is checked on every platform, with these differences: M-1's
+taskbar is the Dock on macOS; M-4's left click is a double click on Ubuntu's tray and opens the menu
+on macOS; M-5 and M-7 use the platform's own clock, time zone and theme settings; M-9 is setup on
+Windows, installing and removing the DMG on macOS and the Flatpak on Linux.
 
 | Check | What to do |
 |---|---|
@@ -211,7 +273,8 @@ go tool cover -func=cover.out
 **Prove a new guard bites.** A test that has never been seen to fail is not yet a guard: plant the
 violation, read the exit code, then restore the file in a `finally` so a failed run cannot leave the
 plant behind. The structural package's own header records that each of its assertions was proved
-this way; the credits test was proved on 2026-09-27 in both directions.
+this way; the credits test was proved on 2026-09-27 in both directions and again on 2026-09-28,
+once it held each platform's credits, by taking out the Linux-only godbus credit.
 
 **Re-measure before quoting.** Every figure above was measured when it was written; copying one
 forward is how a document starts describing a repository that no longer exists.

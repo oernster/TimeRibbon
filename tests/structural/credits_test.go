@@ -1,8 +1,8 @@
 package structural
 
 // FR-607: About credits every component the application ships. The Go modules are the part a
-// machine can check, so this asks the Go tool which modules the application and the setup program
-// link as wails build builds them, then holds the credits to that list in both directions. A module
+// machine can check, so this asks the Go tool which modules each platform's build links, then
+// holds that platform's credits to that list in both directions. A module
 // linked but not credited fails; so does one credited that nothing links any more.
 
 import (
@@ -15,23 +15,34 @@ import (
 	"github.com/oernster/timeribbon/internal/product"
 )
 
-// wailsBuildTags are the tags wails build compiles a production build with, which change what the
-// Wails module links.
-const wailsBuildTags = "desktop,production"
+// shippedBuild is how one platform's build compiles what ships: its tags, which change what the
+// Wails module links; whether cgo is on, which decides which files count; its main packages.
+type shippedBuild struct {
+	tags     string
+	cgo      string
+	packages []string
+}
 
-// shippedPackages are the two executables' main packages.
-var shippedPackages = []string{".", "./installer"}
+// shippedBuilds are the builds per platform: build.ps1 on Windows, the application and the setup
+// program; build_flatpak.sh on Linux; builddmg.sh on macOS.
+var shippedBuilds = map[string]shippedBuild{
+	product.Windows: {"desktop,production", "0", []string{".", "./installer"}},
+	product.Linux:   {"desktop,production,webkit2_41", "1", []string{"."}},
+	product.MacOS:   {"desktop,production", "1", []string{"."}},
+}
 
-// linkedModules answers every module the shipped executables link, this one left out.
-func linkedModules(t *testing.T) []string {
+// linkedModules answers every module goos's shipped executables link, this one left out. Listing
+// needs no C compiler, so every platform is listed from any machine.
+func linkedModules(t *testing.T, goos string) []string {
 	t.Helper()
-	args := append([]string{"list", "-tags", wailsBuildTags, "-deps", "-f", "{{with .Module}}{{.Path}}{{end}}"}, shippedPackages...)
+	build := shippedBuilds[goos]
+	args := append([]string{"list", "-tags", build.tags, "-deps", "-f", "{{with .Module}}{{.Path}}{{end}}"}, build.packages...)
 	command := exec.Command("go", args...)
 	command.Dir = repoRoot(t)
-	command.Env = append(os.Environ(), "GOOS=windows", "CGO_ENABLED=0")
+	command.Env = append(os.Environ(), "GOOS="+goos, "CGO_ENABLED="+build.cgo)
 	out, err := command.Output()
 	if err != nil {
-		t.Fatalf("go list: %v", err)
+		t.Fatalf("go list for %s: %v", goos, err)
 	}
 	var modules []string
 	for _, line := range strings.Split(strings.TrimSpace(string(out)), "\n") {
@@ -47,21 +58,36 @@ func linkedModules(t *testing.T) []string {
 }
 
 func TestEveryLinkedModuleIsCredited(t *testing.T) {
-	var credited []string
-	for _, credit := range product.Credits {
-		if credit.Module != "" {
-			credited = append(credited, credit.Module)
+	for _, goos := range product.Platforms {
+		var credited []string
+		for _, credit := range product.CreditsFor(goos) {
+			if credit.Module != "" && !slices.Contains(credited, credit.Module) {
+				credited = append(credited, credit.Module)
+			}
+		}
+		linked := linkedModules(t, goos)
+		for _, module := range linked {
+			if !slices.Contains(credited, module) {
+				t.Errorf("%s: %s is linked into what ships but About does not credit it", goos, module)
+			}
+		}
+		for _, module := range credited {
+			if !slices.Contains(linked, module) {
+				t.Errorf("%s: About credits %s, which nothing that ships links any more", goos, module)
+			}
 		}
 	}
-	linked := linkedModules(t)
-	for _, module := range linked {
-		if !slices.Contains(credited, module) {
-			t.Errorf("%s is linked into what ships but About does not credit it", module)
-		}
-	}
-	for _, module := range credited {
-		if !slices.Contains(linked, module) {
-			t.Errorf("About credits %s, which nothing that ships links any more", module)
+}
+
+// Each platform names one role per module, so About never lists the same module twice.
+func TestAModuleIsCreditedOncePerPlatform(t *testing.T) {
+	for _, goos := range product.Platforms {
+		seen := map[string]bool{}
+		for _, credit := range product.CreditsFor(goos) {
+			if credit.Module != "" && seen[credit.Module] {
+				t.Errorf("%s: %s is credited twice", goos, credit.Module)
+			}
+			seen[credit.Module] = true
 		}
 	}
 }

@@ -1,8 +1,10 @@
 # TimeRibbon Architecture
 
-A small Windows desktop application showing a ribbon of clocks, one per chosen place. It reads the
-Windows clock and nothing else from outside itself; the time zone rules are built into the
-executable. It makes no network request: no Go file of this module imports a network package, which
+A small desktop application for Windows, macOS and Linux showing a ribbon of clocks, one per chosen
+place. It reads the system clock and nothing else from outside itself; the time zone rules are built
+into the executable. Everything above infrastructure is the same code on every platform; each
+platform's own half of infrastructure sits in files its build tags or file names select
+([The desktop on Linux and macOS](#the-desktop-on-linux-and-macos)). It makes no network request: no Go file of this module imports a network package, which
 `TestTheModuleImportsNoNetworkPackage` holds. The one address it knows, the donation page, is handed
 to the desktop's browser rather than fetched.
 
@@ -33,7 +35,8 @@ does not exist.
 | The network package check recognises `net`, `crypto/tls` and `golang.org/x/net` paths and passes look-alikes | `TestNetworkPackageRecognitionIsExact` | [`network_test.go`](tests/structural/network_test.go) |
 | The setup page loads every script beside it | `TestTheSetupPageLoadsEveryScript` | [`setup_test.go`](tests/structural/setup_test.go) |
 | No setup page file spells the product's name, which the setup program hands it | `TestTheSetupPageNeverWritesTheProductsName` | [`setup_test.go`](tests/structural/setup_test.go) |
-| About credits exactly the modules the application and the setup program link (FR-607) | `TestEveryLinkedModuleIsCredited` | [`credits_test.go`](tests/structural/credits_test.go) |
+| Each platform's About credits exactly the modules that platform's build links (FR-607) | `TestEveryLinkedModuleIsCredited` | [`credits_test.go`](tests/structural/credits_test.go) |
+| No platform's About credits one module twice | `TestAModuleIsCreditedOncePerPlatform` | [`credits_test.go`](tests/structural/credits_test.go) |
 | The wire is stated identically in `dto.go` and `frontend/src/wire.ts` | `TestTheWireIsStatedAlikeOnBothSides` | [`wire_test.go`](tests/structural/wire_test.go) |
 | The page listens for every event `app.go` emits and keys every panel it names | `TestThePageNamesEveryEventGoEmits` | [`wire_test.go`](tests/structural/wire_test.go) |
 | The setup page listens for every event `installer/app.go` emits | `TestTheSetupPageNamesEveryEventSetupEmits` | [`wire_test.go`](tests/structural/wire_test.go) |
@@ -67,30 +70,41 @@ does not exist.
   order and a clock that cannot be shown goes last. There is no ordering by hand. A change that
   cannot be saved stays in effect and raises a notice until a later save succeeds (FR-707). It
   never imports infrastructure or Wails.
-- **Infrastructure** (`internal/infrastructure`): the adapters behind the ports and the Windows
-  integration. `store` (the settings file), `zones` (resolution through the embedded tz database and
-  the place catalogue), `monitors` (displays through Win32), `startup` (the Start with Windows
-  value), `system` (the wall clock and new clock ids), `appdata` (the settings folder), `runlog` (the
-  run's log), `desktop` (the tray, native menus, the move fence, the desktop's broadcasts and
-  handing an address to the default browser through the shell, which reports a refusal) and
-  `setup` (the install policy behind the setup program).
+- **Infrastructure** (`internal/infrastructure`): the adapters behind the ports and the desktop
+  integration. The same on every platform: `store` (the settings file), `zones` (resolution through
+  the embedded tz database and the place catalogue), `system` (the wall clock and new clock ids) and
+  `iconscale` (decoding and scaling the icon for the Linux tray and icons). One file or more per
+  platform: `monitors` (the displays), `startup` (the sign-in entry), `appdata` (the settings
+  folder), `runlog` (the run's log), `desktop` (the tray icon, the native menus, the ribbon's window,
+  the end of a move, the desktop's broadcasts and handing an address to the default browser, which
+  reports a refusal). Windows only: `setup` (the install policy behind the setup program). Linux
+  only: `gtkmain` (running work on GTK's loop). macOS only: `cocoamain` (running work on AppKit's
+  main thread).
 - **UI**: the React front end plus the Wails facade in package `main`, which calls the service and
   maps what it answers into the shapes in `dto.go`.
-- **Outside the layers**: `internal/product` holds the product's name, the setup program's name, the
-  window class, the donation address, the version `build.ps1` stamps, the author, the copyright line
-  and the credits. Every layer reads it, so it belongs to none.
+- **Outside the layers**: `internal/product` holds the product's name, its app id
+  (`uk.codecrafter.TimeRibbon`), the setup program's name, the window class, the donation address,
+  the version each build script stamps, the author, the copyright line, the sign-in label in each
+  platform's words and the credits for each platform. Every layer reads it, so it belongs to none.
 - **Tools**, never shipped: `tools/genplaces` writes the place catalogue from the tz database's
   `zone.tab` and `iso3166.tab`; `tools/payload` packs the built application for the setup program;
   `tools/versioninfo` writes each executable's Windows version resource from `VERSION` and
   `internal/product` before its build, in place of Wails' template, which carried its fallback
-  version and a placeholder copyright;
-  `tools/genicons.py` writes every icon from the masters in `assets/`.
+  version and a placeholder copyright; `tools/identity` prints the names the Linux and macOS build
+  scripts need, read from `internal/product`, so neither script keeps a second copy;
+  `tools/linuxicons` writes the Flatpak's icon sizes from `build/appicon.png`;
+  `tools/genicons.py` writes every committed icon from the masters in `assets/`.
 
 ## Composition root
 
 `main.go` is the composition root. It opens the run log and points standard error at it before
-anything can fail, builds the adapters, injects them into the service by constructor, starts the tray
-and hands the facade to Wails. The cell sizes (`layouts`) and the panel size (`panelSize`) have their
+anything can fail, builds the adapters, injects them into the service by constructor, prepares the
+platform, starts the tray and hands the facade to Wails. `preparePlatform` does nothing on Windows;
+on Linux and macOS (`platform_unix.go`) it hands the desktop the icon, which there is an image rather
+than a resource in the executable, then ends the run on SIGTERM or SIGINT through Exit.
+`platform_linux.go` sends GTK through X11 before Wails opens it; `platform_darwin.go` links the
+UniformTypeIdentifiers framework, which Wails' macOS half uses and which the `wails` command would
+otherwise have added. The cell sizes (`layouts`) and the panel size (`panelSize`) have their
 one home there. No service is held in a package-level variable and there is no service locator.
 
 The facade is `app.go` (the calls the page makes) and `window_life.go` (startup, showing, hiding,
@@ -121,7 +135,8 @@ show a tray icon.
                      |        infrastructure          |
                      | store, zones, monitors,        |
                      | startup, system, appdata,      |
-                     | runlog, desktop, setup         |
+                     | runlog, desktop, setup,        |
+                     | iconscale, gtkmain, cocoamain  |
                      +--------------------------------+
 ```
 
@@ -133,10 +148,12 @@ the ribbon's display and never larger than its work area (`Service.Centred`); cl
 window to where the ribbon was last left. While a panel is open, a move of the window is not recorded
 as the ribbon's and a change of content is fitted when the panel closes.
 
-The window opens hidden. `startup` finds its handle by the class `TimeRibbonWindow`, takes it off the
-taskbar, fences its moves and places it, all before the page is shown, so it never appears blank or
-in the wrong place. Wails always marks its window as an application window, which forces a taskbar
-button; `HideFromTaskbar` takes that style off and marks it a tool window once, before it is shown.
+The window opens hidden. `startup` finds it, takes it off the taskbar, fences its moves and places
+it, all before the page is shown, so it never appears blank or in the wrong place. On Windows it is
+found by the class `TimeRibbonWindow`; Wails always marks its window as an application window, which
+forces a taskbar button, so `HideFromTaskbar` takes that style off and marks it a tool window once,
+before it is shown. Linux and macOS find it by its title and keep it off the taskbar or Dock their
+own way ([below](#the-desktop-on-linux-and-macos)).
 
 ## The ribbon's size and place
 
@@ -186,7 +203,8 @@ the top for horizontal, the right for vertical. The facade's `SetOrientation` as
 where the choice took, even with its save failed, it puts the ribbon against the home edge through
 `ToEdge`; where it was refused, it fits the ribbon where it stands.
 
-**Place (FR-403 to FR-406).** Coordinates are physical pixels on the virtual desktop. Wails'
+**Place (FR-403 to FR-406).** On Windows, coordinates are physical pixels on the virtual desktop;
+Linux and macOS use DIP, as their section below says. Wails'
 `WindowSetPosition` places a window relative to the work area of the monitor it is on while
 `WindowGetPosition` answers absolute coordinates. Its screen list carries no origin, device name or
 work area either. So displays are read through `EnumDisplayMonitors` and `GetMonitorInfoW` (`monitors`)
@@ -199,11 +217,12 @@ name, its work area, its DPI and the ribbon's offset from the work area's corner
 restored on that monitor, the offset scaled by any change of DPI; where that monitor is gone it goes
 to the default place on the primary. A display change refits the ribbon where it is.
 
-**The drag (FR-401, FR-402).** A press on empty ribbon area that moves past Windows' own drag
-distance (`SM_CXDRAG`, `SM_CYDRAG`) hands the press to Windows' move loop through
+**The drag (FR-401, FR-402).** A press on empty ribbon area that moves past the desktop's drag
+distance (Windows' `SM_CXDRAG` and `SM_CYDRAG`, GTK's `gtk-dnd-drag-threshold`; macOS publishes
+none, so it uses Windows' 4 DIP) hands the press to the platform's own move loop through
 `window.WailsInvoke('drag')`, the message Wails' own drag regions send. That message is internal to
-Wails v2 rather than a documented call; a press on a control never starts one. While the window
-moves, a window procedure placed in front of Wails' own (`desktop.KeepOnDisplays`) answers each
+Wails v2 rather than a documented call; a press on a control never starts one. On Windows, while
+the window moves, a window procedure placed in front of Wails' own (`desktop.KeepOnDisplays`) answers each
 `WM_MOVING` by moving the proposed rectangle the least distance that keeps it inside the work area of
 the display under the pointer, so the ribbon can be carried onto another display but never left half
 off one.
@@ -218,12 +237,17 @@ tz database Go embeds.
 
 Each snapshot carries the milliseconds to the next minute boundary; the page takes the next snapshot
 then, so each refresh is scheduled from the current time rather than from the last one
-(FR-208). The hidden tray window hears `WM_TIMECHANGE` and the resume broadcasts of
-`WM_POWERBROADCAST`, on which the page takes a fresh snapshot at once (FR-209).
+(FR-208). On Windows the hidden tray window hears `WM_TIMECHANGE` and the resume broadcasts of
+`WM_POWERBROADCAST`, on which the page takes a fresh snapshot at once (FR-209). Linux and macOS
+broadcast neither, so `desktop/clockwatch.go` compares the wall clock with Go's monotonic clock every
+2 seconds. Setting the time moves only the first; the second does not advance while the machine
+sleeps. Either shows as the two drifting apart by more than 2 seconds.
 
 ## The settings file
 
-`%APPDATA%\TimeRibbon\settings.json`, indented JSON a person can read, carrying a format version
+`settings.json` in the settings folder (`internal/infrastructure/appdata`: `%APPDATA%\TimeRibbon` on
+Windows, `~/Library/Application Support/TimeRibbon` on macOS, `$XDG_CONFIG_HOME/TimeRibbon` else
+`~/.config/TimeRibbon` on Linux), indented JSON a person can read, carrying a format version
 (FR-701). Derived values (offsets, abbreviations, times) are never stored. It is written to a
 temporary file in the same folder, flushed and renamed over the old one, so a failure part way leaves
 the previous file whole (FR-702). Reading is tolerant: no file means the defaults and no notice
@@ -254,8 +278,8 @@ under Light, Dark and System on 2026-09-28.
 
 ## The desktop
 
-`desktop` owns a hidden top-level window on its own locked thread: the notification-area icon, the
-native menus and the desktop's broadcasts. A message-only window would not hear the broadcasts. The
+On Windows, `desktop` owns a hidden top-level window on its own locked thread: the notification-area
+icon, the native menus and the desktop's broadcasts. A message-only window would not hear the broadcasts. The
 icon is read out of the executable itself. When Explorer restarts it re-adds the icon on the
 `TaskbarCreated` message. Nothing crosses the thread boundary by callback: the desktop reports on a
 buffered channel, dropping an event with a line in the log rather than blocking the thread Windows
@@ -269,19 +293,85 @@ the ribbon's right-click menu offers Add clock, Settings, Style, Colour, Orienta
 Help, Hide ribbon and Exit. Style, Colour and Orientation are submenus ticking the current choice, whose
 items reach the same facade calls the page's would (`menu_choices.go`, FR-502); style and orientation
 are not offered in Settings. Position is a submenu holding the two edges the ribbon runs along
-(FR-408); Help is a submenu holding About and Licence in both. A left click on the tray icon shows or
-hides the ribbon. A menu item may hold children, which become a submenu (Style, Orientation,
-Position, then the Help submenu of FR-508); identifiers are numbered depth first,
-so a choice inside a submenu still names its action. A tray icon that cannot be created is not fatal:
-the ribbon still runs. Closing it then quits, since nothing would bring it back.
+(FR-408); Help is a submenu holding About and Licence in both. On Windows a left click on the tray
+icon shows or hides the ribbon; on Linux the tray host's activation does the same (a double click on
+Ubuntu); on macOS a click opens the menu, as every menu bar icon does. A menu item may hold children,
+which become a submenu (Style, Orientation, Position, then the Help submenu of FR-508); identifiers
+are numbered depth first (`desktop/menu.go`, shared by every platform), so a choice inside a submenu
+still names its action. A tray icon that cannot be created is not fatal: the ribbon still runs.
+Closing it then quits, since nothing would bring it back.
+
+## The desktop on Linux and macOS
+
+Both reach the desktop through cgo: GTK 3 on Linux, AppKit on macOS. What does not depend on the
+toolkit is written once in `_unix.go` files: the `Desktop` itself (its events, the move-end
+settling, the clock watch, starting and stopping the tray); the registry of native windows handed
+out as `desktop.Window`; the callbacks the C and Objective-C halves reach; the browser opener; the
+file behind the sign-in entry; the root package's icon and signal handling. Each toolkit supplies
+the rest in its own files.
+
+**One thread.** Each toolkit may only be called from its own loop, which Wails runs on the main
+thread while the facade's calls arrive on other goroutines. `gtkmain.Do` (through
+`g_main_context_invoke`) and `cocoamain.Do` (through the main dispatch queue) run a function there
+and wait, running it at once when already there; a panic in it is raised again on the caller.
+Their tests run the loop themselves (`gtkmain.ServeTests`, `cocoamain.Serve`), as Wails does.
+
+**Finding and hiding the ribbon (FR-101).** There is no window class, so the ribbon is the process's
+top-level window titled with the product's name, as Wails creates it. On Linux the window is marked
+to skip the taskbar and the workspace switcher. On macOS the application becomes an accessory, with
+no Dock icon and no place in the application switcher; Wails makes it a regular application as it
+finishes launching, so the change is made afterwards, from `startup` through the main queue, which
+AppKit serves only once launching has finished (read in Wails v2.12.0; measured by `lsappinfo`
+reporting `UIElement`).
+
+**Coordinates (FR-403 to FR-407).** Both platforms count in DIP: GTK's logical units on Linux,
+points on macOS, which the toolkit scales for the display. Every display is therefore reported at
+`placement.BaseDPI`. AppKit counts upward from the bottom-left corner of the menu-bar display, so
+`monitors` and `desktop` turn every rectangle over against that display's height into the top-left
+reckoning the domain uses. Wails' own position calls are not used on either, for the reasons of
+CON-7.
+
+**Placing the ribbon.** On macOS one `setFrame` moves and sizes it. On Linux the size is set and
+awaited before the move (`awaitSize`, up to 500 ms): the window manager keeps a window on screen by
+the size it has when the move arrives, so a move sent before a shrink landed was clamped as if the
+window were still large (measured 2026-09-28, `TestTheRibbonReturnsFromAPanelToWhereItIsPlaced`).
+On Linux GTK is sent through X11 (`gtkmain.ForceX11`), since a window on Wayland may not choose where
+it stands.
+
+**The end of a move (FR-404).** Neither platform says when the button is let go, so a move ends when
+the ribbon has stood still for 300 ms (`moveSettle`), heard through GTK's `configure-event` or
+AppKit's `NSWindowDidMoveNotification`. A position `Place` put the ribbon at is never a move and
+cancels a wait already begun, since the window may stand elsewhere for a moment on its way there
+(`TestAPassingPositionOnTheWayToAPlacementIsNotAMove`). Nothing holds the ribbon on a display during
+the drag (`KeepOnDisplays` does nothing): the end of the move takes the same path as on Windows,
+where `Service.Moved` brings a ribbon left partly off every display back. A change of displays is
+heard through GDK's `monitors-changed` or AppKit's
+`NSApplicationDidChangeScreenParametersNotification`.
+
+**The menus (FR-108, FR-502).** The right-click menu is a native popup at the pointer: a GTK menu
+handed a made-up button press stamped with the X server's own time, without which GTK closed it on
+the release of the click that opened it (measured 2026-09-28); an `NSMenu` started once the current
+work returns, since it runs its own loop until it closes. The Linux tray icon is TimeRibbon's own
+StatusNotifierItem with a `com.canonical.dbusmenu` menu over godbus, registered with the tray host by
+object path, which needs no bus name of its own and so no sandbox permission; it registers again
+whenever a tray host takes over. The macOS icon is an `NSStatusItem` whose menu is rebuilt each
+time it opens. Both menus come from the same `internal/application/menus.go` as on Windows.
+
+**Starting at sign-in (FR-605).** Linux writes an XDG autostart entry named for the app id; under a
+Flatpak it goes to the real `~/.config/autostart`, since the session never reads the sandbox's own
+`XDG_CONFIG_HOME`; its command is then `flatpak run` with the app id. macOS writes a launchd agent to
+`~/Library/LaunchAgents`, limited to a desktop sign-in. Each is off until turned on and is removed,
+never switched off, when turned off.
 
 ## Help, About and Licence
 
 About and Licence are panels of the one window (FR-607, FR-608). About shows the application icon,
-the name and version, the author, the copyright line and a credit for every component the executables
-ship, each naming its licence and what it does here; `TestEveryLinkedModuleIsCredited` asks the Go
-tool which modules the two executables link as `wails build` builds them and holds the credits to
-that list in both directions. Licence shows the `LICENSE` file embedded in the binary exactly as
+the name and version, the author, the copyright line and a credit for every component this
+platform's build ships, each naming its licence and what it does here. The credits are one table in
+`internal/product/credits.go`, each entry naming the platforms that ship it; `CreditsFor` reads it
+for a platform. `TestEveryLinkedModuleIsCredited` asks the Go tool which modules each platform's
+build links (the application and the setup program on Windows, the application alone on Linux and
+macOS) and holds that platform's credits to that list in both directions. Licence shows the `LICENSE` file embedded in the binary exactly as
 written: its own line breaks are kept and nothing wraps it again. Its type is sized so the widest
 line fits the panel, 13px at most (`frontend/src/help.css`); the width `help.css` sizes for is held
 to the file's widest line by `TestTheLicencePanelIsSizedForTheLicencesWidestLine`.
@@ -297,9 +387,29 @@ import nothing, while the window's build can import that file, so both surfaces 
 (FR-811). It publishes one name, `window.AutoScroll`; `frontend/src/autoScroll.ts` states its shape
 for the type checker and wraps it in a React hook.
 
+## Delivery on macOS and Linux
+
+Neither builds with the `wails` command: each runs `go build` with Wails' `desktop,production` tags
+and the version from `VERSION` passed through `-ldflags`, as `build.ps1` does, then packages the
+result. `tools/identity` hands both scripts the product's names.
+
+- **macOS, `builddmg.sh`** (ported from PigeonPost's): builds the page and the executable for Apple
+  Silicon, makes the icon with `sips` and `iconutil`, assembles `TimeRibbon.app` with its
+  `Info.plist`, signs it with the hardened runtime, notarises and staples it, then does the same for
+  the DMG `create-dmg` makes. The oldest macOS it claims is the one the Go toolchain needs, read from
+  a pure Go program it builds, then handed to the compiler through the cgo flags; a build that links
+  code made for a newer macOS is refused (measured 2026-09-28: without the flags, objects built for
+  macOS 26 were linked into an executable claiming 12).
+- **Linux, `build_flatpak.sh`** (ported from PigeonPost's): writes the desktop entry, metainfo and
+  manifest, then builds inside the GNOME 50 runtime's sandbox with the golang and node22 SDK
+  extensions, against WebKitGTK 4.1 (`-tags webkit2_41`). The sandbox is granted only what TimeRibbon
+  uses: X11 and not Wayland; the tray host's bus name; the bus name of Wails' single-instance lock;
+  the session's autostart folder. No network and no files. `cleanup_flatpak.sh` uninstalls it and
+  removes its sign-in entry and build outputs, leaving the settings alone.
+
 ## The setup program
 
-Delivery is a second Wails application. `installer/` is its own `main` package in the same module,
+Windows only. Delivery is a second Wails application. `installer/` is its own `main` package in the same module,
 embedding the built application as a zip and the setup page as assets, so one file is the whole
 distribution. `build.ps1` packs the built application and `LICENSE` into `installer/payload.zip`
 through `tools/payload`, builds the setup program with the version from `VERSION`, then writes the
@@ -349,15 +459,15 @@ own web view data and step log sit under the temporary folder.
 
 | What | Where |
 |---|---|
-| Settings | `%APPDATA%\TimeRibbon\settings.json`; `settings.unreadable.json` beside it when a damaged file was kept aside |
-| Run log | `%APPDATA%\TimeRibbon\TimeRibbon.log`, started afresh once it passes 1 MB |
-| The window's web view data | `%APPDATA%\TimeRibbon\WebView2`, named in `launch.go` inside the settings folder so uninstalling with **Also forget my settings** removes it; nothing of TimeRibbon's own is kept there |
+| Settings | `settings.json` in the settings folder: `%APPDATA%\TimeRibbon` on Windows, `~/Library/Application Support/TimeRibbon` on macOS, `~/.var/app/uk.codecrafter.TimeRibbon/config/TimeRibbon` for the Flatpak (measured 2026-09-28) and `~/.config/TimeRibbon` for a Linux build run outside it; `settings.unreadable.json` beside it when a damaged file was kept aside |
+| Run log | `TimeRibbon.log` in the settings folder, started afresh once it passes 1 MB |
+| The window's web view data on Windows | `%APPDATA%\TimeRibbon\WebView2`, named in `launch.go` inside the settings folder so uninstalling with **Also forget my settings** removes it; nothing of TimeRibbon's own is kept there |
 | Time zone rules and the place catalogue | built into the executable |
-| Installed files | `%LOCALAPPDATA%\Programs\TimeRibbon`, with `uninstall.exe` |
-| Shortcuts | the user's Start Menu Programs folder and Desktop |
-| Start with Windows | the value `TimeRibbon` under `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`, holding the quoted path and no arguments |
-| Apps list record | `HKCU\...\Uninstall\TimeRibbon` |
-| Setup's step log and web view data | `TimeRibbonSetup.log` and `TimeRibbonSetup` in the temporary folder |
+| Installed files | Windows: `%LOCALAPPDATA%\Programs\TimeRibbon`, with `uninstall.exe`. macOS: wherever the user drags `TimeRibbon.app`. Linux: the user's Flatpak installation |
+| Shortcuts on Windows | the user's Start Menu Programs folder and Desktop |
+| Start at sign-in | Windows: the value `TimeRibbon` under `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`, holding the quoted path and no arguments. macOS: `~/Library/LaunchAgents/uk.codecrafter.TimeRibbon.plist`. Linux: `~/.config/autostart/uk.codecrafter.TimeRibbon.desktop` |
+| Apps list record on Windows | `HKCU\...\Uninstall\TimeRibbon` |
+| Setup's step log and web view data on Windows | `TimeRibbonSetup.log` and `TimeRibbonSetup` in the temporary folder |
 
 ## Errors
 
@@ -390,6 +500,10 @@ caller acts on.
   [TESTING.md](TESTING.md) tabulates every figure.
 - `build.ps1` runs `test.ps1` before it builds and offers no switch to skip it. It pins cgo off for
   the gate and the build alike.
+- The Linux and macOS code builds only with cgo against its toolkit, so it is checked on a machine of
+  its own platform (gofmt, vet, staticcheck, the internal tests with the build's tags, a build of the
+  executable) rather than by `test.ps1`; [TESTING.md](TESTING.md) says how. The structural tests run
+  on every platform; the credits test lists every platform's modules from any one of them.
 
 ## Design decisions
 
@@ -406,6 +520,10 @@ caller acts on.
 | The web view's data folder named inside the settings folder | Left to Wails it was `%APPDATA%\TimeRibbon.exe`, beside the settings folder, which forgetting the settings on uninstall did not reach | Deleting Wails' default folder by name at uninstall, which hangs on a rule Wails does not promise |
 | Settings in one JSON file, written whole | A person can read and repair it; a crash mid-write cannot damage it | A database |
 | Everything per user | Nothing needs administrator rights, so nothing asks for them | A machine-wide install |
+| GTK and AppKit reached directly through cgo | Wails' screen list and position calls fall short on every platform (CON-7); the desktop's own calls do not | Wails' position calls; a cross-platform window library over them |
+| Linux forced onto X11 | A window on Wayland may not choose where it stands, which the ribbon must (ruled 2026-09-28) | Wayland, with the compositor placing the ribbon |
+| TimeRibbon's own StatusNotifierItem on Linux | `fyne.io/systray` offered no way to rebuild the menu as it opens and kept its state global (measured in v1.12.2) | `fyne.io/systray`; no tray icon off Windows |
+| One code path for Linux and macOS where the toolkit does not matter | Written once in `_unix.go` files, the move-end settling, the events and the sign-in file cannot drift apart | A copy per platform |
 
 See also [TESTING.md](TESTING.md) for the test suite and [DEVELOPMENT.md](DEVELOPMENT.md) for
 building from source.

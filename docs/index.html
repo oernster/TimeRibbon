@@ -4,15 +4,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>TimeRibbon: world clocks in a ribbon</title>
-    <meta name="description" content="TimeRibbon is a small frameless ribbon of world clocks for Windows: one clock per place you choose, each with its own local time, weekday and date.">
+    <meta name="description" content="TimeRibbon is a small frameless ribbon of world clocks for Windows, macOS and Linux: one clock per place you choose, each with its own local time, weekday and date.">
     <meta name="theme-color" content="#111418">
     <link rel="icon" type="image/png" href="icon.png">
     <link rel="apple-touch-icon" href="icon.png">
     <meta property="og:type" content="website">
     <meta property="og:title" content="TimeRibbon: world clocks in a ribbon">
-    <meta property="og:description" content="What time and what day is it where the people you talk to are? One glance at a ribbon of clocks. For Windows.">
-    <meta property="og:image" content="https://ernster.dev/TimeRibbon/icon.png">
-    <meta property="og:url" content="https://ernster.dev/TimeRibbon/">
+    <meta property="og:description" content="What time and what day is it where the people you talk to are? One glance at a ribbon of clocks. For Windows, macOS and Linux.">
+    <meta property="og:image" content="https://timeribbon.world/icon.png">
+    <meta property="og:url" content="https://timeribbon.world/">
     <link rel="stylesheet" href="styles.css">
     <script type="application/ld+json">
     {
@@ -20,8 +20,8 @@
         "@type": "SoftwareApplication",
         "name": "TimeRibbon",
         "applicationCategory": "UtilitiesApplication",
-        "operatingSystem": "Windows",
-        "description": "A ribbon of configurable world clocks for Windows, horizontal or vertical.",
+        "operatingSystem": "Windows, macOS, Linux",
+        "description": "A ribbon of configurable world clocks for Windows, macOS and Linux, horizontal or vertical.",
         "author": {"@type": "Person", "name": "Oliver Ernster", "url": "https://ernster.dev"},
         "license": "https://www.gnu.org/licenses/gpl-3.0.html",
         "downloadUrl": "https://github.com/oernster/TimeRibbon/releases/latest",
@@ -48,6 +48,8 @@
             <p class="eyebrow">
                 <span class="pill">v<!--VERSION-->2.0.0<!--/VERSION--></span>
                 <span class="pill">Windows</span>
+                <span class="pill">macOS</span>
+                <span class="pill">Linux</span>
                 <span class="pill">Free and open source</span>
             </p>
             <h1>TimeRibbon</h1>
@@ -56,7 +58,7 @@
                 One clock per place you choose, each with its own local time, weekday
                 and date, in a small frameless ribbon you can put anywhere on any monitor.</p>
             <div class="cta">
-                <a class="btn btn-primary" href="https://github.com/oernster/TimeRibbon/releases/latest/download/TimeRibbonSetup.exe">Download for Windows</a>
+                <a class="btn btn-primary" href="#download">Download</a>
                 <a class="btn" href="https://github.com/oernster/TimeRibbon">View the source</a>
             </div>
         </div>
@@ -93,7 +95,7 @@
             <div class="feature">
                 <h3>Your way round</h3>
                 <p>Digital or analogue; large or small; Classic, Neon, Ocean, Sunset or Forest colours; 12 hour or 24 hour; horizontal or vertical; light,
-                    dark or following Windows. Every choice applies at once, with no Save step.</p>
+                    dark or following the system. Every choice applies at once, with no Save step.</p>
             </div>
             <div class="feature">
                 <h3>Fits, then scrolls</h3>
@@ -109,12 +111,13 @@
             </div>
             <div class="feature">
                 <h3>Out of the way</h3>
-                <p>No title bar, no border and no taskbar button. It can stay on top of
-                    other windows and start with Windows; both are yours to turn on.</p>
+                <p>No title bar, no border and no taskbar or Dock button. It can stay on top
+                    of other windows and start when you sign in; both are yours to turn on.</p>
             </div>
             <div class="feature">
                 <h3>Two menus, one list</h3>
-                <p>The notification area icon and a right-click on the ribbon both offer
+                <p>The icon in the notification area, the menu bar or the system tray and a
+                    right-click on the ribbon both offer
                     Add clock, Settings, Style, Colour, Orientation, Position, Always on top, Help (About and
                     Licence), Hide and Exit.
                     When the ribbon is hidden the icon offers Show in place of Hide.</p>
@@ -126,16 +129,19 @@
         <p class="kicker">A look</p>
         <h2>Five places, one glance.</h2>
         <div class="shot">
-            <figure>
-                <img src="screenshots/screenshot.png" width="181" height="883"
-                    alt="TimeRibbon as a vertical ribbon in the dark theme with analogue clocks for London, Berlin, Tokyo, Melbourne and New York; each clock shows its place, its zone abbreviation, its weekday and its date, with New York last because it is behind UTC.">
+            <figure class="shot-pair">
+                <img src="screenshots/screenshot.png" width="155" height="589"
+                    alt="TimeRibbon as a small vertical ribbon of analogue clocks in the Ocean colour scheme, dark, for London, Berlin, Tokyo, Melbourne and New York; each clock shows its place, its zone abbreviation, its weekday and its date, with New York last because it is behind UTC.">
+                <img src="screenshots/screenshot2.png" width="153" height="366"
+                    alt="The same five places as small digital clocks in the Neon colour scheme, glowing cyan times on near black: London 16:25, Berlin 17:25, Tokyo 00:25 and Melbourne 01:25 on the next day, New York 11:25.">
             </figure>
             <div class="two-col">
                 <div class="card">
                     <h3>What you are looking at</h3>
                     <ul>
-                        <li><strong>Vertical, analogue and dark:</strong> the first two
-                            chosen from the menus, the theme in Settings.</li>
+                        <li><strong>Two looks, one ribbon:</strong> analogue in Ocean and
+                            digital in Neon, both small and vertical. Style, colour and
+                            orientation come from the menus; size from Settings.</li>
                         <li><strong>London first,</strong> then Berlin, Tokyo and Melbourne
                             as the ribbon heads east.</li>
                         <li><strong>New York last,</strong> since it is behind UTC.</li>
@@ -152,9 +158,8 @@
                             or alarms. It shows the time; it plans nothing.</li>
                         <li><strong>People.</strong> A clock is a place, never a person.</li>
                         <li><strong>Seconds.</strong> Hours and minutes only.</li>
-                        <li><strong>Your Windows clock.</strong> It reads the time; it
+                        <li><strong>Your system clock.</strong> It reads the time; it
                             never changes it.</li>
-                        <li><strong>Anything but Windows.</strong> Windows only.</li>
                     </ul>
                 </div>
             </div>
@@ -163,7 +168,7 @@
 
     <section class="wrap" id="download">
         <p class="kicker">Download</p>
-        <h2>Install it for yourself. No administrator needed.</h2>
+        <h2>Install it for yourself.</h2>
         <span class="dl-version" id="dl-version">Version <!--VERSION-->2.0.0<!--/VERSION--></span>
         <!--
             The button points at GitHub's releases/latest/download redirect, which always
@@ -175,7 +180,7 @@
             <div class="dl-card">
                 <div class="ico">&#x1FA9F;</div>
                 <h3>Windows</h3>
-                <p class="req">Windows 10 or 11 (Windows only)</p>
+                <p class="req">Windows 10 or 11</p>
                 <a class="btn btn-primary" href="https://github.com/oernster/TimeRibbon/releases/latest/download/TimeRibbonSetup.exe">Download for Windows</a>
                 <p class="meta" data-asset="TimeRibbonSetup.exe">Setup program (.exe)</p>
                 <p class="meta">Windows may show a SmartScreen warning when you run
@@ -187,6 +192,33 @@
                 <p class="how">Run the same program again to update, repair or uninstall.
                     You can also remove it from the Apps list in Windows Settings; your
                     clocks stay unless you tick <em>Also forget my settings</em>.</p>
+            </div>
+            <div class="dl-card">
+                <div class="ico">&#x1F34E;</div>
+                <h3>macOS</h3>
+                <p class="req">macOS 12 or later, Apple Silicon</p>
+                <a class="btn btn-primary" href="https://github.com/oernster/TimeRibbon/releases/latest/download/TimeRibbon.dmg">Download for macOS</a>
+                <p class="meta" data-asset="TimeRibbon.dmg">Disk image (.dmg)</p>
+                <p class="meta">Signed and notarised by Apple.</p>
+                <p class="how">Open <code>TimeRibbon.dmg</code> and drag TimeRibbon to
+                    Applications. Its icon sits in the menu bar; a click opens its menu.</p>
+                <p class="how">To remove it, turn off Open at Login in its Settings, then
+                    move it to the Bin. Your clocks stay in
+                    <code>~/Library/Application Support/TimeRibbon</code>.</p>
+            </div>
+            <div class="dl-card">
+                <div class="ico">&#x1F427;</div>
+                <h3>Linux</h3>
+                <p class="req">Any desktop that runs Flatpaks</p>
+                <a class="btn btn-primary" href="https://github.com/oernster/TimeRibbon/releases/latest/download/timeribbon.flatpak">Download for Linux</a>
+                <p class="meta" data-asset="timeribbon.flatpak">Flatpak bundle (.flatpak)</p>
+                <p class="meta">Runs on the GNOME 50 runtime from Flathub.</p>
+                <p class="how">Install it for your account with
+                    <code>flatpak install --user timeribbon.flatpak</code>, then start it
+                    from your applications or with
+                    <code>flatpak run uk.codecrafter.TimeRibbon</code>.</p>
+                <p class="how">To remove it, turn off Start when I sign in in its Settings,
+                    then run <code>flatpak uninstall --user uk.codecrafter.TimeRibbon</code>.</p>
             </div>
         </div>
         <p class="dl-links">

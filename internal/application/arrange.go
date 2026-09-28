@@ -103,9 +103,10 @@ func (s *Service) Centred(at placement.Point, size placement.Size) (Arrangement,
 	monitor := mostOverlapped(monitors, at)
 	work := monitor.Work
 	// Never larger than the work area, so a short display still shows the whole surface.
+	perDIP := s.perDIP(monitor)
 	pixels := placement.Size{
-		Width:  min(placement.Scale(size.Width, placement.BaseDPI, monitor.DPI), work.Width()),
-		Height: min(placement.Scale(size.Height, placement.BaseDPI, monitor.DPI), work.Height()),
+		Width:  min(placement.PixelsOf(size.Width, perDIP), work.Width()),
+		Height: min(placement.PixelsOf(size.Height, perDIP), work.Height()),
 	}
 	centre := placement.Point{X: work.Left + (work.Width()-pixels.Width)/2, Y: work.Top + (work.Height()-pixels.Height)/2}
 	return Arrangement{At: placement.Clamp(centre, pixels, work), Size: pixels, DPI: monitor.DPI}, nil
@@ -191,15 +192,21 @@ type content struct {
 	settings settings.Settings
 	// cells counts every cell the page draws: each notice, then each clock (the prompt standing in
 	// for them when there are none).
-	cells     int
-	scrollbar int
+	cells        int
+	scrollbar    int
+	pixelsPerDIP float64
 }
 
 func (s *Service) ribbonContent() content {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 	current := s.current.Normalised()
-	return content{settings: current, cells: len(s.notices()) + max(len(current.Clocks), 1), scrollbar: s.scrollbar}
+	return content{
+		settings:     current,
+		cells:        len(s.notices()) + max(len(current.Clocks), 1),
+		scrollbar:    s.scrollbar,
+		pixelsPerDIP: s.pixelsPerDIP,
+	}
 }
 
 // ribbonSize answers the ribbon's size on monitor in physical pixels (FR-105, FR-106): the cells,
@@ -222,14 +229,15 @@ func (s *Service) ribbonSize(content content, monitor placement.Monitor) (placem
 		along, across = cell.Height, cell.Width
 		room = monitor.Work.Height()
 	}
-	available := placement.Scale(room, monitor.DPI, placement.BaseDPI)
+	perDIP := sizingScale(content.pixelsPerDIP, monitor)
+	available := placement.DIPOf(room, perDIP)
 	fitted := placement.Fit(content.cells, along, layout.Padding, available)
 	thickness := across + 2*layout.Padding
 	if fitted.Scrolls {
 		thickness += content.scrollbar
 	}
-	length := placement.Scale(fitted.Length, placement.BaseDPI, monitor.DPI)
-	breadth := placement.Scale(thickness, placement.BaseDPI, monitor.DPI)
+	length := placement.PixelsOf(fitted.Length, perDIP)
+	breadth := placement.PixelsOf(thickness, perDIP)
 	if current.Orientation == settings.Vertical {
 		return placement.Size{Width: breadth, Height: length}, fitted.Scrolls, fitted.Length
 	}

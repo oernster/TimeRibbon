@@ -15,18 +15,19 @@ import (
 // change whose save failed raises a notice, which is one more cell to fit (FR-707).
 func TestEveryChangeFitsTheRibbonAndAnswersTheServicesError(t *testing.T) {
 	changes := map[string]func(app *App) error{
-		"AddClock":       func(app *App) error { _, err := app.AddClock("Europe/London"); return err },
-		"RenameClock":    func(app *App) error { return app.RenameClock("id-1", "Home") },
-		"RezoneClock":    func(app *App) error { return app.RezoneClock("id-1", "Asia/Kolkata") },
-		"RemoveClock":    func(app *App) error { return app.RemoveClock("id-1") },
-		"SetStyle":       func(app *App) error { return app.SetStyle("analogue") },
-		"SetSize":        func(app *App) error { return app.SetSize("small") },
-		"SetColour":      func(app *App) error { return app.SetColour("neon") },
-		"SetFormat":      func(app *App) error { return app.SetFormat("12h") },
-		"SetTheme":       func(app *App) error { return app.SetTheme("dark") },
-		"SetAlwaysOnTop": func(app *App) error { return app.SetAlwaysOnTop(true) },
-		"SetScrollbar":   func(app *App) error { return app.SetScrollbar(12) },
-		"DismissNotices": func(app *App) error { app.DismissNotices(); return nil },
+		"AddClock":        func(app *App) error { _, err := app.AddClock("Europe/London"); return err },
+		"RenameClock":     func(app *App) error { return app.RenameClock("id-1", "Home") },
+		"RezoneClock":     func(app *App) error { return app.RezoneClock("id-1", "Asia/Kolkata") },
+		"RemoveClock":     func(app *App) error { return app.RemoveClock("id-1") },
+		"SetStyle":        func(app *App) error { return app.SetStyle("analogue") },
+		"SetSize":         func(app *App) error { return app.SetSize("small") },
+		"SetColour":       func(app *App) error { return app.SetColour("neon") },
+		"SetFormat":       func(app *App) error { return app.SetFormat("12h") },
+		"SetTheme":        func(app *App) error { return app.SetTheme("dark") },
+		"SetAlwaysOnTop":  func(app *App) error { return app.SetAlwaysOnTop(true) },
+		"SetScrollbar":    func(app *App) error { return app.SetScrollbar(12) },
+		"SetPixelsPerDIP": func(app *App) error { return app.SetPixelRatio(1.25) },
+		"DismissNotices":  func(app *App) error { app.DismissNotices(); return nil },
 	}
 	for name, change := range changes {
 		for _, failure := range []error{nil, errPlanted} {

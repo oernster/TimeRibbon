@@ -54,6 +54,7 @@ type ribbonService interface {
 	SetStartWithWindows(on bool) error
 	DismissNotices()
 	SetScrollbar(dip int) error
+	SetPixelsPerDIP(scale float64) error
 	ContextMenu() []application.MenuItem
 	CloseRequested() application.MenuAction
 	Launch() (application.Arrangement, error)
@@ -203,6 +204,13 @@ func (a *App) DismissNotices() {
 // SetScrollbar takes the thickness in DIP of the scroll bar the page draws, which it measures once
 // it has loaded, then fits the ribbon with room for it (FR-106).
 func (a *App) SetScrollbar(dip int) error { return a.refitted(a.service.SetScrollbar(dip)) }
+
+// SetPixelRatio takes the page's devicePixelRatio, which it reports once it has loaded and again
+// whenever it changes, then fits the window to the page as it is really drawn. Windows' text size
+// enlarges the page without changing the display's DPI, so the DPI alone left the page cut off.
+func (a *App) SetPixelRatio(ratio float64) error {
+	return a.refitted(a.service.SetPixelsPerDIP(desktop.PixelsPerDIP(ratio)))
+}
 
 // ShowContextMenu shows the ribbon's right-click menu as a native menu at the cursor (FR-108).
 func (a *App) ShowContextMenu() { a.showMenu(a.service.ContextMenu()) }

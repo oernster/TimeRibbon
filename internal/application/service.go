@@ -3,6 +3,7 @@ package application
 import (
 	"errors"
 	"fmt"
+	"math"
 	"sync"
 
 	"github.com/oernster/timeribbon/internal/domain/placement"
@@ -20,6 +21,9 @@ var ErrNoMonitors = errors.New("no display is reported")
 
 // ErrNegativeLength is answered when a length that cannot be negative is given as one.
 var ErrNegativeLength = errors.New("a length cannot be negative")
+
+// ErrUnusableScale is answered when the page reports a scale that is not a positive number.
+var ErrUnusableScale = errors.New("a scale must be a positive number")
 
 // saveFailedPrefix begins the notice shown while the settings cannot be written (FR-707).
 const saveFailedPrefix = "Settings could not be saved: "
@@ -61,6 +65,9 @@ type Service struct {
 	// scrollbar is the thickness in DIP of the scroll bar the page draws, as the page measured it;
 	// zero until it says (FR-106).
 	scrollbar int
+	// pixelsPerDIP is the scale the page is really drawn at, in window pixels to each DIP, as the
+	// page reported it; zero until it says, when the display's DPI stands in for it.
+	pixelsPerDIP float64
 	// arranged is the ribbon's length when it was last arranged, so a change of length can be told
 	// from anything else that arranges it (FR-104).
 	arranged ribbonLength
@@ -97,6 +104,35 @@ func (s *Service) SetScrollbar(dip int) error {
 	defer s.mutex.Unlock()
 	s.scrollbar = dip
 	return nil
+}
+
+// SetPixelsPerDIP records the scale the page is really drawn at, in window pixels to each DIP.
+// Every size is converted with it from then on rather than with the display's DPI, which Windows'
+// text size leaves as it was while it enlarges the page, so the window always fits the page.
+func (s *Service) SetPixelsPerDIP(scale float64) error {
+	if !(scale > 0) || math.IsInf(scale, 1) {
+		return fmt.Errorf("%w: %v", ErrUnusableScale, scale)
+	}
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+	s.pixelsPerDIP = scale
+	return nil
+}
+
+// perDIP answers the pixels to each DIP a window on monitor is sized with.
+func (s *Service) perDIP(monitor placement.Monitor) float64 {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+	return sizingScale(s.pixelsPerDIP, monitor)
+}
+
+// sizingScale answers reported, the page's own scale, once the page has reported one; else the
+// scale of monitor's DPI.
+func sizingScale(reported float64, monitor placement.Monitor) float64 {
+	if reported > 0 {
+		return reported
+	}
+	return placement.PerDIPOf(monitor.DPI)
 }
 
 // New answers a service over ports with the first-run settings; Start loads the stored ones.

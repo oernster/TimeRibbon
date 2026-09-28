@@ -89,6 +89,8 @@ func (s *scriptedService) DismissNotices() { s.record("DismissNotices") }
 
 func (s *scriptedService) SetScrollbar(int) error { return s.change("SetScrollbar") }
 
+func (s *scriptedService) SetPixelsPerDIP(float64) error { return s.change("SetPixelsPerDIP") }
+
 func (s *scriptedService) ContextMenu() []application.MenuItem { return s.menu }
 
 func (s *scriptedService) CloseRequested() application.MenuAction { return application.ActionHide }

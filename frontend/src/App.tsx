@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { api, on, type Snapshot } from './api'
 import { About, Licence } from './Help'
+import { watchPixelRatio } from './pixelRatio'
 import { scrollbarThickness } from './scrollbar'
 import { Settings } from './Settings'
 import { Ribbon } from './Ribbon'
@@ -51,6 +52,9 @@ export function App() {
     // Go makes room for the scroll bar a scrolling ribbon shows, which only the page can measure.
     void api.setScrollbar(scrollbarThickness(), setProblem)
   }, [])
+
+  // Go sizes the window by the scale the page is really drawn at, which only the page knows.
+  useEffect(() => watchPixelRatio((ratio) => void api.setPixelRatio(ratio, setProblem)), [])
 
   useEffect(() => {
     load()

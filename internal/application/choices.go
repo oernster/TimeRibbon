@@ -17,6 +17,11 @@ func (s *Service) SetSize(size settings.Size) error {
 	return choose(s, size, func(c *settings.Settings) *settings.Size { return &c.Size })
 }
 
+// SetColour chooses the colour scheme every clock is drawn in (FR-611).
+func (s *Service) SetColour(colour settings.Colour) error {
+	return choose(s, colour, func(c *settings.Settings) *settings.Colour { return &c.Colour })
+}
+
 // SetFormat chooses 12-hour or 24-hour time (FR-206).
 func (s *Service) SetFormat(format clock.Format) error {
 	return choose(s, format, func(c *settings.Settings) *clock.Format { return &c.Format })

@@ -37,6 +37,7 @@ type Snapshot struct {
 	Cells       []Cell
 	Style       settings.Style
 	Size        settings.Size
+	Colour      settings.Colour
 	Format      clock.Format
 	Orientation settings.Orientation
 	Theme       settings.Theme
@@ -106,6 +107,7 @@ func (s *Service) Snapshot() Snapshot {
 		Cells:       cells,
 		Style:       current.Style,
 		Size:        current.Size,
+		Colour:      current.Colour,
 		Format:      current.Format,
 		Orientation: current.Orientation,
 		Theme:       current.Theme,

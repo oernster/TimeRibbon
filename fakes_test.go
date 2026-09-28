@@ -60,6 +60,8 @@ func (s *scriptedService) SetStyle(settings.Style) error { return s.change("SetS
 
 func (s *scriptedService) SetSize(settings.Size) error { return s.change("SetSize") }
 
+func (s *scriptedService) SetColour(settings.Colour) error { return s.change("SetColour") }
+
 func (s *scriptedService) SetFormat(clock.Format) error { return s.change("SetFormat") }
 
 // SetOrientation takes the choice unless it is refused as one the setting does not offer, as the

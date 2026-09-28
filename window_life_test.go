@@ -184,6 +184,11 @@ func TestStyleAndOrientationItemsChooseAndRedraw(t *testing.T) {
 		t.Errorf("Analogue reached %v and sent %v, want the style set, the ribbon fitted and a redraw", service.calls, seen.events)
 	}
 	app, service, seen, _ = newTestApp(t)
+	app.act("colour-neon")
+	if !slices.Equal(service.calls, []string{"SetColour", "Rearrange"}) || !seen.sawEvent(eventRefresh) {
+		t.Errorf("Neon reached %v and sent %v, want the colour set, the ribbon fitted and a redraw", service.calls, seen.events)
+	}
+	app, service, seen, _ = newTestApp(t)
 	app.act(application.ActionHorizontal)
 	if !slices.Equal(service.calls, []string{"SetOrientation", "ToEdge"}) || service.edges[0] != placement.Top || !seen.sawEvent(eventRefresh) {
 		t.Errorf("Horizontal reached %v for %v and sent %v, want it set and the ribbon at the top", service.calls, service.edges, seen.events)

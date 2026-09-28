@@ -1,0 +1,69 @@
+/* The colour schemes other than Classic (FR-611), whose values are theme.css's own. Each token is
+   stated once as light-dark(light, dark): the theme sets color-scheme, which picks the side, so a
+   scheme follows Light, Dark and System exactly as Classic does. Neon is dark whatever the theme
+   and glows. Text and muted text meet 4.5:1 against the cell and the surface on both sides
+   (NFR-U-1), measured when these values were chosen. */
+
+:root[data-colour='ocean'] {
+  --surface: light-dark(#eef6f9, #06131c);
+  --cell: light-dark(#ffffff, #0b1f2c);
+  --divider: light-dark(#c3dbe4, #1b3a4d);
+  --text: light-dark(#0b2a3a, #d8f1fb);
+  --text-muted: light-dark(#2f5a6e, #8fc3d6);
+  --accent: light-dark(#0a6c8f, #4fc3e8);
+  --dial-face: light-dark(#ffffff, #0b1f2c);
+  --dial-tick: light-dark(#2f5a6e, #8fc3d6);
+  --dial-hand: light-dark(#0b2a3a, #d8f1fb);
+  --focus: light-dark(#0a6c8f, #4fc3e8);
+}
+
+:root[data-colour='sunset'] {
+  --surface: light-dark(#fff4ee, #1a0d16);
+  --cell: light-dark(#ffffff, #26121f);
+  --divider: light-dark(#f0d2c4, #4a2238);
+  --text: light-dark(#3b1021, #ffe6d9);
+  --text-muted: light-dark(#7a3144, #f5a38a);
+  --accent: light-dark(#c2410c, #ff8c5a);
+  --dial-face: light-dark(#ffffff, #26121f);
+  --dial-tick: light-dark(#7a3144, #f5a38a);
+  --dial-hand: light-dark(#3b1021, #ffe6d9);
+  --focus: light-dark(#c2410c, #ff8c5a);
+}
+
+:root[data-colour='forest'] {
+  --surface: light-dark(#f1f5ee, #0c140e);
+  --cell: light-dark(#ffffff, #132017);
+  --divider: light-dark(#cbd8c2, #26392a);
+  --text: light-dark(#16261a, #e3f1dc);
+  --text-muted: light-dark(#3f5a3a, #a4c29a);
+  --accent: light-dark(#2f6b2a, #7cc46f);
+  --dial-face: light-dark(#ffffff, #132017);
+  --dial-tick: light-dark(#3f5a3a, #a4c29a);
+  --dial-hand: light-dark(#16261a, #e3f1dc);
+  --focus: light-dark(#2f6b2a, #7cc46f);
+}
+
+:root[data-colour='neon'] {
+  --surface: #07070c;
+  --cell: #0d0d16;
+  --divider: #2a1f45;
+  --text: #5ff5ff;
+  --text-muted: #ff7ae6;
+  --accent: #39ff14;
+  --problem: #ffb454;
+  --dial-face: #0d0d16;
+  --dial-tick: #ff7ae6;
+  --dial-hand: #5ff5ff;
+  --focus: #39ff14;
+  --glow: rgb(95 245 255 / 70%);
+  color-scheme: dark;
+}
+
+/* Neon's glow: the digits and the dial's hands light the dark around them. */
+:root[data-colour='neon'] .time {
+  text-shadow: 0 0 6px var(--glow), 0 0 14px var(--glow);
+}
+
+:root[data-colour='neon'] .dial line {
+  filter: drop-shadow(0 0 3px var(--glow));
+}

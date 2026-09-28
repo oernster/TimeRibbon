@@ -31,6 +31,21 @@ const (
 	Small Size = "small"
 )
 
+// Colour is the colour scheme every clock is drawn in (FR-611).
+type Colour string
+
+// The colour schemes. Classic is the look the ribbon has always had.
+const (
+	Classic Colour = "classic"
+	Neon    Colour = "neon"
+	Ocean   Colour = "ocean"
+	Sunset  Colour = "sunset"
+	Forest  Colour = "forest"
+)
+
+// Colours lists the colour schemes in the order they are offered.
+var Colours = []Colour{Classic, Neon, Ocean, Sunset, Forest}
+
 // Orientation is the direction cells run in (FR-103).
 type Orientation string
 
@@ -83,6 +98,7 @@ type Entry struct {
 type Settings struct {
 	Style       Style
 	Size        Size
+	Colour      Colour
 	Format      clock.Format
 	Orientation Orientation
 	Theme       Theme
@@ -99,6 +115,7 @@ func Defaults() Settings {
 	return Settings{
 		Style:       Digital,
 		Size:        Large,
+		Colour:      Classic,
 		Format:      clock.TwentyFourHour,
 		Orientation: Vertical,
 		Theme:       System,
@@ -114,6 +131,9 @@ func (s Settings) Normalised() Settings {
 	}
 	if s.Size != Large && s.Size != Small {
 		s.Size = defaults.Size
+	}
+	if !slices.Contains(Colours, s.Colour) {
+		s.Colour = defaults.Colour
 	}
 	if s.Format != clock.TwentyFourHour && s.Format != clock.TwelveHour {
 		s.Format = defaults.Format

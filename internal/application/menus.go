@@ -76,7 +76,7 @@ func (s *Service) TrayMenu(visible bool) []MenuItem {
 		toggle = MenuItem{Action: ActionHide, Label: labelHide}
 	}
 	return []MenuItem{
-		toggle, addClockItem(), settingsItem(), s.styleItem(), s.orientationItem(), s.positionItem(),
+		toggle, addClockItem(), settingsItem(), s.styleItem(), s.colourItem(), s.orientationItem(), s.positionItem(),
 		s.alwaysOnTopItem(), helpItem(), exitItem(),
 	}
 }
@@ -84,7 +84,7 @@ func (s *Service) TrayMenu(visible bool) []MenuItem {
 // ContextMenu answers the menu the ribbon offers when right-clicked (FR-108).
 func (s *Service) ContextMenu() []MenuItem {
 	return []MenuItem{
-		addClockItem(), settingsItem(), s.styleItem(), s.orientationItem(), s.positionItem(),
+		addClockItem(), settingsItem(), s.styleItem(), s.colourItem(), s.orientationItem(), s.positionItem(),
 		s.alwaysOnTopItem(), helpItem(), {Action: ActionHide, Label: labelHide}, exitItem(),
 	}
 }

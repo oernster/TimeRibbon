@@ -1,6 +1,7 @@
 package application
 
 import (
+	"errors"
 	"slices"
 	"testing"
 
@@ -21,7 +22,7 @@ func TestTrayMenuNamesTheOppositeOfTheVisibility(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, settings.Defaults())
 	shown := r.service.TrayMenu(true)
-	if !slices.Equal(labels(shown), []string{"Hide ribbon", "Add clock", "Settings", "Style", "Orientation", "Position", "Always on top", "Help", "Exit"}) ||
+	if !slices.Equal(labels(shown), []string{"Hide ribbon", "Add clock", "Settings", "Style", "Colour", "Orientation", "Position", "Always on top", "Help", "Exit"}) ||
 		shown[0].Action != ActionHide {
 		t.Errorf("visible: %+v", shown)
 	}
@@ -98,7 +99,7 @@ func TestBothMenusOfferStyleAndOrientationWithTheCurrentTicked(t *testing.T) {
 func TestContextMenuOffersTheRibbonsActions(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, settings.Defaults())
-	if got := labels(r.service.ContextMenu()); !slices.Equal(got, []string{"Add clock", "Settings", "Style", "Orientation", "Position", "Always on top", "Help", "Hide ribbon", "Exit"}) {
+	if got := labels(r.service.ContextMenu()); !slices.Equal(got, []string{"Add clock", "Settings", "Style", "Colour", "Orientation", "Position", "Always on top", "Help", "Hide ribbon", "Exit"}) {
 		t.Errorf("got %v", got)
 	}
 	if last := r.service.ContextMenu()[len(r.service.ContextMenu())-1]; last.Action != ActionExit {
@@ -160,6 +161,38 @@ func TestPositionOffersTheEdgesAlongTheOrientation(t *testing.T) {
 	}
 	if _, ok := EdgeOf(ActionSettings); ok {
 		t.Error("Settings was taken for an edge")
+	}
+}
+
+// FR-611: Colour is a submenu in both menus offering every scheme with the current one ticked;
+// each item names its scheme and nothing else does.
+func TestBothMenusOfferEveryColourWithTheCurrentTicked(t *testing.T) {
+	t.Parallel()
+	initial := settings.Defaults()
+	initial.Colour = settings.Ocean
+	r := newRig(t, initial)
+	for name, menu := range map[string][]MenuItem{"tray": r.service.TrayMenu(true), "context": r.service.ContextMenu()} {
+		colour := find(t, menu, labelColour)
+		if colour.Action != "" || !slices.Equal(labels(colour.Children), []string{"Classic", "Neon", "Ocean", "Sunset", "Forest"}) {
+			t.Fatalf("%s: %+v", name, colour)
+		}
+		for index, item := range colour.Children {
+			got, ok := ColourOf(item.Action)
+			if !ok || got != settings.Colours[index] || !item.Checkable || item.Checked != (got == settings.Ocean) {
+				t.Errorf("%s: %+v answered %s, %v", name, item, got, ok)
+			}
+		}
+	}
+	for _, other := range []MenuAction{ActionDigital, "colour-mauve", "colour-"} {
+		if _, ok := ColourOf(other); ok {
+			t.Errorf("%q was taken for a colour", other)
+		}
+	}
+	if err := r.service.SetColour("mauve"); !errors.Is(err, ErrUnknownChoice) {
+		t.Errorf("an unknown colour answered %v", err)
+	}
+	if err := r.service.SetColour(settings.Neon); err != nil || r.store.last(t).Colour != settings.Neon || r.service.Snapshot().Colour != settings.Neon {
+		t.Errorf("neon was not chosen, saved and shown: %v", err)
 	}
 }
 

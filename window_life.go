@@ -127,6 +127,11 @@ func (a *App) actOnChoice(action application.MenuAction) {
 		a.emit(eventRefresh)
 		return
 	}
+	if colour, ok := application.ColourOf(action); ok {
+		a.report("changing the colour", a.SetColour(string(colour)))
+		a.emit(eventRefresh)
+		return
+	}
 	if orientation, ok := application.OrientationOf(action); ok {
 		a.report("changing the orientation", a.SetOrientation(string(orientation)))
 		a.emit(eventRefresh)

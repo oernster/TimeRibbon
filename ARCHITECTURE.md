@@ -243,6 +243,15 @@ and requires every key to be read rather than merely carried. It was proved by r
 changing a stored word: each failed it. The fixture is never regenerated from a later writer, since
 what it proves is that the old shape still reads.
 
+## Colour
+
+Every colour has one home per scheme. `frontend/src/theme.css` holds Classic, light and dark;
+`frontend/src/colours.css` holds the other schemes (FR-611), keyed off the `data-colour` attribute
+the page sets from the snapshot. Each of their tokens is stated once as `light-dark(light, dark)`, so
+the `color-scheme` the theme sets picks the side and no dark value is written twice; Neon sets
+`color-scheme: dark` itself and adds its glow. The side each scheme resolves to was measured in Edge
+under Light, Dark and System on 2026-09-28.
+
 ## The desktop
 
 `desktop` owns a hidden top-level window on its own locked thread: the notification-area icon, the
@@ -255,9 +264,9 @@ recover a panic and log it, so one fault cannot leave a ribbon that reacts to no
 
 Both menus are native popup menus, so the ribbon's small window never clips them. Their items and
 words have one home, `internal/application/menus.go`. The tray menu offers Show ribbon or Hide ribbon
-(whichever applies), Add clock, Settings, Style, Orientation, Position, Always on top, Help and Exit;
-the ribbon's right-click menu offers Add clock, Settings, Style, Orientation, Position, Always on top,
-Help, Hide ribbon and Exit. Style and Orientation are submenus ticking the current choice, whose
+(whichever applies), Add clock, Settings, Style, Colour, Orientation, Position, Always on top, Help and Exit;
+the ribbon's right-click menu offers Add clock, Settings, Style, Colour, Orientation, Position, Always on top,
+Help, Hide ribbon and Exit. Style, Colour and Orientation are submenus ticking the current choice, whose
 items reach the same facade calls the page's would (`menu_choices.go`, FR-502); style and orientation
 are not offered in Settings. Position is a submenu holding the two edges the ribbon runs along
 (FR-408); Help is a submenu holding About and Licence in both. A left click on the tray icon shows or

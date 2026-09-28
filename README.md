@@ -39,8 +39,8 @@ in a small frameless ribbon you can put anywhere on any monitor.
   own, such as Manchester, takes its zone's clock and your label).
 - **Stays out of the way.** The ribbon has no title bar, no border and no taskbar button. A left
   click on its icon in the notification area shows or hides it. The icon's menu and the ribbon's own
-  right-click menu both add a clock, open Settings, choose digital or analogue, choose horizontal or
-  vertical, centre the ribbon on an edge, turn Always on top on or off, open Help (About and Licence)
+  right-click menu both add a clock, open Settings, choose digital or analogue, choose a colour
+  scheme, choose horizontal or vertical, centre the ribbon on an edge, turn Always on top on or off, open Help (About and Licence)
   and exit. Closing the ribbon (Alt+F4) hides it; only Exit ends it.
 - **Goes where you put it.** Drag the ribbon by any empty part onto any monitor; it stays wholly on
   that display. It opens there next time. When that monitor is gone, it opens on the primary one, at the edge its orientation sends it to.
@@ -54,8 +54,10 @@ in a small frameless ribbon you can put anywhere on any monitor.
 - **Fits its clocks, then scrolls.** The ribbon is as long as its clocks until it reaches the edge
   of the display, then its clocks scroll rather than shrink or wrap. A plain mouse wheel moves a
   horizontal ribbon along.
-- **Digital or analogue, large or small, 12-hour or 24-hour, horizontal or vertical, light or
-  dark.** Every choice applies at once, with no Save step. Style and orientation are in the menus;
+- **Digital or analogue, large or small, five colour schemes, 12-hour or 24-hour, horizontal or
+  vertical, light or dark.** Every choice applies at once, with no Save step. The schemes are Classic,
+  Neon (dark, with glowing digits and hands), Ocean, Sunset and Forest; each but Neon follows the
+  light or dark theme. Style, colour and orientation are in the menus;
   size, time format and theme are in Settings. Small clocks suit a small screen such as a 13 inch
   laptop. The theme can follow Windows.
 - **Keeps your clocks in one readable file.** `%APPDATA%\TimeRibbon\settings.json`, written whole

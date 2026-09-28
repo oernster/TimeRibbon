@@ -31,6 +31,9 @@ Amendment 11 (Oliver, 2026-09-28): the product is renamed TimeRibbon over a trad
 its window is the ribbon. Nothing carries over from the former name, which starts a new major
 version (NFR-C-1).
 
+Amendment 12 (Oliver, 2026-09-28): colour schemes, Neon among them, chosen from a Colour submenu
+(FR-611).
+
 Source: the initial product specification of 2026-09-27, written under the product's former name,
 plus Oliver's rulings
 of 2026-09-27: the stack is Go with Wails; orientation is a setting offering both horizontal and
@@ -268,6 +271,7 @@ does (FR-502).
 Amendment 8 (Oliver, 2026-09-28): a `Position` submenu (FR-408) sits after `Settings`.
 Amendment 9 (Oliver, 2026-09-28): `Style` and `Orientation` submenus sit between `Settings` and
 `Position`, as in the tray menu (FR-502).
+Amendment 12 (Oliver, 2026-09-28): a `Colour` submenu (FR-611) sits after `Style`.
 Verified by: `TestContextMenuOffersTheRibbonsActions`,
 `TestBothMenusOfferStyleAndOrientationWithTheCurrentTicked` (application).
 
@@ -499,6 +503,7 @@ Amendment 8 (Oliver, 2026-09-28): a `Position` submenu (FR-408) sits after `Sett
 Amendment 9 (Oliver, 2026-09-28): `Style` (`Digital`, `Analogue`) and `Orientation` (`Horizontal`,
 `Vertical`) submenus sit between `Settings` and `Position`, each ticking the current choice; choosing
 an item applies it at once as FR-602 does.
+Amendment 12 (Oliver, 2026-09-28): a `Colour` submenu (FR-611) sits after `Style`.
 Verified by: `TestTrayMenuNamesTheOppositeOfTheVisibility`,
 `TestBothMenusOfferStyleAndOrientationWithTheCurrentTicked` (application); check M-4.
 
@@ -628,11 +633,28 @@ Verified by: `TestUnknownChoicesAreNormalisedToDefaults` (domain);
 `TestSettingsRoundTrip` (infrastructure, store); `ribbon.test.tsx`, `settings.test.tsx`; the fit of
 the text by check M-12.
 
+**FR-611 Colour schemes**
+Priority: Should (Amendment 12, Oliver, 2026-09-28).
+The ribbon shall draw every clock in the colour scheme held in settings: `Classic` (the look it
+had before schemes), `Neon`, `Ocean`, `Sunset` or `Forest`; Classic when none is held. Both menus
+shall hold a `Colour` submenu offering every scheme with the current one ticked; choosing one applies
+it at once as FR-602 does. Every scheme but Neon has a light and a dark side, chosen by the theme as
+Classic's are (FR-606); Neon is dark whatever the theme and its digits and hands glow. Text and
+muted text meet 4.5:1 against the cell and the surface on every side (NFR-U-1).
+Acceptance: given the theme Light, when `Neon` is chosen, then the cells are near black with cyan
+digits; when `Ocean` is chosen, then they are white with deep blue text.
+Verified by: `TestUnknownChoicesAreNormalisedToDefaults` (domain);
+`TestBothMenusOfferEveryColourWithTheCurrentTicked` (application);
+`TestStyleAndOrientationItemsChooseAndRedraw` (facade); `TestSettingsRoundTrip`,
+`TestA1Point0SettingsFileIsReadWhole` (infrastructure, store); the colours on screen by check M-12.
+The contrast was measured over `frontend/src/colours.css` on 2026-09-28, the weakest pairing 5.2:1;
+the sides were measured resolving in Edge under Light, Dark and System.
+
 ### 3.7 Persistence and recovery
 
 **FR-701 Settings file**
 Priority: Must.
-The application shall keep its settings in the settings file as indented JSON holding style, size, format,
+The application shall keep its settings in the settings file as indented JSON holding style, size, colour, format,
 orientation, theme, Always on Top, placement and clocks; each clock holding a stable id, its zone id,
 its label and its position. Derived values (offset, abbreviation, time, date) shall not be stored.
 Verified by: `TestSettingsRoundTrip` and `TestNoDerivedValueIsStored` (infrastructure).
@@ -849,7 +871,7 @@ recover, snapshot) is executable from a Go test with no window open before the f
 | Priority | Content |
 |---|---|
 | **Must** | FR-101 to FR-107, FR-201 to FR-209, FR-301 to FR-305, FR-401 to FR-409, FR-501, FR-502, FR-504 to FR-508, FR-601 to FR-604, FR-607 to FR-610, FR-701 to FR-707, FR-801 to FR-811, NFR-P-1 to NFR-P-4, NFR-U-1 to NFR-U-5, NFR-S-1 to NFR-S-3, NFR-M-1, NFR-M-2, NFR-C-1, NFR-O-1 |
-| **Should** | FR-108, FR-307, FR-503, FR-605, FR-606 |
+| **Should** | FR-108, FR-307, FR-503, FR-605, FR-606, FR-611 |
 | **Could** | FR-308 |
 | **Won't this time** | Everything in the out-of-scope table of section 1.3 |
 
@@ -911,4 +933,4 @@ There are no open questions. The five raised while drafting were ruled by Oliver
 | M-9 | Setup installs, updates, repairs and uninstalls on a real machine without asking for administrator rights, closing a running copy first. |
 | M-10 | Both menus open a Help submenu whose About and Licence each show their panel; the licence reads itself down after 5 s, a wheel stops it and it resumes; setup's Licence screen does the same. |
 | M-11 | The donate button at the foot of Settings opens the default browser on the donation page. |
-| M-12 | Each Position item puts the ribbon flush against its edge and centred along it on the display it is on; it opens there next time; choosing Horizontal or Vertical from either menu sends it to the top or right edge; small clocks show their whole date and time in both styles; the Settings title and Close stay put while the panel scrolls. |
+| M-12 | Each Position item puts the ribbon flush against its edge and centred along it on the display it is on; it opens there next time; choosing Horizontal or Vertical from either menu sends it to the top or right edge; small clocks show their whole date and time in both styles; the Settings title and Close stay put while the panel scrolls; each colour scheme looks right in Light, Dark and System, Neon glowing and dark in all three. |

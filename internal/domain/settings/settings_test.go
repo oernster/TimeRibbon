@@ -29,7 +29,7 @@ func order(s Settings) []string {
 func TestDefaultsAreDigitalTwentyFourHourVerticalAndNotOnTop(t *testing.T) {
 	t.Parallel()
 	got := Defaults()
-	if got.Style != Digital || got.Size != Large || got.Format != clock.TwentyFourHour || got.Orientation != Vertical ||
+	if got.Style != Digital || got.Size != Large || got.Colour != Classic || got.Format != clock.TwentyFourHour || got.Orientation != Vertical ||
 		got.Theme != System || got.AlwaysOnTop || got.Placement != nil || len(got.Clocks) != 0 {
 		t.Errorf("got %+v", got)
 	}
@@ -50,16 +50,16 @@ func TestEachOrientationHasAHomeEdge(t *testing.T) {
 
 func TestUnknownChoicesAreNormalisedToDefaults(t *testing.T) {
 	t.Parallel()
-	odd := Settings{Style: "sundial", Size: "huge", Format: "36h", Orientation: "diagonal", Theme: "sepia", AlwaysOnTop: true}
+	odd := Settings{Style: "sundial", Size: "huge", Colour: "mauve", Format: "36h", Orientation: "diagonal", Theme: "sepia", AlwaysOnTop: true}
 	got := odd.Normalised()
 	want := Defaults()
 	want.AlwaysOnTop = true
-	if got.Style != want.Style || got.Size != want.Size || got.Format != want.Format || got.Orientation != want.Orientation ||
+	if got.Style != want.Style || got.Size != want.Size || got.Colour != want.Colour || got.Format != want.Format || got.Orientation != want.Orientation ||
 		got.Theme != want.Theme || !got.AlwaysOnTop {
 		t.Errorf("got %+v", got)
 	}
-	known := Settings{Style: Analogue, Size: Small, Format: clock.TwelveHour, Orientation: Vertical, Theme: Dark}
-	if kept := known.Normalised(); kept.Style != Analogue || kept.Size != Small || kept.Format != clock.TwelveHour ||
+	known := Settings{Style: Analogue, Size: Small, Colour: Neon, Format: clock.TwelveHour, Orientation: Vertical, Theme: Dark}
+	if kept := known.Normalised(); kept.Style != Analogue || kept.Size != Small || kept.Colour != Neon || kept.Format != clock.TwelveHour ||
 		kept.Orientation != Vertical || kept.Theme != Dark {
 		t.Errorf("known choices were changed: %+v", kept)
 	}

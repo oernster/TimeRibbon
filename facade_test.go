@@ -21,6 +21,7 @@ func TestEveryChangeFitsTheRibbonAndAnswersTheServicesError(t *testing.T) {
 		"RemoveClock":    func(app *App) error { return app.RemoveClock("id-1") },
 		"SetStyle":       func(app *App) error { return app.SetStyle("analogue") },
 		"SetSize":        func(app *App) error { return app.SetSize("small") },
+		"SetColour":      func(app *App) error { return app.SetColour("neon") },
 		"SetFormat":      func(app *App) error { return app.SetFormat("12h") },
 		"SetTheme":       func(app *App) error { return app.SetTheme("dark") },
 		"SetAlwaysOnTop": func(app *App) error { return app.SetAlwaysOnTop(true) },

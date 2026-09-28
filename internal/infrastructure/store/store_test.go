@@ -34,7 +34,7 @@ func read(t *testing.T, dir string) string {
 
 func full() settings.Settings {
 	s := settings.Settings{
-		Style: settings.Analogue, Size: settings.Small, Format: clock.TwelveHour, Orientation: settings.Vertical,
+		Style: settings.Analogue, Size: settings.Small, Colour: settings.Sunset, Format: clock.TwelveHour, Orientation: settings.Vertical,
 		Theme: settings.Dark, AlwaysOnTop: true,
 		Placement: &placement.Stored{
 			Device: `\\.\DISPLAY2`, Work: placement.Rect{Left: 1920, Right: 4480, Bottom: 1392},
@@ -57,7 +57,7 @@ func TestSettingsRoundTrip(t *testing.T) {
 		t.Fatalf("load: %v %q", err, loaded.Notice)
 	}
 	got, want := loaded.Settings, full()
-	if got.Style != want.Style || got.Size != want.Size || got.Format != want.Format || got.Orientation != want.Orientation ||
+	if got.Style != want.Style || got.Size != want.Size || got.Colour != want.Colour || got.Format != want.Format || got.Orientation != want.Orientation ||
 		got.Theme != want.Theme || got.AlwaysOnTop != want.AlwaysOnTop || *got.Placement != *want.Placement ||
 		!slices.Equal(got.Clocks, want.Clocks) {
 		t.Errorf("got %+v", got)

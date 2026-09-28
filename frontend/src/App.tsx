@@ -77,6 +77,8 @@ export function App() {
     } else {
       root.dataset.theme = snapshot.theme
     }
+    // The colour scheme (FR-611); colours.css keys its schemes off it, Classic being theme.css's own.
+    root.dataset.colour = snapshot?.colour ?? 'classic'
   }, [snapshot])
 
   if (snapshot == null) {

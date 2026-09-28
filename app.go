@@ -47,6 +47,7 @@ type ribbonService interface {
 	SearchPlaces(query string) []application.Place
 	SetStyle(style settings.Style) error
 	SetSize(size settings.Size) error
+	SetColour(colour settings.Colour) error
 	SetFormat(format clock.Format) error
 	SetOrientation(orientation settings.Orientation) error
 	SetTheme(theme settings.Theme) error
@@ -150,6 +151,11 @@ func (a *App) SetSize(size string) error {
 	err := a.service.SetSize(settings.Size(size))
 	a.contentChanged()
 	return err
+}
+
+// SetColour chooses the colour scheme (FR-611).
+func (a *App) SetColour(colour string) error {
+	return a.refitted(a.service.SetColour(settings.Colour(colour)))
 }
 
 // SetFormat chooses 12-hour or 24-hour (FR-206).

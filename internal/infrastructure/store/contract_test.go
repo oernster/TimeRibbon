@@ -41,6 +41,9 @@ func TestA1Point0SettingsFileIsReadWhole(t *testing.T) {
 		t.Errorf("a 1.0.0 file read as %+v, want %+v", got, want)
 	}
 	// 1.0.0 had no size (FR-610): its clocks were the large ones, so they stay large.
+	if got.Colour != settings.Classic {
+		t.Errorf("a 1.0.0 file read with colour %q, want classic", got.Colour)
+	}
 	if got.Size != settings.Large {
 		t.Errorf("a 1.0.0 file read with size %q, want large", got.Size)
 	}

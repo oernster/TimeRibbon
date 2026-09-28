@@ -53,6 +53,9 @@ Amendment 16 (Oliver, 2026-09-28): a date format chosen in Settings (FR-612): th
 words either way round; else the short weekday with the whole date in numbers, day, month or year
 first, separated by slashes. The settings file gains the choice (NFR-C-1 allows the key).
 
+Amendment 17 (Oliver, 2026-09-28): launching TimeRibbon while it runs toggles the ribbon rather
+than only showing it (FR-506), so a Stream Deck button can both show and hide it.
+
 Source: the initial product specification of 2026-09-27, written under the product's former name,
 plus Oliver's rulings of 2026-09-27: the stack is Go with Wails; orientation is a setting offering
 both horizontal and vertical, both in the first release; a setup program ships with the first
@@ -571,9 +574,18 @@ Verified by: `TestDefaultsAreDigitalTwentyFourHourVerticalAndNotOnTop` (domain);
 
 **FR-506 One instance**
 Priority: Must.
-If TimeRibbon is launched while it is already running for the same Windows user, then the new
-process shall show the running ribbon and exit.
-Verified by: check M-6.
+If TimeRibbon is launched while it is already running for the same user, then the new process shall
+exit and the running application shall toggle the ribbon as a left click on the Windows tray icon
+does: hide it while it is shown, else show it.
+Amendment 17 (Oliver, 2026-09-28): the second launch toggles rather than only showing, so one
+Stream Deck button (its Open action pointed at TimeRibbon) both shows and hides the ribbon.
+Rationale: a friend asked for one press to show or hide the clocks. Consequence accepted: a ribbon
+shown but covered by other windows counts as shown, so launching TimeRibbon to find it hides it; a
+second launch shows it again.
+Acceptance: given TimeRibbon running with the ribbon shown, when it is launched again, then the
+second process exits and the ribbon is hidden; when it is launched once more, then the ribbon is
+shown. Given a launch before the running copy has finished starting, then nothing is toggled.
+Verified by: `TestASecondLaunchTogglesTheRibbon` (facade); check M-6.
 
 **FR-507 Alt+F4 hides**
 Priority: Must.
@@ -1055,7 +1067,7 @@ is installing and removing the DMG on macOS and the Flatpak on Linux.
 | M-3 | Dragged onto a monitor with different scaling, the ribbon keeps its size and stays crisp; unplugging that monitor brings it back onto a visible one. |
 | M-4 | The tray icon, its menu, left click, Always on Top and Exit behave as FR-501 to FR-505 say. |
 | M-5 | Changing the Windows clock, changing the time zone and sleeping then waking the machine each leave every cell correct within 2 s. |
-| M-6 | Launching a second copy shows the first and leaves one tray icon. |
+| M-6 | Launching a second copy leaves one tray icon and hides a shown ribbon; launching again shows it; a Stream Deck Open action pointed at TimeRibbon does the same on each press. |
 | M-7 | Switching the Windows theme while on system theme recolours the ribbon. |
 | M-8 | Settings and the place search can be driven entirely from the keyboard. |
 | M-9 | Setup installs, updates, repairs and uninstalls on a real machine without asking for administrator rights, closing a running copy first. |

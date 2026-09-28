@@ -50,8 +50,9 @@ func (a *App) beforeClose(context.Context) bool {
 
 func (a *App) shutdown(context.Context) { a.desktop.Stop() }
 
-// secondInstance answers a second launch by showing the ribbon that is already running (FR-506).
-func (a *App) secondInstance() { a.show() }
+// secondInstance answers a second launch by toggling the ribbon as the tray icon's click does, so
+// one launcher button, such as a Stream Deck's, both shows and hides it (FR-506, Amendment 17).
+func (a *App) secondInstance() { a.toggle() }
 
 // listen acts on what the desktop reports until it stops. A panic in one event is logged and the
 // next is still heard, so one fault cannot leave a ribbon that reacts to nothing.

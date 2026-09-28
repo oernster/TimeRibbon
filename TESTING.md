@@ -239,7 +239,7 @@ Windows, installing and removing the DMG on macOS and the Flatpak on Linux.
 | M-3 | Dragged onto a display at other scaling, the ribbon keeps its size and stays sharp; unplugging that display brings it back onto a visible one |
 | M-4 | The tray icon, its menu, a left click, Always on top and Exit behave as FR-501 to FR-505 say |
 | M-5 | Changing the Windows clock, changing the time zone and sleeping then waking the machine each leave every clock right within 2 seconds; each writes a line to `TimeRibbon.log` |
-| M-6 | Launching a second copy shows the first and leaves one tray icon |
+| M-6 | Launching a second copy leaves one tray icon and hides a shown ribbon; launching again shows it; a Stream Deck Open action pointed at TimeRibbon does the same on each press |
 | M-7 | Switching the Windows theme while TimeRibbon follows it recolours the ribbon |
 | M-8 | Settings and the place search can be driven entirely from the keyboard |
 | M-9 | Setup installs, updates, repairs and uninstalls on a real machine without asking for administrator rights, closing a running copy first |

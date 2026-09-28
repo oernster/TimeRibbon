@@ -133,7 +133,8 @@ the other platforms' folders are in [ARCHITECTURE.md](ARCHITECTURE.md#data-locat
 where a fault in a windowed run goes, the Go runtime's own panic report included. A run that finds
 the log over 1 MiB starts it afresh. The settings are
 in `settings.json` beside it; on Windows the web view keeps its data in `WebView2` in the same
-folder. Only one copy runs per user: a second launch shows the first and exits.
+folder. Only one copy runs per user: a second launch shows or hides the first ribbon (as its tray
+icon's click does) then exits (FR-506).
 
 `wails dev` is the Windows loop. On macOS and Linux build the page, then run the application with
 `go run` and the build's tags, as [TESTING.md](TESTING.md#on-macos-and-linux) describes.

@@ -73,6 +73,20 @@ func TestTheDesktopsEventsRefitOrRefresh(t *testing.T) {
 	}
 }
 
+// FR-506, Amendment 17: each further launch flips the ribbon, as the tray icon's click does.
+func TestASecondLaunchTogglesTheRibbon(t *testing.T) {
+	app, _, seen, _ := newTestApp(t)
+	app.show()
+	app.secondInstance()
+	if seen.hidden != 1 || app.visible.Load() {
+		t.Fatalf("hidden %d, visible %v; want a shown ribbon hidden", seen.hidden, app.visible.Load())
+	}
+	app.secondInstance()
+	if seen.shown != 2 || !app.visible.Load() {
+		t.Errorf("shown %d, visible %v; want the hidden ribbon shown again", seen.shown, app.visible.Load())
+	}
+}
+
 func TestTheTrayIconTogglesTheRibbon(t *testing.T) {
 	app, _, seen, _ := newTestApp(t)
 	app.handleSafely(desktop.Event{Kind: desktop.EventIconClicked})

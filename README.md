@@ -50,7 +50,9 @@ in a small frameless ribbon you can put anywhere on any monitor.
 - **Answers the icon the way each desktop expects.** On Windows a left click on the icon shows or
   hides the ribbon and a right click opens the menu. On macOS a click opens the menu, as every menu
   bar icon does. On Linux the tray decides: on Ubuntu a click opens the menu and a double click
-  shows or hides the ribbon. On Windows, Alt+F4 on the ribbon hides it too.
+  shows or hides the ribbon. On Windows, Alt+F4 on the ribbon hides it too. Launching TimeRibbon
+  again while it runs shows or hides the ribbon in the same way, so a single launcher button, such
+  as a Stream Deck's Open action pointed at TimeRibbon, does both.
 - **Goes where you put it.** Drag the ribbon by any empty part onto any monitor. On Windows it is
   kept wholly on a display while it moves; on macOS and Linux one left partly off every display is
   put back when the drag ends. It opens there next time. When that monitor is gone, it opens on the

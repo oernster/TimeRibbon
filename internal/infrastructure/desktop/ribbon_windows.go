@@ -6,8 +6,6 @@ import (
 	"time"
 	"unsafe"
 
-	"golang.org/x/sys/windows"
-
 	"github.com/oernster/timeribbon/internal/domain/placement"
 )
 
@@ -21,10 +19,10 @@ const (
 var ErrRibbonNotFound = errors.New("the ribbon's window was not found")
 
 // FindRibbon answers the window of class, the class name the ribbon's window is created with.
-func FindRibbon(class string) (windows.HWND, error) {
+func FindRibbon(class string) (Window, error) {
 	for range findAttempts {
 		if handle, _, _ := procFindWindow.Call(utf16Pointer(class), 0); handle != 0 {
-			return windows.HWND(handle), nil
+			return Window(handle), nil
 		}
 		time.Sleep(findPause)
 	}
@@ -34,7 +32,7 @@ func FindRibbon(class string) (windows.HWND, error) {
 // HideFromTaskbar makes the ribbon a tool window, which has no taskbar button (FR-101). Wails creates
 // its window with WS_EX_APPWINDOW, which forces a button, so that flag is taken off. It is done
 // while the window is hidden, since the taskbar reads the style when a window is shown.
-func HideFromTaskbar(ribbon windows.HWND) error {
+func HideFromTaskbar(ribbon Window) error {
 	style, _, _ := procGetWindowLongPtr.Call(uintptr(ribbon), uintptr(exStyleIndex))
 	// SetWindowLongPtr answers the previous style, never zero here since Wails sets WS_EX_APPWINDOW;
 	// zero is the failure.
@@ -49,7 +47,7 @@ func HideFromTaskbar(ribbon windows.HWND) error {
 var exStyleIndex int32 = gwlExStyle
 
 // Place moves and sizes the ribbon in physical pixels without raising or activating it (FR-405).
-func Place(ribbon windows.HWND, at placement.Point, size placement.Size) error {
+func Place(ribbon Window, at placement.Point, size placement.Size) error {
 	ok, _, err := procSetWindowPos.Call(uintptr(ribbon), 0,
 		uintptr(at.X), uintptr(at.Y), uintptr(size.Width), uintptr(size.Height),
 		swpNoZOrder|swpNoActivate|swpFrameChanged)
@@ -60,7 +58,7 @@ func Place(ribbon windows.HWND, at placement.Point, size placement.Size) error {
 }
 
 // Position answers the ribbon's top-left corner in physical pixels.
-func Position(ribbon windows.HWND) (placement.Point, error) {
+func Position(ribbon Window) (placement.Point, error) {
 	var bounds rect
 	if ok, _, err := procGetWindowRect.Call(uintptr(ribbon), uintptr(unsafe.Pointer(&bounds))); ok == 0 {
 		return placement.Point{}, fmt.Errorf("reading the ribbon's position: %w", err)

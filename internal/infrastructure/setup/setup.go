@@ -1,3 +1,5 @@
+//go:build windows
+
 // Package setup holds the install policy behind TimeRibbon's setup program (FR-801 to FR-810):
 // what the machine already holds, which conversation setup has with it and what installing,
 // repairing and removing actually do. The setup program's window is a thin shell over it.

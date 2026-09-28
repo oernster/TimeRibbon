@@ -9,8 +9,6 @@ import (
 	"io"
 	"sync/atomic"
 
-	"golang.org/x/sys/windows"
-
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/placement"
@@ -86,7 +84,7 @@ type App struct {
 	place      func(at placement.Point, size placement.Size) error
 
 	ctx       context.Context
-	ribbon    windows.HWND
+	ribbon    desktop.Window
 	trayUp    atomic.Bool
 	visible   atomic.Bool
 	quitting  atomic.Bool

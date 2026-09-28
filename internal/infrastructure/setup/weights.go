@@ -1,3 +1,5 @@
+//go:build windows
+
 package setup
 
 // Each step's weight is the time it was measured to take, in milliseconds: the median of seven runs

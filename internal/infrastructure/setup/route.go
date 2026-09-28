@@ -1,3 +1,5 @@
+//go:build windows
+
 package setup
 
 // Which conversation this run is having (FR-801), decided once from one reading of the machine so

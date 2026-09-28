@@ -1,3 +1,5 @@
+//go:build windows
+
 // Command payload packs the setup program's payload: every file of the built application, then the
 // licence beside it. build.ps1 runs it from the repository root:
 //

@@ -1,3 +1,5 @@
+//go:build windows
+
 // Command installer is TimeRibbon's setup program (FR-801 to FR-810).
 //
 // It is a second Wails application in the module, carrying the built application as an embedded

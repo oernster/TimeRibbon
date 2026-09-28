@@ -1,10 +1,11 @@
 // Package runlog keeps the log a run leaves (NFR-O-1): a line naming when the run started, then
 // whatever the run reports, in TimeRibbon.log inside the settings folder.
 //
-// A windowed program is handed a standard error handle of zero, so everything written there is
-// lost, the Go runtime's own panic report included. Keep points the handle and os.Stderr at the log
-// as the first act of the run, so a crash leaves a record rather than a silence (ported from Bridge
-// Talk, where it was measured against Go 1.26.3).
+// A windowed program's standard error reaches nobody: on Windows it is handed a handle of zero, so
+// everything written there is lost, the Go runtime's own panic report included. Keep points the
+// run's error output and os.Stderr at the log as the first act of the run, so a crash leaves a
+// record rather than a silence (ported from Bridge Talk, where it was measured against Go 1.26.3).
+// Each platform supplies Keep in a file of its own.
 package runlog
 
 import (
@@ -13,8 +14,6 @@ import (
 	"os"
 	"path/filepath"
 	"time"
-
-	"golang.org/x/sys/windows"
 
 	"github.com/oernster/timeribbon/internal/product"
 )
@@ -51,14 +50,4 @@ func Open(dir string, started time.Time) (*os.File, error) {
 		return nil, fmt.Errorf("writing to %s: %w", path, err)
 	}
 	return log, nil
-}
-
-// Keep points the run's error output at log: the handle the runtime writes its reports through,
-// then os.Stderr.
-func Keep(log *os.File) error {
-	if err := windows.SetStdHandle(windows.STD_ERROR_HANDLE, windows.Handle(log.Fd())); err != nil {
-		return fmt.Errorf("sending error output to %s: %w", log.Name(), err)
-	}
-	os.Stderr = log
-	return nil
 }

@@ -1,3 +1,5 @@
+//go:build windows
+
 package setup
 
 // Shared fixtures. Nothing here reaches the real install folder, the real Start Menu or Desktop,

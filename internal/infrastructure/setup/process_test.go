@@ -1,3 +1,5 @@
+//go:build windows
+
 package setup
 
 // Processes are found and closed by image name (FR-807). Every process started here is a copy of

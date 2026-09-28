@@ -77,7 +77,7 @@ func New(menu func() []application.MenuItem, log io.Writer) *Desktop {
 func (d *Desktop) Events() <-chan Event { return d.events }
 
 // Watch names the ribbon's window, so the end of its moves is reported.
-func (d *Desktop) Watch(ribbon windows.HWND) { d.ribbon.Store(uintptr(ribbon)) }
+func (d *Desktop) Watch(ribbon Window) { d.ribbon.Store(uintptr(ribbon)) }
 
 // Start shows the tray icon and runs the message loop on its own locked thread, returning once the
 // icon is there or with the reason it is not.

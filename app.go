@@ -23,13 +23,14 @@ const (
 	eventOpenPanel = "open-panel"
 )
 
-// Which panel an open-panel event asks for: Settings, Settings opened on the place search, About
-// or Licence (CON-6, FR-508).
+// Which panel an open-panel event asks for: Settings, Settings opened on the place search, About,
+// Licence or an update check's outcome, which travels with it (CON-6, FR-508, FR-509).
 const (
 	openAtSettings = "settings"
 	openAtAddClock = "add-clock"
 	openAtAbout    = "about"
 	openAtLicence  = "licence"
+	openAtUpdate   = "update"
 )
 
 // ribbonService is what the facade asks of the application layer: application.Service in
@@ -62,6 +63,8 @@ type ribbonService interface {
 	Moved(at placement.Point) (application.Arrangement, error)
 	ToEdge(at placement.Point, edge placement.Edge) (application.Arrangement, error)
 	Centred(at placement.Point, size placement.Size) (application.Arrangement, error)
+	CheckForUpdate(ctx context.Context, manual bool) application.UpdateStatus
+	SkipUpdate(version string) error
 }
 
 // App is the facade Wails binds.
@@ -91,11 +94,17 @@ type App struct {
 	quitting  atomic.Bool
 	panelOpen atomic.Bool
 	scrolls   atomic.Bool
+
+	// updates holds the update check's timing and the outcome it last offered (FR-509).
+	updates updateWatch
 }
 
 // newApp answers the facade over service, reporting on desktop, with every panel drawn at panel DIP.
 func newApp(service ribbonService, desk *desktop.Desktop, log io.Writer, panelSize placement.Size) *App {
-	built := &App{service: service, desktop: desk, log: log, panel: panelSize}
+	built := &App{
+		service: service, desktop: desk, log: log, panel: panelSize,
+		updates: updateWatch{delay: updateCheckDelay, every: updateCheckEvery},
+	}
 	built.emit = built.emitToWails
 	built.showWindow = built.showInWails
 	built.hideWindow = built.hideInWails
@@ -237,7 +246,7 @@ func (a *App) ClosePanel() error {
 }
 
 // OpenDonation hands the donation page to the desktop's browser. The application never fetches it,
-// so the button's existence leaves the no-network guarantee as it was (NFR-S-1). Where Windows
+// so the button adds no network request to the update check's one (NFR-S-1). Where Windows
 // cannot open it, the refusal says why and gives the address, so it can still be reached by hand.
 func (a *App) OpenDonation() error {
 	if err := a.browse(product.DonateURL); err != nil {

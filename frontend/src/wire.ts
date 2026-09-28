@@ -56,6 +56,12 @@ export interface About {
   credits: Credit[]
 }
 
+export interface UpdateStatus {
+  current: string
+  latest: string
+  updateAvailable: boolean
+}
+
 export interface Credit {
   name: string
   licence: string

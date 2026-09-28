@@ -17,6 +17,7 @@ import (
 // opens wherever Wails put it.
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+	go a.watchForUpdates(ctx)
 	ribbon, err := desktop.FindRibbon(product.RibbonClass)
 	if err != nil {
 		a.report("finding the ribbon", err)
@@ -102,6 +103,8 @@ func (a *App) act(action application.MenuAction) {
 	case application.ActionLicence:
 		a.show()
 		a.emit(eventOpenPanel, openAtLicence)
+	case application.ActionUpdates:
+		go a.checkForUpdate(a.ctx, true)
 	case application.ActionAlwaysOnTop:
 		a.report("changing Always on top", a.SetAlwaysOnTop(!a.service.Settings().AlwaysOnTop))
 		a.emit(eventRefresh)

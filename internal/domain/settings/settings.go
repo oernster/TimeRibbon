@@ -108,6 +108,9 @@ type Settings struct {
 	Orientation Orientation
 	Theme       Theme
 	AlwaysOnTop bool
+	// SkippedUpdate is the release the user chose to skip, which the automatic update check never
+	// offers again (FR-509); empty when none has been skipped.
+	SkippedUpdate string
 	// Placement is where the ribbon was last left; nil until it has been placed (FR-403).
 	Placement *placement.Stored
 	// Clocks is the configured clocks in their order (FR-102).

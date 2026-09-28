@@ -287,7 +287,7 @@ compares the version it carries with the one the Apps list records to choose bet
 | `bindings_on.go`, `bindings_off.go` | keep the binding-generation run from writing the log or showing a tray icon |
 | `internal/domain` | clock readings, placement and the settings value; no I/O |
 | `internal/application` | the use cases over their ports |
-| `internal/infrastructure` | appdata, cocoamain (macOS), desktop, gtkmain (Linux), iconscale, monitors, runlog, setup (Windows), startup, store, system, zones; a file's platform is in its name (`_windows`, `_linux`, `_darwin`, `_unix` for Linux and macOS together) |
+| `internal/infrastructure` | appdata, cocoamain (macOS), desktop, gtkmain (Linux), iconscale, monitors, runlog, setup (Windows), startup, store, system, update, zones; a file's platform is in its name (`_windows`, `_linux`, `_darwin`, `_unix` for Linux and macOS together) |
 | `internal/product` | the name, the app id, the setup program's name, the window class, the donation address, the version, the author, the sign-in label and the credits for each platform |
 | `builddmg.sh` | the macOS DMG |
 | `build_flatpak.sh`, `cleanup_flatpak.sh` | building the Linux Flatpak; taking it away again |

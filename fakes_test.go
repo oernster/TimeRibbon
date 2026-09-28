@@ -29,6 +29,14 @@ type scriptedService struct {
 	movedErr   error
 	// panicOnRearrange makes Rearrange panic, for the facade's recover.
 	panicOnRearrange bool
+	// update answers every update check; panicOnUpdate makes one panic instead. manualChecks records
+	// whether each check was asked for; skipped the version each SkipUpdate kept.
+	update        application.UpdateStatus
+	panicOnUpdate bool
+	manualChecks  []bool
+	skipped       []string
+	// checked, when set, hears each check as it is made, for a check made on a goroutine.
+	checked chan bool
 
 	calls   []string
 	at      []placement.Point
@@ -127,6 +135,23 @@ func (s *scriptedService) Centred(at placement.Point, size placement.Size) (appl
 	s.at = append(s.at, at)
 	s.centred = size
 	return s.arrangement, s.arrangeErr
+}
+
+func (s *scriptedService) CheckForUpdate(_ context.Context, manual bool) application.UpdateStatus {
+	if s.panicOnUpdate {
+		panic("planted panic")
+	}
+	if s.checked != nil {
+		s.checked <- manual
+		return s.update
+	}
+	s.manualChecks = append(s.manualChecks, manual)
+	return s.update
+}
+
+func (s *scriptedService) SkipUpdate(version string) error {
+	s.skipped = append(s.skipped, version)
+	return s.change("SkipUpdate")
 }
 
 func (s *scriptedService) change(call string) error {

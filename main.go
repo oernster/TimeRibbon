@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime"
 	"time"
 
 	"github.com/oernster/timeribbon/internal/application"
@@ -20,6 +21,7 @@ import (
 	"github.com/oernster/timeribbon/internal/infrastructure/startup"
 	"github.com/oernster/timeribbon/internal/infrastructure/store"
 	"github.com/oernster/timeribbon/internal/infrastructure/system"
+	"github.com/oernster/timeribbon/internal/infrastructure/update"
 	"github.com/oernster/timeribbon/internal/infrastructure/zones"
 	"github.com/oernster/timeribbon/internal/product"
 )
@@ -115,6 +117,8 @@ func run(log io.Writer) error {
 		IDs:      system.IDs{},
 		Monitors: monitors.Monitors{},
 		Startup:  startup.New(program),
+		Releases: update.New(),
+		Build:    application.Build{Version: product.Version, Platform: application.PlatformKeyFor(runtime.GOOS)},
 	}, layouts)
 	if err := service.Start(); err != nil {
 		fmt.Fprintf(log, "loading settings: %v\n", err)

@@ -18,6 +18,7 @@ const (
 	ActionAlwaysOnTop MenuAction = "always-on-top"
 	ActionAbout       MenuAction = "about"
 	ActionLicence     MenuAction = "licence"
+	ActionUpdates     MenuAction = "check-updates"
 	ActionExit        MenuAction = "exit"
 	ActionLeftEdge    MenuAction = "left-edge"
 	ActionRightEdge   MenuAction = "right-edge"
@@ -65,6 +66,7 @@ const (
 	labelHelp        = "Help"
 	labelAbout       = "About"
 	labelLicence     = "Licence"
+	labelUpdates     = "Check for updates"
 	labelExit        = "Exit"
 )
 
@@ -103,11 +105,12 @@ func (s *Service) positionItem() MenuItem {
 // exitItem ends the application, from either menu (FR-108, FR-502).
 func exitItem() MenuItem { return MenuItem{Action: ActionExit, Label: labelExit} }
 
-// helpItem is the Help submenu both menus hold (FR-508).
+// helpItem is the Help submenu both menus hold (FR-508, FR-509).
 func helpItem() MenuItem {
 	return MenuItem{Label: labelHelp, Children: []MenuItem{
 		{Action: ActionAbout, Label: labelAbout},
 		{Action: ActionLicence, Label: labelLicence},
+		{Action: ActionUpdates, Label: labelUpdates},
 	}}
 }
 

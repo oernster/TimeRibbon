@@ -1,4 +1,4 @@
-/* About and Licence (FR-607, FR-608): the heading and Close stay in view while the body beneath
+/* About, Licence and the update panel (FR-607, FR-608, FR-509): the heading and Close stay in view while the body beneath
    them reads itself (FR-609), so Close never drifts away with the text. */
 
 .panel {
@@ -40,6 +40,14 @@
 .panel-body:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: -2px;
+}
+
+/* The update panel's choices (FR-509), in a row beneath what was found. */
+.update-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
 }
 
 .about-head {

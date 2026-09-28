@@ -35,7 +35,7 @@ func read(t *testing.T, dir string) string {
 func full() settings.Settings {
 	s := settings.Settings{
 		Style: settings.Analogue, Size: settings.Small, Colour: settings.Sunset, Format: clock.TwelveHour, Orientation: settings.Vertical,
-		Theme: settings.Dark, AlwaysOnTop: true,
+		Theme: settings.Dark, AlwaysOnTop: true, SkippedUpdate: "v2.1.0",
 		Placement: &placement.Stored{
 			Device: `\\.\DISPLAY2`, Work: placement.Rect{Left: 1920, Right: 4480, Bottom: 1392},
 			DPI: 144, Offset: placement.Point{X: 180, Y: -4},
@@ -58,7 +58,7 @@ func TestSettingsRoundTrip(t *testing.T) {
 	}
 	got, want := loaded.Settings, full()
 	if got.Style != want.Style || got.Size != want.Size || got.Colour != want.Colour || got.Format != want.Format || got.Orientation != want.Orientation ||
-		got.Theme != want.Theme || got.AlwaysOnTop != want.AlwaysOnTop || *got.Placement != *want.Placement ||
+		got.Theme != want.Theme || got.AlwaysOnTop != want.AlwaysOnTop || got.SkippedUpdate != want.SkippedUpdate || *got.Placement != *want.Placement ||
 		!slices.Equal(got.Clocks, want.Clocks) {
 		t.Errorf("got %+v", got)
 	}
@@ -72,7 +72,7 @@ func TestNoDerivedValueIsStored(t *testing.T) {
 		t.Fatal(err)
 	}
 	text := read(t, dir)
-	for _, derived := range []string{"offset\": -", "abbreviation", "EDT", "time\"", "date\""} {
+	for _, derived := range []string{"offset\": -", "abbreviation", "EDT", "\"time\"", "\"date\""} {
 		if strings.Contains(text, derived) {
 			t.Errorf("the file holds %q:\n%s", derived, text)
 		}

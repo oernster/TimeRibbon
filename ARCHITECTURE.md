@@ -1,12 +1,13 @@
 # TimeRibbon Architecture
 
 A small desktop application for Windows, macOS and Linux showing a ribbon of clocks, one per chosen
-place. It reads the system clock and nothing else from outside itself; the time zone rules are built
-into the executable. Everything above infrastructure is the same code on every platform; each
-platform's own half of infrastructure sits in files its build tags or file names select
-([The desktop on Linux and macOS](#the-desktop-on-linux-and-macos)). It makes no network request: no Go file of this module imports a network package, which
-`TestTheModuleImportsNoNetworkPackage` holds. The one address it knows, the donation page, is handed
-to the desktop's browser rather than fetched.
+place. It reads the system clock plus GitHub's latest release for the update check, nothing else
+from outside itself; the time zone rules are built into the executable. Everything above
+infrastructure is the same code on every platform; each platform's own half of infrastructure sits
+in files its build tags or file names select ([The desktop on Linux and macOS](#the-desktop-on-linux-and-macos)).
+Its one network request is the update check (FR-509): only `internal/infrastructure/update` imports
+a network package, which `TestOnlyTheUpdateCheckImportsANetworkPackage` holds. The donation page and
+a release's download are handed to the desktop's browser rather than fetched.
 
 The requirements are in [REQUIREMENTS.md](REQUIREMENTS.md); the FR, NFR and CON numbers below are
 its.
@@ -31,7 +32,8 @@ does not exist.
 | No source file sits in the danger band of 381 to 400 lines | `TestNoFileInDangerBand` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | Every exported type carries a doc comment | `TestEveryExportedTypeIsDocumented` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | A file's lines are counted as an editor numbers them | `TestLineCountCountsTheLinesAnEditorShows` | [`linecount_test.go`](tests/structural/linecount_test.go) |
-| No Go file of this module imports a network package (NFR-S-1) | `TestTheModuleImportsNoNetworkPackage` | [`network_test.go`](tests/structural/network_test.go) |
+| No Go file of this module outside `internal/infrastructure/update` imports a network package (NFR-S-1) | `TestOnlyTheUpdateCheckImportsANetworkPackage` | [`network_test.go`](tests/structural/network_test.go) |
+| The network exemption names a directory that exists, so a moved update package cannot leave it pointing at nothing | `TestTheNetworkExemptionNamesTheUpdatePackage` | [`network_test.go`](tests/structural/network_test.go) |
 | The network package check recognises `net`, `crypto/tls` and `golang.org/x/net` paths and passes look-alikes | `TestNetworkPackageRecognitionIsExact` | [`network_test.go`](tests/structural/network_test.go) |
 | The setup page loads every script beside it | `TestTheSetupPageLoadsEveryScript` | [`setup_test.go`](tests/structural/setup_test.go) |
 | No setup page file spells the product's name, which the setup program hands it | `TestTheSetupPageNeverWritesTheProductsName` | [`setup_test.go`](tests/structural/setup_test.go) |
@@ -60,10 +62,11 @@ does not exist.
   with its position across kept (`CentredAlong`) or flush against one of its edges and centred
   along it (`AgainstEdge`). `settings` is the user's choices as one value; every
   operation answers a new value and leaves the old one as it was.
-- **Application** (`internal/application`): one `Service` holding every use case over six ports
-  (`Store`, `Zones`, `Clock`, `IDs`, `Monitors`, `StartupEntry`, in `ports.go`). It builds the
-  snapshot the ribbon draws, adds, edits and removes clocks, searches places, changes settings,
-  arranges the ribbon (`Launch`, `Rearrange`, `Moved`, `ToEdge`, `Centred`) and answers the tray and context
+- **Application** (`internal/application`): one `Service` holding every use case over seven ports
+  (`Store`, `Zones`, `Clock`, `IDs`, `Monitors`, `StartupEntry` in `ports.go`; `ReleaseSource` in
+  `updates.go`). It builds the snapshot the ribbon draws, adds, edits and removes clocks, searches
+  places, changes settings, arranges the ribbon (`Launch`, `Rearrange`, `Moved`, `ToEdge`,
+  `Centred`), checks for an update (`CheckForUpdate`, `SkipUpdate`) and answers the tray and context
   menus. The snapshot orders its cells east from Greenwich (`eastFromGreenwich` in `snapshot.go`):
   places level with or ahead of UTC by ascending offset, then the places behind UTC, since going
   east reaches them last. Offsets are read at the snapshot's instant, so the order is worked out
@@ -73,8 +76,9 @@ does not exist.
   never imports infrastructure or Wails.
 - **Infrastructure** (`internal/infrastructure`): the adapters behind the ports and the desktop
   integration. The same on every platform: `store` (the settings file), `zones` (resolution through
-  the embedded tz database and the place catalogue), `system` (the wall clock and new clock ids) and
-  `iconscale` (decoding and scaling the icon for the Linux tray and icons). One file or more per
+  the embedded tz database and the place catalogue), `system` (the wall clock and new clock ids),
+  `update` (the latest release, asked of GitHub: the one network request) and `iconscale` (decoding
+  and scaling the icon for the Linux tray and icons). One file or more per
   platform: `monitors` (the displays), `startup` (the sign-in entry), `appdata` (the settings
   folder), `runlog` (the run's log), `desktop` (the tray icon, the native menus, the ribbon's window,
   the end of a move, the desktop's broadcasts and handing an address to the default browser, which
@@ -113,7 +117,8 @@ closing and the desktop's events), split only to keep each file small; the struc
 all three files. The facade holds the service through `ribbonService`, an interface in `app.go`. It
 holds each call into Wails and the desktop as a field, pointed by `newApp` at the real calls in
 `wails_calls.go` and `window_life.go`. That is what lets the facade's tests stand in for all three
-and read what it decided. `identity.go` answers About and Licence; `dto.go` holds the wire;
+and read what it decided. `identity.go` answers About and Licence; `updates.go` runs the update
+check ([The update check](#the-update-check)); `dto.go` holds the wire;
 `launch.go` holds the window's options; `bindings_on.go` and `bindings_off.go` tell the run `wails build` makes to
 generate bindings, which carries the `bindings` build tag, not to write the log, read the settings or
 show a tray icon.
@@ -261,7 +266,9 @@ version does not know is written back as it was found.
 **The file is a contract from the first release (NFR-C-1).** Every later release of the same major
 version reads every file the first release writes to the same settings. No key it writes may be
 renamed, dropped or given another meaning. No stored word (such as `12h` or `analogue`) may change.
-A later release may add keys. The guard is
+A later release may add keys: `skippedUpdate` (FR-509), the release the user chose to skip, came
+after the first release, so it is written last and a file without it reads as nothing skipped. The
+guard is
 `TestA1Point0SettingsFileIsReadWhole`, which reads the frozen fixture
 `internal/infrastructure/store/testdata/settings-1.0.0.json` (every key set away from its default)
 and requires every key to be read rather than merely carried. It was proved by renaming a key and by
@@ -390,6 +397,24 @@ import nothing, while the window's build can import that file, so both surfaces 
 (FR-811). It publishes one name, `window.AutoScroll`; `frontend/src/autoScroll.ts` states its shape
 for the type checker and wraps it in a React hook.
 
+## The update check
+
+The house update check, ported from PigeonPost (FR-509). `internal/infrastructure/update` asks
+GitHub's `releases/latest` endpoint, which answers only a published release that is neither a draft
+nor a prerelease, so a tag pushed during development can never prompt; the guard is the endpoint's
+own contract. It is unauthenticated, bounded by a 5 second timeout, never retried and never reads
+more than a megabyte of the answer. The service compares the release's tag with the version
+`build.ps1` stamps, as dotted integers; anything else is never newer. It picks this platform's asset
+by its ending and reads the skipped release from the settings, which a manual check ignores.
+
+`updates.go` in the facade owns the timing: a goroutine started with the window checks 3 seconds in,
+then every 24 hours, until the run ends; Help's `Check for updates` runs one more on a goroutine of
+its own. Each check recovers from a panic into the log. A check with something to say shows the
+ribbon and sends `open-panel` with the word `update` and the outcome, which the page draws as a
+fourth panel in the frame About and Licence share. The addresses and the version stay in Go: the
+page's Download and Skip ask Go to act on what it offered, so no address crosses from the page.
+`TestOnlyTheUpdateCheckImportsANetworkPackage` holds the network to this one package.
+
 ## Delivery on macOS and Linux
 
 Neither builds with the `wails` command: each runs `go build` with Wails' `desktop,production` tags
@@ -407,7 +432,8 @@ result. `tools/identity` hands both scripts the product's names.
   manifest, then builds inside the GNOME 50 runtime's sandbox with the golang and node22 SDK
   extensions, against WebKitGTK 4.1 (`-tags webkit2_41`). The sandbox is granted only what TimeRibbon
   uses: X11 and not Wayland; the tray host's bus name; the bus name of Wails' single-instance lock;
-  the session's autostart folder. No network and no files. `cleanup_flatpak.sh` uninstalls it and
+  the session's autostart folder; the network, for the update check alone (FR-509), without which
+  every check would report GitHub out of reach. No files. `cleanup_flatpak.sh` uninstalls it and
   removes its sign-in entry and build outputs, leaving the settings alone.
 
 ## The setup program

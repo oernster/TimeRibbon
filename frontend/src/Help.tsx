@@ -1,5 +1,5 @@
 import { useEffect, useState, type KeyboardEvent, type ReactNode } from 'react'
-import { api, type About as AboutFacts } from './api'
+import { api, type About as AboutFacts, type UpdateStatus } from './api'
 import { useAutoScroll } from './autoScroll'
 import appIcon from './assets/app-icon.png'
 
@@ -75,6 +75,49 @@ export function About({ onClose }: { onClose: () => void }) {
           </ul>
         </>
       )}
+    </Panel>
+  )
+}
+
+/**
+ * Update is an update check's outcome (FR-509). A newer release offers Download, Skip this version
+ * and Later; a check that found none says so. One that could not reach GitHub says that instead. Go keeps the
+ * addresses and the version: Download and Skip ask it to act on what it offered.
+ */
+export function Update({ status, onClose }: { status: UpdateStatus; onClose: () => void }) {
+  const [problem, setProblem] = useState('')
+  const thenClose = (done: unknown) => {
+    if (done !== null) {
+      onClose()
+    }
+  }
+  if (!status.updateAvailable) {
+    const outcome =
+      status.latest !== ''
+        ? 'You are running the latest version.'
+        : 'The update check could not reach GitHub. Please try again later.'
+    return (
+      <Panel title="Check for updates" problem={problem} onClose={onClose}>
+        <p>{outcome}</p>
+      </Panel>
+    )
+  }
+  return (
+    <Panel title="Update available" problem={problem} onClose={onClose}>
+      <p>
+        Version {status.latest} is available. You are running {status.current}.
+      </p>
+      <div className="update-actions">
+        <button type="button" onClick={() => void api.openUpdate(setProblem).then(thenClose)}>
+          Download
+        </button>
+        <button type="button" onClick={() => void api.skipUpdate(setProblem).then(thenClose)}>
+          Skip this version
+        </button>
+        <button type="button" onClick={onClose}>
+          Later
+        </button>
+      </div>
     </Panel>
   )
 }

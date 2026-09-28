@@ -1,21 +1,24 @@
 import { useCallback, useEffect, useState } from 'react'
-import { api, on, type Snapshot } from './api'
-import { About, Licence } from './Help'
+import { api, on, type Snapshot, type UpdateStatus } from './api'
+import { About, Licence, Update } from './Help'
 import { watchPixelRatio } from './pixelRatio'
 import { scrollbarThickness } from './scrollbar'
 import { Settings } from './Settings'
 import { Ribbon } from './Ribbon'
 
 /** The panels the window can become (CON-6); app.go names each in its open-panel event. */
-type Panel = 'settings' | 'about' | 'licence'
+type Panel = 'settings' | 'about' | 'licence' | 'update'
 type View = 'ribbon' | Panel
 
 /**
  * The open-panel event's words, each naming the panel it opens; add-clock opens Settings on the place
- * search. The keys are quoted so the structural test can find each word app.go sends.
+ * search; update carries the check's outcome with it. The keys are quoted so the structural test
+ * can find each word app.go sends.
  */
 const addClock = 'add-clock'
-const panelFor: Record<string, Panel> = { 'settings': 'settings', [addClock]: 'settings', 'about': 'about', 'licence': 'licence' }
+const panelFor: Record<string, Panel> = {
+  'settings': 'settings', [addClock]: 'settings', 'about': 'about', 'licence': 'licence', 'update': 'update',
+}
 
 /**
  * App holds the snapshot and which surface the window shows. The snapshot is taken again at each
@@ -27,6 +30,7 @@ export function App() {
   const [problem, setProblem] = useState('')
   const [view, setView] = useState<View>('ribbon')
   const [adding, setAdding] = useState(false)
+  const [update, setUpdate] = useState<UpdateStatus | null>(null)
 
   const load = useCallback(() => {
     void api.snapshot(setProblem).then((next) => {
@@ -37,8 +41,9 @@ export function App() {
     })
   }, [])
 
-  const openPanel = useCallback((at?: unknown) => {
+  const openPanel = useCallback((at?: unknown, outcome?: unknown) => {
     setAdding(at === addClock)
+    setUpdate((outcome as UpdateStatus | undefined) ?? null)
     setView(panelFor[String(at)] ?? 'settings')
     void api.openPanel(setProblem)
   }, [])
@@ -96,6 +101,9 @@ export function App() {
   }
   if (view === 'licence') {
     return <Licence onClose={closePanel} />
+  }
+  if (view === 'update' && update != null) {
+    return <Update status={update} onClose={closePanel} />
   }
   return <Ribbon snapshot={snapshot} onAddClock={() => openPanel(addClock)} refused={setProblem} />
 }

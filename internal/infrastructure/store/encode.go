@@ -25,7 +25,7 @@ func encode(current settings.Settings, extras []pair) ([]byte, error) {
 	}
 	values := []any{
 		formatVersion, current.Style, current.Size, current.Colour, current.Format, current.Orientation, current.Theme,
-		current.AlwaysOnTop, encodePlacement(current.Placement), clocks,
+		current.AlwaysOnTop, encodePlacement(current.Placement), clocks, current.SkippedUpdate,
 	}
 	var compact bytes.Buffer
 	compact.WriteByte('{')

@@ -56,6 +56,8 @@ export function installBridge() {
     ClosePanel: vi.fn(async () => undefined),
     Hide: vi.fn(async () => undefined),
     OpenDonation: vi.fn(async () => undefined),
+    OpenUpdate: vi.fn(async () => undefined),
+    SkipUpdate: vi.fn(async () => undefined),
     About: vi.fn(async () => about),
     Licence: vi.fn(async () => 'GNU GENERAL PUBLIC LICENSE\nVersion 3'),
   }

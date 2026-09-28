@@ -6,7 +6,7 @@
 
 import type { About, Place, Snapshot } from './wire'
 
-export type { About, Cell, Credit, Layout, Place, Size, Snapshot } from './wire'
+export type { About, Cell, Credit, Layout, Place, Size, Snapshot, UpdateStatus } from './wire'
 
 /** A handler told, in words, why a call was refused. */
 export type Refused = (reason: string) => void
@@ -32,6 +32,8 @@ interface Bridge {
   ClosePanel(): Promise<void>
   Hide(): Promise<void>
   OpenDonation(): Promise<void>
+  OpenUpdate(): Promise<void>
+  SkipUpdate(): Promise<void>
   About(): Promise<About>
   Licence(): Promise<string>
 }
@@ -86,6 +88,8 @@ export const api = {
   closePanel: (refused: Refused) => call((b) => b.ClosePanel(), refused),
   hide: (refused: Refused) => call((b) => b.Hide(), refused),
   openDonation: (refused: Refused) => call((b) => b.OpenDonation(), refused),
+  openUpdate: (refused: Refused) => call((b) => b.OpenUpdate(), refused),
+  skipUpdate: (refused: Refused) => call((b) => b.SkipUpdate(), refused),
   about: (refused: Refused) => call((b) => b.About(), refused),
   licence: (refused: Refused) => call((b) => b.Licence(), refused),
 }

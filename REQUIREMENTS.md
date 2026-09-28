@@ -45,6 +45,10 @@ Amendment 14 (Oliver, 2026-09-28): five more colour schemes (Amber, Ruby, Indigo
 Neon gains a light side, so every scheme follows the theme; Ocean is redrawn to read as the sea rather
 than as Classic; each scheme's hue is carried by the colours the ribbon itself paints (FR-611).
 
+Amendment 15 (Oliver, 2026-09-28): an update check against GitHub's releases (FR-509), which is the
+application's one network request; NFR-S-1 is restated to allow it and nothing else. Help gains
+`Check for updates` (FR-508); the settings file gains the skipped release (NFR-C-1 allows the key).
+
 Source: the initial product specification of 2026-09-27, written under the product's former name,
 plus Oliver's rulings
 of 2026-09-27: the stack is Go with Wails; orientation is a setting offering both horizontal and
@@ -138,7 +142,8 @@ Oliver Ernster as author and decision owner; contributors to the open source pro
 
 ### 2.1 Product perspective
 
-A new, standalone application. It reads the Windows clock and nothing else from outside itself.
+A new, standalone application. It reads the Windows clock and nothing else from outside itself,
+apart from the latest release it asks GitHub for (FR-509, Amendment 15).
 
 ```mermaid
 graph LR
@@ -163,7 +168,8 @@ and hand angles to show. Everything about Windows sits below the integration lin
 ### 2.3 Operating environment
 
 Windows 10 or 11, 64-bit, with the WebView2 runtime present (it ships with Windows 11). Go 1.26 with
-Wails v2 hosting a React and TypeScript front end; no CGO. No network use at runtime.
+Wails v2 hosting a React and TypeScript front end; no CGO. Its one network use at runtime is the
+update check (FR-509, Amendment 15).
 
 Measured on 2026-09-27 against Wails v2.12.0 in the module cache:
 
@@ -555,8 +561,36 @@ Verified by: `TestCloseRequestHidesRatherThanQuits` (application); check M-4.
 Priority: Must (Amendment 2, Oliver, 2026-09-27).
 The tray menu and the ribbon's right-click menu shall each hold a `Help` submenu offering `About`
 (FR-607) and `Licence` (FR-608). Choosing either shall show the ribbon's window as that panel.
-Verified by: `TestBothMenusOfferHelpWithAboutAndLicence` (application);
+Amendment 15 (Oliver, 2026-09-28): `Check for updates` (FR-509) follows `Licence`.
+Verified by: `TestBothMenusOfferHelpWithAboutLicenceAndUpdates` (application);
 `TestASubmenuIsNumberedAfterEveryItemBeforeIt` (infrastructure, desktop); check M-10.
+
+**FR-509 Update check**
+Priority: Should (Amendment 15, Oliver, 2026-09-28).
+The application shall ask GitHub's latest-release endpoint for the repository's latest published
+release (never a draft or a prerelease) 3 seconds after it starts, then once every 24 hours while it
+runs, with a 5 second timeout and no retry. When that release is newer than the running version and
+is not the one the user skipped, the ribbon shall be shown as the update panel, naming both versions
+and offering `Download`, `Skip this version` and `Later`. Otherwise an automatic check shall show
+nothing. `Check for updates` in Help (FR-508) shall run the same check while ignoring the skipped release;
+it shall always show its outcome: the offer, "You are running the latest version." or "The update check
+could not reach GitHub. Please try again later." `Download` shall open this platform's release
+asset (`.exe` on Windows, `.dmg` on macOS, `.flatpak` on Linux), else the release page, in the
+default browser. `Skip this version` shall keep that version in the settings file as
+`skippedUpdate`. A version that is not dotted integers, as a prerelease tag, is never newer.
+Acceptance: given 2.0.0 running and v2.1.0 published, when the automatic check runs, then the
+ribbon shows the update panel; after `Skip this version`, the next automatic check shows nothing,
+while `Check for updates` offers v2.1.0 again. Given GitHub out of reach, the automatic check shows
+nothing and `Check for updates` says it could not reach GitHub.
+Verified by: `TestIsNewerVersionComparesDottedIntegers`, `TestEachSystemDownloadsItsOwnAsset`,
+`TestANewerReleaseIsOffered`, `TestAnUnreachableSourceOffersNothing`,
+`TestTheRunningVersionIsNotOffered`, `TestASkippedReleaseIsOfferedOnlyWhenAskedFor`,
+`TestSkippingKeepsTheVersion` (application); `TestTheLatestReleaseIsReadWithOnlyWholeAssets`,
+`TestEveryUnusableAnswerIsAnError`, `TestTheProductionSourceAsksThisRepositoryAndGivesUp`
+(infrastructure, update); `TestAnAutomaticCheckSpeaksOnlyOfANewRelease`,
+`TestAManualCheckAlwaysAnswers`, `TestTheWatchChecksAfterTheStartThenAtEachIntervalUntilTheEnd`,
+`TestDownloadOpensWhatWasOffered`, `TestSkipKeepsTheOfferedVersion` (facade); `TestSettingsRoundTrip`
+(infrastructure, store); `help.test.tsx`; the real request and browser by check M-13.
 
 **FR-505 Always on Top**
 Priority: Must.
@@ -754,7 +788,7 @@ Verified by: `TestWriteFailureIsReportedAndCleared` (application).
 | NFR-U-3 | Every control in Settings and the place search shall be reachable and operable from the keyboard, with a visible focus indicator on the focused control. | `settings.test.tsx`; check M-8 |
 | NFR-U-4 | Every icon-only control shall carry an accessible name and a tooltip. | Planned `a11y.test.tsx` |
 | NFR-U-5 | Interactive targets shall be at least 24 by 24 DIP. | Inspection; WCAG 2.2 criterion 2.5.8 |
-| NFR-S-1 | The application shall make no network request. | Structural test forbidding any `net` or `net/http` import in the module |
+| NFR-S-1 | The application shall make no network request other than the update check of FR-509: one unauthenticated request to GitHub's latest-release endpoint, sending nothing about the user or their clocks. Amendment 15 (Oliver, 2026-09-28): before it, no network request at all. | `TestOnlyTheUpdateCheckImportsANetworkPackage`, `TestTheNetworkExemptionNamesTheUpdatePackage` (structural) |
 | NFR-S-2 | The application shall not change the Windows clock or time zone. | Inspection |
 | NFR-S-3 | Non-claim: time zone rules are those of the tz database embedded at build time. A rule change made by a government after the build is shown only after a new release. The README states this. | Inspection of the README |
 | NFR-M-1 | The coverage floor of CON-3, the size limit of CON-2 and the layering of CON-1 are enforced by `test.ps1`, which `build.ps1` runs first with no switch to skip it. | `build.ps1` |
@@ -917,7 +951,7 @@ recover, snapshot) is executable from a Go test with no window open before the f
 | Priority | Content |
 |---|---|
 | **Must** | FR-101 to FR-107, FR-201 to FR-209, FR-301 to FR-305, FR-401 to FR-409, FR-501, FR-502, FR-504 to FR-508, FR-601 to FR-604, FR-607 to FR-610, FR-701 to FR-707, FR-801 to FR-811, NFR-P-1 to NFR-P-4, NFR-U-1 to NFR-U-5, NFR-S-1 to NFR-S-3, NFR-M-1, NFR-M-2, NFR-C-1, NFR-O-1 |
-| **Should** | FR-108, FR-307, FR-503, FR-605, FR-606, FR-611 |
+| **Should** | FR-108, FR-307, FR-503, FR-509, FR-605, FR-606, FR-611 |
 | **Could** | FR-308 |
 | **Won't this time** | Everything in the out-of-scope table of section 1.3 |
 
@@ -984,3 +1018,4 @@ is installing and removing the DMG on macOS and the Flatpak on Linux.
 | M-10 | Both menus open a Help submenu whose About and Licence each show their panel; the licence reads itself down after 5 s, a wheel stops it and it resumes; setup's Licence screen does the same. |
 | M-11 | The donate button at the foot of Settings opens the default browser on the donation page. |
 | M-12 | Each Position item puts the ribbon flush against its edge and centred along it on the display it is on; it opens there next time; choosing Horizontal or Vertical from either menu sends it to the top or right edge; small clocks show their whole date and time in both styles; the Settings title and Close stay put while the panel scrolls; each colour scheme looks right and unmistakably its own in Light, Dark and System, Neon glowing on its dark side only. |
+| M-13 | Help's Check for updates says this is the latest version with the network on and that GitHub could not be reached with it off; a build older than the latest release shows the update panel a few seconds after it starts; Download opens this platform's download in the browser; after Skip this version the next start shows nothing; the Flatpak build reaches GitHub too. |

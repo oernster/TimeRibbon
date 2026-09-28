@@ -122,6 +122,8 @@ finish-args:
   - --talk-name=org.kde.StatusNotifierWatcher
   - --own-name=${SINGLE_INSTANCE_NAME}
   - --filesystem=xdg-config/autostart:create
+  # The update check asks GitHub for the latest release (FR-509); without this it never reaches it.
+  - --share=network
 build-options:
   append-path: /usr/lib/sdk/golang/bin:/usr/lib/sdk/node22/bin
   build-args:

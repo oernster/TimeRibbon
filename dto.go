@@ -78,6 +78,18 @@ type creditDTO struct {
 	Role    string `json:"role"`
 }
 
+// updateDTO is what the update panel shows (FR-509). Latest is empty when GitHub could not be
+// reached. The addresses stay in Go: the page asks Go to open what it offered, never names one.
+type updateDTO struct {
+	Current         string `json:"current"`
+	Latest          string `json:"latest"`
+	UpdateAvailable bool   `json:"updateAvailable"`
+}
+
+func updateOf(status application.UpdateStatus) updateDTO {
+	return updateDTO{Current: status.Current, Latest: status.Latest, UpdateAvailable: status.UpdateAvailable}
+}
+
 func sizeOf(size placement.Size) sizeDTO { return sizeDTO{Width: size.Width, Height: size.Height} }
 
 // snapshotOf answers the wire form of a snapshot.

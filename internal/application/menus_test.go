@@ -107,8 +107,9 @@ func TestContextMenuOffersTheRibbonsActions(t *testing.T) {
 	}
 }
 
-// FR-508: Help is a submenu with no action of its own, holding About and Licence, in both menus.
-func TestBothMenusOfferHelpWithAboutAndLicence(t *testing.T) {
+// FR-508, FR-509: Help is a submenu with no action of its own, holding About, Licence and Check for
+// updates, in both menus.
+func TestBothMenusOfferHelpWithAboutLicenceAndUpdates(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, settings.Defaults())
 	for name, menu := range map[string][]MenuItem{"tray": r.service.TrayMenu(true), "context": r.service.ContextMenu()} {
@@ -117,8 +118,9 @@ func TestBothMenusOfferHelpWithAboutAndLicence(t *testing.T) {
 			t.Fatalf("%s: no Help in %v", name, labels(menu))
 		}
 		help := menu[index]
-		if help.Action != "" || !slices.Equal(labels(help.Children), []string{"About", "Licence"}) ||
-			help.Children[0].Action != ActionAbout || help.Children[1].Action != ActionLicence {
+		if help.Action != "" || !slices.Equal(labels(help.Children), []string{"About", "Licence", "Check for updates"}) ||
+			help.Children[0].Action != ActionAbout || help.Children[1].Action != ActionLicence ||
+			help.Children[2].Action != ActionUpdates {
 			t.Errorf("%s: %+v", name, help)
 		}
 	}

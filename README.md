@@ -43,7 +43,8 @@ in a small frameless ribbon you can put anywhere on any monitor.
   its icon lives in the notification area on Windows, the menu bar on macOS and the system tray on
   Linux. The icon's menu and the ribbon's own right-click menu both add a clock, open Settings,
   choose digital or analogue, choose a colour scheme, choose horizontal or vertical, centre the
-  ribbon on an edge, turn Always on top on or off, open Help (About and Licence) and exit. The icon's
+  ribbon on an edge, turn Always on top on or off, open Help (About, Licence and Check for updates)
+  and exit. The icon's
   menu also shows or hides the ribbon. Hiding it leaves TimeRibbon running; only Exit ends it.
 - **Answers the icon the way each desktop expects.** On Windows a left click on the icon shows or
   hides the ribbon and a right click opens the menu. On macOS a click opens the menu, as every menu
@@ -82,11 +83,20 @@ in a small frameless ribbon you can put anywhere on any monitor.
   platform's build ships, with its licence. Licence shows the GPL-3.0 exactly as written, never
   wrapped again, its type sized so the widest line fits. Either reads itself slowly when it holds
   more than fits.
+- **Tells you when a new release is out.** A few seconds after it starts, then once a day, it asks
+  GitHub for the latest release. Only when that is newer than yours does the ribbon show it, with
+  Download (the file for your platform, opened in your browser), Skip this version and Later. A
+  skipped version is never offered again unasked. Help's Check for updates asks at any time and
+  always answers, including when GitHub cannot be reached.
 
 ## What it does not do
 
-- **It makes no network request.** The only address it knows is the donation page, which it hands
-  to your browser when you press the button; TimeRibbon itself fetches nothing.
+- **Its one network request is the update check.** It asks GitHub for the latest release when it
+  starts and once a day, sending nothing about you or your clocks. Nothing else it does touches the
+  network: the donation page and a release's download are handed to your browser, never fetched by
+  TimeRibbon itself.
+- **It never installs an update by itself.** Download opens the file in your browser; installing it
+  is yours to do.
 - **Its time zone rules are the ones built into it.** A government that changes its clocks after a
   release is shown correctly only from the next release that carries the new rules.
 - **It never changes the system clock or time zone.** It reads them.

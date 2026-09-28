@@ -1,7 +1,8 @@
 import { act, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { about, installBridge } from './fakeBridge'
-import { About, Licence } from './Help'
+import { About, Licence, Update } from './Help'
+import type { UpdateStatus } from './wire'
 import { autoScroll } from './autoScroll'
 
 afterEach(() => vi.useRealTimers())
@@ -43,6 +44,51 @@ describe('About (FR-607)', () => {
       render(<About onClose={vi.fn()} />)
     })
     expect(screen.getByRole('alert').textContent).toBe('no facade')
+  })
+})
+
+describe('Update (FR-509)', () => {
+  const newer: UpdateStatus = { current: '2.0.0', latest: 'v2.1.0', updateAvailable: true }
+
+  function showUpdate(status: UpdateStatus) {
+    const bridge = installBridge()
+    const onClose = vi.fn()
+    render(<Update status={status} onClose={onClose} />)
+    return { bridge, onClose }
+  }
+
+  it('offers a newer release with Download, Skip this version and Later', () => {
+    showUpdate(newer)
+    expect(screen.getByText('Update available')).toBeTruthy()
+    expect(screen.getByText('Version v2.1.0 is available. You are running 2.0.0.')).toBeTruthy()
+    const choices = Array.from(document.querySelectorAll('.update-actions button')).map((b) => b.textContent)
+    expect(choices).toEqual(['Download', 'Skip this version', 'Later'])
+  })
+
+  it('asks Go to open or skip what it offered, then returns to the ribbon; Later only returns', async () => {
+    const { bridge, onClose } = showUpdate(newer)
+    await act(async () => fireEvent.click(screen.getByText('Download')))
+    await act(async () => fireEvent.click(screen.getByText('Skip this version')))
+    fireEvent.click(screen.getByText('Later'))
+    expect(bridge.OpenUpdate).toHaveBeenCalledTimes(1)
+    expect(bridge.SkipUpdate).toHaveBeenCalledTimes(1)
+    expect(onClose).toHaveBeenCalledTimes(3)
+  })
+
+  it('stays open and says why when Go refuses', async () => {
+    const { bridge, onClose } = showUpdate(newer)
+    bridge.OpenUpdate.mockRejectedValueOnce('no browser; it is at https://example.test')
+    await act(async () => fireEvent.click(screen.getByText('Download')))
+    expect(screen.getByRole('alert').textContent).toBe('no browser; it is at https://example.test')
+    expect(onClose).not.toHaveBeenCalled()
+  })
+
+  it('says when this is the latest version and when GitHub could not be reached', () => {
+    showUpdate({ current: '2.0.0', latest: 'v2.0.0', updateAvailable: false })
+    expect(screen.getByText('You are running the latest version.')).toBeTruthy()
+    expect(document.querySelector('.update-actions')).toBeNull()
+    showUpdate({ current: '2.0.0', latest: '', updateAvailable: false })
+    expect(screen.getByText('The update check could not reach GitHub. Please try again later.')).toBeTruthy()
   })
 })
 

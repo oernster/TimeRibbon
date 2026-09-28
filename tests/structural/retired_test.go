@@ -14,6 +14,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"slices"
 	"strings"
 	"testing"
@@ -59,9 +60,15 @@ func trackedTextFiles(t *testing.T) []string {
 	return out
 }
 
-// holdsRetiredWord reports whether text holds the retired word in any case.
+// stringMethod is the retired word as Python's string method, with its left and right forms, which
+// is ordinary code rather than a name: a rename once turned one into a call that does not exist and
+// broke the version stamp, so these calls are left alone rather than forbidden.
+var stringMethod = regexp.MustCompile(`\.(l|r)?` + retiredWord + `\(`)
+
+// holdsRetiredWord reports whether text holds the retired word in any case, outside a call of the
+// string method.
 func holdsRetiredWord(text string) bool {
-	return strings.Contains(strings.ToLower(text), retiredWord)
+	return strings.Contains(stringMethod.ReplaceAllString(strings.ToLower(text), ""), retiredWord)
 }
 
 func TestNoTrackedFileHoldsTheRetiredWord(t *testing.T) {
@@ -97,5 +104,13 @@ func TestTheRetiredWordIsFoundInAnyCaseAndInsideNames(t *testing.T) {
 	}
 	if holdsRetiredWord("TimeRibbon shows a ribbon of clocks") {
 		t.Error("the current names were taken for the retired word")
+	}
+	for _, code := range []string{"text." + "st" + "rip()", "line.l" + "st" + "rip()", "name.r" + "st" + "rip('/')"} {
+		if holdsRetiredWord(code) {
+			t.Errorf("the string method in %q was taken for the retired word", code)
+		}
+	}
+	if !holdsRetiredWord("text." + "st" + "rip() then the " + "st" + "rip") {
+		t.Error("the word beside a string method call was missed")
 	}
 }

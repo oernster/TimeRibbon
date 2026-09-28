@@ -52,8 +52,15 @@ go mod download
 npm --prefix frontend install
 ```
 
-The gate stops at its front-end step without `frontend/node_modules`, so run the second command once
-before `test.ps1` or `build.ps1`.
+The application embeds the built page, which git does not hold; `build.ps1` runs the gate before
+it builds the page. So on a fresh clone build the page once too:
+
+```powershell
+npm --prefix frontend run build
+```
+
+Without the packages the gate stops at its front-end step; without the page `go list` stops it at
+its first, with `pattern all:frontend/dist: no matching files found`.
 
 ## Building
 
@@ -164,8 +171,8 @@ newer Go; `zones_test.go` fails where a catalogue zone does not resolve in them.
 ## Versioning
 
 `VERSION` holds the one version string. `build.ps1` passes it into both executables; nothing in the
-source holds the release's version, only the development placeholder above. The setup program compares the version it carries with the one the
-Apps list records to choose between Install, Update, Go back and the Installed screen.
+source holds the release's version, only the development placeholder above. The setup program
+compares the version it carries with the one the Apps list records to choose between Install, Update, Go back and the Installed screen.
 
 ## Cutting a release
 
@@ -209,6 +216,9 @@ Apps list records to choose between Install, Update, Go back and the Installed s
 - **The product is named once**, in `internal/product/product.go`. The setup page must never write
   it: it is handed the name. The two `wails.json` files must spell it, since Wails reads the
   executable's name from there; a structural test holds them to `internal/product`.
+- **The old names stay retired.** Neither the product's former name nor the word its window went by
+  before the ribbon may appear in any tracked or new file, the npm lock file aside;
+  `tests/structural/retired_test.go` holds that.
 - **The wire is written twice**, in `dto.go` and `frontend/src/wire.ts`. Change both; the
   structural test fails otherwise.
 - **A call the page makes that Go can refuse takes a refusal handler.** It answers null rather than

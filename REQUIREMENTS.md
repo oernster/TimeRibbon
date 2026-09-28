@@ -19,7 +19,20 @@ worked out at each snapshot (FR-102); ordering by hand is withdrawn (FR-306).
 Amendment 7 (Oliver, 2026-09-27): a ribbon whose length changes is re-centred along it on its
 display, keeping its position across (FR-104).
 
-Source: `TimeRibbon-SPEC.md` (the initial product specification, 2026-09-27), plus Oliver's rulings
+Amendment 8 (Oliver, 2026-09-28): the Position submenu centres the ribbon on an edge (FR-408);
+clocks come large or small (FR-610); the Settings header stays in place (FR-601).
+
+Amendment 9 (Oliver, 2026-09-28): style and orientation move from Settings to the menus; each
+orientation has a home edge the ribbon goes to when it is chosen (FR-409).
+
+Amendment 10 (Oliver, 2026-09-28): the default place is flush against the home edge (FR-403).
+
+Amendment 11 (Oliver, 2026-09-28): the product is renamed TimeRibbon over a trademark concern and
+its window is the ribbon. Nothing carries over from the former name, which starts a new major
+version (NFR-C-1).
+
+Source: the initial product specification of 2026-09-27, written under the product's former name,
+plus Oliver's rulings
 of 2026-09-27: the stack is Go with Wails; orientation is a setting offering both horizontal and
 vertical, both in the first release; a setup program ships with the first release; this document is
 baselined before any code.
@@ -43,12 +56,13 @@ Oliver Ernster as author and decision owner; contributors to the open source pro
 
 **In scope:**
 
-- A frameless ribbon of clocks, horizontal by default, vertical as a setting.
+- A frameless ribbon of clocks, vertical by default, horizontal as a choice; either can be centred
+  on an edge of its display.
 - Each clock showing its place, its local time, its local weekday and date plus a zone
   abbreviation or UTC offset, all derived from real time zone rules.
 - Adding, editing and removing clocks, with a searchable list of places; the ribbon keeps them in
   time order.
-- Digital and analogue presentation; 12-hour and 24-hour time.
+- Digital and analogue presentation, in large or small clocks; 12-hour and 24-hour time.
 - Dragging the whole ribbon anywhere, including onto another monitor; restoring its monitor and
   position at the next launch; recovering it onto a visible display when its place has gone.
 - A notification-area (tray) icon with a menu; optional Always on Top; optional Start with Windows.
@@ -96,7 +110,7 @@ Oliver Ernster as author and decision owner; contributors to the open source pro
 
 ### 1.5 References
 
-- `TimeRibbon-SPEC.md`: the initial product specification.
+- The initial product specification of 2026-09-27, written under the product's former name.
 - `ARCHITECTURE.md`: the layering invariants and the tests that enforce them.
 - IANA tz database, as embedded by Go's `time/tzdata` package.
 - ISO/IEC/IEEE 29148 for requirement quality; EARS for requirement syntax.
@@ -585,10 +599,21 @@ The Licence panel shall show the whole of the `LICENSE` file the application was
 embedded in the binary. Close and Escape return the window to the ribbon.
 Verified by: `help.test.tsx`; `TestTheLicencePanelIsSizedForTheLicencesWidestLine` (structural).
 
+**FR-609 Help content reads itself**
+Priority: Must (Amendment 2, Oliver, 2026-09-27).
+While the About or Licence panel holds more than fits, its body shall read itself in the house
+auto-scroll cycle: still for 5 s on opening; down 1 DIP every 80 ms; still for 5 s at the end;
+back to the top at 15 DIP every 40 ms; still for 2 s; repeat. A wheel, a press, a touch, a key or
+focus arriving in the body shall suspend the cycle for 2.5 s of stillness, after which it resumes
+from where the reader left it. Focus arriving while the opening 5 s still run shall not shorten
+them. While a dialog marked modal stands above the body, the cycle shall stand frozen in place. The
+cycle is one script, shared with the setup program (FR-811).
+Verified by: `autoScroll.test.ts`; `help.test.tsx`.
+
 **FR-610 Clock size**
 Priority: Must (Amendment 8, Oliver, 2026-09-28).
 The ribbon shall draw every clock cell at the size held in settings, large or small, in either style;
-large when none is held, so a 1.0.0 settings file keeps the clocks it had. Small cells are 146 by 72
+large when none is held, so a settings file written before the size existed keeps the clocks it had. Small cells are 146 by 72
 DIP digital and 146 by 116 DIP analogue against large's 176 by 92 and 176 by 176, with their text and
 dial reduced to fit; the empty ribbon's prompt is the same at either size. A ribbon lying flush against
 an edge of its display stays against that edge when the size changes, as it does when its cells
@@ -603,22 +628,11 @@ Verified by: `TestUnknownChoicesAreNormalisedToDefaults` (domain);
 `TestSettingsRoundTrip` (infrastructure, store); `ribbon.test.tsx`, `settings.test.tsx`; the fit of
 the text by check M-12.
 
-**FR-609 Help content reads itself**
-Priority: Must (Amendment 2, Oliver, 2026-09-27).
-While the About or Licence panel holds more than fits, its body shall read itself in the house
-auto-scroll cycle: still for 5 s on opening; down 1 DIP every 80 ms; still for 5 s at the end;
-back to the top at 15 DIP every 40 ms; still for 2 s; repeat. A wheel, a press, a touch, a key or
-focus arriving in the body shall suspend the cycle for 2.5 s of stillness, after which it resumes
-from where the reader left it. Focus arriving while the opening 5 s still run shall not shorten
-them. While a dialog marked modal stands above the body, the cycle shall stand frozen in place. The
-cycle is one script, shared with the setup program (FR-811).
-Verified by: `autoScroll.test.ts`; `help.test.tsx`.
-
 ### 3.7 Persistence and recovery
 
 **FR-701 Settings file**
 Priority: Must.
-The application shall keep its settings in the settings file as indented JSON holding style, format,
+The application shall keep its settings in the settings file as indented JSON holding style, size, format,
 orientation, theme, Always on Top, placement and clocks; each clock holding a stable id, its zone id,
 its label and its position. Derived values (offset, abbreviation, time, date) shall not be stored.
 Verified by: `TestSettingsRoundTrip` and `TestNoDerivedValueIsStored` (infrastructure).
@@ -682,7 +696,7 @@ Verified by: `TestWriteFailureIsReportedAndCleared` (application).
 | NFR-S-3 | Non-claim: time zone rules are those of the tz database embedded at build time. A rule change made by a government after the build is shown only after a new release. The README states this. | Inspection of the README |
 | NFR-M-1 | The coverage floor of CON-3, the size limit of CON-2 and the layering of CON-1 are enforced by `test.ps1`, which `build.ps1` runs first with no switch to skip it. | `build.ps1` |
 | NFR-M-2 | Go code passes gofmt, go vet and staticcheck; the front end passes eslint, `tsc --noEmit` and Vitest. | `test.ps1` |
-| NFR-C-1 | From 1.0.0, every later 1.x release shall read every settings file 1.0.0 writes to the same settings: no key 1.0.0 writes is renamed, dropped or given another meaning; no stored word changes. A later release may add keys; 1.0.0 keeps a key it does not know and writes it back. Amendment 4 (Oliver, 2026-09-27). | `TestA1Point0SettingsFileIsReadWhole` over the frozen fixture `internal/infrastructure/store/testdata/settings-1.0.0.json` |
+| NFR-C-1 | From 1.0.0, every later 1.x release shall read every settings file 1.0.0 writes to the same settings: no key 1.0.0 writes is renamed, dropped or given another meaning; no stored word changes. A later release may add keys; 1.0.0 keeps a key it does not know and writes it back. Amendment 4 (Oliver, 2026-09-27). Amendment 11 (Oliver, 2026-09-28): the next major version still reads that shape to the same settings; the file now lives in the renamed folder and nothing is read from the former one. | `TestA1Point0SettingsFileIsReadWhole` over the frozen fixture `internal/infrastructure/store/testdata/settings-1.0.0.json` |
 | NFR-O-1 | The application shall write a log to `%APPDATA%\TimeRibbon\TimeRibbon.log` recording launch, placement recovery decisions, settings failures and invalid clocks; standard error is pointed at it before anything can fail. | `TestLogReceivesStandardError` (infrastructure) |
 
 ---
@@ -834,7 +848,7 @@ recover, snapshot) is executable from a Go test with no window open before the f
 
 | Priority | Content |
 |---|---|
-| **Must** | FR-101 to FR-107, FR-201 to FR-209, FR-301 to FR-305, FR-401 to FR-407, FR-501, FR-502, FR-504 to FR-508, FR-601 to FR-604, FR-607 to FR-609, FR-701 to FR-707, FR-801 to FR-811, NFR-P-1 to NFR-P-4, NFR-U-1 to NFR-U-5, NFR-S-1 to NFR-S-3, NFR-M-1, NFR-M-2, NFR-C-1, NFR-O-1 |
+| **Must** | FR-101 to FR-107, FR-201 to FR-209, FR-301 to FR-305, FR-401 to FR-409, FR-501, FR-502, FR-504 to FR-508, FR-601 to FR-604, FR-607 to FR-610, FR-701 to FR-707, FR-801 to FR-811, NFR-P-1 to NFR-P-4, NFR-U-1 to NFR-U-5, NFR-S-1 to NFR-S-3, NFR-M-1, NFR-M-2, NFR-C-1, NFR-O-1 |
 | **Should** | FR-108, FR-307, FR-503, FR-605, FR-606 |
 | **Could** | FR-308 |
 | **Won't this time** | Everything in the out-of-scope table of section 1.3 |
@@ -896,4 +910,5 @@ There are no open questions. The five raised while drafting were ruled by Oliver
 | M-8 | Settings and the place search can be driven entirely from the keyboard. |
 | M-9 | Setup installs, updates, repairs and uninstalls on a real machine without asking for administrator rights, closing a running copy first. |
 | M-10 | Both menus open a Help submenu whose About and Licence each show their panel; the licence reads itself down after 5 s, a wheel stops it and it resumes; setup's Licence screen does the same. |
+| M-11 | The donate button at the foot of Settings opens the default browser on the donation page. |
 | M-12 | Each Position item puts the ribbon flush against its edge and centred along it on the display it is on; it opens there next time; choosing Horizontal or Vertical from either menu sends it to the top or right edge; small clocks show their whole date and time in both styles; the Settings title and Close stay put while the panel scrolls. |

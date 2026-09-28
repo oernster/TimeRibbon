@@ -43,14 +43,14 @@ in a small frameless ribbon you can put anywhere on any monitor.
   vertical, centre the ribbon on an edge, turn Always on top on or off, open Help (About and Licence)
   and exit. Closing the ribbon (Alt+F4) hides it; only Exit ends it.
 - **Goes where you put it.** Drag the ribbon by any empty part onto any monitor; it stays wholly on
-  that display. It opens there next time. When that monitor is gone, it opens on the primary one.
+  that display. It opens there next time. When that monitor is gone, it opens on the primary one, at the edge its orientation sends it to.
   Position in either menu puts it flush against an edge of its display, centred along that edge:
   left or right for a vertical ribbon, top or bottom for a horizontal one. Choosing horizontal sends
   it to the top edge; choosing vertical sends it to the right.
 - **Re-centres when its length changes.** Adding or removing a clock, a notice appearing or going
   and a change of style or size all change the ribbon's length. When that happens the ribbon
   centres itself along its length on its display, keeping its position across; it opens there next
-  time. Nothing else moves it, so a drag holds until the length next changes.
+  time. Otherwise only a drag, Position or a change of orientation moves it.
 - **Fits its clocks, then scrolls.** The ribbon is as long as its clocks until it reaches the edge
   of the display, then its clocks scroll rather than shrink or wrap. A plain mouse wheel moves a
   horizontal ribbon along.

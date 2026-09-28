@@ -57,14 +57,14 @@ and what stops it. An unexplained shortfall cannot be told from an oversight.
 | `tools/genplaces` | 38.8% | 38% | `test.ps1` |
 | `internal/infrastructure/appdata` | 100% | 100% | `test.ps1` |
 | `internal/infrastructure/runlog` | 76.5% | 76% | `test.ps1` |
-| the root package (the Wails facade) | 68.4% | 68% | `test.ps1` |
+| the root package (the Wails facade) | 72.5% | 72% | `test.ps1` |
 | `internal/infrastructure/desktop` | 14.8% | 14% | `test.ps1` |
 | `installer` | 0%, no tests | none | not gated |
 | `internal/product` | no statements | none | not gated |
 
-200 Go test functions, each run once with no subtests (an uncached `go test -count=1 -json` over the
+217 Go test functions, each run once with no subtests (an uncached `go test -count=1 -json` over the
 packages `go list ./...` gives outside `node_modules`), plus one `TestMain` in
-`internal/infrastructure/setup`. Nineteen of them are the structural tests in `tests/structural`,
+`internal/infrastructure/setup`. Twenty-one of them are the structural tests in `tests/structural`,
 which read the source rather than run it; [ARCHITECTURE.md](ARCHITECTURE.md) lists each against the
 rule it holds. One more holds a promise rather than a rule of structure:
 `TestA1Point0SettingsFileIsReadWhole` reads a frozen settings file of the first release (NFR-C-1); see
@@ -72,7 +72,7 @@ ARCHITECTURE.md, The settings file.
 
 ### The front end
 
-72 tests across 7 files, under Vitest with jsdom: the ribbon, Settings, About and Licence, the
+74 tests across 7 files, under Vitest with jsdom: the ribbon, Settings, About and Licence, the
 self-reading cycle, then the setup page's screens, keyboard ring and unreachable-program cases. The
 front end has no coverage figure: no coverage provider is installed, so none is measured or claimed.
 
@@ -84,7 +84,7 @@ front end has no coverage figure: no coverage provider is installed, so none is 
 | `internal/application` | unit, over hand-written fakes of the six ports | nothing |
 | `internal/infrastructure` | integration, over temporary folders and scratch registry keys | the filesystem, `HKCU` under a scratch key, child processes |
 | the root package | unit, over a scripted service with Wails and the desktop stood in for by the facade's own fields | nothing |
-| `tests/structural` | source and AST scans, plus one `go list` | reads files |
+| `tests/structural` | source and AST scans, plus one `go list` and one `git ls-files` | reads files |
 | the front end | component tests under jsdom | nothing |
 
 No Go test uses a mocking library; every double is a hand-written fake with the real interface
@@ -108,9 +108,9 @@ under scratch keys beneath `HKCU`.
 - **`internal/infrastructure/runlog` (76.5%).** Opening the log and pointing standard error at it are
   tested; making the folder failing, the start line failing to write and `SetStdHandle` refusing only
   fail inside the system.
-- **The root package (68.4%).** The facade's tests are `facade_test.go` and `window_life_test.go`,
-  over the scripted service in `fakes_test.go`. The facade's decisions are tested: which calls fit the ribbon, that a
-  drag whose save failed is still fitted, the panel state, the menu actions, the close and the
+- **The root package (72.5%).** The facade's tests are `facade_test.go` and `window_life_test.go`,
+  over the scripted service in `fakes_test.go`. The facade's decisions are tested: which calls fit
+  the ribbon, that a drag whose save failed is still fitted, the panel state, the menu actions, the close and the
   recover round each desktop event. Not reached: the composition root (`main.go`, `launch.go`),
   `startup`, `listen` and `shutdown`, which need the real ribbon window and the tray's message loop.
   Nor are the one-line calls in `wails_calls.go` and `window_life.go` that hand a request to Wails

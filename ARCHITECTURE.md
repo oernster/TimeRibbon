@@ -39,6 +39,8 @@ does not exist.
 | The setup page listens for every event `installer/app.go` emits | `TestTheSetupPageNamesEveryEventSetupEmits` | [`wire_test.go`](tests/structural/wire_test.go) |
 | Each `wails.json` names its executable as `internal/product` does | `TestEachWailsConfigNamesItsExecutableAsTheProductDoes` | [`names_test.go`](tests/structural/names_test.go) |
 | The Licence panel is sized for the LICENSE's widest line, so it shows unwrapped | `TestTheLicencePanelIsSizedForTheLicencesWidestLine` | [`licence_test.go`](tests/structural/licence_test.go) |
+| No tracked or new file holds the product's former name or the word its window went by before the ribbon; the npm lock file aside | `TestNoTrackedFileHoldsTheRetiredWord` | [`retired_test.go`](tests/structural/retired_test.go) |
+| That word is recognised in any case and inside names while the current names pass | `TestTheRetiredWordIsFoundInAnyCaseAndInsideNames` | [`retired_test.go`](tests/structural/retired_test.go) |
 
 ## Layers
 
@@ -57,7 +59,7 @@ does not exist.
 - **Application** (`internal/application`): one `Service` holding every use case over six ports
   (`Store`, `Zones`, `Clock`, `IDs`, `Monitors`, `StartupEntry`, in `ports.go`). It builds the
   snapshot the ribbon draws, adds, edits and removes clocks, searches places, changes settings,
-  arranges the ribbon (`Launch`, `Rearrange`, `Moved`, `Centred`) and answers the tray and context
+  arranges the ribbon (`Launch`, `Rearrange`, `Moved`, `ToEdge`, `Centred`) and answers the tray and context
   menus. The snapshot orders its cells east from Greenwich (`eastFromGreenwich` in `snapshot.go`):
   places level with or ahead of UTC by ascending offset, then the places behind UTC, since going
   east reaches them last. Offsets are read at the snapshot's instant, so the order is worked out
@@ -88,7 +90,7 @@ does not exist.
 
 `main.go` is the composition root. It opens the run log and points standard error at it before
 anything can fail, builds the adapters, injects them into the service by constructor, starts the tray
-and hands the facade to Wails. The cell sizes (`layout`) and the panel size (`panelSize`) have their
+and hands the facade to Wails. The cell sizes (`layouts`) and the panel size (`panelSize`) have their
 one home there. No service is held in a package-level variable and there is no service locator.
 
 The facade is `app.go` (the calls the page makes) and `window_life.go` (startup, showing, hiding,
@@ -96,8 +98,8 @@ closing and the desktop's events), split only to keep each file small; the struc
 all three files. The facade holds the service through `ribbonService`, an interface in `app.go`. It
 holds each call into Wails and the desktop as a field, pointed by `newApp` at the real calls in
 `wails_calls.go` and `window_life.go`. That is what lets the facade's tests stand in for all three
-and read what it decided. `identity.go` answers About and Licence; `dto.go` holds the wire; `launch.go` holds
-the window's options; `bindings_on.go` and `bindings_off.go` tell the run `wails build` makes to
+and read what it decided. `identity.go` answers About and Licence; `dto.go` holds the wire;
+`launch.go` holds the window's options; `bindings_on.go` and `bindings_off.go` tell the run `wails build` makes to
 generate bindings, which carries the `bindings` build tag, not to write the log, read the settings or
 show a tray icon.
 
@@ -139,8 +141,8 @@ button; `HideFromTaskbar` takes that style off and marks it a tool window once, 
 ## The ribbon's size and place
 
 **Size (FR-105, FR-106).** `ribbonSize` counts the cells the page draws: each notice, then each clock
-(the Add clock prompt standing in for them when there are none). Along the orientation the ribbon is that many cells plus
-padding, while that fits the work area of its display; beyond that it is the work area's length and
+(the Add clock prompt standing in for them when there are none). Along the orientation the ribbon
+is that many cells plus padding, while that fits the work area of its display; beyond that it is the work area's length and
 its cells scroll. Across, it is one cell plus padding, plus the thickness of the scroll bar when the
 cells scroll, so the bar never covers them. The bar is the web engine's, not one Windows reports, so
 the page measures it once it has loaded and hands it to Go through `SetScrollbar`. The ribbon hides
@@ -150,15 +152,16 @@ horizontal ribbon along.
 
 Every change that can alter the cells (a clock added or removed, the style or size changed, a notice
 raised by a failed save or dismissed, the scroll bar reported) refits the ribbon where it stands; a
-change of orientation sends it to that orientation's home edge instead (FR-409, below). Where the refit changes the ribbon's length, it is centred along that length on its display
-with its position across kept (`placement.CentredAlong`); `recentredKept` in `arrange.go` stores
+change of orientation sends it to that orientation's home edge instead (FR-409, below). Where the
+refit changes the ribbon's length, it is centred along that length on its display with its
+position across kept (`placement.CentredAlong`); `recentredKept` in `arrange.go` stores
 that place (FR-104). The service remembers the length it last arranged to tell a change; the first
 arrangement of a run never counts as one. A length that changed while a panel was open is centred
 as the panel closes. Should the save fail, its notice is one more cell, so the ribbon is arranged once
-more to fit it and that arrangement is not saved again. Nothing else re-centres the ribbon, so a drag
-holds until the length next changes. Sizes
-are computed in DIP and scaled to the display's DPI, so a ribbon moved between displays
-at different scaling keeps its size in DIP (FR-407).
+more to fit it and that arrangement is not saved again. Apart from Position and a change of
+orientation, nothing else moves the ribbon, so a drag holds until the length next changes. Sizes
+are computed in DIP and scaled to the display's DPI, so a ribbon moved between displays at
+different scaling keeps its size in DIP (FR-407).
 
 The cell sizes live in one table in `main.go`, one layout per size setting (FR-610): large and
 small, each giving a digital, an analogue and a prompt cell plus the padding. The service picks the
@@ -178,8 +181,8 @@ places the ribbon again on the same display with that corner unmoved it keeps th
 (`placement.KeptFlush`), measured to fail without it by `TestShrinkingKeepsTheRibbonAgainstItsEdge`.
 
 **An orientation's home edge (FR-409).** Choosing an orientation sends the ribbon to that
-orientation's home edge (`settings.HomeEdge`, a domain rule since the default place uses it too): the top for horizontal, the right for
-vertical. The facade's `SetOrientation` asks the service to choose, then reads the settings back:
+orientation's home edge (`settings.HomeEdge`, a domain rule since the default place uses it too):
+the top for horizontal, the right for vertical. The facade's `SetOrientation` asks the service to choose, then reads the settings back:
 where the choice took, even with its save failed, it puts the ribbon against the home edge through
 `ToEdge`; where it was refused, it fits the ribbon where it stands.
 
@@ -319,8 +322,8 @@ Every place written is per user: the files under `%LOCALAPPDATA%\Programs\TimeRi
 shortcut under `%APPDATA%`, the Desktop shortcut on the user's own Desktop, the record and Start with
 Windows under `HKCU`. Windows never asks for administrator rights (FR-810). Uninstall removes the
 shortcuts, Start with Windows and the record. It deletes `%APPDATA%\TimeRibbon` (the settings, the log
-and the web view's data) only when **Also forget my settings** is ticked, then hands the install folder to a hidden PowerShell that deletes it once setup
-has exited.
+and the web view's data) only when **Also forget my settings** is ticked, then hands the install
+folder to a hidden PowerShell that deletes it once setup has exited.
 
 Setup refuses to write while the application runs and offers to close it, waiting up to 5 seconds
 for it to go (FR-807). **The setup page names nothing**: it has no build step, so nothing compiles or

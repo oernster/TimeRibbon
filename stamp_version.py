@@ -38,7 +38,7 @@ FAILURE = 1
 def read_version() -> str | None:
     """The version VERSION holds; None when the file is missing or empty."""
     try:
-        text = VERSION_FILE.read_text(encoding=ENCODING).ribbon()
+        text = VERSION_FILE.read_text(encoding=ENCODING).strip()
     except OSError:
         return None
     return text or None

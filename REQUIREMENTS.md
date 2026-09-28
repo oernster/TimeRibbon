@@ -219,6 +219,21 @@ tab of FR-614 (ASM-4):
 - A process launched from the shell is handed the foreground when its window is created, although
   the window starts hidden.
 
+Measured on 2026-09-28 with the same probe on macOS 26.6.2 (Apple Silicon), the pointer moved by
+Oliver's hand, as an accessory application at the status window level, with BBEdit in front:
+
+- The window took 8 by 300 pt as asked; its `minSize` is zero and no style needed removing.
+- The page is blind while the application is not active: over six arrivals and six departures the
+  poll of `NSEvent mouseLocation` saw, the page reported no `mouseenter`, no `mouseleave` and not
+  one `mousemove`. Its events came only after the application had been activated; once, while
+  active, the page missed a departure the poll saw. A tab driven by the page opened only
+  intermittently, whether hovered or clicked (Oliver's observation, borne out by the log).
+- Driven instead by that poll, the prototype of FR-615 and FR-616 opened on all 8 rests, each 0.3 s
+  after the pointer arrived; stayed shut when the pointer crossed the tab in 0.18 s; collapsed 1 s
+  after each of 8 departures. Growing and shrinking the window with `setFrame` never activated the
+  application or made the window key; BBEdit stayed in front throughout. The pointer returning
+  within the second was not exercised.
+
 Amendment 13 (Oliver, 2026-09-28): also macOS 12 or later on Apple Silicon (the oldest macOS the Go
 toolchain supports, read by `builddmg.sh`) and Linux desktops running Flatpaks, on the GNOME 50
 runtime with WebKitGTK 4.1, drawing through X11 (XWayland on a Wayland desktop). Both build with
@@ -250,7 +265,7 @@ recorded at the first measured build.
 | ASM-1 | The Windows clock is correct; TimeRibbon shows what it implies. | Oliver | Baselining |
 | ASM-2 | Up to 12 clocks covers real use; beyond that the ribbon scrolls rather than grows (FR-106). The number sizes tests, not a limit. | Oliver | Baselining |
 | ASM-3 | English weekday and month names suffice. | Oliver | Baselining |
-| ASM-4 | The pointer arriving on and leaving the ribbon's window can be seen on Windows, macOS and Linux under X11, for a window as thin as the tab. FR-615 and FR-616 depend on it. Confirmed on Windows 2026-09-28 (section 2.3); unmeasured on macOS and Linux. | Claude | Before FR-613 to FR-618 are designed |
+| ASM-4 | The pointer arriving on and leaving the ribbon's window can be seen on Windows, macOS and Linux under X11, for a window as thin as the tab. FR-615 and FR-616 depend on it. Confirmed on Windows 2026-09-28 by the page's own events; on macOS the same day by the pointer's position read in Go, the page being blind while inactive (section 2.3); unmeasured on Linux. | Claude | Before FR-613 to FR-618 are designed |
 
 ---
 

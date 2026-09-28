@@ -1,5 +1,5 @@
-// Command identity prints the names the Linux build needs, as shell assignments read from the one
-// home each has in the code, so no build script keeps a second copy:
+// Command identity prints the names the Linux and macOS builds need, as shell assignments read from
+// the one home each has in the code, so no build script keeps a second copy:
 //
 //	eval "$(go run ./tools/identity)"
 package main
@@ -30,6 +30,7 @@ func print(out io.Writer) {
 		{"APP_ID", product.AppID},
 		{"BIN_NAME", strings.ToLower(product.Name)},
 		{"SINGLE_INSTANCE_NAME", singleInstanceName(product.AppID)},
+		{"COPYRIGHT", product.Copyright},
 	} {
 		fmt.Fprintf(out, "%s='%s'\n", pair[0], pair[1])
 	}

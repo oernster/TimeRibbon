@@ -58,6 +58,10 @@ frontend/package.json.md5
 packaging/
 build/linux/
 
+# The macOS DMG and its scratch folder, written by builddmg.sh
+*.dmg
+dist-dmg/
+
 # Local Claude session files: the resume snapshot and this machine's site preview settings
 .claude/
 NOTES.md

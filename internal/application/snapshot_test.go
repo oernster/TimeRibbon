@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oernster/timestrip/internal/domain/settings"
+	"github.com/oernster/timeribbon/internal/domain/settings"
 )
 
 // FR-102, FR-202: cells in order, each with its own zone's day.

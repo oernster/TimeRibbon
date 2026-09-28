@@ -14,7 +14,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/oernster/timestrip/internal/infrastructure/setup"
+	"github.com/oernster/timeribbon/internal/infrastructure/setup"
 )
 
 const (

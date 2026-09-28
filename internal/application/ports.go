@@ -1,4 +1,4 @@
-// Package application holds TimeStrip's use cases: one named entry point per action the user can
+// Package application holds TimeRibbon's use cases: one named entry point per action the user can
 // take, each executable from a test with no window open.
 //
 // It depends on the domain and on the ports declared here. Infrastructure implements the ports;
@@ -8,8 +8,8 @@ package application
 import (
 	"time"
 
-	"github.com/oernster/timestrip/internal/domain/placement"
-	"github.com/oernster/timestrip/internal/domain/settings"
+	"github.com/oernster/timeribbon/internal/domain/placement"
+	"github.com/oernster/timeribbon/internal/domain/settings"
 )
 
 // Loaded is what the store answers at launch.

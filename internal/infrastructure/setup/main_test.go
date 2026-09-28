@@ -2,7 +2,7 @@ package setup
 
 // Shared fixtures. Nothing here reaches the real install folder, the real Start Menu or Desktop,
 // the real Apps list entry or the real Run value: folders are t.TempDir() and every registry key is
-// a scratch key under HKCU\Software\TimeStripTest, deleted when the test ends.
+// a scratch key under HKCU\Software\TimeRibbonTest, deleted when the test ends.
 
 import (
 	"archive/zip"
@@ -16,16 +16,16 @@ import (
 
 	"golang.org/x/sys/windows/registry"
 
-	"github.com/oernster/timestrip/internal/infrastructure/startup"
+	"github.com/oernster/timeribbon/internal/infrastructure/startup"
 )
 
 // standInVariable turns the test binary into a stand-in process: one that runs until its input
-// closes, then exits. A copy of it plays TimeStrip or setup where a test needs a process to find,
+// closes, then exits. A copy of it plays TimeRibbon or setup where a test needs a process to find,
 // close or wait on.
-const standInVariable = "TIMESTRIP_SETUP_STAND_IN"
+const standInVariable = "TIMERIBBON_SETUP_STAND_IN"
 
 // scratchParent holds every scratch key a test makes.
-const scratchParent = `Software\TimeStripTest`
+const scratchParent = `Software\TimeRibbonTest`
 
 func TestMain(m *testing.M) {
 	if os.Getenv(standInVariable) != "" {
@@ -35,7 +35,7 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-// scratchKey answers a key of its own beneath HKCU\Software\TimeStripTest, deleted at the end.
+// scratchKey answers a key of its own beneath HKCU\Software\TimeRibbonTest, deleted at the end.
 func scratchKey(t *testing.T) string {
 	t.Helper()
 	key := scratchParent + `\` + rand.Text()

@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/oernster/timestrip/internal/product"
+	"github.com/oernster/timeribbon/internal/product"
 )
 
 func TestTheResourceCarriesTheVersionAndTheIdentity(t *testing.T) {

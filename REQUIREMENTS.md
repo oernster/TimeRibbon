@@ -1,4 +1,4 @@
-# TimeStrip: Requirements Specification
+# TimeRibbon: Requirements Specification
 
 Status: baselined by Oliver on 2026-09-27. Section 11 records the rulings that closed its open
 questions; it holds none at present. Later changes arrive as dated amendments.
@@ -6,7 +6,7 @@ questions; it holds none at present. Later changes arrive as dated amendments.
 Amendment 2 (Oliver, 2026-09-27): Help, About and Licence (FR-508, FR-607 to FR-609) plus the
 self-reading licence in setup (FR-811); CON-6, FR-108 and FR-502 carry notes of it.
 
-Amendment 3 (Oliver, 2026-09-27): the web view's data moves inside `%APPDATA%\TimeStrip` (FR-806).
+Amendment 3 (Oliver, 2026-09-27): the web view's data moves inside `%APPDATA%\TimeRibbon` (FR-806).
 
 Amendment 4 (Oliver, 2026-09-27): with 1.0.0 the settings file becomes a contract (NFR-C-1).
 
@@ -19,7 +19,7 @@ worked out at each snapshot (FR-102); ordering by hand is withdrawn (FR-306).
 Amendment 7 (Oliver, 2026-09-27): a strip whose length changes is re-centred along it on its
 display, keeping its position across (FR-104).
 
-Source: `TimeStrip-SPEC.md` (the initial product specification, 2026-09-27), plus Oliver's rulings
+Source: `TimeRibbon-SPEC.md` (the initial product specification, 2026-09-27), plus Oliver's rulings
 of 2026-09-27: the stack is Go with Wails; orientation is a setting offering both horizontal and
 vertical, both in the first release; a setup program ships with the first release; this document is
 baselined before any code.
@@ -30,7 +30,7 @@ baselined before any code.
 
 ### 1.1 Purpose
 
-TimeStrip is a small Windows desktop application showing a strip of clocks, one per chosen place in
+TimeRibbon is a small Windows desktop application showing a strip of clocks, one per chosen place in
 the world. It answers one question at a glance: what time and what day is it where my friends are?
 
 It shows places, never people. It is not a calendar, a meeting planner or a productivity tool.
@@ -69,7 +69,7 @@ Oliver Ernster as author and decision owner; contributors to the open source pro
 | Relative wording such as "tomorrow" or "+1 day" | The spec's section 14 prefers the local weekday and date |
 | Any platform but Windows | The spec's section 20 |
 | Languages other than English | Not asked for; weekday and month names are English |
-| Network time synchronisation | Windows owns the clock; TimeStrip reads it (NFR-S-2) |
+| Network time synchronisation | Windows owns the clock; TimeRibbon reads it (NFR-S-2) |
 | Downloading time zone rule updates | Rules are built into the binary (CON-5, NFR-S-3) |
 | Fixed UTC offsets as clocks | The spec's section 4 forbids them |
 
@@ -91,12 +91,12 @@ Oliver Ernster as author and decision owner; contributors to the open source pro
 | **Work area** | A monitor's rectangle minus the taskbar and docked toolbars, as Windows reports it. |
 | **Placement** | The monitor the strip is on plus the strip's position relative to that monitor's work area. |
 | **Invalid clock** | A stored clock entry that cannot be used: its zone is not recognised or its fields cannot be read. |
-| **Settings file** | `%APPDATA%\TimeStrip\settings.json`. |
+| **Settings file** | `%APPDATA%\TimeRibbon\settings.json`. |
 | **DIP** | Device-independent pixel: one pixel at 100 percent Windows scaling. |
 
 ### 1.5 References
 
-- `TimeStrip-SPEC.md`: the initial product specification.
+- `TimeRibbon-SPEC.md`: the initial product specification.
 - `ARCHITECTURE.md`: the layering invariants and the tests that enforce them.
 - IANA tz database, as embedded by Go's `time/tzdata` package.
 - ISO/IEC/IEEE 29148 for requirement quality; EARS for requirement syntax.
@@ -164,7 +164,7 @@ recorded at the first measured build.
 
 | ID | Assumption | Owner | Confirm by |
 |---|---|---|---|
-| ASM-1 | The Windows clock is correct; TimeStrip shows what it implies. | Oliver | Baselining |
+| ASM-1 | The Windows clock is correct; TimeRibbon shows what it implies. | Oliver | Baselining |
 | ASM-2 | Up to 12 clocks covers real use; beyond that the strip scrolls rather than grows (FR-106). The number sizes tests, not a limit. | Oliver | Baselining |
 | ASM-3 | English weekday and month names suffice. | Oliver | Baselining |
 
@@ -473,7 +473,7 @@ left; check M-12.
 
 **FR-501 Tray icon**
 Priority: Must.
-While the application runs, it shall show a notification-area icon with the tooltip `TimeStrip`.
+While the application runs, it shall show a notification-area icon with the tooltip `TimeRibbon`.
 Verified by: check M-4.
 
 **FR-502 Tray menu**
@@ -520,7 +520,7 @@ Verified by: `TestDefaultsAreDigitalTwentyFourHourVerticalAndNotOnTop` (domain);
 
 **FR-506 One instance**
 Priority: Must.
-If TimeStrip is launched while it is already running for the same Windows user, then the new
+If TimeRibbon is launched while it is already running for the same Windows user, then the new
 process shall show the running strip and exit.
 Verified by: check M-6.
 
@@ -558,7 +558,7 @@ Verified by: no test yet.
 
 **FR-605 Start with Windows**
 Priority: Should.
-When Start with Windows is turned on, the application shall write the value `TimeStrip` under
+When Start with Windows is turned on, the application shall write the value `TimeRibbon` under
 `HKCU\Software\Microsoft\Windows\CurrentVersion\Run` holding its own quoted path; when turned off, it
 shall delete that value. It shall be off by default and never written without the user turning it on.
 The value carries no arguments: a sign-in start shows the strip at once, as a normal launch does
@@ -683,7 +683,7 @@ Verified by: `TestWriteFailureIsReportedAndCleared` (application).
 | NFR-M-1 | The coverage floor of CON-3, the size limit of CON-2 and the layering of CON-1 are enforced by `test.ps1`, which `build.ps1` runs first with no switch to skip it. | `build.ps1` |
 | NFR-M-2 | Go code passes gofmt, go vet and staticcheck; the front end passes eslint, `tsc --noEmit` and Vitest. | `test.ps1` |
 | NFR-C-1 | From 1.0.0, every later 1.x release shall read every settings file 1.0.0 writes to the same settings: no key 1.0.0 writes is renamed, dropped or given another meaning; no stored word changes. A later release may add keys; 1.0.0 keeps a key it does not know and writes it back. Amendment 4 (Oliver, 2026-09-27). | `TestA1Point0SettingsFileIsReadWhole` over the frozen fixture `internal/infrastructure/store/testdata/settings-1.0.0.json` |
-| NFR-O-1 | The application shall write a log to `%APPDATA%\TimeStrip\TimeStrip.log` recording launch, placement recovery decisions, settings failures and invalid clocks; standard error is pointed at it before anything can fail. | `TestLogReceivesStandardError` (infrastructure) |
+| NFR-O-1 | The application shall write a log to `%APPDATA%\TimeRibbon\TimeRibbon.log` recording launch, placement recovery decisions, settings failures and invalid clocks; standard error is pointed at it before anything can fail. | `TestLogReceivesStandardError` (infrastructure) |
 
 ---
 
@@ -714,7 +714,7 @@ Verified by: `TestCompareOrdersVersions` (infrastructure, setup); check M-9.
 **FR-802 Every install writes the same way**
 Priority: Must.
 When Install, Update, Go back or Reinstall is confirmed, setup shall write the application's files into
-`%LOCALAPPDATA%\Programs\TimeStrip`, place a copy of itself there as `uninstall.exe`, record the
+`%LOCALAPPDATA%\Programs\TimeRibbon`, place a copy of itself there as `uninstall.exe`, record the
 application in the Apps list with Modify and Repair offered, then apply the boxes of FR-805.
 Verified by: `TestExtractZipWritesEveryEntry` and `TestTheUninstallEntryNamesTheRealPath`
 (infrastructure, setup); check M-9.
@@ -734,7 +734,7 @@ Verified by: `TestTheBoxesReflectWhatIsOnTheMachine` (infrastructure, setup).
 **FR-805 Install options**
 Priority: Must.
 The Install screen shall offer three boxes: `Add to the Start Menu` (ticked), `Add a Desktop shortcut`
-(unticked) and `Start with Windows` (unticked), plus `Start TimeStrip when setup closes` (ticked).
+(unticked) and `Start with Windows` (unticked), plus `Start TimeRibbon when setup closes` (ticked).
 `Start with Windows` shall write the one value FR-605 writes, so the two cannot disagree.
 Verified by: `TestStartWithWindowsIsTheSameValueSettingsWrites` (infrastructure).
 
@@ -742,14 +742,14 @@ Verified by: `TestStartWithWindowsIsTheSameValueSettingsWrites` (infrastructure)
 Priority: Must.
 When Uninstall is confirmed, setup shall remove the shortcuts, the Start with Windows value and the
 Apps list entry, then delete the install folder once setup has closed. Where `Also forget my settings`
-is ticked, which it is not by default, setup shall also delete `%APPDATA%\TimeStrip`.
+is ticked, which it is not by default, setup shall also delete `%APPDATA%\TimeRibbon`.
 Amendment 3 (Oliver, 2026-09-27): everything the application writes under `%APPDATA%`, the web
-view's data included, lies inside `%APPDATA%\TimeStrip`, so forgetting leaves nothing behind.
+view's data included, lies inside `%APPDATA%\TimeRibbon`, so forgetting leaves nothing behind.
 Verified by: `TestForgettingRemovesOnlyTheSettingsFolder` (infrastructure, setup); check M-9.
 
 **FR-807 A running copy is closed before setup writes**
 Priority: Must.
-If TimeStrip is running when setup is asked to write or to uninstall, then setup shall say so and offer
+If TimeRibbon is running when setup is asked to write or to uninstall, then setup shall say so and offer
 to close it. If it is still running 5 seconds after being asked to close, then setup shall say it could
 not be closed and ask for it to be closed by hand.
 Verified by: check M-9.

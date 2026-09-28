@@ -1,7 +1,7 @@
 package setup
 
 // Processes are found and closed by image name (FR-807). Every process started here is a copy of
-// the test binary under a name nothing else carries, so no real TimeStrip is ever found or ended.
+// the test binary under a name nothing else carries, so no real TimeRibbon is ever found or ended.
 
 import (
 	"crypto/rand"
@@ -116,12 +116,12 @@ func TestTheInstallFolderGoesOnceSetupHasClosed(t *testing.T) {
 // The folder reaches the removal as an environment value, never typed into the script.
 func TestTheRemovalIsToldTheFolderAsAValue(t *testing.T) {
 	t.Parallel()
-	args, env := dirDeletion(42, `C:\a $b\TimeStrip`)
+	args, env := dirDeletion(42, `C:\a $b\TimeRibbon`)
 	script := args[len(args)-1]
 	if !strings.Contains(script, "Wait-Process -Id 42") || strings.Contains(script, `C:\a $b`) {
 		t.Errorf("script %q", script)
 	}
-	if len(env) != 1 || env[0] != deletionDirVariable+`=C:\a $b\TimeStrip` {
+	if len(env) != 1 || env[0] != deletionDirVariable+`=C:\a $b\TimeRibbon` {
 		t.Errorf("env %v", env)
 	}
 }
@@ -172,7 +172,7 @@ func TestThePlacesComeFromTheEnvironmentAndTheShell(t *testing.T) {
 		return `C:\R\Programs`, nil
 	}
 	places, err := ResolvePlaces(lookup, known)
-	want := Places{InstallDir: `C:\L\Programs\TimeStrip`, StartMenu: `C:\R\Programs`, Desktop: `C:\D`, Settings: `C:\R\TimeStrip`}
+	want := Places{InstallDir: `C:\L\Programs\TimeRibbon`, StartMenu: `C:\R\Programs`, Desktop: `C:\D`, Settings: `C:\R\TimeRibbon`}
 	if err != nil || places != want {
 		t.Errorf("got %+v (%v), want %+v", places, err, want)
 	}

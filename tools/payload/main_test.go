@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/oernster/timestrip/internal/infrastructure/setup"
+	"github.com/oernster/timeribbon/internal/infrastructure/setup"
 )
 
 // put writes body at path.

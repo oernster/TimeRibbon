@@ -11,13 +11,13 @@ import (
 // ends. The real Run key is never touched.
 func scratch(t *testing.T) Entry {
 	t.Helper()
-	parent := `Software\TimeStripTest`
+	parent := `Software\TimeRibbonTest`
 	key := parent + `\` + rand.Text()
 	t.Cleanup(func() {
 		_ = registry.DeleteKey(registry.CURRENT_USER, key)
 		_ = registry.DeleteKey(registry.CURRENT_USER, parent)
 	})
-	return At(key, `C:\Users\Someone\AppData\Local\Programs\TimeStrip\TimeStrip.exe`)
+	return At(key, `C:\Users\Someone\AppData\Local\Programs\TimeRibbon\TimeRibbon.exe`)
 }
 
 // FR-605.
@@ -39,7 +39,7 @@ func TestStartWithWindowsWritesAndRemovesOneValue(t *testing.T) {
 	command, _, err := key.GetStringValue(ValueName)
 	names, _ := key.ReadValueNames(0)
 	key.Close()
-	if err != nil || command != `"C:\Users\Someone\AppData\Local\Programs\TimeStrip\TimeStrip.exe"` || len(names) != 1 {
+	if err != nil || command != `"C:\Users\Someone\AppData\Local\Programs\TimeRibbon\TimeRibbon.exe"` || len(names) != 1 {
 		t.Errorf("wrote %q among %v (%v)", command, names, err)
 	}
 	if on, err := entry.Enabled(); err != nil || !on {
@@ -58,8 +58,8 @@ func TestStartWithWindowsWritesAndRemovesOneValue(t *testing.T) {
 
 func TestTheRealEntryNamesTheRunKey(t *testing.T) {
 	t.Parallel()
-	entry := New(`C:\x\TimeStrip.exe`)
-	if entry.key != RunKey || entry.value != ValueName || entry.Command() != `"C:\x\TimeStrip.exe"` {
+	entry := New(`C:\x\TimeRibbon.exe`)
+	if entry.key != RunKey || entry.value != ValueName || entry.Command() != `"C:\x\TimeRibbon.exe"` {
 		t.Errorf("got %+v", entry)
 	}
 }

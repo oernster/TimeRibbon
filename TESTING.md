@@ -154,9 +154,9 @@ are REQUIREMENTS.md's section 12.
 | M-2 | Dragging empty strip area moves it; pressing a control does not; a small wobble does not |
 | M-3 | Dragged onto a display at other scaling, the strip keeps its size and stays sharp; unplugging that display brings it back onto a visible one |
 | M-4 | The tray icon, its menu, a left click, Always on top and Exit behave as FR-501 to FR-505 say |
-| M-5 | Changing the Windows clock, changing the time zone and sleeping then waking the machine each leave every clock right within 2 seconds; each writes a line to `TimeStrip.log` |
+| M-5 | Changing the Windows clock, changing the time zone and sleeping then waking the machine each leave every clock right within 2 seconds; each writes a line to `TimeRibbon.log` |
 | M-6 | Launching a second copy shows the first and leaves one tray icon |
-| M-7 | Switching the Windows theme while TimeStrip follows it recolours the strip |
+| M-7 | Switching the Windows theme while TimeRibbon follows it recolours the strip |
 | M-8 | Settings and the place search can be driven entirely from the keyboard |
 | M-9 | Setup installs, updates, repairs and uninstalls on a real machine without asking for administrator rights, closing a running copy first |
 | M-10 | Both menus open a Help submenu whose About and Licence each show their panel; the licence reads itself down after 5 seconds, a wheel stops it and it resumes; setup's Licence screen does the same |

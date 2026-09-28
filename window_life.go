@@ -6,10 +6,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/oernster/timestrip/internal/application"
-	"github.com/oernster/timestrip/internal/domain/placement"
-	"github.com/oernster/timestrip/internal/infrastructure/desktop"
-	"github.com/oernster/timestrip/internal/product"
+	"github.com/oernster/timeribbon/internal/application"
+	"github.com/oernster/timeribbon/internal/domain/placement"
+	"github.com/oernster/timeribbon/internal/infrastructure/desktop"
+	"github.com/oernster/timeribbon/internal/product"
 )
 
 // startup takes the strip off the taskbar and puts it in place while it is still hidden, then

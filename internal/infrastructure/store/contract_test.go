@@ -12,7 +12,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/oernster/timestrip/internal/domain/settings"
+	"github.com/oernster/timeribbon/internal/domain/settings"
 )
 
 // contractFixture is a settings file as 1.0.0 writes it.

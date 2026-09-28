@@ -1,4 +1,4 @@
-// Command installer is TimeStrip's setup program (FR-801 to FR-810).
+// Command installer is TimeRibbon's setup program (FR-801 to FR-810).
 //
 // It is a second Wails application in the module, carrying the built application as an embedded
 // payload. It installs, updates, goes back a version, repairs, reinstalls and uninstalls, all per
@@ -19,8 +19,8 @@ import (
 	windowsoptions "github.com/wailsapp/wails/v2/pkg/options/windows"
 	"golang.org/x/sys/windows"
 
-	"github.com/oernster/timestrip/internal/infrastructure/setup"
-	"github.com/oernster/timestrip/internal/product"
+	"github.com/oernster/timeribbon/internal/infrastructure/setup"
+	"github.com/oernster/timeribbon/internal/product"
 )
 
 //go:embed all:frontend/dist

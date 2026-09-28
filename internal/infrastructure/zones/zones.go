@@ -10,8 +10,8 @@ import (
 	"time"
 	_ "time/tzdata"
 
-	"github.com/oernster/timestrip/internal/application"
-	"github.com/oernster/timestrip/internal/domain/clock"
+	"github.com/oernster/timeribbon/internal/application"
+	"github.com/oernster/timeribbon/internal/domain/clock"
 )
 
 // places is the catalogue tools/genplaces writes: "zone<TAB>countries" per line.

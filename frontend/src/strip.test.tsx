@@ -103,7 +103,7 @@ describe('api', () => {
     delete window.go
     const refused = vi.fn()
     expect(await api.snapshot(refused)).toBeNull()
-    expect(refused).toHaveBeenCalledWith('TimeStrip is not running behind this page')
+    expect(refused).toHaveBeenCalledWith('TimeRibbon is not running behind this page')
     const bridge = installBridge()
     bridge.AddClock.mockRejectedValueOnce('unknown time zone: X')
     expect(await api.addClock('X', refused)).toBeNull()

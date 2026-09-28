@@ -1,4 +1,4 @@
-# Verifies TimeStrip: formatting, vet, staticcheck, the whole suite and the coverage floors.
+# Verifies TimeRibbon: formatting, vet, staticcheck, the whole suite and the coverage floors.
 #
 #   ./test.ps1              run everything
 #   ./test.ps1 -Floor 95    run with a different floor over domain and application
@@ -61,7 +61,7 @@ try {
 }
 
 Write-Host "Measuring coverage of $($gated -join ', ')..."
-$profilePath = Join-Path ([System.IO.Path]::GetTempPath()) 'timestrip-coverage.out'
+$profilePath = Join-Path ([System.IO.Path]::GetTempPath()) 'timeribbon-coverage.out'
 try {
     go test -count=1 "-coverprofile=$profilePath" @gated
     if ($LASTEXITCODE -ne 0) { throw "the coverage run failed with exit code $LASTEXITCODE" }

@@ -3,7 +3,7 @@
 package product
 
 // Name is the product's name as a reader sees it.
-const Name = "TimeStrip"
+const Name = "TimeRibbon"
 
 // SetupName is the setup program's name: its executable, its window class, its web view cache and
 // its step log.
@@ -14,7 +14,7 @@ const SetupName = Name + "Setup"
 const StripClass = Name + "Strip"
 
 // DonateURL is where the donate button at the foot of Settings sends a browser: the only address
-// TimeStrip knows. It is handed to the desktop to open rather than fetched, so the application
+// TimeRibbon knows. It is handed to the desktop to open rather than fetched, so the application
 // itself still makes no request (NFR-S-1).
 const DonateURL = "https://www.paypal.com/ncp/payment/THUS4KZ5GECH8"
 

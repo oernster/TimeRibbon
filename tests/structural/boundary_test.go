@@ -23,7 +23,7 @@ const (
 )
 
 // modulePath prefixes every internal import.
-const modulePath = "github.com/oernster/timestrip/"
+const modulePath = "github.com/oernster/timeribbon/"
 
 // compositionRoot names the files allowed to import both application and infrastructure: main.go
 // builds the adapters; app.go is the facade the window calls; window_life.go is the facade's own

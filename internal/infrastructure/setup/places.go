@@ -7,19 +7,19 @@ import (
 
 	"golang.org/x/sys/windows"
 
-	"github.com/oernster/timestrip/internal/infrastructure/appdata"
+	"github.com/oernster/timeribbon/internal/infrastructure/appdata"
 )
 
 // Places are the folders setup writes, resolved once (FR-810): each is under the user's own
 // profile, so nothing asks for administrator rights.
 type Places struct {
-	// InstallDir is %LOCALAPPDATA%\Programs\TimeStrip, where the files go (FR-802).
+	// InstallDir is %LOCALAPPDATA%\Programs\TimeRibbon, where the files go (FR-802).
 	InstallDir string
 	// StartMenu is the user's Start Menu Programs folder, under %APPDATA%.
 	StartMenu string
 	// Desktop is the user's Desktop, wherever Windows has it (a Desktop moved to OneDrive included).
 	Desktop string
-	// Settings is %APPDATA%\TimeStrip, the one folder "Also forget my settings" deletes (FR-806).
+	// Settings is %APPDATA%\TimeRibbon, the one folder "Also forget my settings" deletes (FR-806).
 	Settings string
 }
 

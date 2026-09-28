@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/oernster/timestrip/internal/product"
+	"github.com/oernster/timeribbon/internal/product"
 )
 
 // wailsNames names each wails.json with the name internal/product gives its executable.

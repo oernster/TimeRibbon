@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 )
 
-// ErrNoApplication is answered when the folder named as the application holds no TimeStrip.exe.
+// ErrNoApplication is answered when the folder named as the application holds no TimeRibbon.exe.
 var ErrNoApplication = errors.New("no " + ExeName + " to pack")
 
 // Payload names what the setup program carries: every file under App at the root of the install

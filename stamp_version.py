@@ -1,4 +1,4 @@
-"""Stamp the version from VERSION into the TimeStrip site.
+"""Stamp the version from VERSION into the TimeRibbon site.
 
 A browser rendering the site cannot read VERSION, so every place the site shows a
 version carries a delimited token: <!--VERSION-->x.y.z<!--/VERSION-->. This script

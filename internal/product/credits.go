@@ -1,6 +1,6 @@
 package product
 
-// Author is who wrote TimeStrip, as About names them (FR-607).
+// Author is who wrote TimeRibbon, as About names them (FR-607).
 const Author = "Oliver Ernster"
 
 // Copyright is the copyright line About shows beneath the author (FR-607).

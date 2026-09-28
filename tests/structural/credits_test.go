@@ -12,7 +12,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/oernster/timestrip/internal/product"
+	"github.com/oernster/timeribbon/internal/product"
 )
 
 // wailsBuildTags are the tags wails build compiles a production build with, which change what the

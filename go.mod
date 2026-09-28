@@ -1,4 +1,4 @@
-module github.com/oernster/timestrip
+module github.com/oernster/timeribbon
 
 go 1.26.3
 

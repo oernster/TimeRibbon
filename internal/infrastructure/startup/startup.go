@@ -8,13 +8,13 @@ import (
 
 	"golang.org/x/sys/windows/registry"
 
-	"github.com/oernster/timestrip/internal/product"
+	"github.com/oernster/timeribbon/internal/product"
 )
 
 // RunKey is the per-user key Windows starts programs from at sign-in.
 const RunKey = `Software\Microsoft\Windows\CurrentVersion\Run`
 
-// ValueName is the value TimeStrip writes under RunKey.
+// ValueName is the value TimeRibbon writes under RunKey.
 const ValueName = product.Name
 
 // Entry is the application's StartupEntry port over one value.
@@ -24,7 +24,7 @@ type Entry struct {
 	program string
 }
 
-// New answers the entry for program, the full path of TimeStrip's executable, under RunKey.
+// New answers the entry for program, the full path of TimeRibbon's executable, under RunKey.
 func New(program string) Entry {
 	return At(RunKey, program)
 }

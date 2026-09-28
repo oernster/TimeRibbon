@@ -1,6 +1,6 @@
 package application
 
-import "github.com/oernster/timestrip/internal/domain/settings"
+import "github.com/oernster/timeribbon/internal/domain/settings"
 
 // The actions of the Style and Orientation submenus (FR-108, FR-502).
 const (

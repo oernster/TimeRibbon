@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/oernster/timestrip/internal/domain/placement"
-	"github.com/oernster/timestrip/internal/domain/settings"
+	"github.com/oernster/timeribbon/internal/domain/placement"
+	"github.com/oernster/timeribbon/internal/domain/settings"
 )
 
 // Arrangement is where the window goes and how big it is, in physical pixels.

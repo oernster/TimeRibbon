@@ -4,8 +4,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/oernster/timestrip/internal/domain/placement"
-	"github.com/oernster/timestrip/internal/domain/settings"
+	"github.com/oernster/timeribbon/internal/domain/placement"
+	"github.com/oernster/timeribbon/internal/domain/settings"
 )
 
 // clocks answers horizontal settings holding n London clocks; the arithmetic below is worked for

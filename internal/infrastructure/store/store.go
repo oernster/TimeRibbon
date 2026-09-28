@@ -13,8 +13,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/oernster/timestrip/internal/application"
-	"github.com/oernster/timestrip/internal/domain/settings"
+	"github.com/oernster/timeribbon/internal/application"
+	"github.com/oernster/timeribbon/internal/domain/settings"
 )
 
 // File names inside the settings folder.
@@ -49,7 +49,7 @@ type Store struct {
 	blocked bool
 }
 
-// New answers a store over dir, normally %APPDATA%\TimeStrip. Nothing is read or made until Load
+// New answers a store over dir, normally %APPDATA%\TimeRibbon. Nothing is read or made until Load
 // or Save is called.
 func New(dir string) *Store {
 	return &Store{dir: dir}

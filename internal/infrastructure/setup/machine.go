@@ -3,7 +3,7 @@ package setup
 import (
 	"fmt"
 
-	"github.com/oernster/timestrip/internal/infrastructure/startup"
+	"github.com/oernster/timeribbon/internal/infrastructure/startup"
 )
 
 // StartupEntry is the Start with Windows value: startup.Entry, the one Settings writes (FR-805).

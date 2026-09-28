@@ -28,7 +28,7 @@ type Choices struct {
 
 // Existing is what the machine already holds, read once.
 type Existing struct {
-	// Installed says the Apps list records TimeStrip; Version is the version it records.
+	// Installed says the Apps list records TimeRibbon; Version is the version it records.
 	Installed bool
 	Version   string
 	// Choices are the boxes as they stand on the machine: the shortcuts present and the Start with
@@ -54,7 +54,7 @@ func RouteFor(existing Existing, carried string) Route {
 	return RouteManage
 }
 
-// Offered answers the boxes a screen opens on: what the machine already holds where TimeStrip is
+// Offered answers the boxes a screen opens on: what the machine already holds where TimeRibbon is
 // installed, so a shortcut someone declined is never offered back as though they had asked for
 // it; the fresh defaults where it is not.
 func Offered(existing Existing) Choices {

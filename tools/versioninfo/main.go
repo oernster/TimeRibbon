@@ -19,7 +19,7 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"github.com/oernster/timestrip/internal/product"
+	"github.com/oernster/timeribbon/internal/product"
 )
 
 // neutralLanguage keys the string table as language neutral with Unicode text, as Wails' own

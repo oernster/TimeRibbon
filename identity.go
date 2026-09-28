@@ -7,7 +7,7 @@ package main
 import (
 	_ "embed"
 
-	"github.com/oernster/timestrip/internal/product"
+	"github.com/oernster/timeribbon/internal/product"
 )
 
 //go:embed LICENSE

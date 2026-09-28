@@ -1,6 +1,6 @@
 # Development
 
-How to build and run TimeStrip on Windows, from a machine with nothing installed to a setup program.
+How to build and run TimeRibbon on Windows, from a machine with nothing installed to a setup program.
 
 Every command here is PowerShell, one command per block, run from the repository root unless it says
 otherwise. `README.md` is for somebody using the application; this is for somebody building it.
@@ -35,11 +35,11 @@ $env:PATH = "$env:USERPROFILE\go\bin;$env:PATH"
 ## Getting the source
 
 ```powershell
-git clone https://github.com/oernster/TimeStrip.git
+git clone https://github.com/oernster/TimeRibbon.git
 ```
 
 ```powershell
-cd TimeStrip
+cd TimeRibbon
 ```
 
 Fetch the Go modules and the front end's packages once:
@@ -86,8 +86,8 @@ It does these things in order and stops at the first failure:
 
 | Output | What it is |
 |---|---|
-| `build/bin/TimeStrip.exe` | the application |
-| `dist-installer/TimeStripSetup.exe` | the setup program, application included |
+| `build/bin/TimeRibbon.exe` | the application |
+| `dist-installer/TimeRibbonSetup.exe` | the setup program, application included |
 
 To stop after the application, the faster loop when only the application has changed:
 
@@ -100,7 +100,7 @@ If a build is interrupted between steps 6 and 8, run `./build.ps1` again rather 
 
 ### A note on `-ldflags`
 
-The version reaches both executables through `-X github.com/oernster/timestrip/internal/product.Version=<version>`.
+The version reaches both executables through `-X github.com/oernster/timeribbon/internal/product.Version=<version>`.
 `-X` writes only to a `var`; against a `const` it silently does nothing, which is why `Version` in
 `internal/product/product.go` is a var holding a development placeholder until the flag replaces it.
 An executable reporting that placeholder was built without `build.ps1`.
@@ -117,7 +117,7 @@ It serves the front end from Vite and rebuilds the Go side on change. The Vite c
 the development server to read `installer/frontend/dist`, where the self-reading cycle's script
 lives.
 
-Each run appends to `%APPDATA%\TimeStrip\TimeStrip.log`, which is where a fault in a windowed run
+Each run appends to `%APPDATA%\TimeRibbon\TimeRibbon.log`, which is where a fault in a windowed run
 goes, the Go runtime's own panic report included. The settings are in `settings.json` beside it;
 the web view keeps its data in `WebView2` in the same folder.
 Only one copy runs per Windows user: a second launch shows the first and exits.
@@ -125,14 +125,14 @@ Only one copy runs per Windows user: a second launch shows the first and exits.
 ## Installing what you built
 
 ```powershell
-./dist-installer/TimeStripSetup.exe
+./dist-installer/TimeRibbonSetup.exe
 ```
 
 Everything it writes is per user, so Windows never asks for administrator rights. The files go to
-`%LOCALAPPDATA%\Programs\TimeStrip` with a copy of setup as `uninstall.exe`, recorded in the Apps
+`%LOCALAPPDATA%\Programs\TimeRibbon` with a copy of setup as `uninstall.exe`, recorded in the Apps
 list; the Start Menu entry, the Desktop shortcut and Start with Windows are the boxes on its first
 screen. Over the same version it opens on Repair, Reinstall and Uninstall. Its step log is
-`TimeStripSetup.log` in the temporary folder. Neither executable is signed: `build.ps1` has no
+`TimeRibbonSetup.log` in the temporary folder. Neither executable is signed: `build.ps1` has no
 signing step.
 
 ## Generated files
@@ -173,8 +173,8 @@ Apps list records to choose between Install, Update, Go back and the Installed s
 2. Run `./build.ps1` and read its exit code. It stamps the new version into the site under `docs/`;
    commit what it changed there with `VERSION`.
 3. Run the checks a person settles in [TESTING.md](TESTING.md#checks-a-person-settles) against
-   `dist-installer/TimeStripSetup.exe`.
-4. Tag the commit and attach `TimeStripSetup.exe` to the release.
+   `dist-installer/TimeRibbonSetup.exe`.
+4. Tag the commit and attach `TimeRibbonSetup.exe` to the release.
 
 ## Where things live
 

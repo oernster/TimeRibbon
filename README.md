@@ -1,10 +1,10 @@
-# <img width="128" height="128" alt="application-icon" src="https://github.com/user-attachments/assets/fc124b11-f3a8-467c-9922-0abb40e9871e" /> TimeStrip
+# <img width="128" height="128" alt="application-icon" src="https://github.com/user-attachments/assets/fc124b11-f3a8-467c-9922-0abb40e9871e" /> TimeRibbon
 
 A simple strip of configurable world clocks, horizontal or vertical.
 
-> **Commercial licences available.** TimeStrip is free and open source under the GPL-3.0. If those terms do not suit what you are building, such as a closed-source product, a commercial licence can be bought from me separately. It covers my own code; third-party libraries keep their own licences. See [commercial licensing](https://ernster.dev/commercial-licensing.html).
+> **Commercial licences available.** TimeRibbon is free and open source under the GPL-3.0. If those terms do not suit what you are building, such as a closed-source product, a commercial licence can be bought from me separately. It covers my own code; third-party libraries keep their own licences. See [commercial licensing](https://ernster.dev/commercial-licensing.html).
 
-TimeStrip answers one question at a glance: what time and what day is it where the people you talk
+TimeRibbon answers one question at a glance: what time and what day is it where the people you talk
 to are? It shows one clock per place you choose, each with its own local time, weekday and date,
 in a small frameless strip you can put anywhere on any monitor.
 
@@ -58,7 +58,7 @@ in a small frameless strip you can put anywhere on any monitor.
   dark.** Every choice applies at once, with no Save step. Style and orientation are in the menus;
   size, time format and theme are in Settings. Small clocks suit a small screen such as a 13 inch
   laptop. The theme can follow Windows.
-- **Keeps your clocks in one readable file.** `%APPDATA%\TimeStrip\settings.json`, written whole
+- **Keeps your clocks in one readable file.** `%APPDATA%\TimeRibbon\settings.json`, written whole
   or not at all. A damaged file is kept aside under another name and never overwritten; a notice on
   the strip says so. A save that fails keeps the change in effect with a notice until a later save
   succeeds. One clock that cannot be read leaves the others working. The file is a promise: every
@@ -72,7 +72,7 @@ in a small frameless strip you can put anywhere on any monitor.
 ## What it does not do
 
 - **It makes no network request.** The only address it knows is the donation page, which it hands
-  to your browser through Windows when you press the button; TimeStrip itself fetches nothing.
+  to your browser through Windows when you press the button; TimeRibbon itself fetches nothing.
 - **Its time zone rules are the ones built into it.** A government that changes its clocks after a
   release is shown correctly only from the next release that carries the new rules.
 - **It never changes the Windows clock or time zone.** It reads them.
@@ -89,8 +89,8 @@ in a small frameless strip you can put anywhere on any monitor.
 
 ## Getting it
 
-Download `TimeStripSetup.exe` and run it. Everything it writes is for your own Windows account, so
-it never asks for administrator rights. It installs under `%LOCALAPPDATA%\Programs\TimeStrip` and
+Download `TimeRibbonSetup.exe` and run it. Everything it writes is for your own Windows account, so
+it never asks for administrator rights. It installs under `%LOCALAPPDATA%\Programs\TimeRibbon` and
 offers a Start Menu entry, a Desktop shortcut and Start with Windows.
 
 To remove it, use the Apps list in Windows Settings. Your clocks stay unless you tick **Also forget
@@ -113,19 +113,19 @@ type check and tests, then holds each package to its coverage floor:
 ./build.ps1
 ```
 
-It runs the gate first, then writes the application to `build/bin/TimeStrip.exe` and the setup
-program to `dist-installer/TimeStripSetup.exe`. [DEVELOPMENT.md](DEVELOPMENT.md) sets up a machine
+It runs the gate first, then writes the application to `build/bin/TimeRibbon.exe` and the setup
+program to `dist-installer/TimeRibbonSetup.exe`. [DEVELOPMENT.md](DEVELOPMENT.md) sets up a machine
 from nothing. [ARCHITECTURE.md](ARCHITECTURE.md) explains the layering and the reasoning behind each
 decision. [TECH_DEBT.md](TECH_DEBT.md) lists what is still open, what is deliberately left and what
 only looks like debt.
 
-## Supporting TimeStrip
+## Supporting TimeRibbon
 
-TimeStrip is free and stays free: there is no paid tier, no licence key and no feature held back
+TimeRibbon is free and stays free: there is no paid tier, no licence key and no feature held back
 behind a donation. If it earns its place on your screen, a donation is welcome. The same button sits
 at the foot of Settings in the application; pressing it hands the donation page to your browser.
 
-<a href="https://www.paypal.com/ncp/payment/THUS4KZ5GECH8"><img src="docs/donate.png" alt="Donate to TimeStrip" width="120"></a>
+<a href="https://www.paypal.com/ncp/payment/THUS4KZ5GECH8"><img src="docs/donate.png" alt="Donate to TimeRibbon" width="120"></a>
 
 ## Licence
 

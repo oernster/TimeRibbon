@@ -1,4 +1,4 @@
-// Package appdata answers the folder TimeStrip keeps its settings and log in: %APPDATA%\TimeStrip
+// Package appdata answers the folder TimeRibbon keeps its settings and log in: %APPDATA%\TimeRibbon
 // (FR-701, NFR-O-1). Nothing is made here; the store and the log make the folder when they write.
 package appdata
 
@@ -6,7 +6,7 @@ import (
 	"errors"
 	"path/filepath"
 
-	"github.com/oernster/timestrip/internal/product"
+	"github.com/oernster/timeribbon/internal/product"
 )
 
 // variable is the environment variable naming the user's roaming application data folder.

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/oernster/timestrip/internal/domain/placement"
-	"github.com/oernster/timestrip/internal/domain/settings"
+	"github.com/oernster/timeribbon/internal/domain/placement"
+	"github.com/oernster/timeribbon/internal/domain/settings"
 )
 
 // ErrUnknownZone is answered when a clock is set to a zone the tz database does not know.

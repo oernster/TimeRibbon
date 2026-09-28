@@ -1,4 +1,4 @@
-# TimeStrip Architecture
+# TimeRibbon Architecture
 
 A small Windows desktop application showing a strip of clocks, one per chosen place. It reads the
 Windows clock and nothing else from outside itself; the time zone rules are built into the
@@ -131,7 +131,7 @@ the strip's display and never larger than its work area (`Service.Centred`); clo
 window to where the strip was last left. While a panel is open, a move of the window is not recorded
 as the strip's and a change of content is fitted when the panel closes.
 
-The window opens hidden. `startup` finds its handle by the class `TimeStripStrip`, takes it off the
+The window opens hidden. `startup` finds its handle by the class `TimeRibbonStrip`, takes it off the
 taskbar, fences its moves and places it, all before the page is shown, so it never appears blank or
 in the wrong place. Wails always marks its window as an application window, which forces a taskbar
 button; `HideFromTaskbar` takes that style off and marks it a tool window once, before it is shown.
@@ -220,7 +220,7 @@ then, so each refresh is scheduled from the current time rather than from the la
 
 ## The settings file
 
-`%APPDATA%\TimeStrip\settings.json`, indented JSON a person can read, carrying a format version
+`%APPDATA%\TimeRibbon\settings.json`, indented JSON a person can read, carrying a format version
 (FR-701). Derived values (offsets, abbreviations, times) are never stored. It is written to a
 temporary file in the same folder, flushed and renamed over the old one, so a failure part way leaves
 the previous file whole (FR-702). Reading is tolerant: no file means the defaults and no notice
@@ -315,10 +315,10 @@ Which screen opens is decided by one reading of the machine:
 Versions compare by major, minor then patch as numbers. Install, Update, Go back and Reinstall are one
 act: the files, setup copied beside them as `uninstall.exe`, the Apps list record, then the boxes.
 Repair writes the files again keeping the shortcuts and Start with Windows as they are on the machine.
-Every place written is per user: the files under `%LOCALAPPDATA%\Programs\TimeStrip`, the Start Menu
+Every place written is per user: the files under `%LOCALAPPDATA%\Programs\TimeRibbon`, the Start Menu
 shortcut under `%APPDATA%`, the Desktop shortcut on the user's own Desktop, the record and Start with
 Windows under `HKCU`. Windows never asks for administrator rights (FR-810). Uninstall removes the
-shortcuts, Start with Windows and the record. It deletes `%APPDATA%\TimeStrip` (the settings, the log
+shortcuts, Start with Windows and the record. It deletes `%APPDATA%\TimeRibbon` (the settings, the log
 and the web view's data) only when **Also forget my settings** is ticked, then hands the install folder to a hidden PowerShell that deletes it once setup
 has exited.
 
@@ -337,15 +337,15 @@ own web view data and step log sit under the temporary folder.
 
 | What | Where |
 |---|---|
-| Settings | `%APPDATA%\TimeStrip\settings.json`; `settings.unreadable.json` beside it when a damaged file was kept aside |
-| Run log | `%APPDATA%\TimeStrip\TimeStrip.log`, started afresh once it passes 1 MB |
-| The window's web view data | `%APPDATA%\TimeStrip\WebView2`, named in `launch.go` inside the settings folder so uninstalling with **Also forget my settings** removes it; nothing of TimeStrip's own is kept there |
+| Settings | `%APPDATA%\TimeRibbon\settings.json`; `settings.unreadable.json` beside it when a damaged file was kept aside |
+| Run log | `%APPDATA%\TimeRibbon\TimeRibbon.log`, started afresh once it passes 1 MB |
+| The window's web view data | `%APPDATA%\TimeRibbon\WebView2`, named in `launch.go` inside the settings folder so uninstalling with **Also forget my settings** removes it; nothing of TimeRibbon's own is kept there |
 | Time zone rules and the place catalogue | built into the executable |
-| Installed files | `%LOCALAPPDATA%\Programs\TimeStrip`, with `uninstall.exe` |
+| Installed files | `%LOCALAPPDATA%\Programs\TimeRibbon`, with `uninstall.exe` |
 | Shortcuts | the user's Start Menu Programs folder and Desktop |
-| Start with Windows | the value `TimeStrip` under `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`, holding the quoted path and no arguments |
-| Apps list record | `HKCU\...\Uninstall\TimeStrip` |
-| Setup's step log and web view data | `TimeStripSetup.log` and `TimeStripSetup` in the temporary folder |
+| Start with Windows | the value `TimeRibbon` under `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`, holding the quoted path and no arguments |
+| Apps list record | `HKCU\...\Uninstall\TimeRibbon` |
+| Setup's step log and web view data | `TimeRibbonSetup.log` and `TimeRibbonSetup` in the temporary folder |
 
 ## Errors
 
@@ -391,7 +391,7 @@ caller acts on.
 | The scroll bar measured by the page | It is the web engine's bar, which Windows' scroll bar metric does not describe | A thickness written into the Go code |
 | The self-reading cycle in one script beside the setup page | The setup page cannot import; the window's build can import the file, so both run the same code | The cycle written twice, once in TypeScript and once for the setup page |
 | The strip hides from the taskbar by swapping its window style | Wails always marks its window as an application window | Accepting a taskbar button |
-| The web view's data folder named inside the settings folder | Left to Wails it was `%APPDATA%\TimeStrip.exe`, beside the settings folder, which forgetting the settings on uninstall did not reach | Deleting Wails' default folder by name at uninstall, which hangs on a rule Wails does not promise |
+| The web view's data folder named inside the settings folder | Left to Wails it was `%APPDATA%\TimeRibbon.exe`, beside the settings folder, which forgetting the settings on uninstall did not reach | Deleting Wails' default folder by name at uninstall, which hangs on a rule Wails does not promise |
 | Settings in one JSON file, written whole | A person can read and repair it; a crash mid-write cannot damage it | A database |
 | Everything per user | Nothing needs administrator rights, so nothing asks for them | A machine-wide install |
 

@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/oernster/timestrip/internal/domain/clock"
-	"github.com/oernster/timestrip/internal/domain/settings"
+	"github.com/oernster/timeribbon/internal/domain/clock"
+	"github.com/oernster/timeribbon/internal/domain/settings"
 )
 
 // FR-704: the store's notice reaches the strip.

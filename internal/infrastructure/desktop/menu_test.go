@@ -3,7 +3,7 @@ package desktop
 import (
 	"testing"
 
-	"github.com/oernster/timestrip/internal/application"
+	"github.com/oernster/timeribbon/internal/application"
 )
 
 func TestTheChosenIdentifierNamesItsItem(t *testing.T) {

@@ -13,7 +13,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/oernster/timestrip/internal/product"
+	"github.com/oernster/timeribbon/internal/product"
 )
 
 // setupFrontendDir is the setup program's page.

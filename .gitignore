@@ -31,7 +31,7 @@ go.work.sum
 # .idea/
 # .vscode/
 
-# TimeStrip build output
+# TimeRibbon build output
 frontend/node_modules/
 frontend/dist/
 frontend/wailsjs/

@@ -17,7 +17,7 @@ const (
 	// deletionShell is the program that waits for setup to close and then deletes.
 	deletionShell = "powershell.exe"
 	// deletionDirVariable carries the folder to delete in that program's environment.
-	deletionDirVariable = "TIMESTRIP_SETUP_DELETE_DIR"
+	deletionDirVariable = "TIMERIBBON_SETUP_DELETE_DIR"
 )
 
 // dirDeletion answers the arguments and the environment entry that make deletionShell wait for pid

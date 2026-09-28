@@ -47,7 +47,7 @@ declare global {
   }
 }
 
-const unreachable = 'TimeStrip is not running behind this page'
+const unreachable = 'TimeRibbon is not running behind this page'
 
 /** call runs one facade call, answering null and telling refused why when it cannot. */
 async function call<T>(run: (bridge: Bridge) => Promise<T>, refused: Refused): Promise<T | null> {

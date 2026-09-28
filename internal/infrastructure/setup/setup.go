@@ -1,4 +1,4 @@
-// Package setup holds the install policy behind TimeStrip's setup program (FR-801 to FR-810):
+// Package setup holds the install policy behind TimeRibbon's setup program (FR-801 to FR-810):
 // what the machine already holds, which conversation setup has with it and what installing,
 // repairing and removing actually do. The setup program's window is a thin shell over it.
 //
@@ -15,7 +15,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/oernster/timestrip/internal/product"
+	"github.com/oernster/timeribbon/internal/product"
 )
 
 const (

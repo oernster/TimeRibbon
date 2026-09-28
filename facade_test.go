@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/oernster/timestrip/internal/application"
-	"github.com/oernster/timestrip/internal/product"
+	"github.com/oernster/timeribbon/internal/application"
+	"github.com/oernster/timeribbon/internal/product"
 )
 
 // Every change the page can make is followed by fitting the strip, whether or not it saved: a

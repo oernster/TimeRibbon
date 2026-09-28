@@ -9,9 +9,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/oernster/timestrip/internal/domain/clock"
-	"github.com/oernster/timestrip/internal/domain/placement"
-	"github.com/oernster/timestrip/internal/domain/settings"
+	"github.com/oernster/timeribbon/internal/domain/clock"
+	"github.com/oernster/timeribbon/internal/domain/placement"
+	"github.com/oernster/timeribbon/internal/domain/settings"
 )
 
 // write puts text in dir's settings file.
@@ -88,7 +88,7 @@ func TestNoDerivedValueIsStored(t *testing.T) {
 // FR-703.
 func TestAbsentFileMeansDefaults(t *testing.T) {
 	t.Parallel()
-	dir := filepath.Join(t.TempDir(), "TimeStrip")
+	dir := filepath.Join(t.TempDir(), "TimeRibbon")
 	loaded, err := New(dir).Load()
 	if err != nil || loaded.Notice != "" || loaded.Settings.Style != settings.Digital || len(loaded.Settings.Clocks) != 0 {
 		t.Errorf("got %+v (%v)", loaded, err)
@@ -266,7 +266,7 @@ func TestAFolderThatCannotBeMadeIsReported(t *testing.T) {
 	if err := os.WriteFile(blocker, nil, fileMode); err != nil {
 		t.Fatal(err)
 	}
-	if err := New(filepath.Join(blocker, "TimeStrip")).Save(settings.Defaults()); err == nil {
+	if err := New(filepath.Join(blocker, "TimeRibbon")).Save(settings.Defaults()); err == nil {
 		t.Error("saving under a file succeeded")
 	}
 }

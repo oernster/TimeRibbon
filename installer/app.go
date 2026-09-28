@@ -7,8 +7,8 @@ import (
 
 	wailsruntime "github.com/wailsapp/wails/v2/pkg/runtime"
 
-	"github.com/oernster/timestrip/internal/infrastructure/setup"
-	"github.com/oernster/timestrip/internal/product"
+	"github.com/oernster/timeribbon/internal/infrastructure/setup"
+	"github.com/oernster/timeribbon/internal/product"
 )
 
 const (
@@ -130,7 +130,7 @@ func (a *App) DetectState() StateDTO {
 	return state
 }
 
-// AppRunning reports whether TimeStrip is open, asked before any file is touched (FR-807).
+// AppRunning reports whether TimeRibbon is open, asked before any file is touched (FR-807).
 func (a *App) AppRunning() bool { return a.processes.Running() }
 
 // CloseRunningApp ends every running copy by image name and waits for them to go (FR-807).
@@ -155,7 +155,7 @@ func (a *App) Repair() error {
 	return a.perform("repair", func() ([]setup.Step, error) { return a.machine.RepairSteps(a.carried) })
 }
 
-// Uninstall removes TimeStrip, forgetting the settings only when asked (FR-806).
+// Uninstall removes TimeRibbon, forgetting the settings only when asked (FR-806).
 func (a *App) Uninstall(forget bool) error {
 	return a.perform("uninstall", func() ([]setup.Step, error) { return a.machine.UninstallSteps(forget), nil })
 }
@@ -181,7 +181,7 @@ func (a *App) perform(name string, steps func() ([]setup.Step, error)) error {
 	return setup.Run(list, a.log, a.progress)
 }
 
-// LaunchApp starts TimeStrip and waits for the strip to come forward, so setup closes behind it.
+// LaunchApp starts TimeRibbon and waits for the strip to come forward, so setup closes behind it.
 func (a *App) LaunchApp() error {
 	a.log.Record("starting " + setup.AppName)
 	err := setup.Launch(a.machine.Places().Program(), product.StripClass, launchWait)

@@ -1,11 +1,11 @@
-# Builds TimeStrip: the application and its setup program.
+# Builds TimeRibbon: the application and its setup program.
 #
 #   ./build.ps1                 build the application and the setup program
 #   ./build.ps1 -SkipInstaller  build only the application
 #
 # Outputs:
-#   build/bin/TimeStrip.exe            the application
-#   dist-installer/TimeStripSetup.exe  the setup program, carrying the application; named by
+#   build/bin/TimeRibbon.exe            the application
+#   dist-installer/TimeRibbonSetup.exe  the setup program, carrying the application; named by
 #                                      outputfilename in installer/wails.json, with no version
 #
 # The version is read from VERSION and stamped into both executables with -ldflags -X, so no

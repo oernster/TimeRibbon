@@ -5,7 +5,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/oernster/timestrip/internal/domain/settings"
+	"github.com/oernster/timeribbon/internal/domain/settings"
 )
 
 // FR-301.

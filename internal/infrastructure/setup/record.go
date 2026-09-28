@@ -7,7 +7,7 @@ import (
 	"golang.org/x/sys/windows/registry"
 )
 
-// uninstallKeyPath is TimeStrip's entry in the per-user Apps list.
+// uninstallKeyPath is TimeRibbon's entry in the per-user Apps list.
 const uninstallKeyPath = `Software\Microsoft\Windows\CurrentVersion\Uninstall\` + InstallFolder
 
 // The Apps list entry's value names.
@@ -39,7 +39,7 @@ type UninstallInfo struct {
 // Record is the Apps list entry: one key under HKCU.
 type Record struct{ key string }
 
-// AppsList answers TimeStrip's entry in the per-user Apps list.
+// AppsList answers TimeRibbon's entry in the per-user Apps list.
 func AppsList() Record { return Record{key: uninstallKeyPath} }
 
 // uninstallValues is the text the entry holds, by value name. The uninstaller path is quoted the

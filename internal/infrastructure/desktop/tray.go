@@ -11,11 +11,11 @@ import (
 
 	"golang.org/x/sys/windows"
 
-	"github.com/oernster/timestrip/internal/application"
-	"github.com/oernster/timestrip/internal/product"
+	"github.com/oernster/timeribbon/internal/application"
+	"github.com/oernster/timeribbon/internal/product"
 )
 
-// className is the hidden window's class, unique to TimeStrip.
+// className is the hidden window's class, unique to TimeRibbon.
 const className = product.Name + "Desktop"
 
 // eventBuffer is how many events may wait unread before the next is dropped rather than block the

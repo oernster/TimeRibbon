@@ -7,7 +7,7 @@ import (
 
 	"golang.org/x/sys/windows"
 
-	"github.com/oernster/timestrip/internal/domain/placement"
+	"github.com/oernster/timeribbon/internal/domain/placement"
 )
 
 // Win32 values the move fence uses.

@@ -10,13 +10,13 @@ import (
 	"github.com/go-ole/go-ole/oleutil"
 	"golang.org/x/sys/windows/registry"
 
-	"github.com/oernster/timestrip/internal/infrastructure/startup"
+	"github.com/oernster/timeribbon/internal/infrastructure/startup"
 )
 
 // carried is a payload holding a program and the licence, with a stand-in for setup itself.
 func carried(t *testing.T) Carried {
 	t.Helper()
-	self := filepath.Join(t.TempDir(), "TimeStripSetup.exe")
+	self := filepath.Join(t.TempDir(), "TimeRibbonSetup.exe")
 	write(t, self, "the setup program")
 	return Carried{Payload: zipOf(t, map[string]string{ExeName: "the program", LicenceFile: "terms"}), Self: self, Version: "0.1.0"}
 }

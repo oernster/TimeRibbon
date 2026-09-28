@@ -1,4 +1,4 @@
-"""Generate TimeStrip's icons from the master artwork in assets/, ported from BridgeTalk's.
+"""Generate TimeRibbon's icons from the master artwork in assets/, ported from BridgeTalk's.
 
 What comes out, every file from one of the masters so the masters stay the one home:
 

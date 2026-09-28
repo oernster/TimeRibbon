@@ -3,8 +3,8 @@ package application
 import (
 	"fmt"
 
-	"github.com/oernster/timestrip/internal/domain/clock"
-	"github.com/oernster/timestrip/internal/domain/settings"
+	"github.com/oernster/timeribbon/internal/domain/clock"
+	"github.com/oernster/timeribbon/internal/domain/settings"
 )
 
 // SetStyle chooses digital or analogue presentation (FR-601 to FR-604).

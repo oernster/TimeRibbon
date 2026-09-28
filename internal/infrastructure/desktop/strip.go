@@ -8,7 +8,7 @@ import (
 
 	"golang.org/x/sys/windows"
 
-	"github.com/oernster/timestrip/internal/domain/placement"
+	"github.com/oernster/timeribbon/internal/domain/placement"
 )
 
 // findAttempts and findPause bound the wait for the strip's window to exist after Wails starts.

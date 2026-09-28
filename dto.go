@@ -5,8 +5,8 @@ package main
 // TypeScript and the marshaller sees only these.
 
 import (
-	"github.com/oernster/timestrip/internal/application"
-	"github.com/oernster/timestrip/internal/domain/placement"
+	"github.com/oernster/timeribbon/internal/application"
+	"github.com/oernster/timeribbon/internal/domain/placement"
 )
 
 // sizeDTO is a width and a height in DIP.

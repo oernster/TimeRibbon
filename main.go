@@ -1,4 +1,4 @@
-// Command TimeStrip shows a strip of clocks, one per chosen place in the world.
+// Command TimeRibbon shows a strip of clocks, one per chosen place in the world.
 //
 // This file is the composition root. It and app.go are the only files permitted to wire concrete
 // infrastructure to the application layer.
@@ -11,17 +11,17 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/oernster/timestrip/internal/application"
-	"github.com/oernster/timestrip/internal/domain/placement"
-	"github.com/oernster/timestrip/internal/infrastructure/appdata"
-	"github.com/oernster/timestrip/internal/infrastructure/desktop"
-	"github.com/oernster/timestrip/internal/infrastructure/monitors"
-	"github.com/oernster/timestrip/internal/infrastructure/runlog"
-	"github.com/oernster/timestrip/internal/infrastructure/startup"
-	"github.com/oernster/timestrip/internal/infrastructure/store"
-	"github.com/oernster/timestrip/internal/infrastructure/system"
-	"github.com/oernster/timestrip/internal/infrastructure/zones"
-	"github.com/oernster/timestrip/internal/product"
+	"github.com/oernster/timeribbon/internal/application"
+	"github.com/oernster/timeribbon/internal/domain/placement"
+	"github.com/oernster/timeribbon/internal/infrastructure/appdata"
+	"github.com/oernster/timeribbon/internal/infrastructure/desktop"
+	"github.com/oernster/timeribbon/internal/infrastructure/monitors"
+	"github.com/oernster/timeribbon/internal/infrastructure/runlog"
+	"github.com/oernster/timeribbon/internal/infrastructure/startup"
+	"github.com/oernster/timeribbon/internal/infrastructure/store"
+	"github.com/oernster/timeribbon/internal/infrastructure/system"
+	"github.com/oernster/timeribbon/internal/infrastructure/zones"
+	"github.com/oernster/timeribbon/internal/product"
 )
 
 // The empty strip's one cell and the padding round the cells, in DIP, the same at either size: the
@@ -83,7 +83,7 @@ func keepLog() io.Writer {
 	return log
 }
 
-// settingsDir answers %APPDATA%\TimeStrip; a folder of the same name in the temporary folder when
+// settingsDir answers %APPDATA%\TimeRibbon; a folder of the same name in the temporary folder when
 // the environment names none, so the strip still opens.
 func settingsDir() (string, error) {
 	dir, err := appdata.Dir(os.LookupEnv)

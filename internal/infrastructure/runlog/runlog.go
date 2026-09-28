@@ -1,5 +1,5 @@
 // Package runlog keeps the log a run leaves (NFR-O-1): a line naming when the run started, then
-// whatever the run reports, in TimeStrip.log inside the settings folder.
+// whatever the run reports, in TimeRibbon.log inside the settings folder.
 //
 // A windowed program is handed a standard error handle of zero, so everything written there is
 // lost, the Go runtime's own panic report included. Keep points the handle and os.Stderr at the log
@@ -16,7 +16,7 @@ import (
 
 	"golang.org/x/sys/windows"
 
-	"github.com/oernster/timestrip/internal/product"
+	"github.com/oernster/timeribbon/internal/product"
 )
 
 // FileName names the log inside the settings folder.

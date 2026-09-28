@@ -6,8 +6,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/oernster/timestrip/internal/domain/clock"
-	"github.com/oernster/timestrip/internal/domain/settings"
+	"github.com/oernster/timeribbon/internal/domain/clock"
+	"github.com/oernster/timeribbon/internal/domain/settings"
 )
 
 // AddClock appends a clock for zone under its default label and answers the new clock's id

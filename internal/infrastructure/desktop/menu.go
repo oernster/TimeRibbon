@@ -4,7 +4,7 @@ import (
 	"sync/atomic"
 	"unsafe"
 
-	"github.com/oernster/timestrip/internal/application"
+	"github.com/oernster/timeribbon/internal/application"
 )
 
 // wmShowMenu asks the desktop's thread to show the menu waiting in pending.

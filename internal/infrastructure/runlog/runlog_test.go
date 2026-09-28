@@ -10,7 +10,7 @@ import (
 
 func TestTheLogIsMadeAndEachRunAddsItsStartLine(t *testing.T) {
 	t.Parallel()
-	dir := filepath.Join(t.TempDir(), "TimeStrip")
+	dir := filepath.Join(t.TempDir(), "TimeRibbon")
 	for _, at := range []time.Time{time.Date(2026, 9, 27, 21, 37, 0, 0, time.UTC), time.Date(2026, 9, 28, 6, 37, 0, 0, time.UTC)} {
 		log, err := Open(dir, at)
 		if err != nil {
@@ -19,7 +19,7 @@ func TestTheLogIsMadeAndEachRunAddsItsStartLine(t *testing.T) {
 		_ = log.Close()
 	}
 	raw, _ := os.ReadFile(filepath.Join(dir, FileName))
-	want := "TimeStrip started 2026-09-27 21:37:00\nTimeStrip started 2026-09-28 06:37:00\n"
+	want := "TimeRibbon started 2026-09-27 21:37:00\nTimeRibbon started 2026-09-28 06:37:00\n"
 	if string(raw) != want {
 		t.Errorf("got %q", raw)
 	}
@@ -37,7 +37,7 @@ func TestALogOverTheLimitIsStartedAfresh(t *testing.T) {
 	}
 	_ = log.Close()
 	raw, _ := os.ReadFile(filepath.Join(dir, FileName))
-	if string(raw) != "TimeStrip started 2026-09-27 00:00:00\n" {
+	if string(raw) != "TimeRibbon started 2026-09-27 00:00:00\n" {
 		t.Errorf("got %d bytes", len(raw))
 	}
 }
@@ -48,7 +48,7 @@ func TestAFolderThatCannotBeMadeIsAnswered(t *testing.T) {
 	if err := os.WriteFile(blocker, nil, fileMode); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := Open(filepath.Join(blocker, "TimeStrip"), time.Now()); err == nil {
+	if _, err := Open(filepath.Join(blocker, "TimeRibbon"), time.Now()); err == nil {
 		t.Error("a log under a file opened")
 	}
 }
@@ -56,7 +56,7 @@ func TestAFolderThatCannotBeMadeIsAnswered(t *testing.T) {
 // NFR-O-1: what is written to standard error after Keep reaches the log. Run in a child process so
 // the test binary's own standard error is left alone.
 func TestLogReceivesStandardError(t *testing.T) {
-	if dir := os.Getenv("TIMESTRIP_RUNLOG_CHILD"); dir != "" {
+	if dir := os.Getenv("TIMERIBBON_RUNLOG_CHILD"); dir != "" {
 		log, err := Open(dir, time.Date(2026, 9, 27, 0, 0, 0, 0, time.UTC))
 		if err != nil {
 			os.Exit(2)

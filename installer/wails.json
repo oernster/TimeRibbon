@@ -1,7 +1,7 @@
 {
   "$schema": "https://wails.io/schemas/config.v2.json",
-  "name": "TimeStripSetup",
-  "outputfilename": "TimeStripSetup",
+  "name": "TimeRibbonSetup",
+  "outputfilename": "TimeRibbonSetup",
   "frontend:install": "cmd /c echo the setup page has no build step",
   "frontend:build": "cmd /c echo the setup page has no build step",
   "author": {

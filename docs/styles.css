@@ -1,4 +1,4 @@
-/* TimeStrip site. Light or dark, following the reader's system as the strip can
+/* TimeRibbon site. Light or dark, following the reader's system as the strip can
    follow Windows. The tokens are the strip's own, from frontend/src/theme.css. */
 
 :root {
@@ -260,7 +260,7 @@ h2 {
 
 .card li strong { color: var(--text); }
 
-/* Downloads: the house card per platform. TimeStrip is Windows only, so there is
+/* Downloads: the house card per platform. TimeRibbon is Windows only, so there is
    one card, centred at a card's width. */
 
 .dl-version {

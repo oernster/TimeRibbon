@@ -10,13 +10,13 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
 
-	"github.com/oernster/timestrip/internal/product"
+	"github.com/oernster/timeribbon/internal/product"
 )
 
 //go:embed all:frontend/dist
 var assets embed.FS
 
-// instanceID names the lock that keeps one TimeStrip per user (FR-506).
+// instanceID names the lock that keeps one TimeRibbon per user (FR-506).
 const instanceID = "uk.codecrafter." + product.Name
 
 // webViewFolder names the web view's own data folder inside the settings folder. Left to Wails, it

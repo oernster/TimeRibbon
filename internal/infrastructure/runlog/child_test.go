@@ -10,6 +10,6 @@ import (
 func testCommand(t *testing.T, dir string) *exec.Cmd {
 	t.Helper()
 	command := exec.Command(os.Args[0], "-test.run=^TestLogReceivesStandardError$")
-	command.Env = append(os.Environ(), "TIMESTRIP_RUNLOG_CHILD="+dir)
+	command.Env = append(os.Environ(), "TIMERIBBON_RUNLOG_CHILD="+dir)
 	return command
 }

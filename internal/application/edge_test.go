@@ -4,8 +4,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/oernster/timestrip/internal/domain/placement"
-	"github.com/oernster/timestrip/internal/domain/settings"
+	"github.com/oernster/timeribbon/internal/domain/placement"
+	"github.com/oernster/timeribbon/internal/domain/settings"
 )
 
 // FR-408: two vertical digital cells, 160 + 16 across and 2 x 90 + 16 = 196 along, put against the

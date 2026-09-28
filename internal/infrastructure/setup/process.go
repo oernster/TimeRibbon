@@ -13,11 +13,11 @@ import (
 	"golang.org/x/sys/windows"
 )
 
-// ErrAppRunning says TimeStrip is open, so nothing that would write over or delete its files may
+// ErrAppRunning says TimeRibbon is open, so nothing that would write over or delete its files may
 // start (FR-807).
 var ErrAppRunning = errors.New(AppName + " is running")
 
-// ErrStillRunning says TimeStrip was asked to close and was still there when the wait ran out.
+// ErrStillRunning says TimeRibbon was asked to close and was still there when the wait ran out.
 var ErrStillRunning = errors.New(AppName + " could not be closed; please close it by hand, then try again")
 
 const (
@@ -40,7 +40,7 @@ type Processes struct {
 	wait time.Duration
 }
 
-// AppProcesses answers the running copies of TimeStrip.
+// AppProcesses answers the running copies of TimeRibbon.
 func AppProcesses() Processes { return Processes{image: ExeName, end: terminate, wait: closeTimeout} }
 
 // Running reports whether any copy is running.

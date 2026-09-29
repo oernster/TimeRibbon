@@ -80,6 +80,11 @@ and Settings. NFR-P-5 and NFR-C-2 measure it; ASM-5 holds the imagery's licence 
 settings file gains the sun map and pull out choices (NFR-C-1 allows the keys). Section 11 records
 the rulings (OQ-13 to OQ-18).
 
+Amendment 21 (Oliver, 2026-09-29): the window holds only what it shows. On Windows, while the sun
+map shows, the window is cut to the ribbon and the map together, so the desktop shows through
+wherever neither is (FR-913). A clock's label on the map moves aside rather than print over another
+label or dot (FR-914). Section 11 records the rulings (OQ-19, OQ-20).
+
 Source: the initial product specification of 2026-09-27, written under the product's former name,
 plus Oliver's rulings of 2026-09-27: the stack is Go with Wails; orientation is a setting offering
 both horizontal and vertical, both in the first release; a setup program ships with the first
@@ -119,7 +124,7 @@ Oliver Ernster as author and decision owner; contributors to the open source pro
 - An unpinned ribbon that waits as a thin tab on the edge it stands against and opens while the
   pointer rests on it (FR-613 to FR-619); a drop near an edge snaps flush (FR-410).
 - An optional world map beside the ribbon, lit by day and dark by night with city lights, each
-  clock's place marked (FR-901 to FR-912).
+  clock's place marked (FR-901 to FR-914).
 - Light, dark and system themes, in ten colour schemes (FR-611).
 - A check for a newer release on GitHub, the application's one network request (FR-509).
 - Local persistence in one human-readable file.
@@ -1264,6 +1269,35 @@ About shall credit the source of each map image with its licence, as it does the
 uses (FR-508).
 Verified by: `TestEveryPlatformCreditsTheMapPictures` (product).
 
+**FR-913 The window is the ribbon and its map**
+Priority: Should.
+On Windows, while the sun map shows, the application shall limit its window to the ribbon and the
+map together, so that wherever the window's rectangle holds neither, the desktop shows and a click
+reaches what lies behind. Whenever the window changes size or the map stops showing, the application
+shall fit that limit again; without the map the window is its whole rectangle. On macOS and Linux
+the window stays a rectangle.
+Rationale: Oliver, 2026-09-29: the rectangle round a pull out (as round a map longer than a short
+ribbon) covered the desktop with dark bands (OQ-19). Measured the same day: `SetWindowRgn` on the
+dev build's window left the desktop showing where it was cut away; the cut held after a repaint.
+Acceptance: given a vertical ribbon 708 DIP long flush against the right edge with the pull out open
+and its map 708 by 354 DIP, then the desktop shows above and below the map and a click there reaches
+the window behind; when the pull out closes, then the window is the ribbon alone.
+Verified by: `TestTheShapeIsTheRibbonAndItsMap` (domain, placement); `TestTheShapeFollowsEveryRefit`
+(facade); check M-15.
+
+**FR-914 Labels stand clear**
+Priority: Should.
+The application shall place each clock's label on the sun map, in clock order, at the first of these
+spots beside its dot that lies wholly inside the map and overlaps no dot and no label already
+placed: right, left, below, above. If none does, then the application shall place it to the right.
+Rationale: Oliver, 2026-09-29: move the later label rather than hide either (OQ-20); London and
+Berlin are 9 degrees apart and their labels printed over each other. The order of the spots is
+Claude's proposal: right is where every label stands today.
+Acceptance: given clocks for London and Berlin in that order on a map 708 DIP wide, then London's
+label stands left of its dot, clear of Berlin's dot; Berlin's stands right of its own; neither
+touches the other.
+Verified by: `labels.test.ts`; check M-15.
+
 ---
 
 ## 4. Documents
@@ -1418,6 +1452,8 @@ proposed before the first build had one `internal/infrastructure/windows` packag
 | Sun map while collapsed, hidden or showing a panel | FR-910: not shown |
 | Sun map with no network | FR-911: nothing is fetched |
 | Sun map with the time changed or after a resume | FR-907: redrawn with the new snapshot |
+| Sun map shorter or longer than the ribbon | FR-913: on Windows the window is cut to the two; elsewhere it stays a rectangle |
+| Two clocks in nearby cities | FR-914: the later label moves aside; with no clear spot it stands right |
 | Sun map from the keyboard | `Sun map` is in both menus (FR-901); the pull out's handle is reached by the pointer only, as the ribbon's cells are |
 | Unpinned ribbon covered by other windows | FR-617 |
 | A panel or a menu open while unpinned | FR-616: neither collapses |
@@ -1449,7 +1485,7 @@ recover, snapshot) is executable from a Go test with no window open before the f
 | Priority | Content |
 |---|---|
 | **Must** | FR-101 to FR-107, FR-201 to FR-209, FR-301 to FR-305, FR-401 to FR-409, FR-501, FR-502, FR-504 to FR-508, FR-601 to FR-604, FR-607 to FR-610, FR-701 to FR-707, FR-801 to FR-811, NFR-P-1 to NFR-P-4, NFR-U-1 to NFR-U-5, NFR-S-1 to NFR-S-3, NFR-M-1, NFR-M-2, NFR-C-1, NFR-O-1 |
-| **Should** | FR-108, FR-307, FR-410, FR-411, FR-503, FR-509, FR-605, FR-606, FR-611 to FR-619, FR-901 to FR-912, NFR-P-5, NFR-C-2 |
+| **Should** | FR-108, FR-307, FR-410, FR-411, FR-503, FR-509, FR-605, FR-606, FR-611 to FR-619, FR-901 to FR-914, NFR-P-5, NFR-C-2 |
 | **Could** | FR-308 |
 | **Withdrawn** | FR-306 (Amendment 6) |
 | **Won't this time** | Everything in the out-of-scope table of section 1.3 |
@@ -1487,7 +1523,8 @@ implementation; where no test can hold it, its `Verified by:` line names the che
 
 There are no open questions. The five raised while drafting were ruled by Oliver on 2026-09-27;
 the four raised by Amendment 18 on 2026-09-28; the three raised by Amendment 19 on 2026-09-29, when
-OQ-6 was also reversed; the six raised by Amendment 20 the same day:
+OQ-6 was also reversed; the six raised by Amendment 20 the same day; the two raised by
+Amendment 21 the same day:
 
 | ID | Question | Ruling | Now held by |
 |---|---|---|---|
@@ -1509,6 +1546,8 @@ OQ-6 was also reversed; the six raised by Amendment 20 the same day:
 | OQ-16 | What does the map look like? | Photographic, with city lights at night | FR-905, ASM-5 |
 | OQ-17 | Where is a clock's place marked? | At its zone's city, in red with its label | FR-908 |
 | OQ-18 | What does the map do while the ribbon is its tab? | Hides with it | FR-910 |
+| OQ-19 | What covers the desktop beside a map shorter or longer than the ribbon? | Nothing: on Windows the window is cut to ribbon and map | FR-913 |
+| OQ-20 | What happens when two labels on the map collide? | The later one moves aside; every label stays | FR-914 |
 
 ---
 
@@ -1534,4 +1573,4 @@ is installing and removing the DMG on macOS and the Flatpak on Linux.
 | M-12 | Each Position item puts the ribbon flush against its edge and centred along it on the display it is on; it opens there next time; choosing Horizontal or Vertical from either menu sends it to the top or right edge; small clocks show their whole date and time in both styles; the Settings title and Close stay put while the panel scrolls; each colour scheme looks right and unmistakably its own in Light, Dark and System, Neon glowing on its dark side only; every date format shows its whole date in large and small cells, a Wednesday in September the widest. |
 | M-13 | Help's Check for updates says this is the latest version with the network on and that GitHub could not be reached with it off; a build older than the latest release shows the update panel a few seconds after it starts; Download opens this platform's download in the browser; after Skip this version the next start shows nothing; the Flatpak build reaches GitHub too. |
 | M-14 | Unticking Pin ribbon in either menu shrinks the ribbon to an accent tab on the edge it stands against a second after the pointer leaves (a ribbon away from every edge first moves to the edge last used); dragged away from every edge it stays in full with Pin ribbon still unticked; dropped within 16 DIP of an edge (an edge between two displays included) it snaps flush and collapses again; resting the pointer on the tab for 0.3 s opens it while the window being typed in keeps focus, with no flash of a close button, a stretched band or white as it grows; crossing the tab quickly does not; the tab stays above a maximised window with Always on top off; a Stream Deck press hides the tab and the next brings it back; ticking Pin ribbon ends all of it. |
-| M-15 | Ticking Sun map in either menu shows the map below a horizontal ribbon at the top edge and above one at the bottom, as long as the ribbon, lit where it is day with city lights where it is night; each clock's city is a red dot beside its label; a vertical ribbon shows a handle whose click slides the map out beside it and back, kept across a restart; dragging the map moves both; the map hides with the tab and returns with the ribbon; after a minute the line between day and night has moved. |
+| M-15 | Ticking Sun map in either menu shows the map below a horizontal ribbon at the top edge and above one at the bottom, as long as the ribbon, lit where it is day with city lights where it is night; each clock's city is a red dot beside its label; a vertical ribbon shows a handle whose click slides the map out beside it and back, kept across a restart; dragging the map moves both; the map hides with the tab and returns with the ribbon; after a minute the line between day and night has moved; on Windows the desktop shows (and takes clicks) wherever the window holds neither ribbon nor map; no label on the map prints over another label or a dot. |

@@ -122,6 +122,9 @@ type Settings struct {
 	PullOut bool
 	// Opacity is how opaque the window is drawn, in percent, from MinOpacity to MaxOpacity (FR-622).
 	Opacity int
+	// Scale is how large the clocks are drawn on top of their size, in percent, from MinScale to
+	// MaxScale (FR-623).
+	Scale int
 	// LastEdge is the edge the ribbon last stood flush against, which unpinning away from every edge
 	// returns it to (FR-411, FR-613); nil until it has stood against one.
 	LastEdge *placement.Against
@@ -143,8 +146,19 @@ func Defaults() Settings {
 		Theme:       System,
 		Pinned:      true,
 		Opacity:     MaxOpacity,
+		Scale:       WholeScale,
 	}
 }
+
+// The scale the clocks may be drawn at on top of their size, in percent (FR-623). At MinScale a
+// small clock's 11 px text draws at about 8 px, the least that stays readable; at MaxScale the
+// thickest ribbon, large analogue standing vertical with the sun map's lane, is 408 DIP across,
+// which a 720 line display still holds. WholeScale draws each size as it is.
+const (
+	MinScale   = 75
+	WholeScale = 100
+	MaxScale   = 200
+)
 
 // The opacity a window may be drawn at, in percent (FR-622): wholly opaque at most; at least faint
 // enough to see through while never so faint the ribbon cannot be seen or found again (Oliver,
@@ -190,6 +204,7 @@ func (s Settings) Normalised() Settings {
 		s.Theme = defaults.Theme
 	}
 	s.Opacity = min(max(s.Opacity, MinOpacity), MaxOpacity)
+	s.Scale = min(max(s.Scale, MinScale), MaxScale)
 	if s.LastEdge != nil && !slices.Contains(edges, s.LastEdge.Edge) {
 		s.LastEdge = nil
 	}

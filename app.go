@@ -62,6 +62,8 @@ type ribbonService interface {
 	DismissNotices()
 	SetScrollbar(dip int) error
 	SetOpacity(percent int) error
+	PreviewScale(percent int) error
+	SetScale(percent int) error
 	TextSamples() (times, dates []string)
 	SetMeasured(measured application.Measured) error
 	SetPixelsPerDIP(scale float64) error

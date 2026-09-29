@@ -28,6 +28,8 @@ func TestEveryChangeFitsTheRibbonAndAnswersTheServicesError(t *testing.T) {
 		"SetAlwaysOnTop":  func(app *App) error { return app.SetAlwaysOnTop(true) },
 		"SetScrollbar":    func(app *App) error { return app.SetScrollbar(12) },
 		"SetMeasured":     func(app *App) error { return app.SetMeasured(measuredDTO{CellWidth: 180}) },
+		"PreviewScale":    func(app *App) error { return app.PreviewScale(150) },
+		"SetScale":        func(app *App) error { return app.SetScale(150) },
 		"SetPixelsPerDIP": func(app *App) error { return app.SetPixelRatio(1.25) },
 		"DismissNotices":  func(app *App) error { app.DismissNotices(); return nil },
 	}

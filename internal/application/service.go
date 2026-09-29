@@ -75,6 +75,9 @@ type Service struct {
 	// measured is the cell width the page last measured its widest time and date to need, with the
 	// choices it was measured for; the zero value, before it says, widens nothing (FR-620).
 	measured Measured
+	// previewScale is the scale the ribbon is drawn at while its grip is dragged, kept nowhere; zero
+	// while no drag is under way (FR-623).
+	previewScale int
 	// pixelsPerDIP is the scale the page is really drawn at, in window pixels to each DIP, as the
 	// page reported it; zero until it says, when the display's DPI stands in for it.
 	pixelsPerDIP float64

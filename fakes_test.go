@@ -137,6 +137,10 @@ func (s *scriptedService) DismissNotices() { s.record("DismissNotices") }
 
 func (s *scriptedService) SetScrollbar(int) error { return s.change("SetScrollbar") }
 
+func (s *scriptedService) PreviewScale(int) error { return s.change("PreviewScale") }
+
+func (s *scriptedService) SetScale(int) error { return s.change("SetScale") }
+
 func (s *scriptedService) SetOpacity(percent int) error {
 	err := s.change("SetOpacity")
 	if err == nil {

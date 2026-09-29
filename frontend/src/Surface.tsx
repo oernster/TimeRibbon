@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react'
 import { api, type Box, type Refused, type Snapshot } from './api'
+import { percentOfWhole } from './opacity'
 import { Ribbon } from './Ribbon'
 import { SunMap } from './SunMap'
 
@@ -63,7 +64,9 @@ export function Surface({ snapshot, onAddClock, refused }: Props) {
   const place = (box: Box): Placed => ({ left: box.x * scale, top: box.y * scale, width: box.width * scale, height: box.height * scale })
   const ribbon = place(map.ribbon)
   const arrow = arrows[map.side]
-  const lane = { '--handle-width': `${snapshot.layout.handleLane}px` } as CSSProperties
+  // The handle stands in the lane, which is drawn at the ribbon's scale (FR-623).
+  const drawnAt = snapshot.scale / percentOfWhole
+  const lane = { '--handle-width': `${snapshot.layout.handleLane * drawnAt}px`, '--scale': drawnAt } as CSSProperties
   return (
     <div className="surface" style={lane}>
       <div className="surface-part" style={ribbon}>

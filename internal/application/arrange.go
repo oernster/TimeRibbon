@@ -260,6 +260,8 @@ type content struct {
 	pixelsPerDIP float64
 	// layout is the cells' layout, widened to the measured text where it applies (FR-620).
 	layout Layout
+	// scale is the percent the ribbon is drawn at on top of its size (FR-623).
+	scale int
 }
 
 func (s *Service) ribbonContent() content {
@@ -272,6 +274,7 @@ func (s *Service) ribbonContent() content {
 		scrollbar:    s.scrollbar,
 		pixelsPerDIP: s.pixelsPerDIP,
 		layout:       s.layoutFor(current),
+		scale:        s.scaleOf(current),
 	}
 }
 
@@ -279,7 +282,10 @@ func (s *Service) ribbonContent() content {
 // notices included, fitted along the orientation within the work area; one cell plus padding
 // across it, plus the scroll bar's thickness when the cells scroll, so the bar never covers them,
 // plus the handle's lane while the sun map is on, so the handle never covers them either (FR-903).
-// It answers the length along the orientation in DIP too, which a move between scalings keeps.
+// All but the scroll bar are drawn at the chosen scale, so each DIP of them takes scale percent of
+// the pixels it otherwise would; the bar is the web engine's own and keeps its thickness (FR-623).
+// It answers the length along the orientation in DIP too, scaled, which a move between scalings
+// keeps and a change of scale re-centres by.
 func (s *Service) ribbonSize(content content, monitor placement.Monitor) (placement.Size, bool, int) {
 	current := content.settings
 	layout := content.layout
@@ -297,21 +303,23 @@ func (s *Service) ribbonSize(content content, monitor placement.Monitor) (placem
 		room = monitor.Work.Height()
 	}
 	perDIP := sizingScale(content.pixelsPerDIP, monitor)
-	available := placement.DIPOf(room, perDIP)
+	scaled := perDIP * float64(content.scale) / settings.WholeScale
+	available := placement.DIPOf(room, scaled)
 	fitted := placement.Fit(content.cells, along, layout.Padding, available)
 	thickness := across + 2*layout.Padding
-	if fitted.Scrolls {
-		thickness += content.scrollbar
-	}
 	if current.SunMap {
 		thickness += layout.HandleLane
 	}
-	length := placement.PixelsOf(fitted.Length, perDIP)
-	breadth := placement.PixelsOf(thickness, perDIP)
-	if current.Orientation == settings.Vertical {
-		return placement.Size{Width: breadth, Height: length}, fitted.Scrolls, fitted.Length
+	length := placement.PixelsOf(fitted.Length, scaled)
+	breadth := placement.PixelsOf(thickness, scaled)
+	if fitted.Scrolls {
+		breadth += placement.PixelsOf(content.scrollbar, perDIP)
 	}
-	return placement.Size{Width: length, Height: breadth}, fitted.Scrolls, fitted.Length
+	lengthDIP := fitted.Length * content.scale / settings.WholeScale
+	if current.Orientation == settings.Vertical {
+		return placement.Size{Width: breadth, Height: length}, fitted.Scrolls, lengthDIP
+	}
+	return placement.Size{Width: length, Height: breadth}, fitted.Scrolls, lengthDIP
 }
 
 // storedOrPrimary answers the stored monitor where it is present; else the primary.

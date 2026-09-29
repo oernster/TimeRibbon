@@ -113,6 +113,12 @@ map and Settings itself. 20 percent is the least, so the ribbon can always be se
 (FR-622). The settings file gains the `opacity` key (NFR-C-1 allows it). Section 11 records the
 ruling (OQ-26).
 
+Amendment 27 (Oliver, 2026-09-29): the clocks can be resized by hand. A grip in the ribbon's corner
+draws everything in the clocks larger or smaller together, text, dials, padding and cells alike, on
+top of Large or Small; no free window resizing, so no shape the layout was not made for. The bounds
+are the application's own rather than the user's (FR-623). The settings file gains the `scale` key
+(NFR-C-1 allows it). Section 11 records the rulings (OQ-27, OQ-28).
+
 Source: the initial product specification of 2026-09-27, written under the product's former name,
 plus Oliver's rulings of 2026-09-27: the stack is Go with Wails; orientation is a setting offering
 both horizontal and vertical, both in the first release; a setup program ships with the first
@@ -1135,6 +1141,30 @@ Verified by: `TestOpacityIsHeldWithinItsBounds` (domain); `TestOpacityIsChosenSa
 `TestTheWindowIsPaintedClearBelowFullOpacity` (facade); `opacity.test.tsx`, `background.test.ts`;
 check M-16.
 
+**FR-623 Resizing the clocks**
+Priority: Should (Amendment 27, Oliver, 2026-09-29).
+The ribbon shall carry a grip in its corner. Dragging it across the ribbon (outward to grow, back
+to shrink) shall draw everything in the clocks at a scale from 75 to 200 percent of the chosen
+size, text, dials, padding, cells and the pull out's handle alike, with the window following while
+the grip moves; the scale is saved in the settings file once the grip is let go, 100 percent when
+the file holds none. Double-clicking the grip returns the clocks to 100 percent. The scale applies
+on top of Large or Small, whichever is chosen; choosing the other keeps it. A ribbon whose length
+changes with the scale is centred along it again (FR-104). The scroll bar keeps its own thickness.
+The grip is a control, so pressing it starts no drag of the window (FR-402).
+Rationale: Oliver, 2026-09-29: "make my clocks this big", not "solve your layout"; a scale keeps
+every clock's shape (OQ-27). 75 percent draws a small clock's 11 px text at about 8 px, the least
+that stays readable; at 200 percent the thickest ribbon is 408 DIP across, which a 720 line display
+still holds (OQ-28).
+Acceptance: given five large digital clocks at 100 percent, when the grip is dragged until the
+scale reads 150 percent and let go, then each cell is 264 by 138 DIP with its text whole, the
+settings file holds `"scale": 150` and a restart keeps it; when Small is then chosen, then the small
+cells are drawn at 150 percent; when the grip is double-clicked, then the clocks are drawn at their
+own size again.
+Verified by: `TestScaleIsHeldWithinItsBounds` (domain); `TestAScaledRibbonGrowsInBothDirections`,
+`TestAPreviewIsDrawnButNotKept`, `TestAChangeOfScaleRecentresTheRibbon`, `TestTheScrollBarIsNotScaled`
+(application); `TestSettingsRoundTrip` (infrastructure, store); `TestAChangeOfScaleTellsThePageToDrawAgain`,
+`TestEveryChangeFitsTheRibbonAndAnswersTheServicesError` (facade); `scaleGrip.test.tsx`; check M-17.
+
 ### 3.7 Persistence and recovery
 
 **FR-701 Settings file**
@@ -1584,7 +1614,7 @@ recover, snapshot) is executable from a Go test with no window open before the f
 | Priority | Content |
 |---|---|
 | **Must** | FR-101 to FR-107, FR-201 to FR-209, FR-301 to FR-305, FR-401 to FR-409, FR-501, FR-502, FR-504 to FR-508, FR-601 to FR-604, FR-607 to FR-610, FR-620, FR-701 to FR-707, FR-801 to FR-811, NFR-P-1 to NFR-P-4, NFR-U-1 to NFR-U-5, NFR-S-1 to NFR-S-3, NFR-M-1, NFR-M-2, NFR-C-1, NFR-O-1 |
-| **Should** | FR-108, FR-307, FR-410, FR-411, FR-503, FR-509, FR-605, FR-606, FR-611 to FR-619, FR-621, FR-622, FR-901 to FR-914, NFR-P-5, NFR-C-2 |
+| **Should** | FR-108, FR-307, FR-410, FR-411, FR-503, FR-509, FR-605, FR-606, FR-611 to FR-619, FR-621 to FR-623, FR-901 to FR-914, NFR-P-5, NFR-C-2 |
 | **Could** | FR-308 |
 | **Withdrawn** | FR-306 (Amendment 6) |
 | **Won't this time** | Everything in the out-of-scope table of section 1.3 |
@@ -1625,7 +1655,8 @@ the four raised by Amendment 18 on 2026-09-28; the three raised by Amendment 19 
 OQ-6 was also reversed; the six raised by Amendment 20 the same day; the two raised by
 Amendment 21 the same day; the two raised by Amendment 22 the same day; the one raised by
 Amendment 23 the same day; the one raised by Amendment 24 the same day; the one raised by
-Amendment 25 the same day; the one raised by Amendment 26 the same day:
+Amendment 25 the same day; the one raised by Amendment 26 the same day; the two raised by
+Amendment 27 the same day:
 
 | ID | Question | Ruling | Now held by |
 |---|---|---|---|
@@ -1655,6 +1686,8 @@ Amendment 25 the same day; the one raised by Amendment 26 the same day:
 | OQ-24 | What decides how wide a cell is? | Its widest time and date as the page draws them, never less than the size's own width | FR-610, FR-620 |
 | OQ-25 | How tall is Settings? | As tall as its content, capped by the display's work area | FR-621 |
 | OQ-26 | How faint may the window be drawn? | 20 percent at least, so it can always be seen and found | FR-622 |
+| OQ-27 | How are the clocks resized by hand? | A grip in the ribbon's corner scales everything in them together, on top of Large or Small | FR-623 |
+| OQ-28 | Who sets the bounds of that scale? | The application: 75 to 200 percent, readable at the least and held by a 720 line display at the most | FR-623 |
 
 ---
 
@@ -1682,3 +1715,4 @@ is installing and removing the DMG on macOS and the Flatpak on Linux.
 | M-14 | Unticking Pin ribbon in either menu shrinks the ribbon to an accent tab on the edge it stands against a second after the pointer leaves (a ribbon away from every edge first moves to the edge last used); dragged away from every edge it stays in full with Pin ribbon still unticked; dropped within 16 DIP of an edge (an edge between two displays included) it snaps flush and collapses again; resting the pointer on the tab for 0.3 s opens it while the window being typed in keeps focus, with no flash of a close button, a stretched band or white as it grows; crossing the tab quickly does not; the tab stays above a maximised window with Always on top off; a Stream Deck press hides the tab and the next brings it back; ticking Pin ribbon ends all of it. |
 | M-15 | Ticking Sun map in either menu shows a handle with an arrow on the ribbon's inner side, horizontal and vertical alike, covering no part of any clock with an odd number of clocks at either size; its click slides the map out (below a horizontal ribbon at the top edge, above one at the bottom, beside a vertical one) and back, kept across a restart; the map is as long as the ribbon, lit where it is day with city lights where it is night; each clock's city is a red dot beside its label; dragging the map moves both; the map hides with the tab and returns with the ribbon; after a minute the line between day and night has moved; on Windows the desktop shows (and takes clicks) wherever the window holds neither ribbon nor map; no label on the map prints over another label or a dot. |
 | M-16 | Settings' Opacity slider runs from 20 to 100 percent; dragging it fades the ribbon, the sun map and Settings itself as it moves, the desktop and the windows behind showing through; at 100 percent the window looks as it did before; the choice is kept across a restart; each colour scheme reads in Light and Dark at 20 percent. Made on Windows, macOS and Linux, since each draws a see-through window its own way. |
+| M-17 | Dragging the grip in the ribbon's corner outward grows the clocks and back shrinks them, text, dials and padding together, the window following smoothly in both orientations and with the sun map on; it stops at 75 and 200 percent; pressing the grip never drags the window; the size is kept across a restart and over a change between Large and Small; a double-click returns the clocks to their own size; a scrolling ribbon's bar never covers the cells. Made on Windows, macOS and Linux. |

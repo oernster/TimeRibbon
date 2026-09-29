@@ -89,7 +89,8 @@ in a small frameless ribbon you can put anywhere on any monitor.
   the menus; size, time format, date format, theme and opacity are in Settings. Small clocks suit a
   small screen such as a 13 inch laptop. The theme can follow the system's. The Opacity slider draws
   the whole window from 20 to 100 percent opaque, so the ribbon can sit over other work without
-  hiding it.
+  hiding it. The grip in the ribbon's corner resizes the clocks by hand, from 75 to 200 percent of
+  either size, everything in them together; a double-click on it returns them to their own size.
 - **Keeps your clocks in one readable file,** `settings.json`, written whole or not at all (where
   it lives is in [Your settings](#your-settings)). A damaged file is kept aside under another name
   and never overwritten; a notice on the ribbon says so. A save that fails keeps the change in

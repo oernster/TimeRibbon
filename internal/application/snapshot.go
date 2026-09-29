@@ -47,7 +47,11 @@ type Snapshot struct {
 	// page's control offers no value the setting would refuse (FR-622).
 	Opacity    int
 	MinOpacity int
-	Layout     Layout
+	// Scale is the percent the ribbon is drawn at on top of its size, a preview's while its grip is
+	// dragged; MinScale and MaxScale bound it (FR-623).
+	Scale              int
+	MinScale, MaxScale int
+	Layout             Layout
 	// Now is the instant the snapshot was taken at.
 	Now time.Time
 	// NextRefresh is the minute boundary to take the next snapshot at (FR-208).
@@ -122,6 +126,9 @@ func (s *Service) Snapshot() Snapshot {
 		AlwaysOnTop: current.AlwaysOnTop,
 		Opacity:     current.Opacity,
 		MinOpacity:  settings.MinOpacity,
+		Scale:       s.scaleOf(current),
+		MinScale:    settings.MinScale,
+		MaxScale:    settings.MaxScale,
 		Layout:      s.layoutFor(current),
 		Now:         now,
 		NextRefresh: clock.NextRefresh(now),

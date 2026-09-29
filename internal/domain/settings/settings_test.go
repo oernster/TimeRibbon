@@ -52,6 +52,19 @@ func TestOpacityIsHeldWithinItsBounds(t *testing.T) {
 	}
 }
 
+// FR-623: a first run draws each size as it is; a scale outside the bounds is brought to the nearer.
+func TestScaleIsHeldWithinItsBounds(t *testing.T) {
+	t.Parallel()
+	if got := Defaults().Scale; got != WholeScale {
+		t.Errorf("a first run is scaled %d percent", got)
+	}
+	for stored, want := range map[int]int{0: MinScale, MinScale - 1: MinScale, 150: 150, MaxScale + 1: MaxScale} {
+		if got := (Settings{Scale: stored}).Normalised().Scale; got != want {
+			t.Errorf("%d normalised to %d, want %d", stored, got, want)
+		}
+	}
+}
+
 // FR-617, FR-619: a ribbon unpinned in effect (unpinned and flush) stays on top whatever Always on
 // top holds; for one pinned (or unpinned away from every edge) Always on top decides.
 func TestAnUnpinnedRibbonIsAlwaysOnTop(t *testing.T) {

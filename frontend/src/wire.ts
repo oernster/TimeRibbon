@@ -54,6 +54,10 @@ export interface Snapshot {
   /** How opaque the window is drawn in percent; minOpacity the least it may be (FR-622). */
   opacity: number
   minOpacity: number
+  /** The percent the ribbon is drawn at on top of its size; minScale and maxScale bound it (FR-623). */
+  scale: number
+  minScale: number
+  maxScale: number
   layout: Layout
   refreshInMs: number
   notices: string[]

@@ -28,6 +28,8 @@ interface Bridge {
   DismissNotices(): Promise<void>
   SetScrollbar(dip: number): Promise<void>
   SetOpacity(percent: number): Promise<void>
+  PreviewScale(percent: number): Promise<void>
+  SetScale(percent: number): Promise<void>
   TextSamples(): Promise<TextSamples>
   SetMeasured(measured: Measured): Promise<void>
   SetPixelRatio(ratio: number): Promise<void>
@@ -93,6 +95,8 @@ export const api = {
   dismissNotices: (refused: Refused) => call((b) => b.DismissNotices(), refused),
   setScrollbar: (dip: number, refused: Refused) => call((b) => b.SetScrollbar(dip), refused),
   setOpacity: (percent: number, refused: Refused) => call((b) => b.SetOpacity(percent), refused),
+  previewScale: (percent: number, refused: Refused) => call((b) => b.PreviewScale(percent), refused),
+  setScale: (percent: number, refused: Refused) => call((b) => b.SetScale(percent), refused),
   textSamples: (refused: Refused) => call((b) => b.TextSamples(), refused),
   setMeasured: (measured: Measured, refused: Refused) => call((b) => b.SetMeasured(measured), refused),
   setPixelRatio: (ratio: number, refused: Refused) => call((b) => b.SetPixelRatio(ratio), refused),

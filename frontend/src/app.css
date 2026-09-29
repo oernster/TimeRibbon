@@ -18,8 +18,28 @@ body {
 }
 
 #root {
+  position: relative;
   background: var(--surface);
   opacity: var(--window-opacity, 1);
+}
+
+/* The ribbon's corner grip (FR-623): a small triangle in the corner of the ribbon, faint until the
+   pointer is on it. It is not drawn at the ribbon's scale, so it is the same size to grab at any. */
+.scale-grip {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: var(--grip-size);
+  height: var(--grip-size);
+  cursor: nwse-resize;
+  touch-action: none;
+  opacity: 0.5;
+  background: linear-gradient(135deg, transparent 50%, var(--text-muted) 50%);
+  --grip-size: 12px;
+}
+
+.scale-grip:hover {
+  opacity: 1;
 }
 
 button {
@@ -214,7 +234,7 @@ button:focus-visible {
   height: 100%;
   --mark-size: 8px;
   --mark-gap: 4px;
-  --handle-height: 48px;
+  --handle-height: calc(48px * var(--scale, 1));
 }
 
 .surface-part {
@@ -296,7 +316,7 @@ button:focus-visible {
   min-height: 0;
   padding: 0;
   transform: translateY(-50%);
-  font-size: 10px;
+  font-size: calc(10px * var(--scale, 1));
 }
 
 .pull-out-handle.right {

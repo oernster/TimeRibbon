@@ -4,6 +4,8 @@ import { ArtButton, addClockTip } from './ArtButton'
 import addClockArt from './assets/add-clock.png'
 import { Cell } from './Cell'
 import { showsTheMenu, useDrag } from './drag'
+import { percentOfWhole } from './opacity'
+import { ScaleGrip } from './ScaleGrip'
 
 interface Props {
   snapshot: Snapshot
@@ -25,6 +27,10 @@ export function Ribbon({ snapshot, onAddClock, refused }: Props) {
     '--cell-h': `${cell.height}px`,
     '--pad': `${snapshot.layout.padding}px`,
     '--lane': `${snapshot.layout.handleLane}px`,
+    // Everything in the clocks is drawn at the chosen scale together: text, dials, padding and
+    // cells. Zoom leaves the ribbon's own 100 percent size alone, so it still fills its window,
+    // which Go has sized at the same scale (FR-623; measured in Edge's engine, 2026-09-29).
+    zoom: snapshot.scale / percentOfWhole,
   } as CSSProperties
   // While the sun map is on, the pull out's handle stands in a lane of its own along the side the map
   // adjoins, which Go has already made the ribbon deep enough to hold (FR-903).
@@ -59,6 +65,7 @@ export function Ribbon({ snapshot, onAddClock, refused }: Props) {
 
   const classes = ['ribbon', vertical ? 'vertical' : 'horizontal', snapshot.size, snapshot.scrolls ? 'scrolls' : '', lane].join(' ')
   return (
+    <>
     <div
       className={classes}
       style={sizing}
@@ -84,5 +91,7 @@ export function Ribbon({ snapshot, onAddClock, refused }: Props) {
         <Cell key={each.id} cell={each} analogue={analogue} />
       ))}
     </div>
+    <ScaleGrip snapshot={snapshot} refused={refused} />
+    </>
   )
 }

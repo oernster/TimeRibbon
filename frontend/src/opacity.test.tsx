@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { installBridge, snapshot } from './fakeBridge'
 import { opacityProperty, percentOfWhole, showOpacity } from './opacity'
@@ -29,7 +29,7 @@ describe('opacity (FR-622)', () => {
     expect(document.documentElement.style.getPropertyValue(opacityProperty)).toBe('0.55')
     expect(bridge.SetOpacity).not.toHaveBeenCalled()
     fireEvent.pointerUp(slider)
-    await vi.waitFor(() => expect(then).toHaveBeenCalledOnce())
+    await waitFor(() => expect(then).toHaveBeenCalledOnce())
     expect(bridge.SetOpacity).toHaveBeenCalledOnce()
     expect(bridge.SetOpacity).toHaveBeenCalledWith(55)
   })

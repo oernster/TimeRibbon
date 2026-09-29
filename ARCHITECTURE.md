@@ -204,6 +204,16 @@ are clear. The window's own paint shows behind any part of the page drawn less t
 size then shows that colour rather than white) and clear below it. The Settings slider previews by
 setting `--window-opacity` while it moves and saves once it is let go.
 
+**Scale (FR-623).** A size's layout stays in unscaled DIP everywhere Go keeps it, the measured cell
+widths included. `ribbonSize` alone applies the scale, by giving each unscaled DIP scale percent of
+the pixels it otherwise takes; only the scroll bar is added after, since zoom leaves the web
+engine's bar at its own thickness (measured in Edge's engine, 2026-09-29). The page draws the
+ribbon at its unscaled sizes under CSS `zoom`, which multiplies every length inside while the
+ribbon's own 100 percent box still fills the window; `Surface` sizes the pull out's handle by the
+same scale. The corner grip (`ScaleGrip.tsx`) sends `PreviewScale` while it moves, held in memory
+and never saved, then `SetScale` once let go; each refits the window and tells the page to draw
+again, since the page cannot reload in the middle of a drag.
+
 The window opens hidden. `startup` finds it, takes it off the taskbar, fences its moves and places
 it, all before the page is shown, so it never appears blank or in the wrong place. On Windows it is
 found by the class `TimeRibbonWindow`; Wails always marks its window as an application window, which

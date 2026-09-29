@@ -1,6 +1,8 @@
 package main
 
 import (
+	"slices"
+	"strings"
 	"testing"
 
 	"github.com/oernster/timeribbon/internal/application"
@@ -70,13 +72,82 @@ func TestTheMapHidesWithTheTab(t *testing.T) {
 	}
 }
 
+// FR-913: every placing of the window is cut first, to the ribbon and its map while the map shows and
+// to the whole window otherwise: no map, the tab, a panel. A cut that fails still places the window.
+func TestTheShapeFollowsEveryRefit(t *testing.T) {
+	t.Parallel()
+	app, service, seen, log := newTestApp(t)
+	service.arrangement = withMap
+	app.place = func(at placement.Point, size placement.Size) error {
+		if len(seen.shapes) != len(seen.placed)+1 {
+			t.Errorf("placed after %d cuts, want the cut first", len(seen.shapes))
+		}
+		seen.placed = append(seen.placed, application.Arrangement{At: at, Size: size})
+		return nil
+	}
+	lastShape := func() []placement.Rect { return seen.shapes[len(seen.shapes)-1] }
+	whole := func(size placement.Size) []placement.Rect {
+		return []placement.Rect{{Right: size.Width, Bottom: size.Height}}
+	}
+	if err := app.placeLaunched(); err != nil {
+		t.Fatal(err)
+	}
+	ribbon := placement.Rect{Left: 90, Top: 0, Right: 390, Bottom: 90}
+	sunMap := placement.Rect{Left: 0, Top: 90, Right: 480, Bottom: 330}
+	if got := lastShape(); len(got) != 2 || got[0] != ribbon || got[1] != sunMap {
+		t.Errorf("with the map: cut to %+v", got)
+	}
+	service.arrangement = testArrange
+	if err := app.placeLaunched(); err != nil {
+		t.Fatal(err)
+	}
+	if got := lastShape(); !slices.Equal(got, whole(testArrange.Size)) {
+		t.Errorf("no map: cut to %+v", got)
+	}
+	if err := app.OpenPanel(); err != nil {
+		t.Fatal(err)
+	}
+	if got := lastShape(); !slices.Equal(got, whole(lastPlaced(t, seen).Size)) {
+		t.Errorf("panel: cut to %+v", got)
+	}
+	app.shape = func([]placement.Rect) error { return errPlanted }
+	placedBefore := len(seen.placed)
+	app.place = func(at placement.Point, size placement.Size) error {
+		seen.placed = append(seen.placed, application.Arrangement{At: at, Size: size})
+		return nil
+	}
+	if err := app.ClosePanel(); err != nil || len(seen.placed) == placedBefore {
+		t.Errorf("a failed cut stopped the placing (%v)", err)
+	}
+	if !strings.Contains(log.String(), "cutting the window") {
+		t.Errorf("the failed cut was not logged: %q", log.String())
+	}
+}
+
+// FR-913: the tab is never cut; it keeps all of itself.
+func TestTheTabIsNeverCut(t *testing.T) {
+	t.Parallel()
+	app, service, seen := unpinnedApp(t)
+	service.arrangement = withMap
+	if err := app.placeLaunched(); err != nil {
+		t.Fatal(err)
+	}
+	if got := seen.shapes[len(seen.shapes)-1]; !app.Snapshot().Collapsed || !slices.Equal(got, []placement.Rect{{Right: lastPlaced(t, seen).Size.Width, Bottom: lastPlaced(t, seen).Size.Height}}) {
+		t.Errorf("tab cut to %+v", got)
+	}
+}
+
 // FR-901, FR-903: the menu item and the handle each flip their choice, then refit the window.
 func TestTheSunMapItemAndTheHandleFlipTheirChoices(t *testing.T) {
 	t.Parallel()
-	app, service, _, _ := newTestApp(t)
+	app, service, seen, _ := newTestApp(t)
 	app.act(application.ActionSunMap)
+	seen.events = nil
 	if err := app.TogglePullOut(); err != nil {
 		t.Fatal(err)
+	}
+	if !seen.sawEvent(eventRefresh) {
+		t.Error("the handle changed the window but the page was not told to draw it again")
 	}
 	if !service.settings.SunMap || !service.settings.PullOut {
 		t.Errorf("sun map %v, pull out %v; want both on", service.settings.SunMap, service.settings.PullOut)

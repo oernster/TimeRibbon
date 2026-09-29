@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import type { Size, SunMap as SunMapWire } from './api'
+import type { Refused, Size, SunMap as SunMapWire } from './api'
 import dayArt from './assets/sun-day.jpg'
 import nightArt from './assets/sun-night.jpg'
-import { useDrag } from './drag'
+import { showsTheMenu, useDrag } from './drag'
 import { blend, project } from './sunLight'
 
 interface Props {
@@ -11,6 +11,7 @@ interface Props {
   width: number
   height: number
   dragThreshold: Size
+  refused: Refused
 }
 
 /** The two pictures, named for the notice raised when one cannot be read (FR-911). */
@@ -45,7 +46,7 @@ function pixelsOf(image: HTMLImageElement, width: number, height: number): Uint8
  * press on it drags the ribbon with it (FR-909). A picture that cannot be read leaves words in its
  * place rather than a blank map (FR-911).
  */
-export function SunMap({ sunMap, width, height, dragThreshold }: Props) {
+export function SunMap({ sunMap, width, height, dragThreshold, refused }: Props) {
   const canvas = useRef<HTMLCanvasElement>(null)
   const [images, setImages] = useState<[HTMLImageElement, HTMLImageElement] | null>(null)
   const [problem, setProblem] = useState('')
@@ -75,7 +76,7 @@ export function SunMap({ sunMap, width, height, dragThreshold }: Props) {
   }, [images, width, height, sunMap.latitude, sunMap.longitude])
 
   return (
-    <div className="sun-map" style={{ width, height }} {...drag}>
+    <div className="sun-map" style={{ width, height }} {...drag} onContextMenu={showsTheMenu(refused)}>
       {problem !== '' ? (
         <div className="problem" role="alert">{problem}</div>
       ) : (

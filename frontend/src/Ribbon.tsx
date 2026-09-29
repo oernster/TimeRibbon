@@ -3,7 +3,7 @@ import { api, type Refused, type Snapshot } from './api'
 import { ArtButton, addClockTip } from './ArtButton'
 import addClockArt from './assets/add-clock.png'
 import { Cell } from './Cell'
-import { useDrag } from './drag'
+import { showsTheMenu, useDrag } from './drag'
 
 interface Props {
   snapshot: Snapshot
@@ -60,10 +60,7 @@ export function Ribbon({ snapshot, onAddClock, refused }: Props) {
       style={sizing}
       {...drag}
       onWheel={wheel}
-      onContextMenu={(event) => {
-        event.preventDefault()
-        void api.showContextMenu(refused)
-      }}
+      onContextMenu={showsTheMenu(refused)}
     >
       {snapshot.notices.map((notice) => (
         <div key={notice} className="cell" role="alert">

@@ -1,5 +1,16 @@
-import { useRef, type PointerEvent } from 'react'
-import { startDrag, type Size } from './api'
+import { useRef, type MouseEvent, type PointerEvent } from 'react'
+import { api, startDrag, type Refused, type Size } from './api'
+
+/**
+ * showsTheMenu answers the right-click handler that shows the ribbon's own menu (FR-108). The ribbon
+ * and the sun map share it, so a right-click on the map offers the same menu (Oliver, 2026-09-29).
+ */
+export function showsTheMenu(refused: Refused) {
+  return (event: MouseEvent<HTMLElement>) => {
+    event.preventDefault()
+    void api.showContextMenu(refused)
+  }
+}
 
 /** Presses on these start no drag (FR-402). */
 const controls = 'button, input, select, a, [data-control]'

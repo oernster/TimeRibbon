@@ -1,6 +1,6 @@
 package main
 
-// The sun map's half of the facade (FR-901 to FR-910). The map shares the ribbon's window: while it
+// The sun map's half of the facade (FR-901 to FR-913). The map shares the ribbon's window: while it
 // shows, the window is the ribbon and the map together; the page lays the two out inside it.
 // Every placement is decided for the ribbon alone; this file turns it into the window's and back.
 
@@ -34,13 +34,33 @@ func (a *App) ribbonFromWindow(at placement.Point) placement.Point {
 }
 
 // SetSunMap turns the sun map on or off (FR-901), then fits the window to the ribbon with or without
-// it.
-func (a *App) SetSunMap(on bool) error { return a.refitted(a.service.SetSunMap(on)) }
+// it and has the page draw what the window now holds.
+func (a *App) SetSunMap(on bool) error { return a.redrawn(a.refitted(a.service.SetSunMap(on))) }
 
 // TogglePullOut opens a vertical ribbon's pull out when closed and closes it when open (FR-903), as
-// its handle is clicked.
+// its handle is clicked. The window changes size, so the page is told to draw it again: without that
+// it kept the closed layout in a window grown for the map (Oliver, 2026-09-29).
 func (a *App) TogglePullOut() error {
-	return a.refitted(a.service.SetPullOut(!a.service.Settings().PullOut))
+	return a.redrawn(a.refitted(a.service.SetPullOut(!a.service.Settings().PullOut)))
+}
+
+// placeShaped cuts the window to parts (FR-913), then puts it at at, size across. The cut comes
+// first, in the new window's pixels, so a window growing for the map never shows the bands it is cut
+// from. A failed cut is written to the log and the window is placed all the same, as a rectangle.
+func (a *App) placeShaped(at placement.Point, size placement.Size, parts []placement.Rect) error {
+	a.report("cutting the window to the ribbon and its map", a.shape(parts))
+	return a.place(at, size)
+}
+
+// placeWhole puts the window at at, size across, keeping all of it: the tab and a panel.
+func (a *App) placeWhole(at placement.Point, size placement.Size) error {
+	return a.placeShaped(at, size, placement.Shape(size, placement.Rect{}, placement.Rect{}, false))
+}
+
+// redrawn tells the page to take a fresh snapshot, then answers err.
+func (a *App) redrawn(err error) error {
+	a.emit(eventRefresh)
+	return err
 }
 
 // mapLayout answers where the page draws the ribbon and its map inside the window, in the window's

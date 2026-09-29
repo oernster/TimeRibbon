@@ -41,7 +41,7 @@ export function Surface({ snapshot, onAddClock, refused }: Props) {
       </div>
       {map.shown && (
         <div className="surface-part" style={place(map.map)}>
-          <SunMap sunMap={map} width={map.map.width * scale} height={map.map.height * scale} dragThreshold={snapshot.dragThreshold} />
+          <SunMap sunMap={map} width={map.map.width * scale} height={map.map.height * scale} dragThreshold={snapshot.dragThreshold} refused={refused} />
         </div>
       )}
       {arrow !== undefined && (

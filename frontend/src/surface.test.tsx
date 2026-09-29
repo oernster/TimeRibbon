@@ -23,14 +23,17 @@ describe('Surface (FR-902, FR-903, FR-910)', () => {
   })
 
   it('gives a horizontal ribbon no handle and draws its map with each clock marked by name', () => {
-    installBridge()
     const shown = sunMap({
       side: 'bottom', shown: true, ribbon: { x: 72, y: 0, width: 336, height: 106 }, map: { x: 0, y: 106, width: 480, height: 240 },
       marks: [{ label: 'Mum', latitude: 51.5, longitude: -0.1 }],
     })
+    const bridge = installBridge()
     render(<Surface snapshot={snapshot({ sunMap: shown })} onAddClock={vi.fn()} refused={vi.fn()} />)
     expect(screen.queryByRole('button', { name: openPullOut })).toBeNull()
     expect(screen.getByText('Mum')).toBeTruthy()
+    // A right-click on the map offers the ribbon's own menu (FR-108).
+    fireEvent.contextMenu(screen.getByText('Mum').closest('.sun-map') as HTMLElement)
+    expect(bridge.ShowContextMenu).toHaveBeenCalledOnce()
   })
 
   it('shows no map with the tab', () => {

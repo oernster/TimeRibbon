@@ -31,7 +31,7 @@ func TestLaunchWithNothingStoredGoesToTheDefaultPlace(t *testing.T) {
 	}
 	want := Arrangement{
 		At:   placement.Point{X: (1920 - 336) / 2, Y: 0},
-		Size: placement.Size{Width: 336, Height: 106}, DPI: placement.BaseDPI,
+		Size: placement.Size{Width: 336, Height: 106}, DPI: placement.BaseDPI, Edge: placement.Top,
 	}
 	if got != want {
 		t.Errorf("horizontal: got %+v, want %+v", got, want)
@@ -252,7 +252,8 @@ func TestADragOffEveryDisplayIsBroughtBack(t *testing.T) {
 	}
 }
 
-// FR-104, FR-406: rearranging keeps the corner, clamps it and saves nothing.
+// FR-104, FR-406: rearranging keeps the corner, clamps it and saves no placement. Clamped onto the
+// bottom edge, the horizontal ribbon now stands flush against it, which is remembered (FR-411).
 func TestRearrangingClampsAndSavesNothing(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, clocks(2))
@@ -260,11 +261,11 @@ func TestRearrangingClampsAndSavesNothing(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.At != (placement.Point{X: 1500, Y: 1032 - 106}) {
-		t.Errorf("got %+v", got.At)
+	if got.At != (placement.Point{X: 1500, Y: 1032 - 106}) || got.Edge != placement.Bottom {
+		t.Errorf("got %+v", got)
 	}
-	if len(r.store.saved) != 0 {
-		t.Error("rearranging saved a placement")
+	if last := r.store.last(t); last.Placement != nil || last.LastEdge == nil || *last.LastEdge != (placement.Against{Device: primaryMonitor.Device, Edge: placement.Bottom}) {
+		t.Errorf("rearranging saved placement %+v, edge %+v", last.Placement, last.LastEdge)
 	}
 }
 

@@ -116,6 +116,9 @@ type Settings struct {
 	SkippedUpdate string
 	// Placement is where the ribbon was last left; nil until it has been placed (FR-403).
 	Placement *placement.Stored
+	// LastEdge is the edge the ribbon last stood flush against, which unpinning away from every edge
+	// returns it to (FR-411, FR-613); nil until it has stood against one.
+	LastEdge *placement.Against
 	// Clocks is the configured clocks in their order (FR-102).
 	Clocks []Entry
 }
@@ -136,9 +139,15 @@ func Defaults() Settings {
 	}
 }
 
-// OnTop answers whether the ribbon is kept above other windows: where Always on top is on; always
-// while unpinned, so a tab can never be covered for good (FR-505, FR-617).
-func (s Settings) OnTop() bool { return s.AlwaysOnTop || !s.Pinned }
+// PinnedInEffect answers whether the ribbon behaves as pinned, flush telling whether it stands flush
+// against an edge running along its orientation: pinned when chosen so; also anywhere away from such
+// an edge whatever was chosen (FR-619). The choice itself is Pinned, which this never changes.
+func (s Settings) PinnedInEffect(flush bool) bool { return s.Pinned || !flush }
+
+// OnTop answers whether the ribbon is kept above other windows, flush as for PinnedInEffect: where
+// Always on top is on; always while unpinned in effect, so a tab can never be covered for good
+// (FR-505, FR-617).
+func (s Settings) OnTop(flush bool) bool { return s.AlwaysOnTop || !s.PinnedInEffect(flush) }
 
 // Normalised answers the settings with any choice that is not one of the known values replaced by
 // its default, so a hand-edited file holding a word it should not cannot leave a choice unset.
@@ -165,9 +174,15 @@ func (s Settings) Normalised() Settings {
 	if s.Theme != System && s.Theme != Light && s.Theme != Dark {
 		s.Theme = defaults.Theme
 	}
+	if s.LastEdge != nil && !slices.Contains(edges, s.LastEdge.Edge) {
+		s.LastEdge = nil
+	}
 	s.Clocks = slices.Clone(s.Clocks)
 	return s
 }
+
+// edges is every edge a ribbon can stand against.
+var edges = []placement.Edge{placement.Left, placement.Right, placement.Top, placement.Bottom}
 
 // WithClockAdded answers the settings with entry appended at the end (FR-301).
 func (s Settings) WithClockAdded(entry Entry) Settings {

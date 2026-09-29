@@ -153,25 +153,37 @@ func (a *App) actOnChoice(action application.MenuAction) {
 // open the window is that panel, so the place is kept and the ribbon goes there as the panel closes.
 // Before startup has found the ribbon there is nothing to move.
 func (a *App) toEdge(edge placement.Edge) {
+	placed := a.placeBy("putting the ribbon against an edge", func(at placement.Point) (application.Arrangement, error) {
+		return a.service.ToEdge(at, edge)
+	})
+	if placed {
+		a.show()
+	}
+}
+
+// placeBy places the ribbon where arrange answers for it as it stands, answering whether the window
+// was placed. While a panel is open the window is that panel, so the place is kept and the ribbon goes
+// there as the panel closes. Before startup has found the ribbon there is nothing to move.
+func (a *App) placeBy(doing string, arrange func(placement.Point) (application.Arrangement, error)) bool {
 	if a.ribbon == 0 {
-		return
+		return false
 	}
 	at, err := a.ribbonAt()
 	if err != nil {
 		a.report("reading where the ribbon is", err)
-		return
+		return false
 	}
-	arranged, err := a.service.ToEdge(at, edge)
+	arranged, err := arrange(at)
 	if err != nil {
-		a.report("putting the ribbon against an edge", err)
-		return
+		a.report(doing, err)
+		return false
 	}
 	if a.panelOpen.Load() {
-		return
+		return false
 	}
 	a.scrolls.Store(arranged.Scrolls)
 	a.report("placing the ribbon", a.arrangeWindow(arranged))
-	a.show()
+	return true
 }
 
 // moved records where a drag left the ribbon, putting it back onto a display if the drag left part
@@ -235,10 +247,13 @@ func (a *App) placeRibbon(at placement.Point, size placement.Size) error {
 }
 
 // applyAlwaysOnTop keeps the ribbon above other windows where Always on top is on; always while
-// unpinned (FR-505, FR-617).
+// unpinned in effect (FR-505, FR-617, FR-619).
 func (a *App) applyAlwaysOnTop() {
 	if a.ctx != nil {
-		a.setOnTop(a.service.Settings().OnTop())
+		a.unpin.guard.Lock()
+		flush := a.unpin.full.Edge != ""
+		a.unpin.guard.Unlock()
+		a.setOnTop(a.service.Settings().OnTop(flush))
 	}
 }
 

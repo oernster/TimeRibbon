@@ -40,6 +40,7 @@ func full() settings.Settings {
 			Device: `\\.\DISPLAY2`, Work: placement.Rect{Left: 1920, Right: 4480, Bottom: 1392},
 			DPI: 144, Offset: placement.Point{X: 180, Y: -4},
 		},
+		LastEdge: &placement.Against{Device: `\\.\DISPLAY2`, Edge: placement.Left},
 	}
 	s = s.WithClockAdded(settings.Entry{ID: "a1", Zone: "America/New_York", Label: "New York"})
 	return s.WithClockAdded(settings.Entry{ID: "b2", Zone: "Australia/Sydney", Label: "Mum"})
@@ -65,6 +66,25 @@ func TestSettingsRoundTrip(t *testing.T) {
 	// full is unpinned, away from the default, so the pin is proved written and read (FR-613).
 	if got.Pinned != want.Pinned {
 		t.Errorf("pinned read as %v, want %v", got.Pinned, want.Pinned)
+	}
+	// FR-411: the remembered edge is written and read.
+	if got.LastEdge == nil || *got.LastEdge != *want.LastEdge {
+		t.Errorf("last edge read as %+v, want %+v", got.LastEdge, want.LastEdge)
+	}
+}
+
+// FR-411: a remembered edge that is missing, malformed or names no display is none.
+func TestAnUnreadableLastEdgeIsNone(t *testing.T) {
+	t.Parallel()
+	for name, body := range map[string]string{
+		"missing":    `{"version": 1}`,
+		"not a list": `{"version": 1, "lastEdge": [1]}`,
+		"no display": `{"version": 1, "lastEdge": {"edge": "left"}}`,
+	} {
+		decoded, _, ok := decode([]byte(body))
+		if !ok || decoded.LastEdge != nil {
+			t.Errorf("%s: read %+v", name, decoded.LastEdge)
+		}
 	}
 }
 

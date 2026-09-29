@@ -24,6 +24,8 @@ type scriptedService struct {
 	places      []application.Place
 	menu        []application.MenuItem
 	arrangement application.Arrangement
+	// lastEdge, when set, is what ToLastEdge answers.
+	lastEdge *application.Arrangement
 	// changeErr answers every change; arrangeErr and movedErr answer the arranging calls.
 	changeErr  error
 	arrangeErr error
@@ -150,6 +152,17 @@ func (s *scriptedService) ToEdge(at placement.Point, edge placement.Edge) (appli
 	return s.arrangement, s.arrangeErr
 }
 
+// ToLastEdge answers the arrangement against the last edge: lastEdge where a test set one, else the
+// scripted arrangement.
+func (s *scriptedService) ToLastEdge(at placement.Point) (application.Arrangement, error) {
+	s.record("ToLastEdge")
+	s.at = append(s.at, at)
+	if s.lastEdge != nil {
+		return *s.lastEdge, s.arrangeErr
+	}
+	return s.arrangement, s.arrangeErr
+}
+
 func (s *scriptedService) Centred(at placement.Point, size placement.Size) (application.Arrangement, error) {
 	s.record("Centred")
 	s.at = append(s.at, at)
@@ -225,9 +238,13 @@ func (w *window) sawEvent(event string, data ...any) bool {
 // Where the tests' ribbon stands, the arrangement the stand-in service answers and the panel's size.
 var (
 	testRibbonAt = placement.Point{X: 40, Y: 60}
-	testArrange  = application.Arrangement{
+	// testArrange stands flush against its right edge, so an unpinned ribbon arranged there is unpinned
+	// in effect (FR-619); testAway is the same ribbon standing against no edge.
+	testArrange = application.Arrangement{
 		At: placement.Point{X: 10, Y: 20}, Size: placement.Size{Width: 300, Height: 90}, Scrolls: true,
+		Edge: placement.Right,
 	}
+	testAway  = application.Arrangement{At: placement.Point{X: 400, Y: 300}, Size: testArrange.Size}
 	testPanel = placement.Size{Width: 560, Height: 760}
 )
 

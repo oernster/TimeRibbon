@@ -16,6 +16,9 @@ type Arrangement struct {
 	Scrolls bool
 	// DPI is the DPI of the monitor the ribbon is on.
 	DPI int
+	// Edge is the edge running along the orientation the ribbon stands flush against; empty when it
+	// stands against none, which leaves it pinned in effect (FR-619).
+	Edge placement.Edge
 }
 
 // Launch arranges the ribbon at launch or as a panel closes: on its stored monitor and offset, else
@@ -41,10 +44,19 @@ func (s *Service) Rearrange(at placement.Point) (Arrangement, error) {
 	return s.recentredKept(func() (Arrangement, placement.Monitor, bool, error) { return s.recovered(at) })
 }
 
-// Moved records where a drag left the ribbon (FR-404) and answers where it belongs, which differs
-// only when the drag left part of it off every work area.
+// Moved records where a drag left the ribbon (FR-404) and answers where it belongs: back wholly on
+// the work area it overlaps most where the drag left part of it off (FR-406), then flush against an
+// edge along its orientation where its side came within placement.SnapReach of one (FR-410).
 func (s *Service) Moved(at placement.Point) (Arrangement, error) {
-	arranged, monitor, _, err := s.recovered(at)
+	arranged, monitor, _, err := s.arrange(func(monitors []placement.Monitor, _ settings.Settings) placement.Monitor {
+		return mostOverlapped(monitors, at)
+	}, func(size placement.Size, monitors []placement.Monitor, current settings.Settings) placement.Placed {
+		placed, _ := placement.Recover(at, size, monitors, homeOf(current))
+		placed = s.keptFlush(placed, size)
+		reach := placement.PixelsOf(placement.SnapReach, s.perDIP(placed.Monitor))
+		placed.At = placement.Snapped(placed.At, size, placed.Monitor.Work, current.Orientation == settings.Vertical, reach)
+		return placed
+	})
 	if err != nil {
 		return arranged, err
 	}
@@ -54,11 +66,35 @@ func (s *Service) Moved(at placement.Point) (Arrangement, error) {
 // ToEdge puts a ribbon now at at flush against edge of the work area it overlaps most, centred along
 // that edge; it keeps that place (FR-408).
 func (s *Service) ToEdge(at placement.Point, edge placement.Edge) (Arrangement, error) {
+	return s.toEdgeOf(func(monitors []placement.Monitor) placement.Monitor { return mostOverlapped(monitors, at) }, edge)
+}
+
+// ToLastEdge puts a ribbon now at at flush against the edge it last stood against, centred along it,
+// as unticking Pin ribbon away from every edge does (FR-613): the orientation's home edge where none
+// is remembered or the remembered one runs across the orientation; the same edge of the display
+// holding at where the remembered display is not present. It keeps that place.
+func (s *Service) ToLastEdge(at placement.Point) (Arrangement, error) {
+	current := s.Settings()
+	edge, device := homeOf(current), ""
+	if last := current.LastEdge; last != nil && placement.Along(last.Edge, current.Orientation == settings.Vertical) {
+		edge, device = last.Edge, last.Device
+	}
+	return s.toEdgeOf(func(monitors []placement.Monitor) placement.Monitor {
+		if index := slices.IndexFunc(monitors, func(m placement.Monitor) bool { return m.Device == device }); index >= 0 {
+			return monitors[index]
+		}
+		return mostOverlapped(monitors, at)
+	}, edge)
+}
+
+// toEdgeOf puts the ribbon flush against edge of the work area of the monitor pick chooses, centred
+// along that edge; it keeps that place.
+func (s *Service) toEdgeOf(pick func([]placement.Monitor) placement.Monitor, edge placement.Edge) (Arrangement, error) {
 	return s.recentredKept(func() (Arrangement, placement.Monitor, bool, error) {
 		arranged, monitor, _, err := s.arrange(func(monitors []placement.Monitor, _ settings.Settings) placement.Monitor {
-			return mostOverlapped(monitors, at)
+			return pick(monitors)
 		}, func(size placement.Size, monitors []placement.Monitor, _ settings.Settings) placement.Placed {
-			monitor := mostOverlapped(monitors, at)
+			monitor := pick(monitors)
 			return placement.Placed{At: placement.AgainstEdge(size, monitor.Work, edge), Monitor: monitor}
 		})
 		return arranged, monitor, true, err
@@ -153,8 +189,25 @@ func (s *Service) arrange(
 		placed.At = placement.CentredAlong(placed.At, size, placed.Monitor.Work, vertical)
 	}
 	arranged := Arrangement{At: placed.At, Size: size, Scrolls: scrolls, DPI: placed.Monitor.DPI}
+	if edge, flush := placement.FlushAgainst(arranged.At, size, placed.Monitor.Work, vertical); flush {
+		arranged.Edge = edge
+		s.rememberEdge(placement.Against{Device: placed.Monitor.Device, Edge: edge})
+	}
 	s.remember(lastPlaced{known: true, device: placed.Monitor.Device, at: arranged.At, size: size})
 	return arranged, placed.Monitor, recentred, nil
+}
+
+// rememberEdge keeps against as the edge the ribbon last stood flush against, however it got there
+// (FR-411); saved only when it differs. A save that fails raises its notice through change (FR-707),
+// which the next arrangement fits, so it is not answered here.
+func (s *Service) rememberEdge(against placement.Against) {
+	if last := s.Settings().LastEdge; last != nil && *last == against {
+		return
+	}
+	_ = s.change(func(current settings.Settings) (settings.Settings, error) {
+		current.LastEdge = &against
+		return current, nil
+	})
 }
 
 // keptFlush answers placed kept against the right or bottom edge it lay against when the ribbon was

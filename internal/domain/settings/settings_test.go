@@ -33,22 +33,52 @@ func TestDefaultsAreDigitalTwentyFourHourVerticalAndNotOnTop(t *testing.T) {
 		got.DateFormat != clock.DayMonth || got.Orientation != Vertical || got.Theme != System || got.AlwaysOnTop || got.Placement != nil || len(got.Clocks) != 0 {
 		t.Errorf("got %+v", got)
 	}
-	if !got.Pinned || got.OnTop() {
-		t.Errorf("a first run is pinned %v and on top %v, want pinned and not on top", got.Pinned, got.OnTop())
+	if !got.Pinned || got.OnTop(true) || got.LastEdge != nil {
+		t.Errorf("a first run is pinned %v, on top %v, edge %v; want pinned, not on top, no edge", got.Pinned, got.OnTop(true), got.LastEdge)
 	}
 }
 
-// FR-617: an unpinned ribbon stays on top whatever Always on top holds; pinned, Always on top decides.
+// FR-617, FR-619: a ribbon unpinned in effect (unpinned and flush) stays on top whatever Always on
+// top holds; for one pinned (or unpinned away from every edge) Always on top decides.
 func TestAnUnpinnedRibbonIsAlwaysOnTop(t *testing.T) {
 	t.Parallel()
-	for _, each := range []struct{ alwaysOnTop, pinned, want bool }{
-		{false, true, false}, {true, true, true}, {false, false, true}, {true, false, true},
+	for _, each := range []struct{ alwaysOnTop, pinned, flush, want bool }{
+		{false, true, true, false}, {true, true, true, true}, {false, false, true, true}, {true, false, true, true},
+		{false, false, false, false}, {true, false, false, true},
 	} {
 		s := Defaults()
 		s.AlwaysOnTop, s.Pinned = each.alwaysOnTop, each.pinned
-		if got := s.OnTop(); got != each.want {
-			t.Errorf("Always on top %v, pinned %v: on top %v, want %v", each.alwaysOnTop, each.pinned, got, each.want)
+		if got := s.OnTop(each.flush); got != each.want {
+			t.Errorf("Always on top %v, pinned %v, flush %v: on top %v, want %v", each.alwaysOnTop, each.pinned, each.flush, got, each.want)
 		}
+	}
+}
+
+// FR-619: the pin in effect; the choice itself is never changed by it.
+func TestFlushnessGivesThePinInEffect(t *testing.T) {
+	t.Parallel()
+	for _, each := range []struct{ pinned, flush, want bool }{
+		{true, true, true}, {true, false, true}, {false, true, false}, {false, false, true},
+	} {
+		s := Defaults()
+		s.Pinned = each.pinned
+		if got := s.PinnedInEffect(each.flush); got != each.want || s.Pinned != each.pinned {
+			t.Errorf("pinned %v, flush %v: in effect %v, want %v", each.pinned, each.flush, got, each.want)
+		}
+	}
+}
+
+// FR-411: a remembered edge naming no edge, as a hand edit might, is forgotten; a real one is kept.
+func TestAnUnknownRememberedEdgeIsForgotten(t *testing.T) {
+	t.Parallel()
+	s := Defaults()
+	s.LastEdge = &placement.Against{Device: `\\.\DISPLAY1`, Edge: "middle"}
+	if got := s.Normalised(); got.LastEdge != nil {
+		t.Errorf("kept %+v", got.LastEdge)
+	}
+	s.LastEdge = &placement.Against{Device: `\\.\DISPLAY1`, Edge: placement.Left}
+	if got := s.Normalised(); got.LastEdge == nil || *got.LastEdge != *s.LastEdge {
+		t.Errorf("lost %+v", s.LastEdge)
 	}
 }
 

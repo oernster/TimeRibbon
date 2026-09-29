@@ -64,9 +64,15 @@ does not exist.
   brings a ribbon wholly inside a work area (`Clamp`, `Recover`), the ribbon's length along its
   orientation (`Fit`) plus a ribbon centred along its length on a work area with its position
   across kept (`CentredAlong`) or flush against one of its edges and centred along it
-  (`AgainstEdge`), plus the band an unpinned ribbon shrinks to (`Tab`, FR-614). `settings` is the
-  user's choices as one value; every operation answers a new value and leaves the old one as it
-  was. It holds the one rule for staying on top (`OnTop`: Always on top or unpinned, FR-617).
+  (`AgainstEdge`), plus the band an unpinned ribbon shrinks to on the side flush against its edge
+  (`Tab`, FR-614). Which edge a ribbon stands flush against, counting only the edges along its
+  orientation of each display's own work area (`FlushAgainst`, `Along`) lives in `edge.go`
+  beside the snap of a drop within `SnapReach` of one (`Snapped`, FR-410). `settings` is the user's choices
+  as one value; every operation answers a new value and leaves the old one as it was. It holds the
+  pin in effect (`PinnedInEffect`: pinned or flush against no edge, FR-619) and the one rule for
+  staying on top built on it (`OnTop`: Always on top or unpinned in effect, FR-617), plus the edge
+  last stood against (`LastEdge`, FR-411). Every arrangement names its flush edge
+  (`Arrangement.Edge`), which the facade reads the pin in effect from.
   `hover` decides when an unpinned ribbon opens from its tab and collapses back (FR-615, FR-616). It
   is told the pointer arrived or left and the time; it answers whether the ribbon is open and when
   to ask again. The facade owns its timer and carries the answer out (`unpinned.go`). Opening tells

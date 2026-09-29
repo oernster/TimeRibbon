@@ -3,25 +3,19 @@ package placement
 // TabThickness is how deep, in DIP, the tab of an unpinned ribbon is (FR-614).
 const TabThickness = 8
 
-// Tab answers the rectangle an unpinned ribbon at at of size shrinks to on work (FR-614): a band
-// thickness pixels deep along the ribbon's whole length, covering the side nearer the matching edge
-// of work. That side is left or right for a vertical ribbon, top or bottom for a horizontal one; at
-// an equal distance it is the side of home, the orientation's home edge (FR-409).
-func Tab(at Point, size Size, work Rect, vertical bool, home Edge, thickness int) Rect {
-	ribbon := Rect{Left: at.X, Top: at.Y, Right: at.X + size.Width, Bottom: at.Y + size.Height}
-	if vertical {
-		before, after := ribbon.Left-work.Left, work.Right-ribbon.Right
-		if before < after || before == after && home == Left {
-			ribbon.Right = ribbon.Left + thickness
-		} else {
-			ribbon.Left = ribbon.Right - thickness
-		}
-		return ribbon
-	}
-	before, after := ribbon.Top-work.Top, work.Bottom-ribbon.Bottom
-	if before < after || before == after && home != Bottom {
+// Tab answers the rectangle a ribbon at at of size, flush against edge, shrinks to (FR-614): a
+// band thickness pixels deep along the ribbon's whole length, covering the side against edge. Only
+// a flush ribbon collapses (FR-619), so the band always lies on its edge.
+func Tab(at Point, size Size, edge Edge, thickness int) Rect {
+	ribbon := rectOf(at, size)
+	switch edge {
+	case Left:
+		ribbon.Right = ribbon.Left + thickness
+	case Right:
+		ribbon.Left = ribbon.Right - thickness
+	case Top:
 		ribbon.Bottom = ribbon.Top + thickness
-	} else {
+	case Bottom:
 		ribbon.Top = ribbon.Bottom - thickness
 	}
 	return ribbon

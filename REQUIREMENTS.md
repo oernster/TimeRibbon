@@ -646,9 +646,9 @@ with the ribbon's right side at 1910, then its right side is at 1920 and its top
 one ends with the right side at 1900, then the ribbon stays where it was dropped. Given two displays
 side by side, the left one's work area ending at 1920, when a drag ends with a vertical ribbon's
 right side at 1930 and most of it on the left display, then its right side is at 1920.
-Verified by: planned `TestADropNearAnEdgeSnapsFlush`, `TestAnInnerEdgeCounts`,
-`TestAnEdgeAcrossTheOrientationDoesNotSnap` (domain, placement); `TestADropStoresTheSnappedPlace`
-(application); check M-14.
+Verified by: `TestADropNearAnEdgeSnapsFlush`, `TestTheNearerEdgeWinsWhenBothAreInReach`,
+`TestTheEdgesAlongEachOrientation` (domain, placement); `TestADropNearAnEdgeSnapsFlushAndIsStored`,
+`TestAVerticalRibbonNeverSnapsToTheTop` (application); check M-14.
 
 **FR-411 The last edge is remembered**
 Priority: Should (Amendment 19, Oliver, 2026-09-29).
@@ -661,8 +661,9 @@ edge last used, not the nearest (FR-613).
 Acceptance: given a vertical ribbon flush against the left edge of `\\.\DISPLAY2`, when it is
 dragged to the middle of `\\.\DISPLAY1`, then the settings file still names the left edge of
 `\\.\DISPLAY2`.
-Verified by: planned `TestAFlushPlacementIsRemembered`, `TestAPlacementOffEveryEdgeKeepsTheLastEdge`
-(application); `TestSettingsRoundTrip` (infrastructure, store).
+Verified by: `TestAnUnknownRememberedEdgeIsForgotten` (domain, settings);
+`TestTheLastEdgeIsRemembered`, `TestRearrangingClampsAndSavesNothing` (application);
+`TestSettingsRoundTrip`, `TestAnUnreadableLastEdgeIsNone` (infrastructure, store).
 
 ### 3.5 Tray and window behaviour
 
@@ -929,9 +930,10 @@ Given no remembered edge, then it goes to the right edge instead. Given the reme
 unplugged, then it goes to the left edge of `\\.\DISPLAY1`.
 Verified by: planned `TestAFileWithoutAPinIsPinned` (infrastructure, store),
 `TestBothMenusOfferPinAfterAlwaysOnTop` (application), `TestChoosingPinFlipsAndKeepsIt` (facade);
-`TestA1Point0SettingsFileIsReadWhole`, `TestSettingsRoundTrip` (infrastructure, store); planned
-`TestUnpinningAwayFromAnEdgeGoesToTheLastEdge`, `TestUnpinningWithNoEdgeRememberedGoesHome`,
-`TestUnpinningWithTheEdgesDisplayGoneUsesTheSameEdgeHere` (application); check M-14.
+`TestA1Point0SettingsFileIsReadWhole`, `TestSettingsRoundTrip` (infrastructure, store);
+`TestUnpinningAwayFromAnEdgeGoesToTheLastEdge`, `TestUnpinningGoesToTheRememberedDisplay`
+(application); `TestUnpinningAwayFromAnEdgeMovesItToTheLastEdge`,
+`TestUnpinningOnAnEdgeMovesNothingAndRecentringKeepsThePin` (facade); check M-14.
 
 **FR-614 The tab**
 Priority: Should (Amendment 18, Oliver, 2026-09-28).
@@ -946,8 +948,8 @@ Acceptance: given a vertical ribbon 196 DIP long flush against the right edge of
 when it collapses, then only an 8 by 196 DIP band in the accent shows, flush against that right
 edge. Given a horizontal ribbon flush against the bottom edge of the upper of two stacked displays,
 when it collapses, then the band lies along that bottom edge.
-Verified by: planned `TestTheTabCoversTheFlushSide` (domain, placement);
-`TestCollapsingKeepsThePlacement` (application); `ribbon.test.tsx` for the accent; check M-14.
+Verified by: `TestTheTabCoversTheFlushSide` (domain, placement); `TestCollapsingKeepsThePlacement`,
+`TestARibbonAgainstNoEdgeHasNoTab` (application); `ribbon.test.tsx` for the accent; check M-14.
 
 **FR-615 The ribbon opens on a resting pointer**
 Priority: Should (Amendment 18, Oliver, 2026-09-28).
@@ -1023,8 +1025,10 @@ unticked and the settings file still holds `"pinned": false`; when it is then dr
 tab on that edge 1 s later. Given an unpinned vertical ribbon standing away from every edge at
 launch, then it shows in full. Given an unpinned ribbon flush against an edge, when `Centre on left
 edge` is chosen, then it stays unpinned and collapses on that edge once the pointer is off it.
-Verified by: planned `TestFlushnessGivesThePinInEffect` (domain), `TestAnUnpinnedRibbonOffAnEdgeShowsInFull`,
-`TestDraggingBackOntoAnEdgeCollapsesAgain`, `TestRecentringKeepsTheChosenPin` (facade); check M-14.
+Verified by: `TestFlushnessGivesThePinInEffect`, `TestAnUnpinnedRibbonIsAlwaysOnTop` (domain,
+settings); `TestOnlyAnEdgeAlongTheOrientationIsFlush`, `TestAnInnerEdgeCounts` (domain, placement);
+`TestAnUnpinnedRibbonOffAnEdgeShowsInFull`, `TestDraggingBackOntoAnEdgeCollapsesAgain`,
+`TestUnpinningOnAnEdgeMovesNothingAndRecentringKeepsThePin` (facade); check M-14.
 
 ### 3.7 Persistence and recovery
 

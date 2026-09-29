@@ -19,6 +19,10 @@ var ErrUnknownChoice = errors.New("not one of the values this setting offers")
 // ErrNoMonitors is answered when Windows reports no display at all.
 var ErrNoMonitors = errors.New("no display is reported")
 
+// ErrNotAgainstAnEdge is answered when the tab of a ribbon flush against no edge is asked for; such a
+// ribbon never collapses (FR-619).
+var ErrNotAgainstAnEdge = errors.New("the ribbon stands against no edge, so it has no tab")
+
 // ErrNegativeLength is answered when a length that cannot be negative is given as one.
 var ErrNegativeLength = errors.New("a length cannot be negative")
 

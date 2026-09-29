@@ -66,6 +66,7 @@ type ribbonService interface {
 	Rearrange(at placement.Point) (application.Arrangement, error)
 	Moved(at placement.Point) (application.Arrangement, error)
 	ToEdge(at placement.Point, edge placement.Edge) (application.Arrangement, error)
+	ToLastEdge(at placement.Point) (application.Arrangement, error)
 	Centred(at placement.Point, size placement.Size) (application.Arrangement, error)
 	Collapsed(full application.Arrangement) (application.Arrangement, error)
 	CheckForUpdate(ctx context.Context, manual bool) application.UpdateStatus

@@ -23,17 +23,18 @@ const (
 	keyAlwaysOnTop = "alwaysOnTop"
 	keyPlacement   = "placement"
 	keyClocks      = "clocks"
-	// keySkippedUpdate, keyDateFormat and keyPinned came after 1.0.0, so they are written last
-	// (NFR-C-1).
+	// keySkippedUpdate, keyDateFormat, keyPinned and keyLastEdge came after 1.0.0, so they are
+	// written last (NFR-C-1).
 	keySkippedUpdate = "skippedUpdate"
 	keyDateFormat    = "dateFormat"
 	keyPinned        = "pinned"
+	keyLastEdge      = "lastEdge"
 )
 
 // knownKeys lists the keys this version reads, in writing order.
 var knownKeys = []string{
 	keyVersion, keyStyle, keySize, keyColour, keyFormat, keyOrientation, keyTheme, keyAlwaysOnTop, keyPlacement, keyClocks,
-	keySkippedUpdate, keyDateFormat, keyPinned,
+	keySkippedUpdate, keyDateFormat, keyPinned, keyLastEdge,
 }
 
 // unreadableIDPrefix begins the id an unreadable clock is given for the session, so it can be
@@ -64,6 +65,12 @@ type storedPlacement struct {
 	} `json:"offset"`
 }
 
+// storedEdge is the edge the ribbon last stood against as the file holds it (FR-411).
+type storedEdge struct {
+	Device string `json:"device"`
+	Edge   string `json:"edge"`
+}
+
 // decode reads a settings file. It answers false when the file is not a JSON object or its clocks
 // are not a list, since then nothing can be trusted. Any other bad value leaves its default.
 func decode(raw []byte) (settings.Settings, []pair, bool) {
@@ -89,6 +96,7 @@ func decode(raw []byte) (settings.Settings, []pair, bool) {
 	readInto(object, keyDateFormat, &decoded.DateFormat)
 	readInto(object, keyPinned, &decoded.Pinned)
 	decoded.Placement = decodePlacement(object[keyPlacement])
+	decoded.LastEdge = decodeEdge(object[keyLastEdge])
 	decoded.Clocks = decodeClocks(entries)
 	return decoded, extrasOf(raw, object), true
 }
@@ -120,6 +128,16 @@ func decodePlacement(raw json.RawMessage) *placement.Stored {
 		DPI:    stored.DPI,
 		Offset: placement.Point{X: stored.Offset.X, Y: stored.Offset.Y},
 	}
+}
+
+// decodeEdge reads the remembered edge; none where it is missing, malformed or names no display. An
+// edge that names no side is forgotten as the settings are normalised.
+func decodeEdge(raw json.RawMessage) *placement.Against {
+	var stored storedEdge
+	if len(raw) == 0 || json.Unmarshal(raw, &stored) != nil || stored.Device == "" {
+		return nil
+	}
+	return &placement.Against{Device: stored.Device, Edge: placement.Edge(stored.Edge)}
 }
 
 // decodeClocks reads each entry on its own, so one bad entry becomes an unreadable clock and the

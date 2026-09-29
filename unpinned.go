@@ -24,7 +24,9 @@ type unpinned struct {
 	drawing  bool
 	stopDraw func() bool
 	// full is the full ribbon's last arrangement, which the tab is cut from and opening returns to.
-	full application.Arrangement
+	// placed is false until the first arrangement, before which there is nothing to compare with.
+	full   application.Arrangement
+	placed bool
 	// holds counts what keeps the ribbon as it is: an open panel, the ribbon's own menu.
 	holds    int
 	menuHeld bool
@@ -37,8 +39,14 @@ type unpinned struct {
 // for a page that has failed, not the expected wait: the page answers within a frame or two.
 const drawWait = 250 * time.Millisecond
 
-// pinned answers whether the ribbon is pinned, which leaves it shown in full (FR-613).
+// pinned answers whether Pin ribbon is ticked: the choice, kept wherever the ribbon stands (FR-613).
 func (a *App) pinned() bool { return a.service.Settings().Pinned }
+
+// pinnedAt answers whether a ribbon arranged as full behaves as pinned: chosen so; else standing
+// flush against no edge along its orientation (FR-619). Pinned in effect, it shows in full.
+func (a *App) pinnedAt(full application.Arrangement) bool {
+	return a.service.Settings().PinnedInEffect(full.Edge != "")
+}
 
 // collapsed answers whether the window is the ribbon's tab, which the page draws as a band (FR-614).
 func (a *App) collapsed() bool {
@@ -57,25 +65,40 @@ func (a *App) endDrawing() {
 }
 
 // arrangeWindow places the window for the ribbon arranged as full: the full ribbon, else its tab
-// while unpinned and collapsed. Every placement of the ribbon comes through here.
+// while unpinned in effect and collapsed. Every placement of the ribbon comes through here, so the pin
+// in effect is read afresh after each (FR-619). A ribbon that has just become unpinned in effect, as
+// one dragged back onto an edge, starts from full: it collapses once the pointer has been off it for
+// hover.Away rather than under the pointer.
 func (a *App) arrangeWindow(full application.Arrangement) error {
-	open := a.pinned()
 	a.unpin.guard.Lock()
-	a.unpin.full = full
-	open = open || a.unpin.state.Open()
+	becameUnpinned := a.unpin.placed && a.pinnedAt(a.unpin.full) && !a.pinnedAt(full)
+	// Standing onto or off an edge changes whether an unpinned ribbon is kept on top (FR-617).
+	edgeChanged := a.unpin.placed && (a.unpin.full.Edge == "") != (full.Edge == "")
+	if becameUnpinned {
+		a.unpin.state = a.unpin.state.Expanded(a.now())
+	}
+	a.unpin.full, a.unpin.placed = full, true
+	open := a.pinnedAt(full) || a.unpin.state.Open()
 	a.unpin.shownOpen = open
 	a.endDrawing()
 	a.unpin.guard.Unlock()
-	return a.showArranged(full, open)
+	err := a.showArranged(full, open)
+	if edgeChanged {
+		a.applyAlwaysOnTop()
+	}
+	if becameUnpinned {
+		a.changeHover(func(state hover.State, _ time.Time) hover.State { return state })
+	}
+	return err
 }
 
 // showArranged puts the window at full; else at the tab cut from it (FR-614). An unpinned ribbon
 // keeps the tab's frame when full as well: giving Wails' frame back as it opened had Windows paint a
-// caption and a close button over it for a frame or two (measured 2026-09-29), so only a pinned
-// ribbon and a panel wear Wails' frame.
+// caption and a close button over it for a frame or two (measured 2026-09-29), so only a ribbon
+// pinned in effect and a panel wear Wails' frame.
 func (a *App) showArranged(full application.Arrangement, open bool) error {
 	if open {
-		a.report("framing the full ribbon", a.tabFrame(!a.pinned()))
+		a.report("framing the full ribbon", a.tabFrame(!a.pinnedAt(full)))
 		return a.place(full.At, full.Size)
 	}
 	tab, err := a.service.Collapsed(full)
@@ -175,7 +198,7 @@ func (a *App) changeHover(change func(hover.State, time.Time) hover.State) {
 	if due, pending := a.unpin.state.Due(); pending {
 		a.unpin.stop = a.after(due.Sub(now), a.hoverDue)
 	}
-	open := a.unpin.state.Open() || a.pinned()
+	open := a.unpin.state.Open() || a.pinnedAt(a.unpin.full)
 	opening := open && !a.unpin.shownOpen && !a.unpin.drawing && !a.panelOpen.Load()
 	collapsing := !open && (a.unpin.shownOpen || a.unpin.drawing) && !a.panelOpen.Load()
 	if opening {
@@ -250,7 +273,12 @@ func (a *App) setPinned(on bool) error {
 	} else {
 		a.unpin.state = hover.Unpinned(a.now(), false)
 	}
+	againstNone := a.unpin.full.Edge == ""
 	a.unpin.guard.Unlock()
+	if !pinned && againstNone {
+		// Unticked away from every edge, the ribbon goes to the edge it last stood against (FR-613).
+		a.placeBy("putting the ribbon against its last edge", a.service.ToLastEdge)
+	}
 	a.changeHover(func(state hover.State, _ time.Time) hover.State { return state })
 	// A ribbon already shown in full stays so while trading frames: Wails' pinned, the tab's unpinned.
 	a.unpin.guard.Lock()

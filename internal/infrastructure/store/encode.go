@@ -26,7 +26,7 @@ func encode(current settings.Settings, extras []pair) ([]byte, error) {
 	values := []any{
 		formatVersion, current.Style, current.Size, current.Colour, current.Format, current.Orientation, current.Theme,
 		current.AlwaysOnTop, encodePlacement(current.Placement), clocks, current.SkippedUpdate,
-		current.DateFormat, current.Pinned,
+		current.DateFormat, current.Pinned, encodeEdge(current.LastEdge),
 	}
 	var compact bytes.Buffer
 	compact.WriteByte('{')
@@ -66,6 +66,13 @@ func encodeClock(entry settings.Entry, position int) (json.RawMessage, error) {
 		return json.RawMessage(entry.Original), nil
 	}
 	return json.Marshal(storedClock{ID: &entry.ID, Zone: &entry.Zone, Label: &entry.Label, Position: &position})
+}
+
+func encodeEdge(last *placement.Against) *storedEdge {
+	if last == nil {
+		return nil
+	}
+	return &storedEdge{Device: last.Device, Edge: string(last.Edge)}
 }
 
 func encodePlacement(stored *placement.Stored) *storedPlacement {

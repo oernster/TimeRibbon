@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { installBridge, snapshot } from './fakeBridge'
+import { SunMap as SunMapView } from './SunMap'
 import { Surface, closePullOut, openPullOut } from './Surface'
 import type { SunMap } from './wire'
 
@@ -34,6 +35,22 @@ describe('Surface (FR-902, FR-903, FR-910)', () => {
     // A right-click on the map offers the ribbon's own menu (FR-108).
     fireEvent.contextMenu(screen.getByText('Mum').closest('.sun-map') as HTMLElement)
     expect(bridge.ShowContextMenu).toHaveBeenCalledOnce()
+  })
+
+  it('measures each label, then stands London clear of the Berlin dot (FR-914)', () => {
+    installBridge()
+    // jsdom lays nothing out, so every label is given the size a 12px name takes on screen.
+    const width = vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(40)
+    const height = vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(16)
+    try {
+      const marks = [{ label: 'London', latitude: 51.51, longitude: -0.13 }, { label: 'Berlin', latitude: 52.52, longitude: 13.4 }]
+      render(<SunMapView sunMap={sunMap({ shown: true, marks })} width={708} height={354} dragThreshold={{ width: 4, height: 4 }} refused={vi.fn()} />)
+      expect(screen.getByText('London').className).toBe('mark-label left')
+      expect(screen.getByText('Berlin').className).toBe('mark-label right')
+    } finally {
+      width.mockRestore()
+      height.mockRestore()
+    }
   })
 
   it('shows no map with the tab', () => {

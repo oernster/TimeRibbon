@@ -184,6 +184,7 @@ button:focus-visible {
   position: relative;
   height: 100%;
   --mark-size: 8px;
+  --mark-gap: 4px;
   --handle-width: 16px;
   --handle-height: 48px;
 }
@@ -202,18 +203,22 @@ button:focus-visible {
   display: block;
 }
 
-/* A clock's place: a red dot beside its label (FR-908); the dot's centre is the place. */
+/* A clock's place: a red dot with its label beside it (FR-908). The mark is a point at the place;
+   the dot is centred on it and the label stands at the spot labels.ts chose (FR-914), the dot's half
+   and the gap away. */
 .mark {
   position: absolute;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  transform: translate(calc(var(--mark-size) / -2), -50%);
+  width: 0;
+  height: 0;
   pointer-events: none;
   font-size: 12px;
+  --mark-reach: calc(var(--mark-size) / 2 + var(--mark-gap));
 }
 
 .mark .dot {
+  position: absolute;
+  left: calc(var(--mark-size) / -2);
+  top: calc(var(--mark-size) / -2);
   width: var(--mark-size);
   height: var(--mark-size);
   border-radius: 50%;
@@ -222,9 +227,34 @@ button:focus-visible {
 }
 
 .mark-label {
+  position: absolute;
   color: var(--mark-text);
   text-shadow: 0 0 3px var(--mark-shadow);
   white-space: nowrap;
+}
+
+.mark-label.right {
+  left: var(--mark-reach);
+  top: 0;
+  transform: translateY(-50%);
+}
+
+.mark-label.left {
+  right: var(--mark-reach);
+  top: 0;
+  transform: translateY(-50%);
+}
+
+.mark-label.below {
+  top: var(--mark-reach);
+  left: 0;
+  transform: translateX(-50%);
+}
+
+.mark-label.above {
+  bottom: var(--mark-reach);
+  left: 0;
+  transform: translateX(-50%);
 }
 
 /* The pull out's handle, inside the ribbon on its inner edge, half way along (FR-903). */

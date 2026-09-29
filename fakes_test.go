@@ -224,6 +224,7 @@ type window struct {
 	browsed   []string
 	menus     [][]application.MenuItem
 	placed    []application.Arrangement
+	shapes    [][]placement.Rect
 	ribbonAt  placement.Point
 	readErr   error
 	placeErr  error
@@ -294,6 +295,10 @@ func newTestApp(t *testing.T) (*App, *scriptedService, *window, *bytes.Buffer) {
 	app.place = func(at placement.Point, size placement.Size) error {
 		seen.placed = append(seen.placed, application.Arrangement{At: at, Size: size})
 		return seen.placeErr
+	}
+	app.shape = func(parts []placement.Rect) error {
+		seen.shapes = append(seen.shapes, parts)
+		return nil
 	}
 	seen.now = testNow
 	app.now = func() time.Time { return seen.now }

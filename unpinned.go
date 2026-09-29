@@ -100,14 +100,15 @@ func (a *App) showArranged(full application.Arrangement, open bool) error {
 	if open {
 		a.report("framing the full ribbon", a.tabFrame(!a.pinnedAt(full)))
 		at, size, _ := windowOf(full)
-		return a.place(at, size)
+		_, ribbon, sunMap, shown := a.mapLayout()
+		return a.placeShaped(at, size, placement.Shape(size, ribbon, sunMap, shown))
 	}
 	tab, err := a.service.Collapsed(full)
 	if err != nil {
 		return err
 	}
 	a.report("taking the frame off the tab", a.tabFrame(true))
-	return a.place(tab.At, tab.Size)
+	return a.placeWhole(tab.At, tab.Size)
 }
 
 // ribbonAt answers where the full ribbon stands: where it was last arranged while the window is its

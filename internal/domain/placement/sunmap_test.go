@@ -88,3 +88,17 @@ func TestTooLittleRoomShowsNoMap(t *testing.T) {
 		t.Errorf("vertical at the top: got %+v %v", got, ok)
 	}
 }
+
+// FR-913: while the map shows the window keeps the ribbon and the map alone; else all of itself.
+func TestTheShapeIsTheRibbonAndItsMap(t *testing.T) {
+	t.Parallel()
+	size := Size{Width: 866, Height: 708}
+	ribbon := Rect{Left: 708, Top: 0, Right: 866, Bottom: 708}
+	sunMap := Rect{Left: 0, Top: 177, Right: 708, Bottom: 531}
+	if got := Shape(size, ribbon, sunMap, true); len(got) != 2 || got[0] != ribbon || got[1] != sunMap {
+		t.Errorf("shown: got %+v", got)
+	}
+	if got := Shape(size, ribbon, sunMap, false); len(got) != 1 || got[0] != (Rect{Right: 866, Bottom: 708}) {
+		t.Errorf("hidden: got %+v", got)
+	}
+}

@@ -76,6 +76,15 @@ func MapBeside(ribbon Rect, work Rect, side Edge, minimumWidth, floor int) (Rect
 	return rectOf(Clamp(at, size, work), size), true
 }
 
+// Shape answers the parts of a window size across that it keeps, in the window's own pixels
+// (FR-913): the ribbon and the sun map while the map shows, else the whole window.
+func Shape(size Size, ribbon, sunMap Rect, shown bool) []Rect {
+	if !shown {
+		return []Rect{rectOf(Point{}, size)}
+	}
+	return []Rect{ribbon, sunMap}
+}
+
 // roomBeside answers the room in work beyond the ribbon's side.
 func roomBeside(ribbon Rect, work Rect, side Edge) int {
 	switch side {

@@ -94,6 +94,7 @@ type App struct {
 	showMenu   func(items []application.MenuItem)
 	position   func() (placement.Point, error)
 	place      func(at placement.Point, size placement.Size) error
+	shape      func(parts []placement.Rect) error
 	background func(red, green, blue uint8)
 	// The unpinned ribbon's calls (FR-613 to FR-618): the time, a timer that answers its own stop,
 	// the tab's frame and the desktop's reporting of the pointer.
@@ -132,6 +133,7 @@ func newApp(service ribbonService, desk *desktop.Desktop, log io.Writer, panelSi
 	built.showMenu = desk.ShowMenu
 	built.position = built.ribbonPosition
 	built.place = built.placeRibbon
+	built.shape = func(parts []placement.Rect) error { return desktop.Shape(built.ribbon, parts) }
 	built.background = built.backgroundInWails
 	built.now = time.Now
 	built.after = func(wait time.Duration, do func()) func() bool { return time.AfterFunc(wait, do).Stop }
@@ -292,7 +294,7 @@ func (a *App) OpenPanel() error {
 		return err
 	}
 	a.report("giving the panel its frame", a.tabFrame(false))
-	return a.place(arranged.At, arranged.Size)
+	return a.placeWhole(arranged.At, arranged.Size)
 }
 
 // ClosePanel returns the window to the ribbon, where it was last left (CON-6, FR-405), then lets an

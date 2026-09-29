@@ -53,12 +53,19 @@ const (
 	taskbarCreatedMsg = "TaskbarCreated"
 	tipLength         = 128
 	menuIDBase        = 1
+	rgnOr             = 2 // RGN_OR
 )
 
 var (
 	user32   = windows.NewLazySystemDLL("user32.dll")
 	shell32  = windows.NewLazySystemDLL("shell32.dll")
 	kernel32 = windows.NewLazySystemDLL("kernel32.dll")
+	gdi32    = windows.NewLazySystemDLL("gdi32.dll")
+
+	procCreateRectRgn = gdi32.NewProc("CreateRectRgn")
+	procCombineRgn    = gdi32.NewProc("CombineRgn")
+	procDeleteObject  = gdi32.NewProc("DeleteObject")
+	procSetWindowRgn  = user32.NewProc("SetWindowRgn")
 
 	procShellNotifyIcon        = shell32.NewProc("Shell_NotifyIconW")
 	procExtractIconEx          = shell32.NewProc("ExtractIconExW")

@@ -309,8 +309,9 @@ its title, `WindowSetPosition` counts from the current screen's visible frame an
 is made regular as it finishes launching; on Linux `SetPosition` is monitor-relative while
 `GetPosition` is absolute.
 
-**The reference machine** for performance requirements is the development machine, to be read and
-recorded at the first measured build.
+**The reference machine** for performance requirements is the development machine, read on
+2026-09-29 at the first measured build: an AMD Ryzen 9 9900X with 62 GB of memory, an NVIDIA
+GeForce RTX 4060, Windows 11 Pro build 26200 and WebView2 154.0.4258.37, at 100 percent scaling.
 
 ### 2.4 Constraints
 
@@ -1122,7 +1123,7 @@ Verified by: `TestWriteFailureIsReportedAndCleared` (application).
 | NFR-M-1 | The coverage floor of CON-3, the size limit of CON-2 and the layering of CON-1 are enforced by `test.ps1`, which `build.ps1` runs first with no switch to skip it. | `build.ps1` |
 | NFR-M-2 | Go code passes gofmt, go vet and staticcheck; the front end passes eslint, `tsc --noEmit` and Vitest. | `test.ps1` |
 | NFR-C-1 | From 1.0.0, every later 1.x release shall read every settings file 1.0.0 writes to the same settings: no key 1.0.0 writes is renamed, dropped or given another meaning; no stored word changes. A later release may add keys; 1.0.0 keeps a key it does not know and writes it back. Amendment 4 (Oliver, 2026-09-27). Amendment 11 (Oliver, 2026-09-28): the next major version still reads that shape to the same settings; the file now lives in the renamed folder and nothing is read from the former one. | `TestA1Point0SettingsFileIsReadWhole` over the frozen fixture `internal/infrastructure/store/testdata/settings-1.0.0.json` |
-| NFR-P-5 | Amendment 20: drawing the sun map (FR-905) at 960 by 480 DIP shall take at most 100 ms on the reference machine. | Timed around the draw in the page, median of 10 minute refreshes, written to the log |
+| NFR-P-5 | Amendment 20: drawing the sun map (FR-905) at 960 by 480 DIP shall take at most 100 ms on the reference machine. | Timed around the draw in the page, median of 10 minute refreshes, written to the log. Measured 2026-09-29 on the reference machine with forced redraws in place of minute refreshes: a temporary probe repeated the draw (both pictures scaled, blended, put) at 960 by 480 ten times with the sun moved each time, on three launches of a dev build; medians 13.3, 12.6 and 13.3 ms, slowest 18.7 ms. The probe was removed |
 | NFR-C-2 | Amendment 20: the built-in map images (FR-911) shall add at most 4 MB to the application's executable. | Executable size compared with and without the images, read by `build.ps1` |
 | NFR-O-1 | The application shall write a log to `%APPDATA%\TimeRibbon\TimeRibbon.log` recording launch, placement recovery decisions, settings failures and invalid clocks; standard error is pointed at it before anything can fail. Amendment 13: on macOS and Linux, `TimeRibbon.log` in the settings folder of CON-8. | `TestLogReceivesStandardError` (infrastructure) |
 

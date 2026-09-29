@@ -53,13 +53,14 @@ does not exist.
 
 ## Layers
 
-- **Domain** (`internal/domain`: `clock`, `hover`, `placement`, `settings`): pure Go. Time arrives as an
-  argument and a zone arrives already resolved, so the domain holds no tz database and reads no
-  clock. `clock` turns an instant and a zone into what a cell shows: the local time in either
+- **Domain** (`internal/domain`: `clock`, `hover`, `placement`, `settings`, `sun`): pure Go. Time
+  arrives as an argument and a zone arrives already resolved, so the domain holds no tz database and
+  reads no clock. `clock` turns an instant and a zone into what a cell shows: the local time in either
   format, the date in the chosen date format (`DateFormat`, FR-612), the zone mark (the
   abbreviation where the tz database gives one beginning with a letter, else `UTC` and the signed
   offset) and the hand angles; `NextRefresh` names the next minute boundary. It also derives a
-  zone's default label. `placement` decides where the ribbon goes, in physical pixels: the default
+  zone's default label and writes every time and date a cell can show for the page to measure
+  (`Samples`, FR-620). `placement` decides where the ribbon goes, in physical pixels: the default
   place, a stored placement restored on its monitor at that monitor's DPI, the least move that
   brings a ribbon wholly inside a work area (`Clamp`, `Recover`), the ribbon's length along its
   orientation (`Fit`) plus a ribbon centred along its length on a work area with its position
@@ -71,7 +72,8 @@ does not exist.
   as one value; every operation answers a new value and leaves the old one as it was. It holds the
   pin in effect (`PinnedInEffect`: pinned or flush against no edge, FR-619) and the one rule for
   staying on top built on it (`OnTop`: Always on top or unpinned in effect, FR-617), plus the edge
-  last stood against (`LastEdge`, FR-411). Every arrangement names its flush edge
+  last stood against (`LastEdge`, FR-411). It bounds the opacity (`MinOpacity` 20 to `MaxOpacity` 100
+  percent, FR-622) and the scale (`MinScale` 75 to `MaxScale` 200 percent, FR-623). Every arrangement names its flush edge
   (`Arrangement.Edge`), which the facade reads the pin in effect from. `sun` answers the subsolar
   point for an instant from NOAA's equations (FR-906), checked against NOAA's own values in
   `testdata`; `placement/sunmap.go` puts the sun map beside the ribbon on the side away from its edge
@@ -100,8 +102,9 @@ does not exist.
   (`Store`, `Zones`, `Clock`, `IDs`, `Monitors`, `StartupEntry` in `ports.go`; `ReleaseSource` in
   `updates.go`). It builds the snapshot the ribbon draws, adds, edits and removes clocks, searches
   places, changes settings, arranges the ribbon (`Launch`, `Rearrange`, `Moved`, `ToEdge`,
-  `Centred`), checks for an update (`CheckForUpdate`, `SkipUpdate`) and answers the tray and context
-  menus. The snapshot orders its cells east from Greenwich (`eastFromGreenwich` in `snapshot.go`):
+  `ToLastEdge`, `Centred`), takes the cell width the page measured (`SetMeasured`) and the scale the
+  grip previews or keeps (`PreviewScale`, `SetScale` in `scale.go`), checks for an update
+  (`CheckForUpdate`, `SkipUpdate`) and answers the tray and context menus. The snapshot orders its cells east from Greenwich (`eastFromGreenwich` in `snapshot.go`):
   places level with or ahead of UTC by ascending offset, then the places behind UTC, since going
   east reaches them last. Offsets are read at the snapshot's instant, so the order is worked out
   afresh each time and daylight saving can move it; clocks keeping the same time keep their stored
@@ -144,8 +147,8 @@ on Linux and macOS (`platform_unix.go`) it hands the desktop the icon, which the
 than a resource in the executable, then ends the run on SIGTERM or SIGINT through Exit
 (`exitWhen` in `quit_signal.go`). `platform_linux.go` sends GTK through X11 before Wails opens it;
 `platform_darwin.go` links the UniformTypeIdentifiers framework, which Wails' macOS half uses and
-which the `wails` command would otherwise have added. The cell sizes (`layouts`) and the panel size
-(`panelSize`) have their one home there. No service is held in a package-level variable and there
+which the `wails` command would otherwise have added. The cell sizes with the padding and the
+handle's lane (`layouts`) and the panel size (`panelSize`) have their one home there. No service is held in a package-level variable and there
 is no service locator.
 
 The facade is `app.go` (the calls the page makes) and `window_life.go` (startup, showing, hiding,
@@ -155,8 +158,10 @@ in `app.go`. It holds each call into Wails and the desktop as a field, pointed b
 real calls: Wails' in `wails_calls.go`, the ribbon's position and placing in `window_life.go` and
 the desktop package's `OpenInBrowser` and `ShowMenu`. That is what lets the facade's tests stand in
 for the service, Wails and the desktop and read what it decided. `identity.go` answers About and
-Licence; `updates.go` runs the update check ([The update check](#the-update-check)); `dto.go` holds
-the wire; `launch.go` holds the window's options; `bindings_on.go` and `bindings_off.go` tell the
+Licence; `updates.go` runs the update check ([The update check](#the-update-check)); `measure.go`,
+`clockscale.go` and `opacity.go` carry the page's measurement, the grip's scale and the opacity to
+the service ([The ribbon's size and place](#the-ribbons-size-and-place), [One window](#one-window));
+`dto.go` holds the wire; `launch.go` holds the window's options; `bindings_on.go` and `bindings_off.go` tell the
 run `wails build` makes to generate bindings, which carries the `bindings` build tag, not to write
 the log, read the settings or show a tray icon.
 
@@ -194,10 +199,11 @@ as the ribbon's and a change of content is fitted when the panel closes.
 Settings then grows to its content (FR-621). Whenever anything inside it changes, `panelFit.ts`
 measures the panel laid out with no height of its own and hands that height to `FitPanel`, which centres
 the panel again at it through the same `Service.Centred`; so on a display with room nothing scrolls,
-while a shorter one still caps it at the work area. About keeps `panelSize`; Licence keeps it too,
-since it reads itself down its own scroller.
+while a shorter one still caps it at the work area. About and the update panel keep `panelSize`;
+Licence keeps it too, since it reads itself down its own scroller.
 
-**Opacity (FR-622).** The web view is transparent on every platform (`launch.go`). Everything is
+**Opacity (FR-622).** The web view is transparent on Windows and macOS and the window translucent on
+Linux (`launch.go`); check M-16 is the one that looks at the desktop showing through. Everything is
 drawn inside `#root`, which carries the page's background at the chosen opacity; `html` and `body`
 are clear. The window's own paint shows behind any part of the page drawn less than opaque, so
 `opacity.go` paints it in the page's colour only at full opacity (a window catching up with a new
@@ -244,8 +250,9 @@ under the choices now in force; the snapshot and `ribbonSize` both read `layoutF
 the page draws and the window Go sizes cannot disagree. The page measures again whenever the size,
 style or either format changes.
 
-Every change that can alter the cells (a clock added or removed, the style or size changed, a notice
-raised by a failed save or dismissed, the scroll bar or a cell width reported) refits the ribbon where it stands; a
+Every change that can alter the cells (a clock added or removed, the style, size or scale changed,
+the sun map turned on or off, a notice raised by a failed save or dismissed, the scroll bar or a cell
+width reported) refits the ribbon where it stands; a
 change of orientation sends it to that orientation's home edge instead (FR-409, below). Where the
 refit changes the ribbon's length, it is centred along that length on its display with its
 position across kept (`placement.CentredAlong`); `recentredKept` in `arrange.go` stores
@@ -263,13 +270,12 @@ display's DPI, so a window sized by the DPI alone cut the page off above 100%. O
 the toolkit sizes the window in DIP, so one CSS pixel is one unit (`desktop.PixelsPerDIP`).
 
 The cell sizes live in one table in `main.go`, one layout per size setting (FR-610): large and
-small, each giving a digital, an analogue and a prompt cell plus the padding. The service picks the
-layout for the current size (`Layouts.For`) and hands it to the page in the snapshot along with the
-size itself; the page marks the ribbon `small` so `app.css` reduces the text and the dial to fit. The
-small sizes were measured in Edge on 2026-09-28 against the longest date the cells show, `Wednesday,
-30 September`, so it fits whole. The other date formats (FR-612) were not measured: `Wednesday,
-September 30` holds the same characters in another order and the numeric ones are shorter; check
-M-12 is the one that looks at each on screen.
+small, each giving a digital, an analogue and a prompt cell plus the padding and the handle's lane.
+The service picks the layout for the current size (`Layouts.For`, widened by `layoutFor` as above)
+and hands it to the page in the snapshot along with the size itself; the page marks the ribbon
+`small` so `app.css` reduces the text and the dial to fit. The widths in the table are floors, so a
+date format or a font wider than they allow still shows whole once the page has measured it; check
+M-12 is the one that looks at each date format on screen.
 
 **Centred on an edge (FR-408).** The Position submenu's items name an edge each (`EdgeOf` in
 `menus.go`); `ToEdge` puts the ribbon flush against that edge of the work area it overlaps most,
@@ -350,9 +356,12 @@ version does not know is written back as it was found.
 version included (Amendment 11), reads every file the first release writes to the same settings. No key it writes may be
 renamed, dropped or given another meaning. No stored word (such as `12h` or `analogue`) may change.
 A later release may add keys. `size` (FR-610), `colour` (FR-611), `skippedUpdate` (FR-509, the
-release the user chose to skip), `dateFormat` (FR-612) and `pinned` (FR-613) came after the first
-release; a file without them reads as the large size, Classic, nothing skipped, the date in words
-day first and pinned.
+release the user chose to skip), `dateFormat` (FR-612), `pinned` (FR-613), `lastEdge` (FR-411),
+`sunMap` (FR-901), `pullOut` (FR-903), `opacity` (FR-622) and `scale` (FR-623) came after the first
+release and are written after the first release's keys (`internal/infrastructure/store/decode.go`);
+a file without them reads as the large size, Classic, nothing skipped, the date in words day first,
+pinned, no edge stood against yet, the sun map off and not pulled out, wholly opaque and at 100
+percent.
 The guard is `TestA1Point0SettingsFileIsReadWhole`, which reads the frozen fixture
 `internal/infrastructure/store/testdata/settings-1.0.0.json` (every key set away from its default)
 and requires every key to be read rather than merely carried. It was proved by renaming a key and by

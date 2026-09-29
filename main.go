@@ -35,9 +35,10 @@ var (
 	handleLane    = 16
 )
 
-// layouts is the size of one cell in each style at each size (FR-610), in DIP: its one home. The
-// page draws cells at these sizes from the snapshot; app.css sizes their text to fit, under
-// .ribbon.small for the small ones.
+// layouts is the size of one cell in each style at each size (FR-610), in DIP: its one home. They
+// are the least a clock cell is drawn at; a cell is widened to its widest time and date as the
+// page measures them (FR-620) and the whole ribbon drawn at the chosen scale (FR-623). app.css
+// sizes their text to fit, under .ribbon.small for the small ones.
 var layouts = application.Layouts{
 	Large: application.Layout{
 		Digital:    placement.Size{Width: 176, Height: 92},

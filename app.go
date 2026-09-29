@@ -359,8 +359,9 @@ func (a *App) refitted(err error) error {
 	return err
 }
 
-// contentChanged fits the ribbon to what it now holds, keeping its corner (FR-104, FR-105). While a
-// panel is open the window is that panel, so the ribbon is fitted when it closes instead.
+// contentChanged fits the ribbon to what it now holds where it stands; where its length changed it
+// is centred along that length again (FR-104, FR-105). While a panel is open the window is that
+// panel, so the ribbon is fitted when it closes instead.
 func (a *App) contentChanged() {
 	if a.panelOpen.Load() || a.ribbon == 0 {
 		return

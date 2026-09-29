@@ -29,9 +29,12 @@ checkout made before that file existed may hold CRLF; checking it out afresh bri
 
 ## The standard
 
-**A floor is a measurement, never an aspiration.** Every floor in `test.ps1` sits at or just below
-what that package measured, so it fails once cover is lost, which is the only moment worth being
-told. A floor picked from an aspiration only teaches people to lower it.
+**A floor is a measurement, never an aspiration.** A floor in `test.ps1` sits at or just below what
+that package measured, so it fails once cover is lost, which is the only moment worth being told. A
+floor picked from an aspiration only teaches people to lower it. Three floors do not meet that
+today: the root package, `internal/infrastructure/desktop` and `tools/genplaces` measure well above
+the floors set when each was first gated (the table below shows both), so each could lose that much
+cover before the gate says so.
 
 **A gap is named or it is closed.** Where something cannot be tested, this document says what it is
 and what stops it. An unexplained shortfall cannot be told from an oversight.
@@ -52,7 +55,7 @@ and what stops it. An unexplained shortfall cannot be told from an oversight.
 | `internal/infrastructure/update` | 100% | 100% | `test.ps1` |
 | `internal/infrastructure/zones` | 100% | 100% | `test.ps1` |
 | `internal/infrastructure/iconscale` | 100% | 100% | `test.ps1` |
-| `internal/infrastructure/store` | 93.3% | 92% | `test.ps1` |
+| `internal/infrastructure/store` | 93.4% | 92% | `test.ps1` |
 | `internal/infrastructure/setup` | 84.0% | 84% | `test.ps1` |
 | `tools/versioninfo` | 86.7% | 86% | `test.ps1` |
 | `tools/payload` | 82.8% | 82% | `test.ps1` |
@@ -63,27 +66,30 @@ and what stops it. An unexplained shortfall cannot be told from an oversight.
 | `tools/genplaces` | 58.6% | 38% | `test.ps1` |
 | `internal/infrastructure/appdata` | 100% | 100% | `test.ps1` |
 | `internal/infrastructure/runlog` | 76.5% | 76% | `test.ps1` |
-| the root package (the Wails facade) | 84.6% | 76% | `test.ps1` |
+| the root package (the Wails facade) | 85.5% | 76% | `test.ps1` |
 | `internal/infrastructure/desktop` | 35.8% | 14% | `test.ps1` |
 | `internal/product` | 100% | none | not gated |
 | `installer` | 0%, no tests | none | not gated |
 
 Every figure is the Windows build's, which is what `test.ps1` measures. The Windows build compiles
-334 Go test functions, counted from the test files `go list` selects for it; each runs once with no
+354 Go test functions, counted from the test files `go list` selects for it; each runs once with no
 subtests, plus one `TestMain` in `internal/infrastructure/setup`. Twenty-four of them are the
 structural tests in `tests/structural`, which read the source rather than run it and are the same
 on every platform; [ARCHITECTURE.md](ARCHITECTURE.md) lists each against the rule it holds. One
 test in `store` holds a promise rather than a rule of structure:
 `TestA1Point0SettingsFileIsReadWhole` reads a frozen settings file of the first release (NFR-C-1);
-see ARCHITECTURE.md, The settings file. The macOS and Linux builds compile 310 each
+see ARCHITECTURE.md, The settings file. The macOS and Linux builds compile 330 each
 ([On macOS and Linux](#on-macos-and-linux)).
 
 ### The front end
 
-100 tests across 12 files, under Vitest with jsdom: the ribbon, Settings, About, Licence and the
+116 tests across 16 files, under Vitest with jsdom: the ribbon, Settings, About, Licence and the
 update panel; the sun map's surface and handle, its day and night blend and where its labels stand
-(FR-914); the page's background colour; the self-reading cycle; the watch on the page's `devicePixelRatio`; then the setup
-page's screens, keyboard ring and unreachable-program cases. The front end has no coverage figure:
+(FR-914); the page's background colour; the self-reading cycle; the watch on the page's
+`devicePixelRatio`; the measuring of a cell's widest time and date (`measure.test.ts`, FR-620);
+Settings growing to its content (`panelFit.test.tsx`, FR-621); the opacity slider
+(`opacity.test.tsx`, FR-622); the corner grip (`scaleGrip.test.tsx`, FR-623); then the setup page's
+screens, keyboard ring and unreachable-program cases. The front end has no coverage figure:
 no coverage provider is installed, so none is measured or claimed.
 
 ## How each layer is tested
@@ -98,7 +104,7 @@ no coverage provider is installed, so none is measured or claimed.
 | the front end | component tests under jsdom | nothing |
 
 No Go test uses a mocking library; every double is a hand-written fake with the real interface
-behind it. The front end stands in for Go through `src/fakeBridge.ts`, which records every facade
+behind it. The front end stands in for Go through `frontend/src/fakeBridge.ts`, which records every facade
 call the page makes and gives each a canned answer of the real one's shape. **No test writes to the
 user's own settings, sign-in entry or Apps list**: the store and the log are tested in temporary
 folders; `startup` under a scratch key beneath `HKCU` on Windows and in a temporary folder on macOS
@@ -125,14 +131,16 @@ GitHub is asked only by the running application (M-13).
 - **`internal/infrastructure/runlog` (76.5%).** Opening the log and pointing standard error at it are
   tested, as is the folder refusing to be made; the log file refusing to open, the start line failing
   to write and `SetStdHandle` refusing only fail inside the system.
-- **The root package (84.6%).** The facade's tests are `facade_test.go`, `window_life_test.go`,
-  `unpinned_test.go`, `sunmap_test.go`, `background_test.go`, `effect_test.go`, `updates_test.go`
-  and `quit_signal_test.go`, over the scripted service in `fakes_test.go`. The facade's decisions are
-  tested: which calls fit the ribbon, that a drag whose save failed is still fitted, the panel state,
-  the tab, the window holding the ribbon with its map and cut to them before every placing, the menu
-  actions, the close, a signal from outside ending the application
-  even with the tray up, the recover round each desktop event and each update check, the update
-  watch's timing and what Download and Skip act on. Not reached: the composition root (`main.go`,
+- **The root package (85.5%).** The facade's tests are `facade_test.go`, `window_life_test.go`,
+  `unpinned_test.go`, `sunmap_test.go`, `background_test.go`, `effect_test.go`, `updates_test.go`,
+  `quit_signal_test.go`, `measure_test.go`, `panel_fit_test.go` and `clockscale_test.go`, over the
+  scripted service in `fakes_test.go`. The facade's decisions are tested: which calls fit the
+  ribbon, that a drag whose save failed is still fitted, the panel state, Settings fitted to its
+  content's height, the tab, the window holding the ribbon with its map and cut to them before every
+  placing, the menu actions, the close, a signal from outside ending the application even with the
+  tray up, the recover round each desktop event and each update check, the update watch's timing and
+  what Download and Skip act on, the page's measurement reaching the service, a change of scale
+  telling the page to draw again and the window painted clear below full opacity. Not reached: the composition root (`main.go`,
   `launch.go`), `startup`, `listen` and `shutdown`, which need the real ribbon window and the tray's
   message loop. Nor are the one-line calls in `wails_calls.go` and `window_life.go` that hand a
   request to Wails or Win32 and do nothing else, nor `preparePlatform` in `platform_windows.go`,
@@ -156,7 +164,7 @@ GitHub is asked only by the running application (M-13).
   `Places` accessor, which only the setup program's facade reads.
 - **`internal/infrastructure/startup` (80.6%).** Written, read and removed under a scratch key; the
   registry refusing to open the key or to read, write or delete its value is not reached.
-- **`internal/infrastructure/store` (93.3%).** The folder refusing to be made and the rename over the
+- **`internal/infrastructure/store` (93.4%).** The folder refusing to be made and the rename over the
   old file failing are tested. Not reached: the temporary file refusing to be made, written, flushed
   or closed, which only a failing disk produces; the error returns in `encode` and `extrasOf`, which
   guard values and a file already known to be well formed.
@@ -165,6 +173,11 @@ GitHub is asked only by the running application (M-13).
   Windows' own version API on 2026-09-27.
 - **`tools/payload` (82.8%).** `main` hands `run` the real arguments; the archive failing to close
   or to move into place is not reached.
+- **`tools/identity` (75%).** The printing is tested; `main`, one line handing it standard output,
+  is not reached.
+- **`tools/linuxicons` (67.7%).** Writing every size from a master is tested. Not reached: `main`,
+  arguments that fail to parse, a master that is not a PNG, an output folder that cannot be made and
+  a size that cannot be created, encoded or closed.
 - **`tools/genplaces` (58.6%).** `main`, `run`, `readTable` and `readVersion` read the tz database's
   own files, which a test machine need not have. The parsing (the zone table's coordinates included)
   and the writing of the catalogue are tested; a test in `zones` holds every zone in the committed catalogue to resolving.
@@ -175,7 +188,7 @@ The macOS and Linux halves of infrastructure compile only for their own platform
 face the desktop (`cocoamain`, `gtkmain`, `monitors`, `desktop`) also need cgo against AppKit or
 GTK. `test.ps1` reaches none of them. They are checked on a machine of their own
 platform, set up as [DEVELOPMENT.md](DEVELOPMENT.md) says, from a checkout with the page built. Each
-build compiles 310 Go test functions: the shared ones, the structural tests and its own.
+build compiles 330 Go test functions: the shared ones, the structural tests and its own.
 
 | What | macOS | Linux |
 |---|---|---|

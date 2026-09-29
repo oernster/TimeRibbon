@@ -300,12 +300,14 @@ so a build carrying the development placeholder is never offered a release.
 
 | Path | What it holds |
 |---|---|
-| `main.go` | the composition root and the cell and panel sizes |
+| `main.go` | the composition root; each cell's least size (the page's measure of its widest time and date can widen it), the pull out handle's lane and the panel's size (Settings then grows or shrinks to its content) |
 | `app.go`, `window_life.go` | the facade: the calls the page makes; the window's own life with the desktop's events |
+| `unpinned.go`, `sunmap.go` | the facade's side of the unpinned ribbon and its tab; of the sun map sharing the ribbon's window |
+| `measure.go`, `clockscale.go`, `opacity.go` | the facade's calls for a cell's measured width (FR-620), the corner grip's scale (FR-623) and the window's opacity (FR-622) |
 | `wails_calls.go` | the facade's calls into Wails (show, hide, quit, always on top, events), held as fields so its tests can stand in for them |
 | `updates.go` | the facade's side of the update check (FR-509): its timing, the check itself whether automatic or asked for from Help and the calls the update panel makes |
 | `quit_signal.go` | ending the run when a signal from outside asks, which a close would only turn into hiding while the tray is up |
-| `facade_test.go`, `window_life_test.go`, `updates_test.go`, `quit_signal_test.go`, `fakes_test.go` | the facade's tests, over a scripted service and a stand-in window |
+| `*_test.go` in the root | the facade's tests, over a scripted service and a stand-in window (`fakes_test.go`) |
 | `identity.go`, `dto.go`, `launch.go` | About and Licence, the wire, the window's options |
 | `platform_windows.go`, `platform_unix.go`, `platform_linux.go`, `platform_darwin.go` | what each platform's run needs before Wails opens: the tray's image and ending on a signal off Windows, X11 on Linux, a framework to link on macOS |
 | `bindings_on.go`, `bindings_off.go` | keep the binding-generation run from writing the log or showing a tray icon |

@@ -44,8 +44,8 @@ in a small frameless ribbon you can put anywhere on any monitor.
   its icon lives in the notification area on Windows, the menu bar on macOS and the system tray on
   Linux. The icon's menu and the ribbon's own right-click menu both add a clock, open Settings,
   choose digital or analogue, choose a colour scheme, choose horizontal or vertical, centre the
-  ribbon on an edge, turn Always on top on or off, open Help (About, Licence and Check for updates)
-  and exit. The icon's menu also shows or hides the ribbon; the ribbon's own menu hides it. Hiding
+  ribbon on an edge, turn Always on top, Pin ribbon and Sun map on or off, open Help (About, Licence
+  and Check for updates) and exit. The icon's menu also shows or hides the ribbon; the ribbon's own menu hides it. Hiding
   it leaves TimeRibbon running; only Exit ends it.
 - **Answers the icon the way each desktop expects.** On Windows a left click on the icon shows or
   hides the ribbon and a right click opens the menu. On macOS a click opens the menu, as every menu
@@ -59,10 +59,11 @@ in a small frameless ribbon you can put anywhere on any monitor.
   typing in. Unpinned, it stays above other windows so the tab is never lost. The tab only happens
   against an edge: dragged away from every edge the ribbon stays in full; dropped near an edge it
   snaps flush and waits as a tab again. It is pinned unless you choose otherwise.
-- **Shows where it is day.** Tick Sun map and the ribbon gains a handle; its arrow slides a world
-  map out below a horizontal ribbon (above one at the bottom of the screen) or beside a vertical
-  one, then back again. The map is lit where it is
-  day, dark with city lights where it is night, each clock's city marked in red. Nearby cities'
+- **Shows where it is day.** Tick Sun map in either menu and the ribbon gains a handle in a lane of
+  its own along its inner side, so the ribbon grows a little deeper and the handle covers no clock.
+  Its arrow slides a world map out below a horizontal ribbon (above one at the bottom of the screen)
+  or beside a vertical one, then back again. The map is lit where it is day, dark with city lights
+  where it is night, each clock's city marked in red. Nearby cities'
   names move aside rather than print over each other. On Windows the desktop shows round the map;
   on macOS and Linux the window stays a rectangle round the ribbon and its map. The pictures are
   NASA's Blue Marble and Black Marble, built in, so nothing is fetched to draw them.
@@ -74,12 +75,13 @@ in a small frameless ribbon you can put anywhere on any monitor.
   or bottom for a horizontal one. Choosing horizontal sends it to the top edge; choosing vertical
   sends it to the right.
 - **Re-centres when its length changes.** Adding or removing a clock, a notice appearing or going
-  and a change of style or size all change the ribbon's length. When that happens the ribbon
+  and a change of style, size or scale all change the ribbon's length. When that happens the ribbon
   centres itself along its length on its display, keeping its position across; it opens there next
   time. Otherwise only a drag, Position or a change of orientation moves it.
 - **Fits its clocks, then scrolls.** The ribbon is as long as its clocks until it reaches the edge
   of the display, then its clocks scroll rather than shrink or wrap. A plain mouse wheel moves a
-  horizontal ribbon along.
+  horizontal ribbon along. Each clock is as wide as the widest time and date its size, style and
+  formats can show in the font it is drawn in, so no time or date is ever cut short.
 - **Digital or analogue, large or small, ten colour schemes, 12-hour or 24-hour, five date
   formats, horizontal or vertical, light or dark.** Every choice applies at once, with no Save
   step. The schemes are Classic, Neon (glowing digits and hands when dark), Ocean, Sunset, Forest,
@@ -87,7 +89,8 @@ in a small frameless ribbon you can put anywhere on any monitor.
   The date reads "Monday, 28 September" or "Monday, September 28" in words; in numbers it reads
   "Mon 28/09/2026", "Mon 09/28/2026" or "Mon 2026/09/28". Style, colour and orientation are in
   the menus; size, time format, date format, theme and opacity are in Settings. Small clocks suit a
-  small screen such as a 13 inch laptop. The theme can follow the system's. The Opacity slider draws
+  small screen such as a 13 inch laptop. The theme can follow the system's. Settings opens as tall
+  as its content, up to the height of the display, where it scrolls instead. The Opacity slider draws
   the whole window from 20 to 100 percent opaque, so the ribbon can sit over other work without
   hiding it. The grip in the ribbon's corner resizes the clocks by hand, from 75 to 200 percent of
   either size, everything in them together; a double-click on it returns them to their own size.
@@ -210,7 +213,7 @@ nothing. [ARCHITECTURE.md](ARCHITECTURE.md) explains the layering and the reason
 decision. [TECH_DEBT.md](TECH_DEBT.md) lists what is still open, what is deliberately left and what
 only looks like debt.
 
-## Supporting the project
+## Supporting TimeRibbon
 
 TimeRibbon is free and stays free: there is no paid tier, no licence key and no feature held back
 behind a donation. If it earns its place on your screen, a donation is welcome. The same button sits

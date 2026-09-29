@@ -56,12 +56,12 @@ func TestTheSnapshotCarriesTheSubsolarPoint(t *testing.T) {
 	}
 }
 
-// FR-902, FR-904: a horizontal ribbon at the top edge, sun map on, has a map below it, 480 by 240 for
-// its 336 long ribbon, centred on it; off, no side and no map.
+// FR-902, FR-904: a horizontal ribbon at the top edge, sun map on and pulled out, has a map below it,
+// 480 by 240 for its 336 long ribbon, centred on it; off, no side and no map.
 func TestAHorizontalRibbonsMapGoesBelowIt(t *testing.T) {
 	t.Parallel()
 	on := clocks(2)
-	on.SunMap = true
+	on.SunMap, on.PullOut = true, true
 	got, err := newRig(t, on).service.Launch()
 	if err != nil {
 		t.Fatal(err)
@@ -72,6 +72,21 @@ func TestAHorizontalRibbonsMapGoesBelowIt(t *testing.T) {
 	}
 	if off, _ := newRig(t, clocks(2)).service.Launch(); off.MapSide != "" || off.Map != (placement.Rect{}) {
 		t.Errorf("off: %+v", off)
+	}
+}
+
+// FR-903, Amendment 22: a horizontal ribbon at the top edge has its handle below it; its map shows
+// there only while the pull out is open.
+func TestAHorizontalRibbonsMapWaitsForThePullOut(t *testing.T) {
+	t.Parallel()
+	closed := clocks(2)
+	closed.SunMap = true
+	got, err := newRig(t, closed).service.Launch()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.MapSide != placement.Bottom || got.Map != (placement.Rect{}) {
+		t.Errorf("closed: %+v", got)
 	}
 }
 

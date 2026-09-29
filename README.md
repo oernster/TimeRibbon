@@ -59,8 +59,9 @@ in a small frameless ribbon you can put anywhere on any monitor.
   typing in. Unpinned, it stays above other windows so the tab is never lost. The tab only happens
   against an edge: dragged away from every edge the ribbon stays in full; dropped near an edge it
   snaps flush and waits as a tab again. It is pinned unless you choose otherwise.
-- **Shows where it is day.** Tick Sun map and a world map lies below a horizontal ribbon (above one
-  at the bottom of the screen) or slides out beside a vertical one from a handle: lit where it is
+- **Shows where it is day.** Tick Sun map and the ribbon gains a handle; its arrow slides a world
+  map out below a horizontal ribbon (above one at the bottom of the screen) or beside a vertical
+  one, then back again. The map is lit where it is
   day, dark with city lights where it is night, each clock's city marked in red. Nearby cities'
   names move aside rather than print over each other. On Windows the desktop shows round the map;
   on macOS and Linux the window stays a rectangle round the ribbon and its map. The pictures are

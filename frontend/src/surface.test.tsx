@@ -23,14 +23,26 @@ describe('Surface (FR-902, FR-903, FR-910)', () => {
     expect(screen.getByRole('button', { name: closePullOut }).getAttribute('title')).toBe(closePullOut)
   })
 
-  it('gives a horizontal ribbon no handle and draws its map with each clock marked by name', () => {
+  it('gives a horizontal ribbon the same handle, its arrow pointing the way the map will move (Amendment 22)', () => {
+    const bridge = installBridge()
+    const closed = sunMap({ side: 'bottom', ribbon: { x: 0, y: 0, width: 336, height: 106 } })
+    const { rerender } = render(<Surface snapshot={snapshot({ sunMap: closed })} onAddClock={vi.fn()} refused={vi.fn()} />)
+    const handle = screen.getByRole('button', { name: openPullOut })
+    expect(handle.textContent).toBe('▼')
+    expect(handle.className).toBe('pull-out-handle bottom')
+    fireEvent.click(handle)
+    expect(bridge.TogglePullOut).toHaveBeenCalledOnce()
+    rerender(<Surface snapshot={snapshot({ sunMap: sunMap({ side: 'top', pullOut: true, ribbon: closed.ribbon }) })} onAddClock={vi.fn()} refused={vi.fn()} />)
+    expect(screen.getByRole('button', { name: closePullOut }).textContent).toBe('▼')
+  })
+
+  it('draws a horizontal ribbon\'s map with each clock marked by name', () => {
     const shown = sunMap({
-      side: 'bottom', shown: true, ribbon: { x: 72, y: 0, width: 336, height: 106 }, map: { x: 0, y: 106, width: 480, height: 240 },
+      side: 'bottom', shown: true, pullOut: true, ribbon: { x: 72, y: 0, width: 336, height: 106 }, map: { x: 0, y: 106, width: 480, height: 240 },
       marks: [{ label: 'Mum', latitude: 51.5, longitude: -0.1 }],
     })
     const bridge = installBridge()
     render(<Surface snapshot={snapshot({ sunMap: shown })} onAddClock={vi.fn()} refused={vi.fn()} />)
-    expect(screen.queryByRole('button', { name: openPullOut })).toBeNull()
     expect(screen.getByText('Mum')).toBeTruthy()
     // A right-click on the map offers the ribbon's own menu (FR-108).
     fireEvent.contextMenu(screen.getByText('Mum').closest('.sun-map') as HTMLElement)

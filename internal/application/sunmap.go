@@ -10,8 +10,8 @@ import (
 
 // SunMap is what the sun map draws at one instant (FR-905 to FR-908).
 type SunMap struct {
-	// On is whether the sun map is shown with the ribbon (FR-901); PullOut whether a vertical
-	// ribbon's map is pulled out (FR-903).
+	// On is whether the sun map is shown with the ribbon (FR-901); PullOut whether the map is pulled
+	// out, whichever way the ribbon runs (FR-903).
 	On, PullOut bool
 	// Subsolar is where the sun stands overhead at the snapshot's instant.
 	Subsolar sun.Point
@@ -49,7 +49,7 @@ func (s *Service) SetSunMap(on bool) error {
 	return choose(s, on, func(c *settings.Settings) *bool { return &c.SunMap })
 }
 
-// SetPullOut opens or closes a vertical ribbon's pull out, which is remembered (FR-903).
+// SetPullOut opens or closes the pull out, one remembered choice for both orientations (FR-903).
 func (s *Service) SetPullOut(open bool) error {
 	return choose(s, open, func(c *settings.Settings) *bool { return &c.PullOut })
 }
@@ -60,9 +60,9 @@ func (s *Service) sunMapItem() MenuItem {
 }
 
 // mapBeside answers where the sun map goes for a ribbon arranged at at of size on monitor, flush
-// against edge (none when empty): the side it adjoins (where a vertical ribbon's handle goes too)
-// with its rectangle; false for the rectangle while no map is shown (FR-902 to FR-904).
-// The side is empty while the sun map is off.
+// against edge (none when empty): the side it adjoins (where the pull out's handle goes too) with
+// its rectangle; false for the rectangle while no map is shown, the pull out closed included
+// (FR-902 to FR-904). The side is empty while the sun map is off.
 func (s *Service) mapBeside(current settings.Settings, at placement.Point, size placement.Size, monitor placement.Monitor, edge placement.Edge) (placement.Edge, placement.Rect, bool) {
 	if !current.SunMap {
 		return "", placement.Rect{}, false
@@ -70,7 +70,7 @@ func (s *Service) mapBeside(current settings.Settings, at placement.Point, size 
 	vertical := current.Orientation == settings.Vertical
 	ribbon := placement.Rect{Left: at.X, Top: at.Y, Right: at.X + size.Width, Bottom: at.Y + size.Height}
 	side := placement.InnerSide(ribbon, monitor.Work, vertical, edge)
-	if vertical && !current.PullOut {
+	if !current.PullOut {
 		return side, placement.Rect{}, false
 	}
 	perDIP := s.perDIP(monitor)

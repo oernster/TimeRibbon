@@ -271,3 +271,19 @@ button:focus-visible {
 .pull-out-handle.right {
   transform: translate(-100%, -50%);
 }
+
+/* Along a horizontal ribbon the handle lies on its side: the same two lengths, swapped. */
+.pull-out-handle.top,
+.pull-out-handle.bottom {
+  width: var(--handle-height);
+  min-width: var(--handle-height);
+  height: var(--handle-width);
+}
+
+.pull-out-handle.top {
+  transform: translateX(-50%);
+}
+
+.pull-out-handle.bottom {
+  transform: translate(-50%, -100%);
+}

@@ -10,6 +10,7 @@ import (
 
 	"github.com/oernster/timeribbon/internal/domain/placement"
 	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/internal/domain/sun"
 )
 
 // Loaded is what the store answers at launch.
@@ -36,6 +37,8 @@ type Place struct {
 	Label string
 	// Country is the name of the country the zone lies in; empty where the tz database names none.
 	Country string
+	// At is the zone's own city, where the sun map marks a clock set to it (FR-908).
+	At sun.Point
 }
 
 // Zones resolves zone ids and lists the places a clock can be set to.

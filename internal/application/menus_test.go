@@ -17,12 +17,12 @@ func labels(items []MenuItem) []string {
 	return out
 }
 
-// FR-502, FR-613.
+// FR-502, FR-613, FR-901.
 func TestTrayMenuNamesTheOppositeOfTheVisibility(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, settings.Defaults())
 	shown := r.service.TrayMenu(true)
-	if !slices.Equal(labels(shown), []string{"Hide ribbon", "Add clock", "Settings", "Style", "Colour", "Orientation", "Position", "Always on top", "Pin ribbon", "Help", "Exit"}) ||
+	if !slices.Equal(labels(shown), []string{"Hide ribbon", "Add clock", "Settings", "Style", "Colour", "Orientation", "Position", "Always on top", "Pin ribbon", "Sun map", "Help", "Exit"}) ||
 		shown[0].Action != ActionHide {
 		t.Errorf("visible: %+v", shown)
 	}
@@ -95,11 +95,11 @@ func TestBothMenusOfferStyleAndOrientationWithTheCurrentTicked(t *testing.T) {
 	}
 }
 
-// FR-108, FR-613.
+// FR-108, FR-613, FR-901.
 func TestContextMenuOffersTheRibbonsActions(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, settings.Defaults())
-	if got := labels(r.service.ContextMenu()); !slices.Equal(got, []string{"Add clock", "Settings", "Style", "Colour", "Orientation", "Position", "Always on top", "Pin ribbon", "Help", "Hide ribbon", "Exit"}) {
+	if got := labels(r.service.ContextMenu()); !slices.Equal(got, []string{"Add clock", "Settings", "Style", "Colour", "Orientation", "Position", "Always on top", "Pin ribbon", "Sun map", "Help", "Hide ribbon", "Exit"}) {
 		t.Errorf("got %v", got)
 	}
 	if last := r.service.ContextMenu()[len(r.service.ContextMenu())-1]; last.Action != ActionExit {

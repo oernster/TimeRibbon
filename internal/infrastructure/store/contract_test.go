@@ -52,4 +52,8 @@ func TestA1Point0SettingsFileIsReadWhole(t *testing.T) {
 	if !got.Pinned {
 		t.Error("a 1.0.0 file read unpinned, want pinned")
 	}
+	// 1.0.0 had no sun map (FR-901): it stays off, pulled in.
+	if got.SunMap || got.PullOut {
+		t.Errorf("a 1.0.0 file read with sun map %v, pull out %v; want both off", got.SunMap, got.PullOut)
+	}
 }

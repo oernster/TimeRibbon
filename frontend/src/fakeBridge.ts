@@ -25,6 +25,10 @@ export function snapshot(overrides: Partial<Snapshot> = {}): Snapshot {
     layout: { digital: { width: 176, height: 92 }, analogue: { width: 176, height: 176 }, prompt: { width: 176, height: 184 }, padding: 6 },
     refreshInMs: 60000, notices: [], scrolls: false, dragThreshold: { width: 4, height: 4 }, startLabel: 'Start at sign-in',
     collapsed: false,
+    sunMap: {
+      on: false, pullOut: false, side: '', shown: false, ribbon: { x: 0, y: 0, width: 0, height: 0 },
+      map: { x: 0, y: 0, width: 0, height: 0 }, latitude: 0, longitude: 0, marks: [],
+    },
     ...overrides,
   }
 }
@@ -55,6 +59,8 @@ export function installBridge() {
     SetPixelRatio: vi.fn(async () => undefined),
     SetBackground: vi.fn(async () => undefined),
     RibbonDrawn: vi.fn(async () => undefined),
+    SetSunMap: vi.fn(async () => undefined),
+    TogglePullOut: vi.fn(async () => undefined),
     ShowContextMenu: vi.fn(async () => undefined),
     OpenPanel: vi.fn(async () => undefined),
     ClosePanel: vi.fn(async () => undefined),

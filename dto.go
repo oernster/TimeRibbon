@@ -55,7 +55,51 @@ type snapshotDTO struct {
 	DragThreshold sizeDTO   `json:"dragThreshold"`
 	StartLabel    string    `json:"startLabel"`
 	// Collapsed is true while the window is an unpinned ribbon's tab (FR-614).
-	Collapsed bool `json:"collapsed"`
+	Collapsed bool      `json:"collapsed"`
+	SunMap    sunMapDTO `json:"sunMap"`
+}
+
+// boxDTO is a rectangle inside the window, in the window's pixels.
+type boxDTO struct {
+	X      int `json:"x"`
+	Y      int `json:"y"`
+	Width  int `json:"width"`
+	Height int `json:"height"`
+}
+
+// markDTO is one clock's place on the sun map (FR-908).
+type markDTO struct {
+	Label     string  `json:"label"`
+	Latitude  float64 `json:"latitude"`
+	Longitude float64 `json:"longitude"`
+}
+
+// sunMapDTO is what the sun map draws and where (FR-901 to FR-910). Side is where the map and the
+// pull out's handle go, empty while the map is off; Shown is whether the map is drawn now, in Map,
+// beside the ribbon in Ribbon. Latitude and Longitude are the subsolar point.
+type sunMapDTO struct {
+	On        bool      `json:"on"`
+	PullOut   bool      `json:"pullOut"`
+	Side      string    `json:"side"`
+	Shown     bool      `json:"shown"`
+	Ribbon    boxDTO    `json:"ribbon"`
+	Map       boxDTO    `json:"map"`
+	Latitude  float64   `json:"latitude"`
+	Longitude float64   `json:"longitude"`
+	Marks     []markDTO `json:"marks"`
+}
+
+func boxOf(r placement.Rect) boxDTO {
+	return boxDTO{X: r.Left, Y: r.Top, Width: r.Width(), Height: r.Height()}
+}
+
+// sunMapOf answers the wire form of the sun map's content; where it is drawn is the facade's.
+func sunMapOf(m application.SunMap) sunMapDTO {
+	marks := make([]markDTO, 0, len(m.Marks))
+	for _, mark := range m.Marks {
+		marks = append(marks, markDTO{Label: mark.Label, Latitude: mark.At.Latitude, Longitude: mark.At.Longitude})
+	}
+	return sunMapDTO{On: m.On, PullOut: m.PullOut, Latitude: m.Subsolar.Latitude, Longitude: m.Subsolar.Longitude, Marks: marks}
 }
 
 // placeDTO is one entry of the place search.
@@ -117,6 +161,7 @@ func snapshotOf(s application.Snapshot, scrolls bool, threshold placement.Size) 
 		Scrolls:       scrolls,
 		DragThreshold: sizeOf(threshold),
 		StartLabel:    product.StartAtSignIn,
+		SunMap:        sunMapOf(s.SunMap),
 	}
 }
 

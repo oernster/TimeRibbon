@@ -46,6 +46,10 @@ func CreditsFor(goos string) []Credit {
 	return out
 }
 
+// nasaImagery is the licence line of each NASA picture: its standing under NASA's media usage
+// guidelines, the credit NASA asks for and the endorsement it forbids.
+const nasaImagery = "NASA imagery, not subject to copyright in the United States; courtesy of NASA Earth Observatory. Its use does not imply endorsement by NASA"
+
 // windowsOnly names the platform of a component only the Windows build ships.
 var windowsOnly = []string{Windows}
 
@@ -57,6 +61,10 @@ var allCredits = []Credit{
 	{"", "tz database", "public domain, IANA", "the list of places plus the time zone rules, built in through Go's time/tzdata", nil},
 	{"github.com/wailsapp/wails/v2", "Wails v2", "MIT", "the desktop shell", nil},
 	{"", "React and React DOM", "MIT", "the user interface", nil},
+	// The sun map's pictures (FR-912, ASM-5). NASA's guidelines put its imagery outside US copyright,
+	// ask that NASA be credited as the source and forbid any suggestion that NASA endorses a product.
+	{"", "Blue Marble: Next Generation, July, by Reto Stöckli, NASA Earth Observatory", nasaImagery, "the sun map's daylight picture", nil},
+	{"", "Black Marble 2016, NASA Earth Observatory", nasaImagery, "the sun map's night lights", nil},
 	{"golang.org/x/sys", "golang.org/x/sys", "BSD-3-Clause", "the tray icon, the displays, the window and Start with Windows", windowsOnly},
 	{"golang.org/x/sys", "golang.org/x/sys", "BSD-3-Clause", "sending the runtime's own error reports to the log", []string{MacOS}},
 	{"golang.org/x/sys", "golang.org/x/sys", "BSD-3-Clause", "sending the runtime's own error reports to the log; also used by Wails", []string{Linux}},

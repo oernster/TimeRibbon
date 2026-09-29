@@ -5,7 +5,7 @@ import { About, Licence, Update } from './Help'
 import { watchPixelRatio } from './pixelRatio'
 import { scrollbarThickness } from './scrollbar'
 import { Settings } from './Settings'
-import { Ribbon } from './Ribbon'
+import { Surface } from './Surface'
 
 /** The panels the window can become (CON-6); app.go names each in its open-panel event. */
 type Panel = 'settings' | 'about' | 'licence' | 'update'
@@ -116,5 +116,5 @@ export function App() {
   if (view === 'update' && update != null) {
     return <Update status={update} onClose={closePanel} />
   }
-  return <Ribbon snapshot={snapshot} onAddClock={() => openPanel(addClock)} refused={setProblem} />
+  return <Surface snapshot={snapshot} onAddClock={() => openPanel(addClock)} refused={setProblem} />
 }

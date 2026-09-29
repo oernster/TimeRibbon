@@ -43,6 +43,39 @@ export interface Snapshot {
   startLabel: string
   /** True while the window is an unpinned ribbon's tab (FR-614). */
   collapsed: boolean
+  sunMap: SunMap
+}
+
+/** A rectangle inside the window, in the window's pixels. */
+export interface Box {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
+/** One clock's place on the sun map (FR-908). */
+export interface Mark {
+  label: string
+  latitude: number
+  longitude: number
+}
+
+/**
+ * What the sun map draws and where (FR-901 to FR-910): side is where the map and the pull out's
+ * handle go, empty while the map is off; shown is whether the map is drawn now, in map, beside the
+ * ribbon in ribbon. latitude and longitude are the subsolar point.
+ */
+export interface SunMap {
+  on: boolean
+  pullOut: boolean
+  side: string
+  shown: boolean
+  ribbon: Box
+  map: Box
+  latitude: number
+  longitude: number
+  marks: Mark[]
 }
 
 export interface Place {

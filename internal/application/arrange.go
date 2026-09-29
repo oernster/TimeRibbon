@@ -19,6 +19,10 @@ type Arrangement struct {
 	// Edge is the edge running along the orientation the ribbon stands flush against; empty when it
 	// stands against none, which leaves it pinned in effect (FR-619).
 	Edge placement.Edge
+	// MapSide is the ribbon's side the sun map and the pull out's handle go on; empty while the sun
+	// map is off. Map is the sun map's rectangle; zero while no map is shown (FR-902 to FR-904).
+	MapSide placement.Edge
+	Map     placement.Rect
 }
 
 // Launch arranges the ribbon at launch or as a panel closes: on its stored monitor and offset, else
@@ -192,6 +196,12 @@ func (s *Service) arrange(
 	if edge, flush := placement.FlushAgainst(arranged.At, size, placed.Monitor.Work, vertical); flush {
 		arranged.Edge = edge
 		s.rememberEdge(placement.Against{Device: placed.Monitor.Device, Edge: edge})
+	}
+	if side, rect, shown := s.mapBeside(current, arranged.At, size, placed.Monitor, arranged.Edge); side != "" {
+		arranged.MapSide = side
+		if shown {
+			arranged.Map = rect
+		}
 	}
 	s.remember(lastPlaced{known: true, device: placed.Monitor.Device, at: arranged.At, size: size})
 	return arranged, placed.Monitor, recentred, nil

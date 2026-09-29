@@ -3,6 +3,7 @@ package product
 import (
 	"runtime"
 	"slices"
+	"strings"
 	"testing"
 )
 
@@ -33,5 +34,22 @@ func TestEachPlatformCreditsWhatItShips(t *testing.T) {
 	}
 	if len(Credits) != len(CreditsFor(runtime.GOOS)) {
 		t.Error("Credits is not this platform's list")
+	}
+}
+
+// FR-912: every platform's About credits both map pictures to NASA Earth Observatory, saying NASA
+// does not endorse TimeRibbon.
+func TestEveryPlatformCreditsTheMapPictures(t *testing.T) {
+	t.Parallel()
+	for _, goos := range Platforms {
+		pictures := 0
+		for _, credit := range CreditsFor(goos) {
+			if credit.Licence == nasaImagery && strings.Contains(credit.Name, "NASA Earth Observatory") && strings.Contains(credit.Licence, "endorsement") {
+				pictures++
+			}
+		}
+		if pictures != 2 {
+			t.Errorf("%s credits %d map pictures, want 2", goos, pictures)
+		}
 	}
 }

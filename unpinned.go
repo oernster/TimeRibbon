@@ -99,7 +99,8 @@ func (a *App) arrangeWindow(full application.Arrangement) error {
 func (a *App) showArranged(full application.Arrangement, open bool) error {
 	if open {
 		a.report("framing the full ribbon", a.tabFrame(!a.pinnedAt(full)))
-		return a.place(full.At, full.Size)
+		at, size, _ := windowOf(full)
+		return a.place(at, size)
 	}
 	tab, err := a.service.Collapsed(full)
 	if err != nil {
@@ -118,7 +119,8 @@ func (a *App) ribbonAt() (placement.Point, error) {
 	if collapsed {
 		return at, nil
 	}
-	return a.position()
+	window, err := a.position()
+	return a.ribbonFromWindow(window), err
 }
 
 // pointerMoved hears the pointer come onto the ribbon or go off it (FR-615, FR-616).

@@ -146,6 +146,14 @@ export function Settings({ snapshot, startAdding, reload, onClose }: Props) {
         <label>
           <input
             type="checkbox"
+            checked={snapshot.sunMap.on}
+            onChange={(event) => void api.setSunMap(event.target.checked, setProblem).then(then)}
+          />
+          Sun map
+        </label>
+        <label>
+          <input
+            type="checkbox"
             disabled={startWithWindows == null}
             checked={startWithWindows === true}
             onChange={(event) => {

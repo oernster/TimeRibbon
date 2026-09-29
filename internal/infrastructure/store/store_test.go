@@ -41,6 +41,7 @@ func full() settings.Settings {
 			DPI: 144, Offset: placement.Point{X: 180, Y: -4},
 		},
 		LastEdge: &placement.Against{Device: `\\.\DISPLAY2`, Edge: placement.Left},
+		SunMap:   true, PullOut: true,
 	}
 	s = s.WithClockAdded(settings.Entry{ID: "a1", Zone: "America/New_York", Label: "New York"})
 	return s.WithClockAdded(settings.Entry{ID: "b2", Zone: "Australia/Sydney", Label: "Mum"})
@@ -66,6 +67,10 @@ func TestSettingsRoundTrip(t *testing.T) {
 	// full is unpinned, away from the default, so the pin is proved written and read (FR-613).
 	if got.Pinned != want.Pinned {
 		t.Errorf("pinned read as %v, want %v", got.Pinned, want.Pinned)
+	}
+	// FR-901, FR-903: full has the sun map on and pulled out, away from the defaults.
+	if !got.SunMap || !got.PullOut {
+		t.Errorf("sun map read as %v, pull out %v; want both on", got.SunMap, got.PullOut)
 	}
 	// FR-411: the remembered edge is written and read.
 	if got.LastEdge == nil || *got.LastEdge != *want.LastEdge {

@@ -116,6 +116,9 @@ func (a *App) act(action application.MenuAction) {
 	case application.ActionPin:
 		a.report("pinning the ribbon", a.setPinned(!a.pinned()))
 		a.emit(eventRefresh)
+	case application.ActionSunMap:
+		a.report("turning the sun map on or off", a.SetSunMap(!a.service.Settings().SunMap))
+		a.emit(eventRefresh)
 	case application.ActionExit:
 		a.quitting.Store(true)
 		if a.ctx != nil {
@@ -192,12 +195,12 @@ func (a *App) moved() {
 	if a.panelOpen.Load() || a.collapsed() {
 		return
 	}
-	at, err := a.position()
+	window, err := a.position()
 	if err != nil {
 		a.report("reading where the ribbon was left", err)
 		return
 	}
-	arranged, err := a.service.Moved(at)
+	arranged, err := a.service.Moved(a.ribbonFromWindow(window))
 	a.report("recording where the ribbon was left", err)
 	if err != nil {
 		// The placement could not be saved, which raised a notice: fit the ribbon where it stands,

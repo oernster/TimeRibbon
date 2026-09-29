@@ -55,6 +55,8 @@ type ribbonService interface {
 	SetTheme(theme settings.Theme) error
 	SetAlwaysOnTop(on bool) error
 	SetPinned(on bool) error
+	SetSunMap(on bool) error
+	SetPullOut(open bool) error
 	StartWithWindows() (bool, error)
 	SetStartWithWindows(on bool) error
 	DismissNotices()
@@ -144,6 +146,9 @@ func newApp(service ribbonService, desk *desktop.Desktop, log io.Writer, panelSi
 func (a *App) Snapshot() snapshotDTO {
 	shown := snapshotOf(a.service.Snapshot(), a.scrolls.Load(), desktop.DragThreshold())
 	shown.Collapsed = a.collapsed()
+	side, ribbon, sunMap, drawn := a.mapLayout()
+	shown.SunMap.Side, shown.SunMap.Shown = string(side), drawn
+	shown.SunMap.Ribbon, shown.SunMap.Map = boxOf(ribbon), boxOf(sunMap)
 	return shown
 }
 

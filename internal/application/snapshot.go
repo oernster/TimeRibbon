@@ -50,6 +50,8 @@ type Snapshot struct {
 	NextRefresh time.Time
 	// Notices are problems for the user to read, oldest first.
 	Notices []string
+	// SunMap is what the sun map draws (FR-905 to FR-908).
+	SunMap SunMap
 }
 
 // timedCell is a cell with its zone's offset from UTC at the snapshot's instant; shown is false for
@@ -118,6 +120,7 @@ func (s *Service) Snapshot() Snapshot {
 		Now:         now,
 		NextRefresh: clock.NextRefresh(now),
 		Notices:     s.notices(),
+		SunMap:      s.sunMap(current, cells, now),
 	}
 }
 

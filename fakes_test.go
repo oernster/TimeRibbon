@@ -102,6 +102,22 @@ func (s *scriptedService) SetPinned(on bool) error {
 	return err
 }
 
+func (s *scriptedService) SetSunMap(on bool) error {
+	err := s.change("SetSunMap")
+	if err == nil {
+		s.settings.SunMap = on
+	}
+	return err
+}
+
+func (s *scriptedService) SetPullOut(open bool) error {
+	err := s.change("SetPullOut")
+	if err == nil {
+		s.settings.PullOut = open
+	}
+	return err
+}
+
 // Collapsed answers the tab as a band 8 wide against the arrangement's right side (FR-614).
 func (s *scriptedService) Collapsed(full application.Arrangement) (application.Arrangement, error) {
 	s.record("Collapsed")

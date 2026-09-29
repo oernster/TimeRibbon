@@ -327,7 +327,7 @@ recorded at the first measured build.
 | ASM-1 | The Windows clock is correct; TimeRibbon shows what it implies. | Oliver | Baselining |
 | ASM-2 | Up to 12 clocks covers real use; beyond that the ribbon scrolls rather than grows (FR-106). The number sizes tests, not a limit. | Oliver | Baselining |
 | ASM-3 | English weekday and month names suffice. | Oliver | Baselining |
-| ASM-5 | Amendment 20: NASA's Blue Marble (day) and Black Marble (night lights) images may ship inside a GPL application with a credit and no fee; they can also be reduced to the size NFR-C-2 allows while staying readable. FR-905, FR-911 and FR-912 depend on it. | Claude | Before any sun map code: read from NASA's published media usage guidelines and the images' own pages, recorded here with the addresses |
+| ASM-5 | Amendment 20: NASA's Blue Marble (day) and Black Marble (night lights) images may ship inside a GPL application with a credit and no fee; they can also be reduced to the size NFR-C-2 allows while staying readable. FR-905, FR-911 and FR-912 depend on it. | Claude | Confirmed 2026-09-29. NASA's guidelines (https://www.nasa.gov/nasa-brand-center/images-and-media/) state that NASA images "generally are not subject to copyright in the United States", ask that NASA be acknowledged as the source and forbid conveying NASA's endorsement; the NASA insignia is excluded. The Blue Marble: Next Generation page (https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/) asks that republished images credit "NASA Earth Observatory"; produced by Reto Stöckli. Day image: `world.topo.bathy.200407.3x5400x2700.jpg` (https://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73751/, 2,308,798 bytes). Night image: Black Marble 2016 colour at 0.1 degrees, `BlackMarble_2016_01deg.jpg` (https://science.nasa.gov/earth/earth-observatory/earth-at-night/maps, 779,638 bytes), NASA Earth Observatory. Both are reduced for NFR-C-2 |
 | ASM-4 | The pointer arriving on and leaving the ribbon's window can be seen on Windows, macOS and Linux under X11, for a window as thin as the tab. FR-615 and FR-616 depend on it. Confirmed on Windows 2026-09-28 by the page's own events; on macOS the same day by the pointer's position read in Go, the page being blind while inactive; on Linux under X11 the same day by GTK's crossing events alone (section 2.3). Each platform needs its own source. | Claude | Confirmed 2026-09-28 |
 
 ---
@@ -1139,7 +1139,7 @@ Rationale: off by default keeps today's ribbon for everyone who has not asked fo
 Acceptance: given a settings file from 2.2.0, when TimeRibbon starts, then no map shows and `Sun
 map` is unticked; when it is chosen, then the map shows (FR-902 or FR-903) and the settings file
 holds `"sunMap": true`.
-Verified by: planned `TestAFileWithoutASunMapHasItOff` (infrastructure, store),
+Verified by: `TestA1Point0SettingsFileIsReadWhole`, `TestSettingsRoundTrip` (infrastructure, store);
 `TestBothMenusOfferSunMap` (application); check M-15.
 
 **FR-902 The map beside a horizontal ribbon**
@@ -1153,7 +1153,8 @@ at the bottom edge, where below has no room (OQ-13).
 Acceptance: given a horizontal ribbon flush against the top edge with the sun map on, then the map's
 top edge meets the ribbon's bottom edge along the ribbon's length; dragged flush against the bottom
 edge, then the map's bottom edge meets the ribbon's top edge.
-Verified by: planned `TestTheMapAdjoinsTheSideAwayFromTheEdge` (domain); check M-15.
+Verified by: `TestTheMapAdjoinsTheSideAwayFromTheEdge` (domain, placement);
+`TestAHorizontalRibbonsMapGoesBelowIt` (application); check M-15.
 
 **FR-903 The pull out beside a vertical ribbon**
 Priority: Should.
@@ -1167,8 +1168,8 @@ Rationale: Oliver, 2026-09-29: adjacent to a vertical ribbon as a pull out, open
 Acceptance: given a vertical ribbon flush against the right edge with the sun map on and the pull
 out closed, when the handle is clicked, then the map shows adjoining the ribbon's left side; when it
 is clicked again, then the map hides; after a restart, the pull out is as it was left.
-Verified by: planned `TestTheHandleOpensAndClosesThePullOut` (facade), `ribbon.test.tsx` for the
-handle; check M-15.
+Verified by: `TestAVerticalRibbonsMapWaitsForThePullOut` (application);
+`TestTheSunMapItemAndTheHandleFlipTheirChoices` (facade); `surface.test.tsx`; check M-15.
 
 **FR-904 The map's size**
 Priority: Should.
@@ -1183,8 +1184,8 @@ Acceptance: given a horizontal ribbon 1200 DIP long flush against the top of a w
 tall, then the map is 1200 by 600 DIP; given one 336 DIP long, then the map is 480 by 240 DIP centred
 on it; given a vertical ribbon 1032 DIP long with 700 DIP of room beside it, then the map is 700 by
 350 DIP.
-Verified by: planned `TestTheMapMatchesTheRibbon`, `TestTheMapScalesToTheRoom`,
-`TestTooLittleRoomShowsNoMap` (domain).
+Verified by: `TestTheMapMatchesTheRibbon`, `TestTheMapScalesToTheRoom`, `TestTooLittleRoomShowsNoMap`
+(domain, placement).
 
 **FR-905 Day and night**
 Priority: Should.
@@ -1196,7 +1197,7 @@ dusk, Claude's proposal: city lights come on as the sky darkens rather than at t
 Acceptance: at 12:00 UTC on 2026-03-20 (an equinox), the point at latitude 0, longitude 0 is drawn
 from the day image; the point at latitude 0, longitude 180 from the night image; a point where the
 solar altitude is minus 6 degrees is drawn half from each.
-Verified by: planned `TestSolarAltitudeAtTheEquinox` (domain); `sunMap.test.ts` for the blend.
+Verified by: `sunLight.test.ts` for the altitude and the blend.
 
 **FR-906 The sun's position**
 Priority: Should.
@@ -1205,7 +1206,7 @@ longitude of the NOAA Solar Calculator's.
 Rationale: 0.2 degrees is under a pixel at 960 DIP across 360 degrees of longitude.
 Acceptance: for each of eight instants spread over a year, stored with NOAA's values beside them,
 the computed subsolar point is within 0.2 degrees of NOAA's.
-Verified by: planned `TestTheSubsolarPointMatchesNOAA` (domain) over those instants in `testdata`.
+Verified by: `TestTheSubsolarPointMatchesNOAA` (domain, sun) over those instants in `testdata`.
 
 **FR-907 The map follows the time**
 Priority: Should.
@@ -1215,7 +1216,7 @@ Rationale: the line between day and night moves a quarter of a degree a minute; 
 keeps it within a pixel, with no timer of its own (NFR-P-4).
 Acceptance: given the sun map shown at 12:00, when the snapshot of 12:01 arrives, then the map is
 drawn for 12:01.
-Verified by: planned `sunMap.test.ts`.
+Verified by: `TestTheSnapshotCarriesTheSubsolarPoint` (application); the redraw by check M-15.
 
 **FR-908 The clocks' places**
 Priority: Should.
@@ -1227,14 +1228,15 @@ Brighton is marked at London. The label carries the words, so the mark is not to
 (NFR-U-2).
 Acceptance: given clocks for `Europe/London` labelled `Mum` and `UTC`, then one red dot shows near
 51.5 N 0.1 W with `Mum` beside it and nothing shows for `UTC`.
-Verified by: planned `TestEveryPlaceHasItsZonesCoordinate` (infrastructure, zones),
-`TestAZoneWithNoPlaceHasNoMark` (application); `sunMap.test.ts`.
+Verified by: `TestEveryPlaceHasItsZonesCoordinate` (infrastructure, zones),
+`TestAZoneWithNoPlaceHasNoMark` (application); `surface.test.tsx`.
 
 **FR-909 The map goes with the ribbon**
 Priority: Should.
 The application shall move the sun map with the ribbon, keeping them adjoined; a drag started on the
 map shall move both as FR-401 does. The ribbon's own edge alone decides whether it is flush (FR-619).
-Verified by: check M-15.
+Verified by: `TestTheWindowHoldsTheRibbonAndItsMap`, `TestADragOfTheMapMovesTheRibbonToo` (facade);
+check M-15.
 
 **FR-910 When the map is not shown**
 Priority: Should.
@@ -1244,7 +1246,7 @@ counts the pointer as on the ribbon (FR-616).
 Rationale: Oliver, 2026-09-29: the map hides with the tab (OQ-18).
 Acceptance: given an unpinned ribbon with the sun map shown, when it collapses, then neither shows
 but the tab; while the pointer rests on the map, the ribbon stays open.
-Verified by: planned `TestTheMapHidesWithTheTab` (facade); check M-15.
+Verified by: `TestTheMapHidesWithTheTab` (facade); `surface.test.tsx`; check M-15.
 
 **FR-911 The imagery is built in**
 Priority: Should.
@@ -1253,14 +1255,14 @@ map; NFR-S-1 holds unchanged. If an image cannot be read, then the application s
 place as a notice naming the image rather than a blank or partial map.
 Rationale: offline, like everything else TimeRibbon does; the one network request stays the update
 check. Source and licence: ASM-5.
-Verified by: `TestOnlyTheUpdateCheckImportsANetworkPackage` (structural); planned
-`TestAnUnreadableImageRaisesANotice` (infrastructure).
+Verified by: `TestOnlyTheUpdateCheckImportsANetworkPackage` (structural); the notice by inspection
+of `SunMap.tsx`, since jsdom loads no images.
 
 **FR-912 The imagery is credited**
 Priority: Should.
 About shall credit the source of each map image with its licence, as it does the code TimeRibbon
 uses (FR-508).
-Verified by: `TestEachPlatformCreditsWhatItShips` (product), extended to the images (planned).
+Verified by: `TestEveryPlatformCreditsTheMapPictures` (product).
 
 ---
 

@@ -8,6 +8,7 @@ package zones
 import (
 	_ "embed"
 	"fmt"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -15,9 +16,11 @@ import (
 
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/internal/domain/clock"
+	"github.com/oernster/timeribbon/internal/domain/sun"
 )
 
-// places is the catalogue tools/genplaces writes: "zone<TAB>countries" per line.
+// places is the catalogue tools/genplaces writes: "zone<TAB>countries<TAB>latitude<TAB>longitude"
+// per line, the coordinate being the zone's own city.
 //
 //go:embed places.tsv
 var places string
@@ -73,11 +76,22 @@ func parse(text string) ([]application.Place, error) {
 		if line == "" || strings.HasPrefix(line, "#") {
 			continue
 		}
-		zone, country, ok := strings.Cut(line, "\t")
-		if !ok || zone == "" {
-			return nil, fmt.Errorf("places.tsv line %d is not zone<TAB>country: %q", number+1, line)
+		fields := strings.Split(line, "\t")
+		if len(fields) != catalogueColumns || fields[0] == "" {
+			return nil, fmt.Errorf("places.tsv line %d is not zone<TAB>country<TAB>latitude<TAB>longitude: %q", number+1, line)
 		}
-		out = append(out, application.Place{Zone: zone, Label: clock.DefaultLabel(zone), Country: country})
+		latitude, errLatitude := strconv.ParseFloat(fields[2], 64)
+		longitude, errLongitude := strconv.ParseFloat(fields[3], 64)
+		if errLatitude != nil || errLongitude != nil {
+			return nil, fmt.Errorf("places.tsv line %d has no coordinates: %q", number+1, line)
+		}
+		out = append(out, application.Place{
+			Zone: fields[0], Label: clock.DefaultLabel(fields[0]), Country: fields[1],
+			At: sun.Point{Latitude: latitude, Longitude: longitude},
+		})
 	}
 	return out, nil
 }
+
+// catalogueColumns is how many columns each catalogue line holds.
+const catalogueColumns = 4

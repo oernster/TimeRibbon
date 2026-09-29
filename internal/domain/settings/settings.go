@@ -116,6 +116,10 @@ type Settings struct {
 	SkippedUpdate string
 	// Placement is where the ribbon was last left; nil until it has been placed (FR-403).
 	Placement *placement.Stored
+	// SunMap shows the world map lit by day beside the ribbon (FR-901); PullOut keeps a vertical
+	// ribbon's map pulled out (FR-903). Both are off on a first run.
+	SunMap  bool
+	PullOut bool
 	// LastEdge is the edge the ribbon last stood flush against, which unpinning away from every edge
 	// returns it to (FR-411, FR-613); nil until it has stood against one.
 	LastEdge *placement.Against

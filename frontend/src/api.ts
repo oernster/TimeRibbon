@@ -6,7 +6,7 @@
 
 import type { About, Place, Snapshot } from './wire'
 
-export type { About, Cell, Credit, Layout, Place, Size, Snapshot, UpdateStatus } from './wire'
+export type { About, Box, Cell, Credit, Layout, Mark, Place, Size, Snapshot, SunMap, UpdateStatus } from './wire'
 
 /** A handler told, in words, why a call was refused. */
 export type Refused = (reason: string) => void
@@ -30,6 +30,8 @@ interface Bridge {
   SetPixelRatio(ratio: number): Promise<void>
   SetBackground(red: number, green: number, blue: number): Promise<void>
   RibbonDrawn(): Promise<void>
+  SetSunMap(on: boolean): Promise<void>
+  TogglePullOut(): Promise<void>
   ShowContextMenu(): Promise<void>
   OpenPanel(): Promise<void>
   ClosePanel(): Promise<void>
@@ -90,6 +92,8 @@ export const api = {
   setBackground: (red: number, green: number, blue: number, refused: Refused) =>
     call((b) => b.SetBackground(red, green, blue), refused),
   ribbonDrawn: (refused: Refused) => call((b) => b.RibbonDrawn(), refused),
+  setSunMap: (on: boolean, refused: Refused) => call((b) => b.SetSunMap(on), refused),
+  togglePullOut: (refused: Refused) => call((b) => b.TogglePullOut(), refused),
   showContextMenu: (refused: Refused) => call((b) => b.ShowContextMenu(), refused),
   openPanel: (refused: Refused) => call((b) => b.OpenPanel(), refused),
   closePanel: (refused: Refused) => call((b) => b.ClosePanel(), refused),

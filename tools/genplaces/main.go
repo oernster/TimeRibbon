@@ -24,6 +24,7 @@ var output = filepath.Join("internal", "infrastructure", "zones", "places.tsv")
 // Columns of the two tab-separated tables.
 const (
 	zoneCountryColumn = 0
+	zoneCoordsColumn  = 1
 	zoneNameColumn    = 2
 	zoneMinColumns    = 3
 	isoCodeColumn     = 0
@@ -69,7 +70,8 @@ func run(dir string) error {
 	return nil
 }
 
-// places answers one "zone<TAB>country" line per zone, sorted by zone. A zone listed for several
+// places answers one "zone<TAB>country<TAB>latitude<TAB>longitude" line per zone, sorted by zone,
+// the coordinate being the zone's own city in decimal degrees (FR-908). A zone listed for several
 // countries names them all, joined by "; ".
 func places(zones, countries [][]string) ([]string, error) {
 	names := map[string]string{}
@@ -77,21 +79,81 @@ func places(zones, countries [][]string) ([]string, error) {
 		names[row[isoCodeColumn]] = row[isoNameColumn]
 	}
 	byZone := map[string][]string{}
+	coords := map[string]string{}
 	for _, row := range zones {
+		zone := row[zoneNameColumn]
+		latitude, longitude, err := coordinates(row[zoneCoordsColumn])
+		if err != nil {
+			return nil, fmt.Errorf("zone %s: %w", zone, err)
+		}
+		coords[zone] = fmt.Sprintf("%.4f\t%.4f", latitude, longitude)
 		for code := range strings.SplitSeq(row[zoneCountryColumn], ",") {
 			name, ok := names[code]
 			if !ok {
-				return nil, fmt.Errorf("zone %s names country code %s, which iso3166.tab lacks", row[zoneNameColumn], code)
+				return nil, fmt.Errorf("zone %s names country code %s, which iso3166.tab lacks", zone, code)
 			}
-			byZone[row[zoneNameColumn]] = append(byZone[row[zoneNameColumn]], name)
+			byZone[zone] = append(byZone[zone], name)
 		}
 	}
 	lines := make([]string, 0, len(byZone))
 	for zone, countryNames := range byZone {
-		lines = append(lines, zone+"\t"+strings.Join(countryNames, "; "))
+		lines = append(lines, zone+"\t"+strings.Join(countryNames, "; ")+"\t"+coords[zone])
 	}
 	slices.Sort(lines)
 	return lines, nil
+}
+
+// ISO 6709 as zone.tab writes it: a signed latitude of 2 degree digits and a signed longitude of 3,
+// each followed by 2 minute digits and optionally 2 second digits.
+const (
+	latitudeDegreeDigits  = 2
+	longitudeDegreeDigits = 3
+	unitDigits            = 2
+	minutesPerDegree      = 60.0
+	secondsPerDegree      = minutesPerDegree * minutesPerDegree
+)
+
+// coordinates reads zone.tab's "+DDMM+DDDMM" or "+DDMMSS+DDDMMSS" into decimal degrees.
+func coordinates(text string) (float64, float64, error) {
+	if text == "" {
+		return 0, 0, fmt.Errorf("no coordinates")
+	}
+	split := strings.IndexAny(text[1:], "+-") + 1
+	if split <= 0 {
+		return 0, 0, fmt.Errorf("coordinates %q have no longitude", text)
+	}
+	latitude, err := angle(text[:split], latitudeDegreeDigits)
+	if err != nil {
+		return 0, 0, err
+	}
+	longitude, err := angle(text[split:], longitudeDegreeDigits)
+	return latitude, longitude, err
+}
+
+// angle reads a signed angle of degreeDigits degree digits then minutes and optional seconds.
+func angle(text string, degreeDigits int) (float64, error) {
+	sign, digits := text[:1], text[1:]
+	if sign != "+" && sign != "-" {
+		return 0, fmt.Errorf("angle %q has no sign", text)
+	}
+	withMinutes, withSeconds := degreeDigits+unitDigits, degreeDigits+2*unitDigits
+	if len(digits) != withMinutes && len(digits) != withSeconds {
+		return 0, fmt.Errorf("angle %q is neither degrees and minutes nor with seconds", text)
+	}
+	var parts [3]int
+	for index, span := range [][2]int{{0, degreeDigits}, {degreeDigits, withMinutes}, {withMinutes, len(digits)}} {
+		if span[0] == span[1] {
+			continue
+		}
+		if _, err := fmt.Sscanf(digits[span[0]:span[1]], "%d", &parts[index]); err != nil {
+			return 0, fmt.Errorf("angle %q: %w", text, err)
+		}
+	}
+	value := float64(parts[0]) + float64(parts[1])/minutesPerDegree + float64(parts[2])/secondsPerDegree
+	if sign == "-" {
+		value = -value
+	}
+	return value, nil
 }
 
 // readTable answers the rows of a tab-separated tz table, skipping comments and blank lines.

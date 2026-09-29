@@ -1,8 +1,9 @@
-import { useEffect, useRef, type CSSProperties, type PointerEvent, type WheelEvent } from 'react'
-import { api, startDrag, type Refused, type Snapshot } from './api'
+import { useEffect, type CSSProperties, type WheelEvent } from 'react'
+import { api, type Refused, type Snapshot } from './api'
 import { ArtButton, addClockTip } from './ArtButton'
 import addClockArt from './assets/add-clock.png'
 import { Cell } from './Cell'
+import { useDrag } from './drag'
 
 interface Props {
   snapshot: Snapshot
@@ -10,15 +11,12 @@ interface Props {
   refused: Refused
 }
 
-/** Presses on these start no drag (FR-402). */
-const controls = 'button, input, select, a, [data-control]'
-
 /**
  * Ribbon is the clocks in order (FR-102). Pressing empty ribbon area and moving past Windows' drag
  * distance moves the whole window (FR-401); a small wobble or a press on a control does not.
  */
 export function Ribbon({ snapshot, onAddClock, refused }: Props) {
-  const pressed = useRef<{ x: number; y: number } | null>(null)
+  const drag = useDrag(snapshot.dragThreshold)
   const vertical = snapshot.orientation === 'vertical'
   const analogue = snapshot.style === 'analogue'
   const cell = snapshot.cells.length === 0 ? snapshot.layout.prompt : analogue ? snapshot.layout.analogue : snapshot.layout.digital
@@ -28,24 +26,6 @@ export function Ribbon({ snapshot, onAddClock, refused }: Props) {
     '--pad': `${snapshot.layout.padding}px`,
   } as CSSProperties
 
-  const down = (event: PointerEvent<HTMLDivElement>) => {
-    const target = event.target as HTMLElement
-    pressed.current = event.button === 0 && target.closest(controls) == null ? { x: event.screenX, y: event.screenY } : null
-  }
-  const move = (event: PointerEvent<HTMLDivElement>) => {
-    const start = pressed.current
-    if (start == null || event.buttons !== 1) {
-      return
-    }
-    const threshold = snapshot.dragThreshold
-    if (Math.abs(event.screenX - start.x) > threshold.width || Math.abs(event.screenY - start.y) > threshold.height) {
-      pressed.current = null
-      startDrag()
-    }
-  }
-  const up = () => {
-    pressed.current = null
-  }
   // A plain wheel moves up and down, which a horizontal ribbon cannot; so while one scrolls, the
   // wheel moves it along instead (FR-106). A sideways wheel or a trackpad already moves it along.
   const wheel = (event: WheelEvent<HTMLDivElement>) => {
@@ -78,9 +58,7 @@ export function Ribbon({ snapshot, onAddClock, refused }: Props) {
     <div
       className={classes}
       style={sizing}
-      onPointerDown={down}
-      onPointerMove={move}
-      onPointerUp={up}
+      {...drag}
       onWheel={wheel}
       onContextMenu={(event) => {
         event.preventDefault()

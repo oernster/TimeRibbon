@@ -134,7 +134,7 @@ func newRig(t *testing.T, initial settings.Settings) rig {
 		Zones: realZones{places: []Place{
 			{Zone: "America/New_York", Label: "New York", Country: "United States"},
 			{Zone: "Asia/Kolkata", Label: "Kolkata", Country: "India"},
-			{Zone: "Europe/London", Label: "London", Country: "Britain (UK)"},
+			{Zone: "Europe/London", Label: "London", Country: "Britain (UK)", At: londonAt},
 			{Zone: "America/Indiana/Indianapolis", Label: "Indianapolis", Country: "United States"},
 		}},
 		Clock:    fixedClock{now: now},

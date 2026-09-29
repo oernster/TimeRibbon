@@ -56,8 +56,13 @@ in a small frameless ribbon you can put anywhere on any monitor.
 - **Gets out of the way when you want it to.** Untick Pin ribbon in either menu and the ribbon
   shrinks to a thin tab in the scheme's accent a second after the pointer leaves it. Rest the pointer
   on the tab for a moment and the ribbon opens again, without taking the keyboard from what you are
-  typing in. Unpinned, it stays above other windows so the tab is never lost. It is pinned unless you
-  choose otherwise.
+  typing in. Unpinned, it stays above other windows so the tab is never lost. The tab only happens
+  against an edge: dragged away from every edge the ribbon stays in full; dropped near an edge it
+  snaps flush and waits as a tab again. It is pinned unless you choose otherwise.
+- **Shows where it is day.** Tick Sun map and a world map lies below a horizontal ribbon (above one
+  at the bottom of the screen) or slides out beside a vertical one from a handle: lit where it is
+  day, dark with city lights where it is night, each clock's city marked in red. The pictures are
+  NASA's Blue Marble and Black Marble, built in, so nothing is fetched to draw them.
 - **Goes where you put it.** Drag the ribbon by any empty part onto any monitor. On Windows it is
   kept wholly on a display while it moves; on macOS and Linux one left partly off every display is
   put back when the drag ends. It opens there next time. When that monitor is gone, it opens on the

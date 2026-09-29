@@ -178,3 +178,66 @@ button:focus-visible {
   align-items: center;
   gap: 6px;
 }
+
+/* The ribbon with its sun map (FR-902, FR-903): Go places each part in the window. */
+.surface {
+  position: relative;
+  height: 100%;
+  --mark-size: 8px;
+  --handle-width: 16px;
+  --handle-height: 48px;
+}
+
+.surface-part {
+  position: absolute;
+}
+
+.sun-map {
+  position: relative;
+  overflow: hidden;
+  cursor: default;
+}
+
+.sun-map canvas {
+  display: block;
+}
+
+/* A clock's place: a red dot beside its label (FR-908); the dot's centre is the place. */
+.mark {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transform: translate(calc(var(--mark-size) / -2), -50%);
+  pointer-events: none;
+  font-size: 12px;
+}
+
+.mark .dot {
+  width: var(--mark-size);
+  height: var(--mark-size);
+  border-radius: 50%;
+  background: var(--mark);
+  box-shadow: 0 0 2px var(--mark-shadow);
+}
+
+.mark-label {
+  color: var(--mark-text);
+  text-shadow: 0 0 3px var(--mark-shadow);
+  white-space: nowrap;
+}
+
+/* The pull out's handle, inside the ribbon on its inner edge, half way along (FR-903). */
+.pull-out-handle {
+  position: absolute;
+  width: var(--handle-width);
+  min-width: var(--handle-width);
+  height: var(--handle-height);
+  padding: 0;
+  transform: translateY(-50%);
+  font-size: 10px;
+}
+
+.pull-out-handle.right {
+  transform: translate(-100%, -50%);
+}

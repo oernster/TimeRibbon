@@ -48,3 +48,11 @@
   --focus: #7fb0ff;
   color-scheme: dark;
 }
+
+/* The sun map is a photograph whatever the scheme or theme, so its marks keep one look: a red dot
+   (Oliver, 2026-09-29, FR-908) and white words with a dark shadow, readable over day and night. */
+.sun-map {
+  --mark: #e53935;
+  --mark-text: #ffffff;
+  --mark-shadow: #000000;
+}

@@ -17,6 +17,7 @@ const (
 	ActionSettings    MenuAction = "settings"
 	ActionAlwaysOnTop MenuAction = "always-on-top"
 	ActionPin         MenuAction = "pin"
+	ActionSunMap      MenuAction = "sun-map"
 	ActionAbout       MenuAction = "about"
 	ActionLicence     MenuAction = "licence"
 	ActionUpdates     MenuAction = "check-updates"
@@ -65,6 +66,7 @@ const (
 	labelBottomEdge  = "Centre on bottom edge"
 	labelAlwaysOnTop = "Always on top"
 	labelPin         = "Pin ribbon"
+	labelSunMap      = "Sun map"
 	labelHelp        = "Help"
 	labelAbout       = "About"
 	labelLicence     = "Licence"
@@ -81,7 +83,7 @@ func (s *Service) TrayMenu(visible bool) []MenuItem {
 	}
 	return []MenuItem{
 		toggle, addClockItem(), settingsItem(), s.styleItem(), s.colourItem(), s.orientationItem(), s.positionItem(),
-		s.alwaysOnTopItem(), s.pinItem(), helpItem(), exitItem(),
+		s.alwaysOnTopItem(), s.pinItem(), s.sunMapItem(), helpItem(), exitItem(),
 	}
 }
 
@@ -89,7 +91,7 @@ func (s *Service) TrayMenu(visible bool) []MenuItem {
 func (s *Service) ContextMenu() []MenuItem {
 	return []MenuItem{
 		addClockItem(), settingsItem(), s.styleItem(), s.colourItem(), s.orientationItem(), s.positionItem(),
-		s.alwaysOnTopItem(), s.pinItem(), helpItem(), {Action: ActionHide, Label: labelHide}, exitItem(),
+		s.alwaysOnTopItem(), s.pinItem(), s.sunMapItem(), helpItem(), {Action: ActionHide, Label: labelHide}, exitItem(),
 	}
 }
 

@@ -1,0 +1,12 @@
+# The subsolar point at eight instants of 2026, from NOAA's Solar Calculator
+# (https://gml.noaa.gov/grad/solcalc/) on 2026-09-29: latitude is its calcSunDeclination; longitude
+# is (720 - UTC minutes - calcEquationOfTime) / 4, the longitude where it is solar noon.
+# instant	latitude	longitude
+2026-01-01T00:00:00Z	-23.0175	-179.1670
+2026-02-14T06:30:00Z	-12.9962	86.0431
+2026-03-20T12:00:00Z	-0.0433	1.8582
+2026-05-01T18:45:00Z	15.2537	-101.9825
+2026-06-21T09:15:00Z	23.4381	41.6998
+2026-08-15T21:00:00Z	13.8337	-133.8934
+2026-09-23T03:20:00Z	-0.0514	128.1285
+2026-12-21T15:40:00Z	-23.4377	-55.4618

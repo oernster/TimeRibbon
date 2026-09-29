@@ -72,7 +72,14 @@ does not exist.
   pin in effect (`PinnedInEffect`: pinned or flush against no edge, FR-619) and the one rule for
   staying on top built on it (`OnTop`: Always on top or unpinned in effect, FR-617), plus the edge
   last stood against (`LastEdge`, FR-411). Every arrangement names its flush edge
-  (`Arrangement.Edge`), which the facade reads the pin in effect from.
+  (`Arrangement.Edge`), which the facade reads the pin in effect from. `sun` answers the subsolar
+  point for an instant from NOAA's equations (FR-906), checked against NOAA's own values in
+  `testdata`; `placement/sunmap.go` puts the sun map beside the ribbon on the side away from its edge
+  (`InnerSide`) at its size (`MapBeside`, FR-902 to FR-904). The map shares the ribbon's window:
+  every placement is decided for the ribbon alone, the facade makes the window the ribbon with its
+  map (`windowOf`) and reads a dragged window back to the ribbon's corner (`ribbonFromWindow`). The
+  page lays the two out (`Surface.tsx`) and blends the day and night pictures by solar altitude
+  (`sunLight.ts`); the zone cities come from the tz database's `zone.tab` through `tools/genplaces`.
   `hover` decides when an unpinned ribbon opens from its tab and collapses back (FR-615, FR-616). It
   is told the pointer arrived or left and the time; it answers whether the ribbon is open and when
   to ask again. The facade owns its timer and carries the answer out (`unpinned.go`). Opening tells

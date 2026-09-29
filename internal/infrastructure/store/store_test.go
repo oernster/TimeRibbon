@@ -41,7 +41,7 @@ func full() settings.Settings {
 			DPI: 144, Offset: placement.Point{X: 180, Y: -4},
 		},
 		LastEdge: &placement.Against{Device: `\\.\DISPLAY2`, Edge: placement.Left},
-		SunMap:   true, PullOut: true,
+		SunMap:   true, PullOut: true, Opacity: 55,
 	}
 	s = s.WithClockAdded(settings.Entry{ID: "a1", Zone: "America/New_York", Label: "New York"})
 	return s.WithClockAdded(settings.Entry{ID: "b2", Zone: "Australia/Sydney", Label: "Mum"})
@@ -63,6 +63,10 @@ func TestSettingsRoundTrip(t *testing.T) {
 		got.Theme != want.Theme || got.AlwaysOnTop != want.AlwaysOnTop || got.SkippedUpdate != want.SkippedUpdate || got.DateFormat != want.DateFormat || *got.Placement != *want.Placement ||
 		!slices.Equal(got.Clocks, want.Clocks) {
 		t.Errorf("got %+v", got)
+	}
+	// full's opacity is away from the default, so it is proved written and read (FR-622).
+	if got.Opacity != want.Opacity {
+		t.Errorf("opacity read as %d, want %d", got.Opacity, want.Opacity)
 	}
 	// full is unpinned, away from the default, so the pin is proved written and read (FR-613).
 	if got.Pinned != want.Pinned {

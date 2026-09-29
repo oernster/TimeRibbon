@@ -107,6 +107,12 @@ fixed 760 DIP, so on a large display it still had to be scrolled; with five cloc
 measured 1064 DIP. It now grows to the height of its content, capped by the work area, where it
 scrolls as before (FR-621). Section 11 records the ruling (OQ-25).
 
+Amendment 26 (Oliver, 2026-09-29): the window can be see-through. Settings gains an Opacity slider
+from 20 to 100 percent that draws everything the window shows at that opacity: the clocks, the sun
+map and Settings itself. 20 percent is the least, so the ribbon can always be seen and found again
+(FR-622). The settings file gains the `opacity` key (NFR-C-1 allows it). Section 11 records the
+ruling (OQ-26).
+
 Source: the initial product specification of 2026-09-27, written under the product's former name,
 plus Oliver's rulings of 2026-09-27: the stack is Go with Wails; orientation is a setting offering
 both horizontal and vertical, both in the first release; a setup program ships with the first
@@ -1110,6 +1116,25 @@ Verified by: `TestFitPanelMakesTheOpenPanelAsTallAsItsContent`,
 (facade); `TestSettingsOpenCentredOnTheRibbonsDisplay`, the cap to the work area (application);
 `panelFit.test.tsx`; check M-12.
 
+**FR-622 Opacity**
+Priority: Should (Amendment 26, Oliver, 2026-09-29).
+Settings shall offer an Opacity slider in steps of 5 percent from 20 to 100 percent. Everything the
+window shows (the ribbon, the sun map and every panel) shall be drawn at the chosen opacity, the
+desktop showing through the rest; at 100 percent the window looks exactly as it did before the
+choice existed. The window follows the slider while it moves; the choice is saved in the settings
+file once the slider is let go, 100 percent when the file holds none. A value outside 20 to 100
+percent is refused by the setting and brought within it when read from a hand-edited file.
+Rationale: Oliver, 2026-09-29: let the ribbon sit over other work without hiding it; 20 percent
+the least, since a window with nothing to see cannot be found to be put back (OQ-26).
+Acceptance: given a first run, then the window is wholly opaque; when the slider is dragged to 40
+percent and let go, then the clocks and the desktop behind them both show, the settings file holds
+`"opacity": 40` and a restart keeps it; given a settings file holding `"opacity": 5`, then the window
+is drawn at 20 percent.
+Verified by: `TestOpacityIsHeldWithinItsBounds` (domain); `TestOpacityIsChosenSavedAndShown`
+(application); `TestSettingsRoundTrip` (infrastructure, store); `TestThePagesBackgroundReachesTheWindow`,
+`TestTheWindowIsPaintedClearBelowFullOpacity` (facade); `opacity.test.tsx`, `background.test.ts`;
+check M-16.
+
 ### 3.7 Persistence and recovery
 
 **FR-701 Settings file**
@@ -1559,7 +1584,7 @@ recover, snapshot) is executable from a Go test with no window open before the f
 | Priority | Content |
 |---|---|
 | **Must** | FR-101 to FR-107, FR-201 to FR-209, FR-301 to FR-305, FR-401 to FR-409, FR-501, FR-502, FR-504 to FR-508, FR-601 to FR-604, FR-607 to FR-610, FR-620, FR-701 to FR-707, FR-801 to FR-811, NFR-P-1 to NFR-P-4, NFR-U-1 to NFR-U-5, NFR-S-1 to NFR-S-3, NFR-M-1, NFR-M-2, NFR-C-1, NFR-O-1 |
-| **Should** | FR-108, FR-307, FR-410, FR-411, FR-503, FR-509, FR-605, FR-606, FR-611 to FR-619, FR-621, FR-901 to FR-914, NFR-P-5, NFR-C-2 |
+| **Should** | FR-108, FR-307, FR-410, FR-411, FR-503, FR-509, FR-605, FR-606, FR-611 to FR-619, FR-621, FR-622, FR-901 to FR-914, NFR-P-5, NFR-C-2 |
 | **Could** | FR-308 |
 | **Withdrawn** | FR-306 (Amendment 6) |
 | **Won't this time** | Everything in the out-of-scope table of section 1.3 |
@@ -1600,7 +1625,7 @@ the four raised by Amendment 18 on 2026-09-28; the three raised by Amendment 19 
 OQ-6 was also reversed; the six raised by Amendment 20 the same day; the two raised by
 Amendment 21 the same day; the two raised by Amendment 22 the same day; the one raised by
 Amendment 23 the same day; the one raised by Amendment 24 the same day; the one raised by
-Amendment 25 the same day:
+Amendment 25 the same day; the one raised by Amendment 26 the same day:
 
 | ID | Question | Ruling | Now held by |
 |---|---|---|---|
@@ -1629,6 +1654,7 @@ Amendment 25 the same day:
 | OQ-23 | Where does the handle stand so it covers no clock? | In a lane of its own; the ribbon grows deeper by it while the sun map is on | FR-903 |
 | OQ-24 | What decides how wide a cell is? | Its widest time and date as the page draws them, never less than the size's own width | FR-610, FR-620 |
 | OQ-25 | How tall is Settings? | As tall as its content, capped by the display's work area | FR-621 |
+| OQ-26 | How faint may the window be drawn? | 20 percent at least, so it can always be seen and found | FR-622 |
 
 ---
 
@@ -1654,5 +1680,5 @@ is installing and removing the DMG on macOS and the Flatpak on Linux.
 | M-12 | Each Position item puts the ribbon flush against its edge and centred along it on the display it is on; it opens there next time; choosing Horizontal or Vertical from either menu sends it to the top or right edge; small clocks show their whole date and time in both styles; Settings opens tall enough to show everything without scrolling where the display has room, following a clock added or removed; on a short display its title and Close stay put while the panel scrolls; each colour scheme looks right and unmistakably its own in Light, Dark and System, Neon glowing on its dark side only; every date format shows its whole date in large and small cells, a Wednesday in September the widest. |
 | M-13 | Help's Check for updates says this is the latest version with the network on and that GitHub could not be reached with it off; a build older than the latest release shows the update panel a few seconds after it starts; Download opens this platform's download in the browser; after Skip this version the next start shows nothing; the Flatpak build reaches GitHub too. |
 | M-14 | Unticking Pin ribbon in either menu shrinks the ribbon to an accent tab on the edge it stands against a second after the pointer leaves (a ribbon away from every edge first moves to the edge last used); dragged away from every edge it stays in full with Pin ribbon still unticked; dropped within 16 DIP of an edge (an edge between two displays included) it snaps flush and collapses again; resting the pointer on the tab for 0.3 s opens it while the window being typed in keeps focus, with no flash of a close button, a stretched band or white as it grows; crossing the tab quickly does not; the tab stays above a maximised window with Always on top off; a Stream Deck press hides the tab and the next brings it back; ticking Pin ribbon ends all of it. |
-| M-15 | Ticking Sun map in either menu shows a handle with an arrow on the ribbon's inner side, horizontal and vertical alike, covering no
-part of any clock with an odd number of clocks at either size; its click slides the map out (below a horizontal ribbon at the top edge, above one at the bottom, beside a vertical one) and back, kept across a restart; the map is as long as the ribbon, lit where it is day with city lights where it is night; each clock's city is a red dot beside its label; dragging the map moves both; the map hides with the tab and returns with the ribbon; after a minute the line between day and night has moved; on Windows the desktop shows (and takes clicks) wherever the window holds neither ribbon nor map; no label on the map prints over another label or a dot. |
+| M-15 | Ticking Sun map in either menu shows a handle with an arrow on the ribbon's inner side, horizontal and vertical alike, covering no part of any clock with an odd number of clocks at either size; its click slides the map out (below a horizontal ribbon at the top edge, above one at the bottom, beside a vertical one) and back, kept across a restart; the map is as long as the ribbon, lit where it is day with city lights where it is night; each clock's city is a red dot beside its label; dragging the map moves both; the map hides with the tab and returns with the ribbon; after a minute the line between day and night has moved; on Windows the desktop shows (and takes clicks) wherever the window holds neither ribbon nor map; no label on the map prints over another label or a dot. |
+| M-16 | Settings' Opacity slider runs from 20 to 100 percent; dragging it fades the ribbon, the sun map and Settings itself as it moves, the desktop and the windows behind showing through; at 100 percent the window looks as it did before; the choice is kept across a restart; each colour scheme reads in Light and Dark at 20 percent. Made on Windows, macOS and Linux, since each draws a see-through window its own way. |

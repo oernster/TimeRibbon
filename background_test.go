@@ -4,18 +4,42 @@ import (
 	"math"
 	"slices"
 	"testing"
+
+	"github.com/oernster/timeribbon/internal/domain/settings"
 )
 
 // The page's background reaches the window, so a window catching up with a new size shows it rather
-// than white (measured 2026-09-29).
+// than white (measured 2026-09-29); opaque while the window is wholly opaque.
 func TestThePagesBackgroundReachesTheWindow(t *testing.T) {
 	t.Parallel()
-	app, _, seen, _ := newTestApp(t)
+	app, service, seen, _ := newTestApp(t)
+	service.settings.Opacity = settings.MaxOpacity
 	if err := app.SetBackground(7, 36, math.MaxUint8); err != nil {
 		t.Fatal(err)
 	}
-	if !slices.Equal(seen.backgrounds, [][3]uint8{{7, 36, math.MaxUint8}}) {
+	if !slices.Equal(seen.backgrounds, [][4]uint8{{7, 36, math.MaxUint8, math.MaxUint8}}) {
 		t.Errorf("painted %v", seen.backgrounds)
+	}
+}
+
+// FR-622: below full opacity the window's own paint is clear, so the desktop shows through the page;
+// a change of opacity paints again at once in the colour last reported, before any report nothing.
+func TestTheWindowIsPaintedClearBelowFullOpacity(t *testing.T) {
+	t.Parallel()
+	app, service, seen, _ := newTestApp(t)
+	service.settings.Opacity = settings.MaxOpacity
+	if err := app.SetOpacity(settings.MinOpacity); err != nil || len(seen.backgrounds) != 0 {
+		t.Fatalf("before the page reported a colour: %v, painted %v", err, seen.backgrounds)
+	}
+	if err := app.SetBackground(7, 36, 9); err != nil {
+		t.Fatal(err)
+	}
+	if err := app.SetOpacity(settings.MaxOpacity); err != nil {
+		t.Fatal(err)
+	}
+	want := [][4]uint8{{7, 36, 9, 0}, {7, 36, 9, math.MaxUint8}}
+	if !slices.Equal(seen.backgrounds, want) || !slices.Contains(service.calls, "SetOpacity") {
+		t.Errorf("painted %v, want %v", seen.backgrounds, want)
 	}
 }
 

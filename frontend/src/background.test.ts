@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { backgroundReporter, rgbOf } from './background'
+import { backgroundReporter, rgbOf, rootId } from './background'
 
 describe('rgbOf', () => {
   it('reads an opaque computed colour', () => {
@@ -31,5 +31,20 @@ describe('backgroundReporter', () => {
     listeners.forEach((heard) => heard())
     expect(report.mock.calls).toEqual([[7, 36, 49], [246, 247, 249]])
     reporter.stop()
+  })
+
+  it('reads the element everything is drawn in, since the page behind it is clear (FR-622)', () => {
+    const report = vi.fn()
+    const root = document.createElement('div')
+    root.id = rootId
+    root.style.backgroundColor = 'rgb(1, 2, 3)'
+    document.body.style.backgroundColor = 'transparent'
+    document.body.appendChild(root)
+    try {
+      backgroundReporter(report).check()
+      expect(report.mock.calls).toEqual([[1, 2, 3]])
+    } finally {
+      root.remove()
+    }
   })
 })

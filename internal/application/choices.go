@@ -17,6 +17,12 @@ func (s *Service) SetSize(size settings.Size) error {
 	return choose(s, size, func(c *settings.Settings) *settings.Size { return &c.Size })
 }
 
+// SetOpacity chooses how opaque the window is drawn, in percent (FR-622). A value outside
+// settings.MinOpacity to settings.MaxOpacity is refused and changes nothing.
+func (s *Service) SetOpacity(percent int) error {
+	return choose(s, percent, func(c *settings.Settings) *int { return &c.Opacity })
+}
+
 // SetColour chooses the colour scheme every clock is drawn in (FR-611).
 func (s *Service) SetColour(colour settings.Colour) error {
 	return choose(s, colour, func(c *settings.Settings) *settings.Colour { return &c.Colour })

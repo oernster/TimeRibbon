@@ -137,6 +137,14 @@ func (s *scriptedService) DismissNotices() { s.record("DismissNotices") }
 
 func (s *scriptedService) SetScrollbar(int) error { return s.change("SetScrollbar") }
 
+func (s *scriptedService) SetOpacity(percent int) error {
+	err := s.change("SetOpacity")
+	if err == nil {
+		s.settings.Opacity = percent
+	}
+	return err
+}
+
 func (s *scriptedService) TextSamples() (times, dates []string) {
 	return []string{"23:59"}, []string{"Wednesday, 30 September"}
 }
@@ -246,7 +254,7 @@ type window struct {
 	// that grows an opening ribbon whose page has not said it has drawn.
 	tabFrames   []bool
 	watching    []bool
-	backgrounds [][3]uint8
+	backgrounds [][4]uint8
 	now         time.Time
 	pending     func()
 	waited      time.Duration
@@ -321,8 +329,8 @@ func newTestApp(t *testing.T) (*App, *scriptedService, *window, *bytes.Buffer) {
 		seen.pending, seen.waited = do, wait
 		return func() bool { seen.pending = nil; return true }
 	}
-	app.background = func(red, green, blue uint8) {
-		seen.backgrounds = append(seen.backgrounds, [3]uint8{red, green, blue})
+	app.background = func(red, green, blue, alpha uint8) {
+		seen.backgrounds = append(seen.backgrounds, [4]uint8{red, green, blue, alpha})
 	}
 	app.tabFrame = func(tab bool) error {
 		seen.tabFrames = append(seen.tabFrames, tab)

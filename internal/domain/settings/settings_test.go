@@ -38,6 +38,20 @@ func TestDefaultsAreDigitalTwentyFourHourVerticalAndNotOnTop(t *testing.T) {
 	}
 }
 
+// FR-622: a first run is wholly opaque; an opacity outside the bounds, a hand-edited one or none at
+// all, is brought to the nearer bound; one inside them is kept.
+func TestOpacityIsHeldWithinItsBounds(t *testing.T) {
+	t.Parallel()
+	if got := Defaults().Opacity; got != MaxOpacity {
+		t.Errorf("a first run is %d percent opaque", got)
+	}
+	for stored, want := range map[int]int{0: MinOpacity, MinOpacity - 1: MinOpacity, MinOpacity: MinOpacity, 55: 55, MaxOpacity: MaxOpacity, MaxOpacity + 1: MaxOpacity} {
+		if got := (Settings{Opacity: stored}).Normalised().Opacity; got != want {
+			t.Errorf("%d normalised to %d, want %d", stored, got, want)
+		}
+	}
+}
+
 // FR-617, FR-619: a ribbon unpinned in effect (unpinned and flush) stays on top whatever Always on
 // top holds; for one pinned (or unpinned away from every edge) Always on top decides.
 func TestAnUnpinnedRibbonIsAlwaysOnTop(t *testing.T) {

@@ -61,6 +61,7 @@ type ribbonService interface {
 	SetStartWithWindows(on bool) error
 	DismissNotices()
 	SetScrollbar(dip int) error
+	SetOpacity(percent int) error
 	TextSamples() (times, dates []string)
 	SetMeasured(measured application.Measured) error
 	SetPixelsPerDIP(scale float64) error
@@ -97,7 +98,8 @@ type App struct {
 	position   func() (placement.Point, error)
 	place      func(at placement.Point, size placement.Size) error
 	shape      func(parts []placement.Rect) error
-	background func(red, green, blue uint8)
+	background func(red, green, blue, alpha uint8)
+	paint      paintState
 	// The unpinned ribbon's calls (FR-613 to FR-618): the time, a timer that answers its own stop,
 	// the tab's frame and the desktop's reporting of the pointer.
 	now          func() time.Time
@@ -270,7 +272,10 @@ func (a *App) SetBackground(red, green, blue int) error {
 			return fmt.Errorf("the page's background rgb(%d, %d, %d) is not a colour", red, green, blue)
 		}
 	}
-	a.background(uint8(red), uint8(green), uint8(blue))
+	a.paint.guard.Lock()
+	a.paint.colour, a.paint.known = [3]uint8{uint8(red), uint8(green), uint8(blue)}, true
+	a.paint.guard.Unlock()
+	a.repaint()
 	return nil
 }
 

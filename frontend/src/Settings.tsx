@@ -5,6 +5,7 @@ import { PlaceSearch } from './PlaceSearch'
 import { ArtButton, addClockTip } from './ArtButton'
 import addClockArt from './assets/add-clock.png'
 import donateMark from './assets/donate.png'
+import { OpacitySlider } from './OpacitySlider'
 import { usePanelFit } from './panelFit'
 
 /** The picture alone does not say pressing it leaves the application, so the tip does. */
@@ -134,6 +135,8 @@ export function Settings({ snapshot, startAdding, reload, onClose }: Props) {
           ))}
         </fieldset>
       ))}
+
+      <OpacitySlider snapshot={snapshot} refused={setProblem} then={then} />
 
       <fieldset>
         <legend>Window</legend>

@@ -43,7 +43,11 @@ type Snapshot struct {
 	Orientation settings.Orientation
 	Theme       settings.Theme
 	AlwaysOnTop bool
-	Layout      Layout
+	// Opacity is how opaque the window is drawn, in percent; MinOpacity the least it may be, so the
+	// page's control offers no value the setting would refuse (FR-622).
+	Opacity    int
+	MinOpacity int
+	Layout     Layout
 	// Now is the instant the snapshot was taken at.
 	Now time.Time
 	// NextRefresh is the minute boundary to take the next snapshot at (FR-208).
@@ -116,6 +120,8 @@ func (s *Service) Snapshot() Snapshot {
 		Orientation: current.Orientation,
 		Theme:       current.Theme,
 		AlwaysOnTop: current.AlwaysOnTop,
+		Opacity:     current.Opacity,
+		MinOpacity:  settings.MinOpacity,
 		Layout:      s.layoutFor(current),
 		Now:         now,
 		NextRefresh: clock.NextRefresh(now),

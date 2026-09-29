@@ -120,6 +120,8 @@ type Settings struct {
 	// ribbon's map pulled out (FR-903). Both are off on a first run.
 	SunMap  bool
 	PullOut bool
+	// Opacity is how opaque the window is drawn, in percent, from MinOpacity to MaxOpacity (FR-622).
+	Opacity int
 	// LastEdge is the edge the ribbon last stood flush against, which unpinning away from every edge
 	// returns it to (FR-411, FR-613); nil until it has stood against one.
 	LastEdge *placement.Against
@@ -140,8 +142,17 @@ func Defaults() Settings {
 		Orientation: Vertical,
 		Theme:       System,
 		Pinned:      true,
+		Opacity:     MaxOpacity,
 	}
 }
+
+// The opacity a window may be drawn at, in percent (FR-622): wholly opaque at most; at least faint
+// enough to see through while never so faint the ribbon cannot be seen or found again (Oliver,
+// 2026-09-29).
+const (
+	MinOpacity = 20
+	MaxOpacity = 100
+)
 
 // PinnedInEffect answers whether the ribbon behaves as pinned, flush telling whether it stands flush
 // against an edge running along its orientation: pinned when chosen so; also anywhere away from such
@@ -178,6 +189,7 @@ func (s Settings) Normalised() Settings {
 	if s.Theme != System && s.Theme != Light && s.Theme != Dark {
 		s.Theme = defaults.Theme
 	}
+	s.Opacity = min(max(s.Opacity, MinOpacity), MaxOpacity)
 	if s.LastEdge != nil && !slices.Contains(edges, s.LastEdge.Edge) {
 		s.LastEdge = nil
 	}

@@ -4,8 +4,6 @@ package main
 // stand in for Wails; newApp points the fields here.
 
 import (
-	"math"
-
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -25,7 +23,7 @@ func (a *App) quitWails() { runtime.Quit(a.ctx) }
 
 func (a *App) setOnTopInWails(on bool) { runtime.WindowSetAlwaysOnTop(a.ctx, on) }
 
-// backgroundInWails paints the window and its web view with an opaque colour.
-func (a *App) backgroundInWails(red, green, blue uint8) {
-	runtime.WindowSetBackgroundColour(a.ctx, red, green, blue, math.MaxUint8)
+// backgroundInWails paints the window and its web view with a colour, opaque or clear (FR-622).
+func (a *App) backgroundInWails(red, green, blue, alpha uint8) {
+	runtime.WindowSetBackgroundColour(a.ctx, red, green, blue, alpha)
 }

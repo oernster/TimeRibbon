@@ -3,11 +3,23 @@ body,
 #root {
   margin: 0;
   height: 100%;
-  background: var(--surface);
   color: var(--text);
   font-family: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
   overflow: hidden;
   user-select: none;
+}
+
+/* Everything the window shows is drawn inside #root, at the opacity chosen (FR-622); the page behind
+   it is clear, so below full opacity the desktop shows through. App sets --window-opacity from the
+   snapshot and Settings previews it while its slider moves. */
+html,
+body {
+  background: transparent;
+}
+
+#root {
+  background: var(--surface);
+  opacity: var(--window-opacity, 1);
 }
 
 button {

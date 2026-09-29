@@ -27,6 +27,7 @@ interface Bridge {
   SetStartWithWindows(on: boolean): Promise<void>
   DismissNotices(): Promise<void>
   SetScrollbar(dip: number): Promise<void>
+  SetOpacity(percent: number): Promise<void>
   TextSamples(): Promise<TextSamples>
   SetMeasured(measured: Measured): Promise<void>
   SetPixelRatio(ratio: number): Promise<void>
@@ -91,6 +92,7 @@ export const api = {
   setStartWithWindows: (on: boolean, refused: Refused) => call((b) => b.SetStartWithWindows(on), refused),
   dismissNotices: (refused: Refused) => call((b) => b.DismissNotices(), refused),
   setScrollbar: (dip: number, refused: Refused) => call((b) => b.SetScrollbar(dip), refused),
+  setOpacity: (percent: number, refused: Refused) => call((b) => b.SetOpacity(percent), refused),
   textSamples: (refused: Refused) => call((b) => b.TextSamples(), refused),
   setMeasured: (measured: Measured, refused: Refused) => call((b) => b.SetMeasured(measured), refused),
   setPixelRatio: (ratio: number, refused: Refused) => call((b) => b.SetPixelRatio(ratio), refused),

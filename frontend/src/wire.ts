@@ -51,6 +51,9 @@ export interface Snapshot {
   orientation: string
   theme: string
   alwaysOnTop: boolean
+  /** How opaque the window is drawn in percent; minOpacity the least it may be (FR-622). */
+  opacity: number
+  minOpacity: number
   layout: Layout
   refreshInMs: number
   notices: string[]

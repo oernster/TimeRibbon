@@ -8,6 +8,8 @@ import (
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+	"github.com/wailsapp/wails/v2/pkg/options/linux"
+	"github.com/wailsapp/wails/v2/pkg/options/mac"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
 
 	"github.com/oernster/timeribbon/internal/product"
@@ -42,13 +44,18 @@ func launch(app *App, dir string) error {
 			UniqueId:               instanceID,
 			OnSecondInstanceLaunch: func(options.SecondInstanceData) { app.secondInstance() },
 		},
+		// The web view is transparent, so wherever the page draws less than opaque the desktop shows
+		// through; the window's own paint follows the chosen opacity (FR-622, opacity.go).
 		Windows: &windows.Options{
+			WebviewIsTransparent: true,
 			WindowClassName:      product.RibbonClass,
 			WebviewUserDataPath:  webViewData,
 			Theme:                windows.SystemDefault,
 			DisablePinchZoom:     true,
 			IsZoomControlEnabled: false,
 		},
+		Mac:           &mac.Options{WebviewIsTransparent: true},
+		Linux:         &linux.Options{WindowIsTranslucent: true},
 		OnStartup:     app.startup,
 		OnDomReady:    app.domReady,
 		OnBeforeClose: app.beforeClose,

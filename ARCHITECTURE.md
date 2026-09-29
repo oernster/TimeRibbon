@@ -197,6 +197,13 @@ the panel again at it through the same `Service.Centred`; so on a display with r
 while a shorter one still caps it at the work area. About keeps `panelSize`; Licence keeps it too,
 since it reads itself down its own scroller.
 
+**Opacity (FR-622).** The web view is transparent on every platform (`launch.go`). Everything is
+drawn inside `#root`, which carries the page's background at the chosen opacity; `html` and `body`
+are clear. The window's own paint shows behind any part of the page drawn less than opaque, so
+`opacity.go` paints it in the page's colour only at full opacity (a window catching up with a new
+size then shows that colour rather than white) and clear below it. The Settings slider previews by
+setting `--window-opacity` while it moves and saves once it is let go.
+
 The window opens hidden. `startup` finds it, takes it off the taskbar, fences its moves and places
 it, all before the page is shown, so it never appears blank or in the wrong place. On Windows it is
 found by the class `TimeRibbonWindow`; Wails always marks its window as an application window, which

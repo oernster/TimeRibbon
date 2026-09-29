@@ -3,6 +3,7 @@ import { api, on, type Snapshot, type UpdateStatus } from './api'
 import { backgroundReporter } from './background'
 import { About, Licence, Update } from './Help'
 import { useMeasuredCells } from './measure'
+import { showOpacity } from './opacity'
 import { watchPixelRatio } from './pixelRatio'
 import { scrollbarThickness } from './scrollbar'
 import { Settings } from './Settings'
@@ -102,6 +103,9 @@ export function App() {
     }
     // The colour scheme (FR-611); colours.css keys its schemes off it, Classic being theme.css's own.
     root.dataset.colour = snapshot?.colour ?? 'classic'
+    if (snapshot != null) {
+      showOpacity(snapshot.opacity)
+    }
     background.current?.check()
   }, [snapshot])
 

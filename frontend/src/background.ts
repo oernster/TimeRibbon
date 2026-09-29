@@ -2,6 +2,10 @@
 export type Rgb = [number, number, number]
 
 const opaque = 1
+
+/** The element everything is drawn in; it carries the page's background (FR-622). */
+export const rootId = 'root'
+
 const computed = /^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)$/
 
 /** rgbOf reads a computed CSS colour as its channels; null when it is not an opaque rgb() or rgba(). */
@@ -22,7 +26,8 @@ export function rgbOf(css: string): Rgb | null {
 export function backgroundReporter(report: (...rgb: Rgb) => void, view: Window = window) {
   let last = ''
   const check = () => {
-    const css = view.getComputedStyle(view.document.body).backgroundColor
+    const painted = view.document.getElementById(rootId) ?? view.document.body
+    const css = view.getComputedStyle(painted).backgroundColor
     const rgb = rgbOf(css)
     if (rgb == null || css === last) {
       return

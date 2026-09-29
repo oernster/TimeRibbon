@@ -22,6 +22,29 @@ func TestAddingAClockAppendsItWithTheDefaultLabel(t *testing.T) {
 	}
 }
 
+// FR-308: a zone another clock already uses is accepted, so one zone can stand under two labels;
+// both clocks are kept and both are shown.
+func TestTheSameZoneMayBeAddedTwice(t *testing.T) {
+	t.Parallel()
+	r := newRig(t, withEntries(settings.Entry{ID: "old", Zone: "Europe/London", Label: "London"}))
+	id, err := r.service.AddClock("Europe/London")
+	if err != nil {
+		t.Fatalf("adding a zone already used was refused: %v", err)
+	}
+	if err := r.service.RenameClock(id, "Brighton"); err != nil {
+		t.Fatal(err)
+	}
+	saved := r.store.last(t).Clocks
+	want := []settings.Entry{{ID: "old", Zone: "Europe/London", Label: "London"}, {ID: id, Zone: "Europe/London", Label: "Brighton"}}
+	if !slices.Equal(saved, want) {
+		t.Errorf("saved %+v, want %+v", saved, want)
+	}
+	shown := r.service.Snapshot().Cells
+	if len(shown) != 2 || shown[0].Label != "London" || shown[1].Label != "Brighton" {
+		t.Errorf("shown %+v, want London then Brighton", shown)
+	}
+}
+
 func TestAnUnknownZoneIsRefusedAndNothingIsSaved(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, withEntries(settings.Entry{ID: "a", Zone: "Europe/London", Label: "London"}))

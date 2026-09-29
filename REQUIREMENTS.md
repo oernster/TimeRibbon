@@ -590,7 +590,7 @@ Verified by: `TestLabelIsCappedAt32Characters` (domain); no test yet for the ell
 Priority: Could.
 The application shall accept a clock whose zone another clock already uses.
 Rationale: two labels for one zone (`London`, `Brighton`) are a legitimate choice.
-Verified by: planned `TestTheSameZoneMayBeAddedTwice` (application).
+Verified by: `TestTheSameZoneMayBeAddedTwice` (application).
 
 ### 3.4 Dragging and placement
 
@@ -1068,8 +1068,8 @@ Rationale: OQ-9. One meaning for every toggle; a Stream Deck button hides the ta
 Acceptance: given a collapsed ribbon, when TimeRibbon is launched again, then neither ribbon nor tab
 shows and the tray menu offers `Show ribbon`; when it is launched once more, then the tab shows and
 the ribbon stays collapsed until the pointer rests on the tab.
-Verified by: `TestASecondLaunchHidesACollapsedRibbon` (facade); planned
-`TestTheTrayMenuTreatsACollapsedRibbonAsShown` (application); check M-14.
+Verified by: `TestASecondLaunchHidesACollapsedRibbon`, `TestTheTrayMenuTreatsACollapsedRibbonAsShown`
+(facade, which decides what counts as shown for the tray menu); check M-14.
 
 **FR-619 The pin in effect**
 Priority: Should (Amendment 19, Oliver, 2026-09-29).
@@ -1245,7 +1245,7 @@ Verified by: `TestWriteFailureIsReportedAndCleared` (application).
 | NFR-U-1 | Label, time, date and zone mark text shall meet a contrast ratio of at least 4.5:1 against the cell in both themes. | Planned theme token contrast test |
 | NFR-U-2 | No state shall be told by colour alone; an invalid clock carries words (FR-706). | Inspection |
 | NFR-U-3 | Every control in Settings and the place search shall be reachable and operable from the keyboard, with a visible focus indicator on the focused control. | `settings.test.tsx`; check M-8 |
-| NFR-U-4 | Every icon-only control shall carry an accessible name and a tooltip. | Planned `a11y.test.tsx` |
+| NFR-U-4 | Every icon-only control shall carry an accessible name and a tooltip. | `a11y.test.tsx` |
 | NFR-U-5 | Interactive targets shall be at least 24 by 24 DIP. Amendment 18 (Oliver, 2026-09-28, OQ-7): the tab of FR-614 is exempt at 8 DIP; it is rested on rather than pressed, while against a display's edge the pointer stops on it. | Inspection; WCAG 2.2 criterion 2.5.8 |
 | NFR-S-1 | The application shall make no network request other than the update check of FR-509: one unauthenticated request to GitHub's latest-release endpoint, sending nothing about the user or their clocks. Amendment 15 (Oliver, 2026-09-28): before it, no network request at all. | `TestOnlyTheUpdateCheckImportsANetworkPackage`, `TestTheNetworkExemptionNamesTheUpdatePackage` (structural) |
 | NFR-S-2 | The application shall not change the Windows clock or time zone. | Inspection |

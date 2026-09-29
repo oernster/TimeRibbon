@@ -72,19 +72,20 @@ and what stops it. An unexplained shortfall cannot be told from an oversight.
 | `installer` | 0%, no tests | none | not gated |
 
 Every figure is the Windows build's, which is what `test.ps1` measures. The Windows build compiles
-354 Go test functions, counted from the test files `go list` selects for it; each runs once with no
+356 Go test functions, counted from the test files `go list` selects for it; each runs once with no
 subtests, plus one `TestMain` in `internal/infrastructure/setup`. Twenty-four of them are the
 structural tests in `tests/structural`, which read the source rather than run it and are the same
 on every platform; [ARCHITECTURE.md](ARCHITECTURE.md) lists each against the rule it holds. One
 test in `store` holds a promise rather than a rule of structure:
 `TestA1Point0SettingsFileIsReadWhole` reads a frozen settings file of the first release (NFR-C-1);
-see ARCHITECTURE.md, The settings file. The macOS and Linux builds compile 330 each
+see ARCHITECTURE.md, The settings file. The macOS and Linux builds compile 332 each
 ([On macOS and Linux](#on-macos-and-linux)).
 
 ### The front end
 
-116 tests across 16 files, under Vitest with jsdom: the ribbon, Settings, About, Licence and the
-update panel; the sun map's surface and handle, its day and night blend and where its labels stand
+124 tests across 17 files, under Vitest with jsdom: the ribbon, Settings, About, Licence and the
+update panel; every icon-only control on each of them carrying an accessible name and a tooltip
+(`a11y.test.tsx`, NFR-U-4); the sun map's surface and handle, its day and night blend and where its labels stand
 (FR-914); the page's background colour; the self-reading cycle; the watch on the page's
 `devicePixelRatio`; the measuring of a cell's widest time and date (`measure.test.ts`, FR-620);
 Settings growing to its content (`panelFit.test.tsx`, FR-621); the opacity slider
@@ -188,7 +189,7 @@ The macOS and Linux halves of infrastructure compile only for their own platform
 face the desktop (`cocoamain`, `gtkmain`, `monitors`, `desktop`) also need cgo against AppKit or
 GTK. `test.ps1` reaches none of them. They are checked on a machine of their own
 platform, set up as [DEVELOPMENT.md](DEVELOPMENT.md) says, from a checkout with the page built. Each
-build compiles 330 Go test functions: the shared ones, the structural tests and its own.
+build compiles 332 Go test functions: the shared ones, the structural tests and its own.
 
 | What | macOS | Linux |
 |---|---|---|

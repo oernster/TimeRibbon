@@ -222,6 +222,28 @@ func TestASecondLaunchHidesACollapsedRibbon(t *testing.T) {
 	}
 }
 
+// FR-618: the tray menu is built from whether the ribbon is visible (main.go hands TrayMenu the
+// facade's visible), so a collapsed ribbon counts as shown and the tray offers to hide it; a second
+// launch hides it, when the tray offers to show it; a third brings the tab back, still collapsed.
+func TestTheTrayMenuTreatsACollapsedRibbonAsShown(t *testing.T) {
+	t.Parallel()
+	app, _, _ := unpinnedApp(t)
+	if !app.collapsed() {
+		t.Fatal("the unpinned ribbon did not start as its tab")
+	}
+	if !app.visible.Load() {
+		t.Error("a collapsed ribbon is not counted as shown, so the tray would offer Show ribbon")
+	}
+	app.secondInstance()
+	if app.visible.Load() {
+		t.Error("a second launch left the collapsed ribbon counted as shown")
+	}
+	app.secondInstance()
+	if !app.visible.Load() || !app.collapsed() {
+		t.Errorf("a third launch: visible %v, collapsed %v; want the tab back", app.visible.Load(), app.collapsed())
+	}
+}
+
 // A panic while opening or collapsing, on the timer's own goroutine, is logged, not fatal.
 func TestAFailureWhileOpeningIsLogged(t *testing.T) {
 	t.Parallel()

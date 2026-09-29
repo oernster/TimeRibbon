@@ -229,14 +229,16 @@ h2 {
 
 .shot figure { margin: 0; }
 
-.shot-pair {
-    display: flex;
-    gap: 20px;
-    align-items: flex-start;
-    justify-content: center;
+/* The wide screenshot takes a row of its own at its own size, scaling down on a narrow screen. */
+.shot-wide { margin: 28px 0 0; }
+
+.shot-wide img {
+    max-width: 100%;
+    height: auto;
 }
 
-.shot img {
+.shot img,
+.shot-wide img {
     display: block;
     border-radius: 12px;
     border: 1px solid var(--border);

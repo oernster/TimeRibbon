@@ -28,6 +28,8 @@ interface Bridge {
   DismissNotices(): Promise<void>
   SetScrollbar(dip: number): Promise<void>
   SetPixelRatio(ratio: number): Promise<void>
+  SetBackground(red: number, green: number, blue: number): Promise<void>
+  RibbonDrawn(): Promise<void>
   ShowContextMenu(): Promise<void>
   OpenPanel(): Promise<void>
   ClosePanel(): Promise<void>
@@ -85,6 +87,9 @@ export const api = {
   dismissNotices: (refused: Refused) => call((b) => b.DismissNotices(), refused),
   setScrollbar: (dip: number, refused: Refused) => call((b) => b.SetScrollbar(dip), refused),
   setPixelRatio: (ratio: number, refused: Refused) => call((b) => b.SetPixelRatio(ratio), refused),
+  setBackground: (red: number, green: number, blue: number, refused: Refused) =>
+    call((b) => b.SetBackground(red, green, blue), refused),
+  ribbonDrawn: (refused: Refused) => call((b) => b.RibbonDrawn(), refused),
   showContextMenu: (refused: Refused) => call((b) => b.ShowContextMenu(), refused),
   openPanel: (refused: Refused) => call((b) => b.OpenPanel(), refused),
   closePanel: (refused: Refused) => call((b) => b.ClosePanel(), refused),

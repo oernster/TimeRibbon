@@ -80,8 +80,9 @@ const tabStyles = wsCaption | wsSysMenu | wsMinimizeBox
 // styleIndex is GWL_STYLE held in a variable, as exStyleIndex is.
 var styleIndex int32 = gwlStyle
 
-// SetTabFrame takes tabStyles off the ribbon's window while it is its tab and gives them back once
-// it is not, so the full ribbon keeps the window Wails made. The next Place applies the change.
+// SetTabFrame takes tabStyles off the ribbon's window while it wears the tab's frame, which it does
+// for as long as it is unpinned (full or tab). It gives them back for a pinned ribbon or a panel,
+// which keep the window Wails made. The next Place applies the change.
 func SetTabFrame(ribbon Window, tab bool) error {
 	// Every window has a style here (WS_CLIPSIBLINGS at least), so zero is a failed read.
 	style, _, err := procGetWindowLongPtr.Call(uintptr(ribbon), uintptr(styleIndex))

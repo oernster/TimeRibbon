@@ -53,6 +53,8 @@ export function installBridge() {
     DismissNotices: vi.fn(async () => undefined),
     SetScrollbar: vi.fn(async () => undefined),
     SetPixelRatio: vi.fn(async () => undefined),
+    SetBackground: vi.fn(async () => undefined),
+    RibbonDrawn: vi.fn(async () => undefined),
     ShowContextMenu: vi.fn(async () => undefined),
     OpenPanel: vi.fn(async () => undefined),
     ClosePanel: vi.fn(async () => undefined),

@@ -63,6 +63,16 @@ stays on top (FR-617) and counts as shown (FR-618). NFR-U-5 exempts the tab. Sec
 FR-502, FR-506, FR-611 and FR-701 carry notes of it; the settings file gains the pin (NFR-C-1
 allows the key). Section 11 records the four rulings behind it (OQ-6 to OQ-9).
 
+Amendment 19 (Oliver, 2026-09-29): the pin chosen and the pin in effect are told apart. An unpinned
+ribbon collapses only while flush against an edge of its display's work area that runs along its
+orientation, inner edges between displays included (FR-619); anywhere else it shows and behaves as
+pinned while the choice stays unpinned, so dragging it back onto an edge brings the tab back by
+itself. A drop within 16 DIP of such an edge snaps flush (FR-410). The last edge it stood flush
+against is remembered (FR-411); unticking `Pin ribbon` away from every edge moves the ribbon to the
+centre of that edge (FR-613). The tab covers the flush side (FR-614, reversing OQ-6). FR-616 and
+FR-617 now apply to a ribbon unpinned in effect. The settings file gains the remembered edge
+(NFR-C-1 allows the key). Section 11 records the rulings (OQ-6 reversed, OQ-10 to OQ-12).
+
 Source: the initial product specification of 2026-09-27, written under the product's former name,
 plus Oliver's rulings of 2026-09-27: the stack is Go with Wails; orientation is a setting offering
 both horizontal and vertical, both in the first release; a setup program ships with the first
@@ -99,8 +109,8 @@ Oliver Ernster as author and decision owner; contributors to the open source pro
 - Dragging the whole ribbon anywhere, including onto another monitor; restoring its monitor and
   position at the next launch; recovering it onto a visible display when its place has gone.
 - A notification-area (tray) icon with a menu; optional Always on Top; optional Start with Windows.
-- An unpinned ribbon that waits as a thin tab and opens while the pointer rests on it (FR-613 to
-  FR-618).
+- An unpinned ribbon that waits as a thin tab on the edge it stands against and opens while the
+  pointer rests on it (FR-613 to FR-619); a drop near an edge snaps flush (FR-410).
 - Light, dark and system themes, in ten colour schemes (FR-611).
 - A check for a newer release on GitHub, the application's one network request (FR-509).
 - Local persistence in one human-readable file.
@@ -211,8 +221,8 @@ tab of FR-614 (ASM-4):
   `innerWidth` of 8. That settles the width alone: the window is still overlapped, which Windows
   holds at least 39 px tall (`SM_CYMINTRACK`), so a horizontal tab stood 39 tall (Oliver, measured
   the same day on the built app: asked for 8, 20 or 38 it took 39). As a popup (`WS_POPUP` added) it
-  took 8, 20 and 38 as asked; the tab is a popup while collapsed and Wails' style returns exactly
-  when it opens.
+  took 8, 20 and 38 as asked. The tab is a popup while collapsed; since 2026-09-29 (below) the full
+  ribbon keeps that style while unpinned and Wails' style returns only for a pinned ribbon or a panel.
 - The page of a window never activated, placed topmost with `SWP_NOACTIVATE`, saw every arrival and
   departure of the pointer at 8 px: `mouseenter` and `mouseleave` on the document element matched a
   1 ms Go poll of the cursor against the window's rectangle on all 28 passes (a slow approach, a
@@ -253,6 +263,24 @@ onto X11 as TimeRibbon runs, the pointer moved by Oliver's hand, a Wayland text 
   by an arrival, which the timers absorbed. The window never became active.
 - As TimeRibbon's `awaitSize` already records, the move must wait for a new size to land: moved
   at once after shrinking, the tab kept the open window's left edge, 192 px in from the display's.
+
+Measured on 2026-09-29 on Windows 11 at 100 percent, with a dev build opening a vertical tab while
+the screen under the window was copied as fast as it could be (a frame every 8 to 17 ms), after
+Oliver saw the ribbon flicker as it opened (check M-14). Three things showed before the clocks, each
+15 to 60 ms, in three runs of three:
+
+- Giving Wails' frame back as the ribbon opened had Windows paint a grey box or a faded copy of the
+  last ribbon with a red close button in its corner (every run). Keeping the tab's frame on the full
+  ribbon removed it in three runs of three.
+- The window grew before the page knew, so the tab's band showed stretched over the whole window
+  (or at one side of an empty window) until the page redrew (every run). Telling the page
+  first and growing once it had drawn removed it.
+- While the page caught up with the new size the window showed white, Wails' default background;
+  given the page's own background, the frame showed that colour instead.
+
+With all three in place, three runs showed the tab, at most one frame of the ribbon's first 8 px in
+the tab, then the full ribbon; once a frame of the last ribbon drawn before collapsing (older clock
+hands) and once a frame of plain background. No caption, band or white.
 
 Amendment 13 (Oliver, 2026-09-28): also macOS 12 or later on Apple Silicon (the oldest macOS the Go
 toolchain supports, read by `builddmg.sh`) and Linux desktops running Flatpaks, on the GNOME 50
@@ -601,6 +629,41 @@ Verified by: `TestEachOrientationHasAHomeEdge` (domain, settings); `TestChoosing
 `TestStyleAndOrientationItemsChooseAndRedraw` (facade), each proved by planting the right edge as the
 left; check M-12.
 
+**FR-410 A drop near an edge snaps flush**
+Priority: Should (Amendment 19, Oliver, 2026-09-29).
+When a drag ends (FR-401) with the ribbon's side within 16 DIP of an edge of the work area of the
+display it overlaps most (on either side of that edge) where that edge runs along the orientation
+(left or right for a vertical ribbon, top or bottom for a horizontal one), the application shall
+move the ribbon flush against that edge, inside that work area, keeping its position along the edge,
+then store that placement (FR-404). Every display's own work area counts, so an edge shared with a
+neighbouring display counts as much as an outer one; nearest wins where two edges qualify. This
+holds whether the ribbon is pinned or not.
+Rationale: Oliver, 2026-09-29: a drag by hand rarely lands on the pixel, while an unpinned ribbon
+collapses only when flush (FR-619). 16 DIP is Claude's proposal, agreed. Inner edges (Oliver, with a
+picture of four displays, one above the middle of three): each display's top, bottom, left and right.
+Acceptance: given a vertical ribbon on a display whose work area ends at 1920 DIP, when a drag ends
+with the ribbon's right side at 1910, then its right side is at 1920 and its top has not moved; when
+one ends with the right side at 1900, then the ribbon stays where it was dropped. Given two displays
+side by side, the left one's work area ending at 1920, when a drag ends with a vertical ribbon's
+right side at 1930 and most of it on the left display, then its right side is at 1920.
+Verified by: planned `TestADropNearAnEdgeSnapsFlush`, `TestAnInnerEdgeCounts`,
+`TestAnEdgeAcrossTheOrientationDoesNotSnap` (domain, placement); `TestADropStoresTheSnappedPlace`
+(application); check M-14.
+
+**FR-411 The last edge is remembered**
+Priority: Should (Amendment 19, Oliver, 2026-09-29).
+Whenever the ribbon is placed flush against an edge that runs along its orientation, however it got
+there (a snapped drop, `Position`, a change of orientation, recovery at launch or on a display
+change), the application shall remember that edge and the display it belongs to in the settings
+file. Placed anywhere else, it keeps the edge it last remembered.
+Rationale: Oliver, 2026-09-29: unticking `Pin ribbon` away from every edge returns the ribbon to the
+edge last used, not the nearest (FR-613).
+Acceptance: given a vertical ribbon flush against the left edge of `\\.\DISPLAY2`, when it is
+dragged to the middle of `\\.\DISPLAY1`, then the settings file still names the left edge of
+`\\.\DISPLAY2`.
+Verified by: planned `TestAFlushPlacementIsRemembered`, `TestAPlacementOffEveryEdgeKeepsTheLastEdge`
+(application); `TestSettingsRoundTrip` (infrastructure, store).
+
 ### 3.5 Tray and window behaviour
 
 **FR-501 Tray icon**
@@ -850,27 +913,41 @@ Windows taskbar clock does. Pinned by default keeps today's ribbon for everyone 
 Acceptance: given a 2.2.0 settings file, when TimeRibbon starts, then `Pin ribbon` is ticked and the
 ribbon shows in full; when `Pin ribbon` is chosen, then it is unticked, the settings file holds
 `"pinned": false` and the ribbon collapses once the pointer is off it (FR-616).
+Amendment 19 (Oliver, 2026-09-29): the tick shows the pin chosen, never the pin in effect (FR-619).
+When `Pin ribbon` is unticked while the ribbon is flush against no edge that runs along its
+orientation, the application shall also move it flush against the edge it last stood against
+(FR-411), centred along it as FR-408 does; it shall store that placement. If no edge is remembered
+(or the remembered one does not run along the current orientation) then it shall use the orientation's
+home edge (FR-409); if the remembered display is not present, then the same edge of the display the
+ribbon is on. That display is always one that is present: a ribbon whose display has gone is already
+recovered onto another at launch (FR-405) and while running (FR-406), so no choice of edge can leave
+it off screen. Unticking while flush moves nothing; ticking moves nothing.
+Acceptance (Amendment 19): given a pinned vertical ribbon in the middle of `\\.\DISPLAY1` whose
+remembered edge is the left edge of `\\.\DISPLAY1`, when `Pin ribbon` is chosen, then the ribbon is
+flush against that left edge, centred top to bottom; it collapses once the pointer is off it.
+Given no remembered edge, then it goes to the right edge instead. Given the remembered display
+unplugged, then it goes to the left edge of `\\.\DISPLAY1`.
 Verified by: planned `TestAFileWithoutAPinIsPinned` (infrastructure, store),
 `TestBothMenusOfferPinAfterAlwaysOnTop` (application), `TestChoosingPinFlipsAndKeepsIt` (facade);
-`TestA1Point0SettingsFileIsReadWhole`, `TestSettingsRoundTrip` (infrastructure, store); check M-14.
+`TestA1Point0SettingsFileIsReadWhole`, `TestSettingsRoundTrip` (infrastructure, store); planned
+`TestUnpinningAwayFromAnEdgeGoesToTheLastEdge`, `TestUnpinningWithNoEdgeRememberedGoesHome`,
+`TestUnpinningWithTheEdgesDisplayGoneUsesTheSameEdgeHere` (application); check M-14.
 
 **FR-614 The tab**
 Priority: Should (Amendment 18, Oliver, 2026-09-28).
 While the ribbon is collapsed, the application shall show in the ribbon's place only its tab: a
 band 8 DIP deep along the ribbon's whole length, painted in the colour scheme's accent (FR-611),
-covering the side of the ribbon nearer the matching edge of its monitor's work area. That side is
-left or right for a vertical ribbon and top or bottom for a horizontal one; at an equal distance it
-is the side of the orientation's home edge (FR-409).
-Rationale: Oliver, 2026-09-28: a thin tab about 8 DIP deep in the accent. OQ-6: a ribbon standing
-away from every edge keeps its tab where it stands, on its side nearer an edge. Collapsing moves
-nothing: the stored placement (FR-404) is the expanded ribbon's.
+covering the side of the ribbon that is flush against its edge (FR-619).
+Rationale: Oliver, 2026-09-28: a thin tab about 8 DIP deep in the accent. Collapsing moves nothing:
+the stored placement (FR-404) is the expanded ribbon's. Amendment 19 (Oliver, 2026-09-29, reversing
+OQ-6): only a flush ribbon collapses, so the tab always lies on an edge; the tab of a ribbon standing
+away from every edge, on its side nearer one, left a band stranded in the middle of the screen.
 Acceptance: given a vertical ribbon 196 DIP long flush against the right edge of its work area,
 when it collapses, then only an 8 by 196 DIP band in the accent shows, flush against that right
-edge. Given the same ribbon dragged so its left side is 100 DIP from the work area's left edge and
-its right side 900 DIP from the right, when it collapses, then the band covers its left side.
-Verified by: planned `TestTheTabCoversTheSideNearerItsEdge`, `TestAnEvenDistanceGoesToTheHomeEdge`
-(domain, placement); `TestCollapsingKeepsThePlacement` (application); `ribbon.test.tsx` for the
-accent; check M-14.
+edge. Given a horizontal ribbon flush against the bottom edge of the upper of two stacked displays,
+when it collapses, then the band lies along that bottom edge.
+Verified by: planned `TestTheTabCoversTheFlushSide` (domain, placement);
+`TestCollapsingKeepsThePlacement` (application); `ribbon.test.tsx` for the accent; check M-14.
 
 **FR-615 The ribbon opens on a resting pointer**
 Priority: Should (Amendment 18, Oliver, 2026-09-28).
@@ -888,7 +965,7 @@ Verified by: planned `TestTheRibbonOpensAfterTheRest`, `TestAPassingPointerDoesN
 
 **FR-616 The ribbon collapses after the pointer leaves**
 Priority: Should (Amendment 18, Oliver, 2026-09-28).
-While the ribbon is unpinned and expanded, with no drag under way (FR-401), none of its menus open
+While the ribbon is unpinned in effect (FR-619) and expanded, with no drag under way (FR-401), none of its menus open
 and no panel shown, when the pointer has been off the ribbon for 1 s, the application shall collapse
 it to its tab. If the pointer returns within that second, then the application shall keep the
 ribbon expanded, counting afresh from the pointer's next departure.
@@ -903,8 +980,10 @@ check M-14.
 
 **FR-617 An unpinned ribbon stays on top**
 Priority: Should (Amendment 18, Oliver, 2026-09-28).
-While the ribbon is unpinned, the application shall keep the ribbon and its tab above windows that
-are not themselves topmost, whatever Always on top holds.
+While the ribbon is unpinned in effect (FR-619), the application shall keep the ribbon and its tab
+above windows that are not themselves topmost, whatever Always on top holds. Amendment 19 (Oliver,
+2026-09-29): a ribbon pinned in effect because it stands away from every edge follows Always on
+top, as a pinned one does.
 Rationale: OQ-8. A tab covered by a maximised window could not be reached again; the flyout this
 copies stays on top. Always on top keeps its stored value, taking effect again once the ribbon is
 pinned (FR-505).
@@ -923,6 +1002,29 @@ shows and the tray menu offers `Show ribbon`; when it is launched once more, the
 the ribbon stays collapsed until the pointer rests on the tab.
 Verified by: planned `TestTheTrayMenuTreatsACollapsedRibbonAsShown` (application),
 `TestASecondLaunchHidesACollapsedRibbon` (facade); check M-14.
+
+**FR-619 The pin in effect**
+Priority: Should (Amendment 19, Oliver, 2026-09-29).
+The ribbon shall be unpinned in effect while `Pin ribbon` is unticked and the ribbon is flush against
+an edge that runs along its orientation (left or right for vertical, top or bottom for horizontal)
+of the work area of the display it lies on, that display's edges shared with a neighbour included.
+Otherwise it is pinned in effect: shown in full, never collapsing, following Always on top, while
+the choice in the settings file and the menus' tick stay as they were. After every placement,
+whatever made it (a drag, `Position`, a change of orientation or of length, recovery at launch or on
+a display change), the application shall read the pin in effect afresh; a ribbon that has become
+unpinned in effect collapses once the pointer has been off it for 1 s (FR-616).
+Rationale: Oliver, 2026-09-29: dragging the ribbon away from an edge pins it; the unpinned choice is
+remembered so that locking it back to a side unpins it again; a re-centring keeps it. Pinned in
+effect is how the ribbon is shown, never a change to what was chosen.
+Acceptance: given an unpinned vertical ribbon flush against the right edge, when it is dragged to
+the middle of the display and the pointer leaves it, then it stays in full, `Pin ribbon` stays
+unticked and the settings file still holds `"pinned": false`; when it is then dragged to within
+16 DIP of the left edge and the pointer leaves it, then it snaps flush (FR-410) and collapses to a
+tab on that edge 1 s later. Given an unpinned vertical ribbon standing away from every edge at
+launch, then it shows in full. Given an unpinned ribbon flush against an edge, when `Centre on left
+edge` is chosen, then it stays unpinned and collapses on that edge once the pointer is off it.
+Verified by: planned `TestFlushnessGivesThePinInEffect` (domain), `TestAnUnpinnedRibbonOffAnEdgeShowsInFull`,
+`TestDraggingBackOntoAnEdgeCollapsesAgain`, `TestRecentringKeepsTheChosenPin` (facade); check M-14.
 
 ### 3.7 Persistence and recovery
 
@@ -1143,7 +1245,9 @@ proposed before the first build had one `internal/infrastructure/windows` packag
 | Upgrade from a previous version | The settings file carries a `version` field from the first release; an unknown later field is kept on write |
 | No permission | CON-8: nothing needs elevation |
 | GitHub out of reach | FR-509: an automatic check says nothing; `Check for updates` says it could not reach GitHub |
-| Unpinned ribbon dragged, moved to an edge, re-oriented, resized or its display changed | FR-614: the tab follows the placement, whatever set it; a drag holds the ribbon open (FR-616) |
+| Unpinned ribbon dragged, moved to an edge, re-oriented, resized or its display changed | FR-619: the pin in effect is read afresh after every placement, whatever set it; a drag holds the ribbon open (FR-616); a drop near an edge snaps flush (FR-410) |
+| Unpinned ribbon standing away from every edge | FR-619: shown in full as though pinned, the choice kept; unticking `Pin ribbon` there moves it to the last edge (FR-613, FR-411) |
+| Ribbon against an edge shared by two displays | FR-410, FR-619: each display's own work area counts, inner edges included |
 | Unpinned ribbon covered by other windows | FR-617 |
 | A panel or a menu open while unpinned | FR-616: neither collapses |
 | Unpinned ribbon hidden, then shown | FR-618: hidden takes the tab too; shown brings back the tab |
@@ -1174,7 +1278,7 @@ recover, snapshot) is executable from a Go test with no window open before the f
 | Priority | Content |
 |---|---|
 | **Must** | FR-101 to FR-107, FR-201 to FR-209, FR-301 to FR-305, FR-401 to FR-409, FR-501, FR-502, FR-504 to FR-508, FR-601 to FR-604, FR-607 to FR-610, FR-701 to FR-707, FR-801 to FR-811, NFR-P-1 to NFR-P-4, NFR-U-1 to NFR-U-5, NFR-S-1 to NFR-S-3, NFR-M-1, NFR-M-2, NFR-C-1, NFR-O-1 |
-| **Should** | FR-108, FR-307, FR-503, FR-509, FR-605, FR-606, FR-611 to FR-618 |
+| **Should** | FR-108, FR-307, FR-410, FR-411, FR-503, FR-509, FR-605, FR-606, FR-611 to FR-619 |
 | **Could** | FR-308 |
 | **Withdrawn** | FR-306 (Amendment 6) |
 | **Won't this time** | Everything in the out-of-scope table of section 1.3 |
@@ -1211,7 +1315,8 @@ implementation; where no test can hold it, its `Verified by:` line names the che
 ## 11. Open questions
 
 There are no open questions. The five raised while drafting were ruled by Oliver on 2026-09-27;
-the four raised by Amendment 18 on 2026-09-28:
+the four raised by Amendment 18 on 2026-09-28; the three raised by Amendment 19 on 2026-09-29, when
+OQ-6 was also reversed:
 
 | ID | Question | Ruling | Now held by |
 |---|---|---|---|
@@ -1220,10 +1325,13 @@ the four raised by Amendment 18 on 2026-09-28:
 | OQ-3 | Does a setup program ship with the first release? | Yes | Section 5 |
 | OQ-4 | What does `Alt+F4` on the ribbon do? | Hide the ribbon | FR-507 |
 | OQ-5 | Is the vertical orientation in the first useful release? | Yes | FR-103, FR-104 |
-| OQ-6 | Where does the tab of a ribbon standing away from every edge go? | Where the ribbon stands, on its side nearer an edge | FR-614 |
+| OQ-6 | Where does the tab of a ribbon standing away from every edge go? | Nowhere: such a ribbon never collapses; it shows in full, pinned in effect, keeping the choice (Amendment 19, reversing the ruling of 2026-09-28) | FR-614, FR-619 |
 | OQ-7 | The 8 DIP tab or the 24 DIP minimum target: which gives? | The tab is exempt | NFR-U-5 |
 | OQ-8 | Can a window cover an unpinned ribbon's tab? | No: unpinned stays on top | FR-617 |
 | OQ-9 | Does a collapsed ribbon count as shown to the toggles? | Yes | FR-618 |
+| OQ-10 | Unticking `Pin ribbon` away from every edge: where does the ribbon go? | Centred on the edge last used; else the home edge; the same edge here should its display be gone | FR-613, FR-411 |
+| OQ-11 | Which edges count as an edge? | Those along the orientation, of each display's own work area, inner edges between displays included | FR-410, FR-619 |
+| OQ-12 | How close must a drop land to count as against an edge? | Within 16 DIP, either side; it then snaps flush | FR-410 |
 
 ---
 
@@ -1248,4 +1356,4 @@ is installing and removing the DMG on macOS and the Flatpak on Linux.
 | M-11 | The donate button at the foot of Settings opens the default browser on the donation page. |
 | M-12 | Each Position item puts the ribbon flush against its edge and centred along it on the display it is on; it opens there next time; choosing Horizontal or Vertical from either menu sends it to the top or right edge; small clocks show their whole date and time in both styles; the Settings title and Close stay put while the panel scrolls; each colour scheme looks right and unmistakably its own in Light, Dark and System, Neon glowing on its dark side only; every date format shows its whole date in large and small cells, a Wednesday in September the widest. |
 | M-13 | Help's Check for updates says this is the latest version with the network on and that GitHub could not be reached with it off; a build older than the latest release shows the update panel a few seconds after it starts; Download opens this platform's download in the browser; after Skip this version the next start shows nothing; the Flatpak build reaches GitHub too. |
-| M-14 | Unticking Pin ribbon in either menu shrinks the ribbon to an accent tab on its side nearer the display's edge a second after the pointer leaves; resting the pointer on the tab for 0.3 s opens it while the window being typed in keeps focus; crossing the tab quickly does not; the tab stays above a maximised window with Always on top off; a Stream Deck press hides the tab and the next brings it back; ticking Pin ribbon ends all of it. |
+| M-14 | Unticking Pin ribbon in either menu shrinks the ribbon to an accent tab on the edge it stands against a second after the pointer leaves (a ribbon away from every edge first moves to the edge last used); dragged away from every edge it stays in full with Pin ribbon still unticked; dropped within 16 DIP of an edge (an edge between two displays included) it snaps flush and collapses again; resting the pointer on the tab for 0.3 s opens it while the window being typed in keeps focus, with no flash of a close button, a stretched band or white as it grows; crossing the tab quickly does not; the tab stays above a maximised window with Always on top off; a Stream Deck press hides the tab and the next brings it back; ticking Pin ribbon ends all of it. |

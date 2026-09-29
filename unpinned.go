@@ -19,6 +19,10 @@ type unpinned struct {
 	state hover.State
 	// shownOpen is whether the window shows the full ribbon rather than its tab.
 	shownOpen bool
+	// drawing is whether the page is drawing the full ribbon inside the tab, which the window grows
+	// to once the page says it has drawn (RibbonDrawn) or drawWait has passed, whichever is first.
+	drawing  bool
+	stopDraw func() bool
 	// full is the full ribbon's last arrangement, which the tab is cut from and opening returns to.
 	full application.Arrangement
 	// holds counts what keeps the ribbon as it is: an open panel, the ribbon's own menu.
@@ -28,6 +32,11 @@ type unpinned struct {
 	stop func() bool
 }
 
+// drawWait is how long an opening ribbon waits for the page to say it has drawn before the window
+// grows regardless, so a page that never answers cannot leave the ribbon as its tab. It is a ceiling
+// for a page that has failed, not the expected wait: the page answers within a frame or two.
+const drawWait = 250 * time.Millisecond
+
 // pinned answers whether the ribbon is pinned, which leaves it shown in full (FR-613).
 func (a *App) pinned() bool { return a.service.Settings().Pinned }
 
@@ -35,7 +44,16 @@ func (a *App) pinned() bool { return a.service.Settings().Pinned }
 func (a *App) collapsed() bool {
 	a.unpin.guard.Lock()
 	defer a.unpin.guard.Unlock()
-	return !a.unpin.shownOpen && !a.panelOpen.Load()
+	return !a.unpin.shownOpen && !a.unpin.drawing && !a.panelOpen.Load()
+}
+
+// endDrawing forgets an opening that has not yet grown the window. The caller holds the guard.
+func (a *App) endDrawing() {
+	a.unpin.drawing = false
+	if a.unpin.stopDraw != nil {
+		a.unpin.stopDraw()
+		a.unpin.stopDraw = nil
+	}
 }
 
 // arrangeWindow places the window for the ribbon arranged as full: the full ribbon, else its tab
@@ -46,14 +64,18 @@ func (a *App) arrangeWindow(full application.Arrangement) error {
 	a.unpin.full = full
 	open = open || a.unpin.state.Open()
 	a.unpin.shownOpen = open
+	a.endDrawing()
 	a.unpin.guard.Unlock()
 	return a.showArranged(full, open)
 }
 
-// showArranged puts the window at full; else at the tab cut from it (FR-614).
+// showArranged puts the window at full; else at the tab cut from it (FR-614). An unpinned ribbon
+// keeps the tab's frame when full as well: giving Wails' frame back as it opened had Windows paint a
+// caption and a close button over it for a frame or two (measured 2026-09-29), so only a pinned
+// ribbon and a panel wear Wails' frame.
 func (a *App) showArranged(full application.Arrangement, open bool) error {
 	if open {
-		a.report("giving the ribbon its frame back", a.tabFrame(false))
+		a.report("framing the full ribbon", a.tabFrame(!a.pinned()))
 		return a.place(full.At, full.Size)
 	}
 	tab, err := a.service.Collapsed(full)
@@ -138,6 +160,10 @@ func (a *App) menuClosed() {
 // changeHover applies change to the hover state at the present moment, schedules the timer for what
 // it now awaits, then opens or collapses the window where the state says so. While a panel stands the
 // window is that panel, so the ribbon takes its form as the panel closes instead.
+//
+// Opening tells the page first and grows the window only once the page has drawn the full ribbon
+// (grow). Growing first showed the tab's band stretched over the whole window until the page caught
+// up (measured 2026-09-29). Collapsing shrinks the window first, which hides the change.
 func (a *App) changeHover(change func(hover.State, time.Time) hover.State) {
 	a.unpin.guard.Lock()
 	now := a.now()
@@ -150,27 +176,65 @@ func (a *App) changeHover(change func(hover.State, time.Time) hover.State) {
 		a.unpin.stop = a.after(due.Sub(now), a.hoverDue)
 	}
 	open := a.unpin.state.Open() || a.pinned()
-	changed := open != a.unpin.shownOpen && !a.panelOpen.Load()
-	if changed {
-		a.unpin.shownOpen = open
+	opening := open && !a.unpin.shownOpen && !a.unpin.drawing && !a.panelOpen.Load()
+	collapsing := !open && (a.unpin.shownOpen || a.unpin.drawing) && !a.panelOpen.Load()
+	if opening {
+		a.unpin.drawing = true
+		a.unpin.stopDraw = a.after(drawWait, a.drawDue)
+	}
+	if collapsing {
+		a.endDrawing()
+		a.unpin.shownOpen = false
 	}
 	full := a.unpin.full
 	a.unpin.guard.Unlock()
-	if changed {
-		a.report("opening or collapsing the ribbon", a.showArranged(full, open))
+	if collapsing {
+		a.report("collapsing the ribbon", a.showArranged(full, false))
+	}
+	if opening || collapsing {
 		a.emit(eventRefresh)
 	}
 }
 
-// hoverDue makes the change that has fallen due. It runs on the timer's own goroutine, so a panic is
-// caught here and logged rather than ending the application.
+// RibbonDrawn is the page saying it has drawn the full ribbon, so an opening ribbon's window grows
+// (FR-615). Said at any other time, it changes nothing.
+func (a *App) RibbonDrawn() { a.grow() }
+
+// grow gives the window the full ribbon the page has drawn, once per opening. A panel opened
+// meanwhile is the window now; closing it places the ribbon.
+func (a *App) grow() {
+	a.unpin.guard.Lock()
+	drawing := a.unpin.drawing && !a.panelOpen.Load()
+	a.endDrawing()
+	if drawing {
+		a.unpin.shownOpen = true
+	}
+	full := a.unpin.full
+	a.unpin.guard.Unlock()
+	if drawing {
+		a.report("opening the ribbon", a.showArranged(full, true))
+	}
+}
+
+// hoverDue makes the hover change that has fallen due; drawDue grows a ribbon whose page has not
+// said it has drawn within drawWait. Each runs on its timer's own goroutine.
 func (a *App) hoverDue() {
+	a.onTimer(func() {
+		a.changeHover(func(state hover.State, now time.Time) hover.State { return state.At(now) })
+	})
+}
+
+func (a *App) drawDue() { a.onTimer(a.grow) }
+
+// onTimer runs do on a timer's goroutine, where a panic is caught and logged rather than ending
+// the application.
+func (a *App) onTimer(do func()) {
 	defer func() {
 		if failure := recover(); failure != nil {
 			fmt.Fprintf(a.log, "recovered from %v while opening or collapsing the ribbon\n", failure)
 		}
 	}()
-	a.changeHover(func(state hover.State, now time.Time) hover.State { return state.At(now) })
+	do()
 }
 
 // setPinned pins or unpins the ribbon (FR-613). Pinned, it is shown in full with nothing watching the
@@ -188,6 +252,13 @@ func (a *App) setPinned(on bool) error {
 	}
 	a.unpin.guard.Unlock()
 	a.changeHover(func(state hover.State, _ time.Time) hover.State { return state })
+	// A ribbon already shown in full stays so while trading frames: Wails' pinned, the tab's unpinned.
+	a.unpin.guard.Lock()
+	full, reframe := a.unpin.full, a.unpin.shownOpen && !a.panelOpen.Load()
+	a.unpin.guard.Unlock()
+	if reframe {
+		a.report("framing the ribbon for its pin", a.showArranged(full, true))
+	}
 	a.trackPointer(!pinned && a.visible.Load())
 	return err
 }

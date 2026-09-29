@@ -201,12 +201,15 @@ type window struct {
 	browseErr error
 	positions int
 	// The unpinned ribbon's calls: the frames asked for, the pointer watching asked for, the time
-	// the tests set and the timer pending, which a test fires by hand.
-	tabFrames []bool
-	watching  []bool
-	now       time.Time
-	pending   func()
-	waited    time.Duration
+	// the tests set and the timers pending, which a test fires by hand: hover's, then the fallback
+	// that grows an opening ribbon whose page has not said it has drawn.
+	tabFrames   []bool
+	watching    []bool
+	backgrounds [][3]uint8
+	now         time.Time
+	pending     func()
+	waited      time.Duration
+	drawPending func()
 }
 
 // sawEvent reports whether the facade sent event with data first, when data is given.
@@ -262,8 +265,15 @@ func newTestApp(t *testing.T) (*App, *scriptedService, *window, *bytes.Buffer) {
 	seen.now = testNow
 	app.now = func() time.Time { return seen.now }
 	app.after = func(wait time.Duration, do func()) func() bool {
+		if wait == drawWait {
+			seen.drawPending = do
+			return func() bool { seen.drawPending = nil; return true }
+		}
 		seen.pending, seen.waited = do, wait
 		return func() bool { seen.pending = nil; return true }
+	}
+	app.background = func(red, green, blue uint8) {
+		seen.backgrounds = append(seen.backgrounds, [3]uint8{red, green, blue})
 	}
 	app.tabFrame = func(tab bool) error {
 		seen.tabFrames = append(seen.tabFrames, tab)

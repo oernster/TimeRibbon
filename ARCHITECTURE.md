@@ -69,7 +69,12 @@ does not exist.
   was. It holds the one rule for staying on top (`OnTop`: Always on top or unpinned, FR-617).
   `hover` decides when an unpinned ribbon opens from its tab and collapses back (FR-615, FR-616). It
   is told the pointer arrived or left and the time; it answers whether the ribbon is open and when
-  to ask again. The facade owns the one timer and carries the answer out (`unpinned.go`). Where the
+  to ask again. The facade owns its timer and carries the answer out (`unpinned.go`). Opening tells
+  the page first and grows the window once the page says it has drawn the full ribbon
+  (`RibbonDrawn`), with a second timer (`drawWait`) growing it regardless should the page never say;
+  an unpinned ribbon wears the tab's frame when full too; the page hands Go its background
+  colour (`frontend/src/background.ts`, `SetBackground`). Each of the three removed a flicker
+  measured on Windows (REQUIREMENTS section 2.3). Where the
   pointer is comes from the desktop, differently on each system because each was measured to need
   it: read every 50 ms on Windows and macOS, told by GTK's crossing events on Linux, since under
   XWayland neither the page nor the X server sees it leave (REQUIREMENTS section 2.3).

@@ -49,6 +49,16 @@ describe('Ribbon', () => {
     expect(menu).not.toHaveBeenCalled()
   })
 
+  it('says it has drawn the full ribbon once painted, never for the tab (FR-615)', async () => {
+    const bridge = installBridge()
+    const { rerender } = render(<Ribbon snapshot={snapshot({ collapsed: true })} onAddClock={vi.fn()} refused={vi.fn()} />)
+    await new Promise((settled) => window.requestAnimationFrame(() => window.requestAnimationFrame(settled)))
+    expect(bridge.RibbonDrawn).not.toHaveBeenCalled()
+    rerender(<Ribbon snapshot={snapshot({ collapsed: false })} onAddClock={vi.fn()} refused={vi.fn()} />)
+    expect(bridge.RibbonDrawn).not.toHaveBeenCalled()
+    await vi.waitFor(() => expect(bridge.RibbonDrawn).toHaveBeenCalledOnce())
+  })
+
   it('offers Add clock on an empty ribbon (FR-107)', () => {
     installBridge()
     const onAddClock = vi.fn()

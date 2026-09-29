@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { api, on, type Snapshot, type UpdateStatus } from './api'
+import { backgroundReporter } from './background'
 import { About, Licence, Update } from './Help'
 import { watchPixelRatio } from './pixelRatio'
 import { scrollbarThickness } from './scrollbar'
@@ -79,6 +80,15 @@ export function App() {
     return () => window.clearTimeout(timer)
   }, [snapshot, load])
 
+  // Go paints the window in the page's own background, which only the page's CSS knows.
+  const background = useRef<ReturnType<typeof backgroundReporter> | null>(null)
+  useEffect(() => {
+    const reporter = backgroundReporter((red, green, blue) => void api.setBackground(red, green, blue, setProblem))
+    background.current = reporter
+    reporter.check()
+    return reporter.stop
+  }, [])
+
   useEffect(() => {
     const root = document.documentElement
     if (snapshot == null || snapshot.theme === 'system') {
@@ -88,6 +98,7 @@ export function App() {
     }
     // The colour scheme (FR-611); colours.css keys its schemes off it, Classic being theme.css's own.
     root.dataset.colour = snapshot?.colour ?? 'classic'
+    background.current?.check()
   }, [snapshot])
 
   if (snapshot == null) {

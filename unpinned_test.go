@@ -69,11 +69,15 @@ func TestTheTabOpensAfterTheRestAndCollapsesOnceAway(t *testing.T) {
 		t.Fatalf("waiting %v, want the rest", seen.waited)
 	}
 	fire(t, seen)
-	if got := lastPlaced(t, seen); got != (application.Arrangement{At: testArrange.At, Size: testArrange.Size}) {
-		t.Errorf("opened at %+v, want the full ribbon", got)
-	}
 	if app.Snapshot().Collapsed || !seen.sawEvent(eventRefresh) {
 		t.Error("the page was not told the ribbon opened")
+	}
+	if got := lastPlaced(t, seen); got.Size.Width != placement.TabThickness {
+		t.Errorf("grew to %+v before the page had drawn", got)
+	}
+	app.RibbonDrawn()
+	if got := lastPlaced(t, seen); got != (application.Arrangement{At: testArrange.At, Size: testArrange.Size}) {
+		t.Errorf("opened at %+v, want the full ribbon", got)
 	}
 	app.handleSafely(desktop.Event{Kind: desktop.EventPointerLeft})
 	if seen.waited != hover.Away {
@@ -115,8 +119,12 @@ func TestPinningAndUnpinning(t *testing.T) {
 	t.Parallel()
 	app, service, seen := unpinnedApp(t)
 	app.act(application.ActionPin)
+	app.RibbonDrawn()
 	if !service.settings.Pinned || lastPlaced(t, seen).Size != testArrange.Size {
 		t.Errorf("pinning left pinned %v, placed %+v", service.settings.Pinned, lastPlaced(t, seen))
+	}
+	if seen.tabFrames[len(seen.tabFrames)-1] {
+		t.Error("pinned, the ribbon still wears the tab's frame")
 	}
 	if seen.watching[len(seen.watching)-1] || seen.onTop[len(seen.onTop)-1] {
 		t.Error("pinned, the pointer is still watched or the ribbon kept on top")
@@ -128,6 +136,79 @@ func TestPinningAndUnpinning(t *testing.T) {
 	app.act(application.ActionPin)
 	if service.settings.Pinned || !seen.onTop[len(seen.onTop)-1] || seen.waited != hover.Away {
 		t.Errorf("unpinning: pinned %v, on top %v, waiting %v", service.settings.Pinned, seen.onTop, seen.waited)
+	}
+	if !seen.tabFrames[len(seen.tabFrames)-1] || lastPlaced(t, seen).Size != testArrange.Size {
+		t.Errorf("unpinned in full: frames %v, placed %+v; want the tab's frame on the full ribbon", seen.tabFrames, lastPlaced(t, seen))
+	}
+}
+
+// openedToDrawing rests the pointer on the tab until the ribbon opens, leaving the page drawing it.
+func openedToDrawing(t *testing.T) (*App, *window) {
+	t.Helper()
+	app, _, seen := unpinnedApp(t)
+	app.handleSafely(desktop.Event{Kind: desktop.EventPointerArrived})
+	fire(t, seen)
+	if seen.drawPending == nil {
+		t.Fatal("opening did not wait for the page")
+	}
+	return app, seen
+}
+
+// Opening grows the window once the page has drawn, keeping the tab's frame, which Windows painted a
+// caption over when Wails' came back (measured 2026-09-29). A second word from the page does nothing.
+func TestOpeningGrowsOnceThePageHasDrawn(t *testing.T) {
+	t.Parallel()
+	app, seen := openedToDrawing(t)
+	app.RibbonDrawn()
+	if seen.drawPending != nil || lastPlaced(t, seen).Size != testArrange.Size {
+		t.Errorf("drawn: fallback pending %v, placed %+v", seen.drawPending != nil, lastPlaced(t, seen))
+	}
+	if !seen.tabFrames[len(seen.tabFrames)-1] {
+		t.Error("the unpinned ribbon opened in Wails' frame")
+	}
+	placed := len(seen.placed)
+	app.RibbonDrawn()
+	if len(seen.placed) != placed {
+		t.Error("a second word from the page placed the ribbon again")
+	}
+}
+
+// A page that never says it has drawn still has its ribbon opened once drawWait has passed.
+func TestOpeningGrowsWhenThePageNeverAnswers(t *testing.T) {
+	t.Parallel()
+	app, seen := openedToDrawing(t)
+	seen.drawPending()
+	if lastPlaced(t, seen).Size != testArrange.Size || app.Snapshot().Collapsed {
+		t.Errorf("after the wait: placed %+v", lastPlaced(t, seen))
+	}
+}
+
+// Leaving before the page has drawn collapses the ribbon back; the page's late word changes nothing.
+func TestLeavingWhileThePageDrawsCollapsesAgain(t *testing.T) {
+	t.Parallel()
+	app, seen := openedToDrawing(t)
+	app.handleSafely(desktop.Event{Kind: desktop.EventPointerLeft})
+	fire(t, seen)
+	if seen.drawPending != nil || !app.Snapshot().Collapsed {
+		t.Errorf("fallback pending %v, collapsed %v", seen.drawPending != nil, app.Snapshot().Collapsed)
+	}
+	app.RibbonDrawn()
+	if got := lastPlaced(t, seen); got.Size.Width != placement.TabThickness {
+		t.Errorf("the late word placed %+v, want the tab kept", got)
+	}
+}
+
+// A panel opened while the page draws is the window; the page's word does not put the ribbon over it.
+func TestAPanelOpenedWhileThePageDrawsStays(t *testing.T) {
+	t.Parallel()
+	app, seen := openedToDrawing(t)
+	if err := app.OpenPanel(); err != nil {
+		t.Fatal(err)
+	}
+	placed := len(seen.placed)
+	app.RibbonDrawn()
+	if len(seen.placed) != placed {
+		t.Errorf("placed %+v over the panel", lastPlaced(t, seen))
 	}
 }
 
@@ -152,6 +233,7 @@ func TestAFailureWhileOpeningIsLogged(t *testing.T) {
 	app.place = func(placement.Point, placement.Size) error { panic("planted") }
 	app.unpin.shownOpen = false
 	fire(t, seen)
+	seen.drawPending()
 	if !strings.Contains(log.String(), "recovered from planted") {
 		t.Errorf("log %q", log.String())
 	}

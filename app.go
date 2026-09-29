@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"math"
 	"sync/atomic"
 	"time"
 
@@ -90,6 +91,7 @@ type App struct {
 	showMenu   func(items []application.MenuItem)
 	position   func() (placement.Point, error)
 	place      func(at placement.Point, size placement.Size) error
+	background func(red, green, blue uint8)
 	// The unpinned ribbon's calls (FR-613 to FR-618): the time, a timer that answers its own stop,
 	// the tab's frame and the desktop's reporting of the pointer.
 	now          func() time.Time
@@ -127,6 +129,7 @@ func newApp(service ribbonService, desk *desktop.Desktop, log io.Writer, panelSi
 	built.showMenu = desk.ShowMenu
 	built.position = built.ribbonPosition
 	built.place = built.placeRibbon
+	built.background = built.backgroundInWails
 	built.now = time.Now
 	built.after = func(wait time.Duration, do func()) func() bool { return time.AfterFunc(wait, do).Stop }
 	built.tabFrame = func(tab bool) error { return desktop.SetTabFrame(built.ribbon, tab) }
@@ -245,6 +248,20 @@ func (a *App) SetScrollbar(dip int) error { return a.refitted(a.service.SetScrol
 // enlarges the page without changing the display's DPI, so the DPI alone left the page cut off.
 func (a *App) SetPixelRatio(ratio float64) error {
 	return a.refitted(a.service.SetPixelsPerDIP(desktop.PixelsPerDIP(ratio)))
+}
+
+// SetBackground takes the colour the page paints behind everything, which it reports once it has
+// loaded and again whenever the scheme or theme changes it, so the window shows that colour rather
+// than white while the page catches up with a new size (measured 2026-09-29). The colours live in the
+// page's CSS alone; Go only passes this one on. A channel outside a byte is refused.
+func (a *App) SetBackground(red, green, blue int) error {
+	for _, channel := range []int{red, green, blue} {
+		if channel < 0 || channel > math.MaxUint8 {
+			return fmt.Errorf("the page's background rgb(%d, %d, %d) is not a colour", red, green, blue)
+		}
+	}
+	a.background(uint8(red), uint8(green), uint8(blue))
+	return nil
 }
 
 // ShowContextMenu shows the ribbon's right-click menu as a native menu at the cursor (FR-108). While

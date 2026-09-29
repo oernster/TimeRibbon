@@ -1,4 +1,4 @@
-import { useRef, type CSSProperties, type PointerEvent, type WheelEvent } from 'react'
+import { useEffect, useRef, type CSSProperties, type PointerEvent, type WheelEvent } from 'react'
 import { api, startDrag, type Refused, type Snapshot } from './api'
 import { ArtButton, addClockTip } from './ArtButton'
 import addClockArt from './assets/add-clock.png'
@@ -53,6 +53,19 @@ export function Ribbon({ snapshot, onAddClock, refused }: Props) {
       event.currentTarget.scrollLeft += event.deltaY
     }
   }
+
+  // An opening ribbon is drawn inside its tab first; Go grows the window once told it has been, so
+  // the band is never seen stretched over the full window (FR-615). The second frame is the one
+  // after the ribbon was painted.
+  useEffect(() => {
+    if (snapshot.collapsed) {
+      return
+    }
+    let frame = window.requestAnimationFrame(() => {
+      frame = window.requestAnimationFrame(() => void api.ribbonDrawn(refused))
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [snapshot.collapsed, refused])
 
   // An unpinned ribbon's tab is only a band in the scheme's accent: no words, no drag, no menu. It
   // opens when the pointer rests on it, which the desktop reports rather than the page (FR-614).

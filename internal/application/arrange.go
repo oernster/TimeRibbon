@@ -274,7 +274,8 @@ func (s *Service) ribbonContent() content {
 
 // ribbonSize answers the ribbon's size on monitor in physical pixels (FR-105, FR-106): the cells,
 // notices included, fitted along the orientation within the work area; one cell plus padding
-// across it, plus the scroll bar's thickness when the cells scroll, so the bar never covers them.
+// across it, plus the scroll bar's thickness when the cells scroll, so the bar never covers them,
+// plus the handle's lane while the sun map is on, so the handle never covers them either (FR-903).
 // It answers the length along the orientation in DIP too, which a move between scalings keeps.
 func (s *Service) ribbonSize(content content, monitor placement.Monitor) (placement.Size, bool, int) {
 	current := content.settings
@@ -298,6 +299,9 @@ func (s *Service) ribbonSize(content content, monitor placement.Monitor) (placem
 	thickness := across + 2*layout.Padding
 	if fitted.Scrolls {
 		thickness += content.scrollbar
+	}
+	if current.SunMap {
+		thickness += layout.HandleLane
 	}
 	length := placement.PixelsOf(fitted.Length, perDIP)
 	breadth := placement.PixelsOf(thickness, perDIP)

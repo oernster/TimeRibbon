@@ -66,7 +66,8 @@ func TestAHorizontalRibbonsMapGoesBelowIt(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := placement.Rect{Left: got.At.X + (336-480)/2, Top: 106, Right: got.At.X + (336-480)/2 + 480, Bottom: 106 + 240}
+	depth := testLayout.Digital.Height + 2*testLayout.Padding + testLayout.HandleLane
+	want := placement.Rect{Left: got.At.X + (336-480)/2, Top: depth, Right: got.At.X + (336-480)/2 + 480, Bottom: depth + 240}
 	if got.MapSide != placement.Bottom || got.Map != want {
 		t.Errorf("got side %s map %+v, want bottom %+v", got.MapSide, got.Map, want)
 	}
@@ -87,6 +88,35 @@ func TestAHorizontalRibbonsMapWaitsForThePullOut(t *testing.T) {
 	}
 	if got.MapSide != placement.Bottom || got.Map != (placement.Rect{}) {
 		t.Errorf("closed: %+v", got)
+	}
+}
+
+// FR-903, Amendment 23: while the sun map is on, the ribbon is deeper by the handle's lane, open or
+// closed and whichever way it runs, so the handle covers no cell; its length is unchanged.
+func TestTheHandlesLaneDeepensTheRibbon(t *testing.T) {
+	t.Parallel()
+	for _, orientation := range []settings.Orientation{settings.Horizontal, settings.Vertical} {
+		for _, pullOut := range []bool{false, true} {
+			off := clocks(2)
+			off.Orientation = orientation
+			on := off
+			on.SunMap, on.PullOut = true, pullOut
+			without, err := newRig(t, off).service.Launch()
+			if err != nil {
+				t.Fatal(err)
+			}
+			with, err := newRig(t, on).service.Launch()
+			if err != nil {
+				t.Fatal(err)
+			}
+			wantDeeper := placement.Size{Width: without.Size.Width, Height: without.Size.Height + testLayout.HandleLane}
+			if orientation == settings.Vertical {
+				wantDeeper = placement.Size{Width: without.Size.Width + testLayout.HandleLane, Height: without.Size.Height}
+			}
+			if with.Size != wantDeeper {
+				t.Errorf("%s, pull out %v: got %+v, want %+v", orientation, pullOut, with.Size, wantDeeper)
+			}
+		}
 	}
 }
 

@@ -30,6 +30,11 @@ describe('Surface (FR-902, FR-903, FR-910)', () => {
     const handle = screen.getByRole('button', { name: openPullOut })
     expect(handle.textContent).toBe('▼')
     expect(handle.className).toBe('pull-out-handle bottom')
+    // The handle stands in a lane of its own on that side, as deep as the handle (Amendment 23).
+    const ribbon = document.querySelector('.ribbon') as HTMLElement
+    expect(ribbon.classList.contains('lane-bottom')).toBe(true)
+    expect(ribbon.style.getPropertyValue('--lane')).toBe('16px')
+    expect((handle.closest('.surface') as HTMLElement).style.getPropertyValue('--handle-width')).toBe('16px')
     fireEvent.click(handle)
     expect(bridge.TogglePullOut).toHaveBeenCalledOnce()
     rerender(<Surface snapshot={snapshot({ sunMap: sunMap({ side: 'top', pullOut: true, ribbon: closed.ribbon }) })} onAddClock={vi.fn()} refused={vi.fn()} />)

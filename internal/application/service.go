@@ -40,6 +40,9 @@ type Layout struct {
 	// Prompt is the one cell an empty ribbon shows, holding the large Add clock button (FR-107).
 	Prompt  placement.Size
 	Padding int
+	// HandleLane is the depth of the lane along the ribbon's inner side while the sun map is on: the
+	// pull out's handle stands in it, so it covers no cell (FR-903).
+	HandleLane int
 }
 
 // Layouts is the layout for each size (FR-610).

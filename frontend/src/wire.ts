@@ -11,6 +11,7 @@ export interface Layout {
   analogue: Size
   prompt: Size
   padding: number
+  handleLane: number
 }
 
 export interface Cell {

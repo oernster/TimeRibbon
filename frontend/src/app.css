@@ -90,6 +90,23 @@ button:focus-visible {
   overflow-y: auto;
 }
 
+/* The pull out handle's lane on the side the sun map adjoins (FR-903): the cells start past it. */
+.ribbon.lane-top {
+  padding-top: calc(var(--pad) + var(--lane));
+}
+
+.ribbon.lane-bottom {
+  padding-bottom: calc(var(--pad) + var(--lane));
+}
+
+.ribbon.lane-left {
+  padding-left: calc(var(--pad) + var(--lane));
+}
+
+.ribbon.lane-right {
+  padding-right: calc(var(--pad) + var(--lane));
+}
+
 .cell {
   flex: none;
   box-sizing: border-box;
@@ -185,7 +202,6 @@ button:focus-visible {
   height: 100%;
   --mark-size: 8px;
   --mark-gap: 4px;
-  --handle-width: 16px;
   --handle-height: 48px;
 }
 
@@ -257,12 +273,15 @@ button:focus-visible {
   transform: translateX(-50%);
 }
 
-/* The pull out's handle, inside the ribbon on its inner edge, half way along (FR-903). */
+/* The pull out's handle, in the ribbon's lane on its inner edge, half way along (FR-903). Its depth
+   is the lane's, which Surface sets from the snapshot; the minimums a plain button keeps are cleared,
+   since they once made a lying handle 24 deep in a 16 deep lane and it covered a clock's name. */
 .pull-out-handle {
   position: absolute;
   width: var(--handle-width);
-  min-width: var(--handle-width);
   height: var(--handle-height);
+  min-width: 0;
+  min-height: 0;
   padding: 0;
   transform: translateY(-50%);
   font-size: 10px;
@@ -276,7 +295,6 @@ button:focus-visible {
 .pull-out-handle.top,
 .pull-out-handle.bottom {
   width: var(--handle-height);
-  min-width: var(--handle-height);
   height: var(--handle-width);
 }
 

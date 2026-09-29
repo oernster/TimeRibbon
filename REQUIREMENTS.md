@@ -90,6 +90,12 @@ pull out's handle too; its map shows only while the pull out is open, exactly as
 does, so every sun map opens and closes the same way (FR-902, FR-903). One remembered choice serves
 both orientations; the settings file gains no key. Section 11 records the rulings (OQ-21, OQ-22).
 
+Amendment 23 (Oliver, 2026-09-29): the handle has a lane of its own. On a friend's machine the handle
+of a horizontal ribbon covered the middle clock's name; it stood inside the ribbon on space the cells
+were using. While the sun map is on, the ribbon is deeper by a lane along the side the map adjoins;
+the handle stands in that lane, so it covers no cell in either orientation (FR-903). Section 11
+records the ruling (OQ-23).
+
 Source: the initial product specification of 2026-09-27, written under the product's former name,
 plus Oliver's rulings of 2026-09-27: the stack is Go with Wails; orientation is a setting offering
 both horizontal and vertical, both in the first release; a setup program ships with the first
@@ -1173,22 +1179,27 @@ Verified by: `TestTheMapAdjoinsTheSideAwayFromTheEdge` (domain, placement);
 Priority: Should.
 While the sun map is on and the ribbon is shown in full, the ribbon shall show a handle half way
 along its long side facing away from the edge it stands against (against no edge, the side facing
-the more room), with an arrow pointing the way the map will move. When the handle is chosen, the
+the more room), with an arrow pointing the way the map will move. The handle shall stand in a lane
+of its own along that side, the ribbon being made deeper by the lane, so it covers no part of any
+cell. When the handle is chosen, the
 application shall show the sun map adjoining that side if it was hidden; else hide it. The
 application shall remember whether the pull out is open in the settings file, one choice for both
 orientations.
 Rationale: Oliver, 2026-09-29: adjacent to a vertical ribbon as a pull out, opened by a handle
 (OQ-14); Amendment 22, a horizontal ribbon the same, so every sun map opens and closes one way
-(OQ-21), with one remembered choice (OQ-22). The handle is a control, so a press on it starts no
-drag (FR-402).
+(OQ-21), with one remembered choice (OQ-22); Amendment 23, the handle in a lane of its own, since
+standing on the cells it covered a clock's name (OQ-23). The handle is a control, so a press on it
+starts no drag (FR-402).
 Acceptance: given a vertical ribbon flush against the right edge with the sun map on and the pull
 out closed, when the handle is clicked, then the map shows adjoining the ribbon's left side; when it
 is clicked again, then the map hides; after a restart, the pull out is as it was left. Given a
 horizontal ribbon flush against the top edge with the sun map on and the pull out closed, then a
 handle with a downward arrow shows half way along its bottom side and no map shows; when the handle
-is clicked, then the map shows below the ribbon and the arrow points up.
-Verified by: `TestAVerticalRibbonsMapWaitsForThePullOut`, `TestAHorizontalRibbonsMapWaitsForThePullOut`
-(application);
+is clicked, then the map shows below the ribbon and the arrow points up. Given either orientation
+with the sun map on, then the ribbon is deeper than with it off by the lane alone; the handle
+overlaps no cell's text.
+Verified by: `TestAVerticalRibbonsMapWaitsForThePullOut`, `TestAHorizontalRibbonsMapWaitsForThePullOut`,
+`TestTheHandlesLaneDeepensTheRibbon` (application);
 `TestTheSunMapItemAndTheHandleFlipTheirChoices` (facade); `surface.test.tsx`; check M-15.
 
 **FR-904 The map's size**
@@ -1539,7 +1550,8 @@ implementation; where no test can hold it, its `Verified by:` line names the che
 There are no open questions. The five raised while drafting were ruled by Oliver on 2026-09-27;
 the four raised by Amendment 18 on 2026-09-28; the three raised by Amendment 19 on 2026-09-29, when
 OQ-6 was also reversed; the six raised by Amendment 20 the same day; the two raised by
-Amendment 21 the same day; the two raised by Amendment 22 the same day:
+Amendment 21 the same day; the two raised by Amendment 22 the same day; the one raised by
+Amendment 23 the same day:
 
 | ID | Question | Ruling | Now held by |
 |---|---|---|---|
@@ -1565,6 +1577,7 @@ Amendment 21 the same day; the two raised by Amendment 22 the same day:
 | OQ-20 | What happens when two labels on the map collide? | The later one moves aside; every label stays | FR-914 |
 | OQ-21 | Does a horizontal ribbon get the handle too? | Yes: its map is a pull out like a vertical one's, for consistency | FR-902, FR-903 |
 | OQ-22 | Is the pull out remembered per orientation? | No: one choice for both | FR-903 |
+| OQ-23 | Where does the handle stand so it covers no clock? | In a lane of its own; the ribbon grows deeper by it while the sun map is on | FR-903 |
 
 ---
 
@@ -1590,4 +1603,5 @@ is installing and removing the DMG on macOS and the Flatpak on Linux.
 | M-12 | Each Position item puts the ribbon flush against its edge and centred along it on the display it is on; it opens there next time; choosing Horizontal or Vertical from either menu sends it to the top or right edge; small clocks show their whole date and time in both styles; the Settings title and Close stay put while the panel scrolls; each colour scheme looks right and unmistakably its own in Light, Dark and System, Neon glowing on its dark side only; every date format shows its whole date in large and small cells, a Wednesday in September the widest. |
 | M-13 | Help's Check for updates says this is the latest version with the network on and that GitHub could not be reached with it off; a build older than the latest release shows the update panel a few seconds after it starts; Download opens this platform's download in the browser; after Skip this version the next start shows nothing; the Flatpak build reaches GitHub too. |
 | M-14 | Unticking Pin ribbon in either menu shrinks the ribbon to an accent tab on the edge it stands against a second after the pointer leaves (a ribbon away from every edge first moves to the edge last used); dragged away from every edge it stays in full with Pin ribbon still unticked; dropped within 16 DIP of an edge (an edge between two displays included) it snaps flush and collapses again; resting the pointer on the tab for 0.3 s opens it while the window being typed in keeps focus, with no flash of a close button, a stretched band or white as it grows; crossing the tab quickly does not; the tab stays above a maximised window with Always on top off; a Stream Deck press hides the tab and the next brings it back; ticking Pin ribbon ends all of it. |
-| M-15 | Ticking Sun map in either menu shows a handle with an arrow on the ribbon's inner side, horizontal and vertical alike; its click slides the map out (below a horizontal ribbon at the top edge, above one at the bottom, beside a vertical one) and back, kept across a restart; the map is as long as the ribbon, lit where it is day with city lights where it is night; each clock's city is a red dot beside its label; dragging the map moves both; the map hides with the tab and returns with the ribbon; after a minute the line between day and night has moved; on Windows the desktop shows (and takes clicks) wherever the window holds neither ribbon nor map; no label on the map prints over another label or a dot. |
+| M-15 | Ticking Sun map in either menu shows a handle with an arrow on the ribbon's inner side, horizontal and vertical alike, covering no
+part of any clock with an odd number of clocks at either size; its click slides the map out (below a horizontal ribbon at the top edge, above one at the bottom, beside a vertical one) and back, kept across a restart; the map is as long as the ribbon, lit where it is day with city lights where it is night; each clock's city is a red dot beside its label; dragging the map moves both; the map hides with the tab and returns with the ribbon; after a minute the line between day and night has moved; on Windows the desktop shows (and takes clicks) wherever the window holds neither ribbon nor map; no label on the map prints over another label or a dot. |

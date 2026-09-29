@@ -24,7 +24,11 @@ export function Ribbon({ snapshot, onAddClock, refused }: Props) {
     '--cell-w': `${cell.width}px`,
     '--cell-h': `${cell.height}px`,
     '--pad': `${snapshot.layout.padding}px`,
+    '--lane': `${snapshot.layout.handleLane}px`,
   } as CSSProperties
+  // While the sun map is on, the pull out's handle stands in a lane of its own along the side the map
+  // adjoins, which Go has already made the ribbon deep enough to hold (FR-903).
+  const lane = snapshot.sunMap.side === '' ? '' : `lane-${snapshot.sunMap.side}`
 
   // A plain wheel moves up and down, which a horizontal ribbon cannot; so while one scrolls, the
   // wheel moves it along instead (FR-106). A sideways wheel or a trackpad already moves it along.
@@ -53,7 +57,7 @@ export function Ribbon({ snapshot, onAddClock, refused }: Props) {
     return <div className="tab" data-testid="tab" />
   }
 
-  const classes = ['ribbon', vertical ? 'vertical' : 'horizontal', snapshot.size, snapshot.scrolls ? 'scrolls' : ''].join(' ')
+  const classes = ['ribbon', vertical ? 'vertical' : 'horizontal', snapshot.size, snapshot.scrolls ? 'scrolls' : '', lane].join(' ')
   return (
     <div
       className={classes}

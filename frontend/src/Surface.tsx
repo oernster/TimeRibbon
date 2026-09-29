@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import { api, type Box, type Refused, type Snapshot } from './api'
 import { Ribbon } from './Ribbon'
 import { SunMap } from './SunMap'
@@ -62,8 +63,9 @@ export function Surface({ snapshot, onAddClock, refused }: Props) {
   const place = (box: Box): Placed => ({ left: box.x * scale, top: box.y * scale, width: box.width * scale, height: box.height * scale })
   const ribbon = place(map.ribbon)
   const arrow = arrows[map.side]
+  const lane = { '--handle-width': `${snapshot.layout.handleLane}px` } as CSSProperties
   return (
-    <div className="surface">
+    <div className="surface" style={lane}>
       <div className="surface-part" style={ribbon}>
         <Ribbon snapshot={snapshot} onAddClock={onAddClock} refused={refused} />
       </div>

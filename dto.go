@@ -18,10 +18,11 @@ type sizeDTO struct {
 
 // layoutDTO is the cell geometry the page draws with.
 type layoutDTO struct {
-	Digital  sizeDTO `json:"digital"`
-	Analogue sizeDTO `json:"analogue"`
-	Prompt   sizeDTO `json:"prompt"`
-	Padding  int     `json:"padding"`
+	Digital    sizeDTO `json:"digital"`
+	Analogue   sizeDTO `json:"analogue"`
+	Prompt     sizeDTO `json:"prompt"`
+	Padding    int     `json:"padding"`
+	HandleLane int     `json:"handleLane"`
 }
 
 // cellDTO is one cell of the ribbon.
@@ -155,7 +156,7 @@ func snapshotOf(s application.Snapshot, scrolls bool, threshold placement.Size) 
 	return snapshotDTO{
 		Cells: cells, Style: string(s.Style), Size: string(s.Size), Colour: string(s.Colour), Format: string(s.Format), DateFormat: string(s.DateFormat), Orientation: string(s.Orientation),
 		Theme: string(s.Theme), AlwaysOnTop: s.AlwaysOnTop,
-		Layout:        layoutDTO{Digital: sizeOf(s.Layout.Digital), Analogue: sizeOf(s.Layout.Analogue), Prompt: sizeOf(s.Layout.Prompt), Padding: s.Layout.Padding},
+		Layout:        layoutDTO{Digital: sizeOf(s.Layout.Digital), Analogue: sizeOf(s.Layout.Analogue), Prompt: sizeOf(s.Layout.Prompt), Padding: s.Layout.Padding, HandleLane: s.Layout.HandleLane},
 		RefreshInMs:   s.NextRefresh.Sub(s.Now).Milliseconds(),
 		Notices:       notices,
 		Scrolls:       scrolls,

@@ -26,11 +26,13 @@ import (
 	"github.com/oernster/timeribbon/internal/product"
 )
 
-// The empty ribbon's one cell and the padding round the cells, in DIP, the same at either size: the
-// prompt holds the large Add clock button whatever size the clocks are drawn at.
+// The empty ribbon's one cell, the padding round the cells and the pull out handle's lane, in DIP,
+// the same at either size: the prompt holds the large Add clock button whatever size the clocks are
+// drawn at; the handle is the same control at both.
 var (
 	promptCell    = placement.Size{Width: 176, Height: 184}
 	ribbonPadding = 6
+	handleLane    = 16
 )
 
 // layouts is the size of one cell in each style at each size (FR-610), in DIP: its one home. The
@@ -38,16 +40,18 @@ var (
 // .ribbon.small for the small ones.
 var layouts = application.Layouts{
 	Large: application.Layout{
-		Digital:  placement.Size{Width: 176, Height: 92},
-		Analogue: placement.Size{Width: 176, Height: 176},
-		Prompt:   promptCell,
-		Padding:  ribbonPadding,
+		Digital:    placement.Size{Width: 176, Height: 92},
+		Analogue:   placement.Size{Width: 176, Height: 176},
+		Prompt:     promptCell,
+		Padding:    ribbonPadding,
+		HandleLane: handleLane,
 	},
 	Small: application.Layout{
-		Digital:  placement.Size{Width: 146, Height: 72},
-		Analogue: placement.Size{Width: 146, Height: 116},
-		Prompt:   promptCell,
-		Padding:  ribbonPadding,
+		Digital:    placement.Size{Width: 146, Height: 72},
+		Analogue:   placement.Size{Width: 146, Height: 116},
+		Prompt:     promptCell,
+		Padding:    ribbonPadding,
+		HandleLane: handleLane,
 	},
 }
 

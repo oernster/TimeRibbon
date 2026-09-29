@@ -85,20 +85,22 @@ func (f *fakeStartup) Disable() error {
 
 // testLayout is the cell geometry the tests arrange with, in DIP.
 var testLayout = Layout{
-	Digital:  placement.Size{Width: 160, Height: 90},
-	Analogue: placement.Size{Width: 160, Height: 150},
-	Prompt:   placement.Size{Width: 160, Height: 190},
-	Padding:  8,
+	Digital:    placement.Size{Width: 160, Height: 90},
+	Analogue:   placement.Size{Width: 160, Height: 150},
+	Prompt:     placement.Size{Width: 160, Height: 190},
+	Padding:    8,
+	HandleLane: 12,
 }
 
 // testLayouts is testLayout for the large size and a smaller one for the small (FR-610).
 var testLayouts = Layouts{
 	Large: testLayout,
 	Small: Layout{
-		Digital:  placement.Size{Width: 120, Height: 60},
-		Analogue: placement.Size{Width: 120, Height: 100},
-		Prompt:   testLayout.Prompt,
-		Padding:  testLayout.Padding,
+		Digital:    placement.Size{Width: 120, Height: 60},
+		Analogue:   placement.Size{Width: 120, Height: 100},
+		Prompt:     testLayout.Prompt,
+		Padding:    testLayout.Padding,
+		HandleLane: testLayout.HandleLane,
 	},
 }
 

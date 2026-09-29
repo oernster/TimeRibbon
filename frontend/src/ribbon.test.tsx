@@ -27,12 +27,14 @@ describe('Ribbon', () => {
 
   it('draws cells at the size the snapshot names, marked for its text sizes (FR-610)', () => {
     installBridge()
-    const small = { digital: { width: 144, height: 72 }, analogue: { width: 144, height: 124 }, prompt: { width: 176, height: 184 }, padding: 6 }
+    const small = { digital: { width: 144, height: 72 }, analogue: { width: 144, height: 124 }, prompt: { width: 176, height: 184 }, padding: 6, handleLane: 16 }
     render(<Ribbon snapshot={snapshot({ size: 'small', layout: small })} onAddClock={vi.fn()} refused={vi.fn()} />)
     const ribbon = screen.getAllByRole('group')[0].closest('.ribbon') as HTMLElement
     expect(ribbon.classList.contains('small')).toBe(true)
     expect(ribbon.style.getPropertyValue('--cell-w')).toBe('144px')
     expect(ribbon.style.getPropertyValue('--cell-h')).toBe('72px')
+    // With the sun map off there is no handle, so no lane (FR-903).
+    expect([...ribbon.classList].some((name) => name.startsWith('lane-'))).toBe(false)
   })
 
   it('draws only the tab while collapsed: no words, no drag, no menu (FR-614)', () => {

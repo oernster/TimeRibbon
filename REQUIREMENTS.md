@@ -73,6 +73,13 @@ centre of that edge (FR-613). The tab covers the flush side (FR-614, reversing O
 FR-617 now apply to a ribbon unpinned in effect. The settings file gains the remembered edge
 (NFR-C-1 allows the key). Section 11 records the rulings (OQ-6 reversed, OQ-10 to OQ-12).
 
+Amendment 20 (Oliver, 2026-09-29): a sun map (section 3.9, FR-901 to FR-912): a photographic world
+map lit by day and dark by night with city lights, each clock's zone city marked in red, below or
+above a horizontal ribbon and in a pull out beside a vertical one, turned on or off from both menus
+and Settings. NFR-P-5 and NFR-C-2 measure it; ASM-5 holds the imagery's licence until confirmed. The
+settings file gains the sun map and pull out choices (NFR-C-1 allows the keys). Section 11 records
+the rulings (OQ-13 to OQ-18).
+
 Source: the initial product specification of 2026-09-27, written under the product's former name,
 plus Oliver's rulings of 2026-09-27: the stack is Go with Wails; orientation is a setting offering
 both horizontal and vertical, both in the first release; a setup program ships with the first
@@ -111,6 +118,8 @@ Oliver Ernster as author and decision owner; contributors to the open source pro
 - A notification-area (tray) icon with a menu; optional Always on Top; optional Start with Windows.
 - An unpinned ribbon that waits as a thin tab on the edge it stands against and opens while the
   pointer rests on it (FR-613 to FR-619); a drop near an edge snaps flush (FR-410).
+- An optional world map beside the ribbon, lit by day and dark by night with city lights, each
+  clock's place marked (FR-901 to FR-912).
 - Light, dark and system themes, in ten colour schemes (FR-611).
 - A check for a newer release on GitHub, the application's one network request (FR-509).
 - Local persistence in one human-readable file.
@@ -133,6 +142,9 @@ Oliver Ernster as author and decision owner; contributors to the open source pro
 | Downloading time zone rule updates | Rules are built into the binary; macOS and Linux read the system's zone files first (CON-5, NFR-S-3) |
 | Fixed UTC offsets as clocks | The spec's section 4 forbids them |
 | Opening an unpinned ribbon by touch | A touch screen reports no resting pointer; pinned, the default, serves it. Claude's proposal, Amendment 18 |
+| Moving a clock's mark to its real town | Amendment 20 (OQ-17): the mark is the zone's city; a label naming another town is not looked up |
+| Zooming, panning or another projection of the sun map | Amendment 20: one whole-world map at the ribbon's length |
+| Live satellite or cloud imagery, weather, the moon | Amendment 20: nothing is fetched (FR-911, NFR-S-1) |
 
 ### 1.4 Definitions
 
@@ -147,6 +159,8 @@ Oliver Ernster as author and decision owner; contributors to the open source pro
 | **Orientation** | Horizontal (cells left to right) or vertical (cells top to bottom). |
 | **Style** | Digital or analogue: how every cell presents its time. |
 | **Format** | 12-hour or 24-hour: how every digital time and every textual time is written. |
+| **Sun map** | The world map lit by day and dark by night shown with the ribbon (section 3.9). |
+| **Pull out** | The sun map beside a vertical ribbon, opened and closed by its handle (FR-903). |
 | **Zone mark** | The text beside a label naming the zone's current abbreviation or UTC offset (FR-203). |
 | **Local date** | The weekday, day and month at the clock's zone for the current instant. |
 | **Work area** | A monitor's rectangle minus the taskbar and docked toolbars, as Windows reports it. |
@@ -313,6 +327,7 @@ recorded at the first measured build.
 | ASM-1 | The Windows clock is correct; TimeRibbon shows what it implies. | Oliver | Baselining |
 | ASM-2 | Up to 12 clocks covers real use; beyond that the ribbon scrolls rather than grows (FR-106). The number sizes tests, not a limit. | Oliver | Baselining |
 | ASM-3 | English weekday and month names suffice. | Oliver | Baselining |
+| ASM-5 | Amendment 20: NASA's Blue Marble (day) and Black Marble (night lights) images may ship inside a GPL application with a credit and no fee; they can also be reduced to the size NFR-C-2 allows while staying readable. FR-905, FR-911 and FR-912 depend on it. | Claude | Before any sun map code: read from NASA's published media usage guidelines and the images' own pages, recorded here with the addresses |
 | ASM-4 | The pointer arriving on and leaving the ribbon's window can be seen on Windows, macOS and Linux under X11, for a window as thin as the tab. FR-615 and FR-616 depend on it. Confirmed on Windows 2026-09-28 by the page's own events; on macOS the same day by the pointer's position read in Go, the page being blind while inactive; on Linux under X11 the same day by GTK's crossing events alone (section 2.3). Each platform needs its own source. | Claude | Confirmed 2026-09-28 |
 
 ---
@@ -1102,7 +1117,150 @@ Verified by: `TestWriteFailureIsReportedAndCleared` (application).
 | NFR-M-1 | The coverage floor of CON-3, the size limit of CON-2 and the layering of CON-1 are enforced by `test.ps1`, which `build.ps1` runs first with no switch to skip it. | `build.ps1` |
 | NFR-M-2 | Go code passes gofmt, go vet and staticcheck; the front end passes eslint, `tsc --noEmit` and Vitest. | `test.ps1` |
 | NFR-C-1 | From 1.0.0, every later 1.x release shall read every settings file 1.0.0 writes to the same settings: no key 1.0.0 writes is renamed, dropped or given another meaning; no stored word changes. A later release may add keys; 1.0.0 keeps a key it does not know and writes it back. Amendment 4 (Oliver, 2026-09-27). Amendment 11 (Oliver, 2026-09-28): the next major version still reads that shape to the same settings; the file now lives in the renamed folder and nothing is read from the former one. | `TestA1Point0SettingsFileIsReadWhole` over the frozen fixture `internal/infrastructure/store/testdata/settings-1.0.0.json` |
+| NFR-P-5 | Amendment 20: drawing the sun map (FR-905) at 960 by 480 DIP shall take at most 100 ms on the reference machine. | Timed around the draw in the page, median of 10 minute refreshes, written to the log |
+| NFR-C-2 | Amendment 20: the built-in map images (FR-911) shall add at most 4 MB to the application's executable. | Executable size compared with and without the images, read by `build.ps1` |
 | NFR-O-1 | The application shall write a log to `%APPDATA%\TimeRibbon\TimeRibbon.log` recording launch, placement recovery decisions, settings failures and invalid clocks; standard error is pointed at it before anything can fail. Amendment 13: on macOS and Linux, `TimeRibbon.log` in the settings folder of CON-8. | `TestLogReceivesStandardError` (infrastructure) |
+
+### 3.9 The sun map
+
+Amendment 20 (Oliver, 2026-09-29). A friend (Eid) asked for a live world map lit where it is day and
+dark where it is night, city lights on the night side, the clocks' places marked, after the Solar
+World Clock, which shows its clocks in a row above such a map. Glossary: the **sun map** is that map;
+the **pull out** is the sun map beside a vertical ribbon; the **handle** opens and closes it; the
+**subsolar point** is where the sun stands overhead; **solar altitude** is the sun's height above
+the horizon at a place, in degrees.
+
+**FR-901 Sun map on or off**
+Priority: Should.
+The tray menu, the ribbon's right-click menu and Settings shall each hold a `Sun map` choice, ticked
+while the sun map is on; choosing it turns the sun map on or off at once as FR-602 does. The sun map
+is off while the settings file holds no choice for it.
+Rationale: off by default keeps today's ribbon for everyone who has not asked for the map.
+Acceptance: given a settings file from 2.2.0, when TimeRibbon starts, then no map shows and `Sun
+map` is unticked; when it is chosen, then the map shows (FR-902 or FR-903) and the settings file
+holds `"sunMap": true`.
+Verified by: planned `TestAFileWithoutASunMapHasItOff` (infrastructure, store),
+`TestBothMenusOfferSunMap` (application); check M-15.
+
+**FR-902 The map beside a horizontal ribbon**
+Priority: Should.
+While the sun map is on, the ribbon is horizontal and shown in full, the application shall show the
+sun map adjoining the ribbon's long side that faces away from the edge the ribbon stands against:
+below a ribbon against the top edge, above one against the bottom edge. Against no edge, the map
+shall adjoin the side facing the more room in the work area; below at an equal distance.
+Rationale: Oliver, 2026-09-29: clocks in a row above the map, as the reference shows; above a ribbon
+at the bottom edge, where below has no room (OQ-13).
+Acceptance: given a horizontal ribbon flush against the top edge with the sun map on, then the map's
+top edge meets the ribbon's bottom edge along the ribbon's length; dragged flush against the bottom
+edge, then the map's bottom edge meets the ribbon's top edge.
+Verified by: planned `TestTheMapAdjoinsTheSideAwayFromTheEdge` (domain); check M-15.
+
+**FR-903 The pull out beside a vertical ribbon**
+Priority: Should.
+While the sun map is on and the ribbon is vertical and shown in full, the ribbon shall show a handle
+on its long side facing away from the edge it stands against (against no edge, the side facing the
+more room). When the handle is chosen, the application shall show the sun map adjoining that side if
+it was hidden; else hide it. The application shall remember whether the pull out is open in the
+settings file.
+Rationale: Oliver, 2026-09-29: adjacent to a vertical ribbon as a pull out, opened by a handle
+(OQ-14). The handle is a control, so a press on it starts no drag (FR-402).
+Acceptance: given a vertical ribbon flush against the right edge with the sun map on and the pull
+out closed, when the handle is clicked, then the map shows adjoining the ribbon's left side; when it
+is clicked again, then the map hides; after a restart, the pull out is as it was left.
+Verified by: planned `TestTheHandleOpensAndClosesThePullOut` (facade), `ribbon.test.tsx` for the
+handle; check M-15.
+
+**FR-904 The map's size**
+Priority: Should.
+The application shall size the sun map at twice as long as it is deep, as long as the ribbon along
+the ribbon's length and centred on it, never shorter than 480 by 240 DIP. If the work area has less
+room across the ribbon than that depth, then the application shall scale the map down, keeping its
+shape, to the room there is. If that room is less than 120 DIP, then the application shall not show
+the map.
+Rationale: Oliver, 2026-09-29: the map matches the ribbon (OQ-15). 480 by 240 and the 120 DIP floor
+are Claude's proposals, sized so a two-clock ribbon still gets a readable map.
+Acceptance: given a horizontal ribbon 1200 DIP long flush against the top of a work area 1032 DIP
+tall, then the map is 1200 by 600 DIP; given one 336 DIP long, then the map is 480 by 240 DIP centred
+on it; given a vertical ribbon 1032 DIP long with 700 DIP of room beside it, then the map is 700 by
+350 DIP.
+Verified by: planned `TestTheMapMatchesTheRibbon`, `TestTheMapScalesToTheRoom`,
+`TestTooLittleRoomShowsNoMap` (domain).
+
+**FR-905 Day and night**
+Priority: Should.
+The application shall draw each point of the sun map from the day image where the solar altitude
+there is above 0 degrees, from the night image with its city lights where it is below minus 12
+degrees, blending the two in proportion between, at the instant of the snapshot (FR-208).
+Rationale: Oliver, 2026-09-29: photographic, with city lights (OQ-16). Minus 12 degrees is nautical
+dusk, Claude's proposal: city lights come on as the sky darkens rather than at the line itself.
+Acceptance: at 12:00 UTC on 2026-03-20 (an equinox), the point at latitude 0, longitude 0 is drawn
+from the day image; the point at latitude 0, longitude 180 from the night image; a point where the
+solar altitude is minus 6 degrees is drawn half from each.
+Verified by: planned `TestSolarAltitudeAtTheEquinox` (domain); `sunMap.test.ts` for the blend.
+
+**FR-906 The sun's position**
+Priority: Should.
+The domain shall compute the subsolar point for any instant to within 0.2 degrees of latitude and of
+longitude of the NOAA Solar Calculator's.
+Rationale: 0.2 degrees is under a pixel at 960 DIP across 360 degrees of longitude.
+Acceptance: for each of eight instants spread over a year, stored with NOAA's values beside them,
+the computed subsolar point is within 0.2 degrees of NOAA's.
+Verified by: planned `TestTheSubsolarPointMatchesNOAA` (domain) over those instants in `testdata`.
+
+**FR-907 The map follows the time**
+Priority: Should.
+When the ribbon takes a new snapshot (FR-208, FR-209), the application shall redraw the sun map for
+that snapshot's instant.
+Rationale: the line between day and night moves a quarter of a degree a minute; a redraw each minute
+keeps it within a pixel, with no timer of its own (NFR-P-4).
+Acceptance: given the sun map shown at 12:00, when the snapshot of 12:01 arrives, then the map is
+drawn for 12:01.
+Verified by: planned `sunMap.test.ts`.
+
+**FR-908 The clocks' places**
+Priority: Should.
+For each clock whose zone has a place in the tz database's zone table, the application shall mark
+that place on the sun map with a red dot beside the clock's label. If a clock's zone has no place
+there (as `UTC` or `Etc/GMT+5`), then the application shall mark nothing for that clock.
+Rationale: Oliver, 2026-09-29: the zone's own city, in red (OQ-17). A Europe/London clock labelled
+Brighton is marked at London. The label carries the words, so the mark is not told by colour alone
+(NFR-U-2).
+Acceptance: given clocks for `Europe/London` labelled `Mum` and `UTC`, then one red dot shows near
+51.5 N 0.1 W with `Mum` beside it and nothing shows for `UTC`.
+Verified by: planned `TestEveryPlaceHasItsZonesCoordinate` (infrastructure, zones),
+`TestAZoneWithNoPlaceHasNoMark` (application); `sunMap.test.ts`.
+
+**FR-909 The map goes with the ribbon**
+Priority: Should.
+The application shall move the sun map with the ribbon, keeping them adjoined; a drag started on the
+map shall move both as FR-401 does. The ribbon's own edge alone decides whether it is flush (FR-619).
+Verified by: check M-15.
+
+**FR-910 When the map is not shown**
+Priority: Should.
+While the ribbon is collapsed to its tab, hidden or showing a panel, the application shall not show
+the sun map; it returns with the full ribbon. While the pointer is on the sun map, an unpinned ribbon
+counts the pointer as on the ribbon (FR-616).
+Rationale: Oliver, 2026-09-29: the map hides with the tab (OQ-18).
+Acceptance: given an unpinned ribbon with the sun map shown, when it collapses, then neither shows
+but the tab; while the pointer rests on the map, the ribbon stays open.
+Verified by: planned `TestTheMapHidesWithTheTab` (facade); check M-15.
+
+**FR-911 The imagery is built in**
+Priority: Should.
+The application shall carry the day and night images inside itself and fetch nothing to draw the
+map; NFR-S-1 holds unchanged. If an image cannot be read, then the application shall show the map's
+place as a notice naming the image rather than a blank or partial map.
+Rationale: offline, like everything else TimeRibbon does; the one network request stays the update
+check. Source and licence: ASM-5.
+Verified by: `TestOnlyTheUpdateCheckImportsANetworkPackage` (structural); planned
+`TestAnUnreadableImageRaisesANotice` (infrastructure).
+
+**FR-912 The imagery is credited**
+Priority: Should.
+About shall credit the source of each map image with its licence, as it does the code TimeRibbon
+uses (FR-508).
+Verified by: `TestEachPlatformCreditsWhatItShips` (product), extended to the images (planned).
 
 ---
 
@@ -1252,6 +1410,13 @@ proposed before the first build had one `internal/infrastructure/windows` packag
 | Unpinned ribbon dragged, moved to an edge, re-oriented, resized or its display changed | FR-619: the pin in effect is read afresh after every placement, whatever set it; a drag holds the ribbon open (FR-616); a drop near an edge snaps flush (FR-410) |
 | Unpinned ribbon standing away from every edge | FR-619: shown in full as though pinned, the choice kept; unticking `Pin ribbon` there moves it to the last edge (FR-613, FR-411) |
 | Ribbon against an edge shared by two displays | FR-410, FR-619: each display's own work area counts, inner edges included |
+| Sun map with too little room beside the ribbon | FR-904: scaled down to fit; under 120 DIP of room it is not shown |
+| A clock whose zone has no place | FR-908: no mark; the clock itself is unchanged |
+| A map image that cannot be read | FR-911: a notice in the map's place |
+| Sun map while collapsed, hidden or showing a panel | FR-910: not shown |
+| Sun map with no network | FR-911: nothing is fetched |
+| Sun map with the time changed or after a resume | FR-907: redrawn with the new snapshot |
+| Sun map from the keyboard | `Sun map` is in both menus (FR-901); the pull out's handle is reached by the pointer only, as the ribbon's cells are |
 | Unpinned ribbon covered by other windows | FR-617 |
 | A panel or a menu open while unpinned | FR-616: neither collapses |
 | Unpinned ribbon hidden, then shown | FR-618: hidden takes the tab too; shown brings back the tab |
@@ -1282,7 +1447,7 @@ recover, snapshot) is executable from a Go test with no window open before the f
 | Priority | Content |
 |---|---|
 | **Must** | FR-101 to FR-107, FR-201 to FR-209, FR-301 to FR-305, FR-401 to FR-409, FR-501, FR-502, FR-504 to FR-508, FR-601 to FR-604, FR-607 to FR-610, FR-701 to FR-707, FR-801 to FR-811, NFR-P-1 to NFR-P-4, NFR-U-1 to NFR-U-5, NFR-S-1 to NFR-S-3, NFR-M-1, NFR-M-2, NFR-C-1, NFR-O-1 |
-| **Should** | FR-108, FR-307, FR-410, FR-411, FR-503, FR-509, FR-605, FR-606, FR-611 to FR-619 |
+| **Should** | FR-108, FR-307, FR-410, FR-411, FR-503, FR-509, FR-605, FR-606, FR-611 to FR-619, FR-901 to FR-912, NFR-P-5, NFR-C-2 |
 | **Could** | FR-308 |
 | **Withdrawn** | FR-306 (Amendment 6) |
 | **Won't this time** | Everything in the out-of-scope table of section 1.3 |
@@ -1320,7 +1485,7 @@ implementation; where no test can hold it, its `Verified by:` line names the che
 
 There are no open questions. The five raised while drafting were ruled by Oliver on 2026-09-27;
 the four raised by Amendment 18 on 2026-09-28; the three raised by Amendment 19 on 2026-09-29, when
-OQ-6 was also reversed:
+OQ-6 was also reversed; the six raised by Amendment 20 the same day:
 
 | ID | Question | Ruling | Now held by |
 |---|---|---|---|
@@ -1336,6 +1501,12 @@ OQ-6 was also reversed:
 | OQ-10 | Unticking `Pin ribbon` away from every edge: where does the ribbon go? | Centred on the edge last used; else the home edge; the same edge here should its display be gone | FR-613, FR-411 |
 | OQ-11 | Which edges count as an edge? | Those along the orientation, of each display's own work area, inner edges between displays included | FR-410, FR-619 |
 | OQ-12 | How close must a drop land to count as against an edge? | Within 16 DIP, either side; it then snaps flush | FR-410 |
+| OQ-13 | Where does a horizontal ribbon's map go? | On the side away from its edge: below at the top, above at the bottom | FR-902 |
+| OQ-14 | How does a vertical ribbon show its map? | A pull out beside it, opened and closed by a handle, remembered | FR-903 |
+| OQ-15 | How big is the map? | As long as the ribbon, twice as long as deep, at least 480 by 240 DIP | FR-904 |
+| OQ-16 | What does the map look like? | Photographic, with city lights at night | FR-905, ASM-5 |
+| OQ-17 | Where is a clock's place marked? | At its zone's city, in red with its label | FR-908 |
+| OQ-18 | What does the map do while the ribbon is its tab? | Hides with it | FR-910 |
 
 ---
 
@@ -1361,3 +1532,4 @@ is installing and removing the DMG on macOS and the Flatpak on Linux.
 | M-12 | Each Position item puts the ribbon flush against its edge and centred along it on the display it is on; it opens there next time; choosing Horizontal or Vertical from either menu sends it to the top or right edge; small clocks show their whole date and time in both styles; the Settings title and Close stay put while the panel scrolls; each colour scheme looks right and unmistakably its own in Light, Dark and System, Neon glowing on its dark side only; every date format shows its whole date in large and small cells, a Wednesday in September the widest. |
 | M-13 | Help's Check for updates says this is the latest version with the network on and that GitHub could not be reached with it off; a build older than the latest release shows the update panel a few seconds after it starts; Download opens this platform's download in the browser; after Skip this version the next start shows nothing; the Flatpak build reaches GitHub too. |
 | M-14 | Unticking Pin ribbon in either menu shrinks the ribbon to an accent tab on the edge it stands against a second after the pointer leaves (a ribbon away from every edge first moves to the edge last used); dragged away from every edge it stays in full with Pin ribbon still unticked; dropped within 16 DIP of an edge (an edge between two displays included) it snaps flush and collapses again; resting the pointer on the tab for 0.3 s opens it while the window being typed in keeps focus, with no flash of a close button, a stretched band or white as it grows; crossing the tab quickly does not; the tab stays above a maximised window with Always on top off; a Stream Deck press hides the tab and the next brings it back; ticking Pin ribbon ends all of it. |
+| M-15 | Ticking Sun map in either menu shows the map below a horizontal ribbon at the top edge and above one at the bottom, as long as the ribbon, lit where it is day with city lights where it is night; each clock's city is a red dot beside its label; a vertical ribbon shows a handle whose click slides the map out beside it and back, kept across a restart; dragging the map moves both; the map hides with the tab and returns with the ribbon; after a minute the line between day and night has moved. |

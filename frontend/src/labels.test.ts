@@ -9,7 +9,7 @@ const GAP = 4
 const label = { width: 40, height: 16 }
 
 describe('labels on the sun map (FR-914)', () => {
-  it('moves London left of its dot, clear of Berlin's; Berlin stays right of its own', () => {
+  it("moves London left of its dot, clear of Berlin's; Berlin stays right of its own", () => {
     const london = project(51.51, -0.13, map.width, map.height)
     const berlin = project(52.52, 13.4, map.width, map.height)
     expect(placeLabels([london, berlin], [label, label], map, DOT, GAP)).toEqual(['left', 'right'])

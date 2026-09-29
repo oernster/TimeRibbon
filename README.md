@@ -61,7 +61,9 @@ in a small frameless ribbon you can put anywhere on any monitor.
   snaps flush and waits as a tab again. It is pinned unless you choose otherwise.
 - **Shows where it is day.** Tick Sun map and a world map lies below a horizontal ribbon (above one
   at the bottom of the screen) or slides out beside a vertical one from a handle: lit where it is
-  day, dark with city lights where it is night, each clock's city marked in red. The pictures are
+  day, dark with city lights where it is night, each clock's city marked in red. Nearby cities'
+  names move aside rather than print over each other. On Windows the desktop shows round the map;
+  on macOS and Linux the window stays a rectangle round the ribbon and its map. The pictures are
   NASA's Blue Marble and Black Marble, built in, so nothing is fetched to draw them.
 - **Goes where you put it.** Drag the ribbon by any empty part onto any monitor. On Windows it is
   kept wholly on a display while it moves; on macOS and Linux one left partly off every display is

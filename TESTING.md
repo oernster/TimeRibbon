@@ -46,12 +46,13 @@ and what stops it. An unexplained shortfall cannot be told from an oversight.
 | `internal/domain/hover` | 100% | 100% | `test.ps1`, with the application |
 | `internal/domain/placement` | 100% | 100% | `test.ps1`, with the application |
 | `internal/domain/settings` | 100% | 100% | `test.ps1`, with the application |
+| `internal/domain/sun` | 100% | 100% | `test.ps1`, with the application |
 | `internal/application` | 100% | 100% | `test.ps1`, with the domain |
 | `internal/infrastructure/system` | 100% | 100% | `test.ps1` |
 | `internal/infrastructure/update` | 100% | 100% | `test.ps1` |
 | `internal/infrastructure/zones` | 100% | 100% | `test.ps1` |
 | `internal/infrastructure/iconscale` | 100% | 100% | `test.ps1` |
-| `internal/infrastructure/store` | 92.9% | 92% | `test.ps1` |
+| `internal/infrastructure/store` | 93.3% | 92% | `test.ps1` |
 | `internal/infrastructure/setup` | 84.0% | 84% | `test.ps1` |
 | `tools/versioninfo` | 86.7% | 86% | `test.ps1` |
 | `tools/payload` | 82.8% | 82% | `test.ps1` |
@@ -59,28 +60,29 @@ and what stops it. An unexplained shortfall cannot be told from an oversight.
 | `internal/infrastructure/startup` | 80.6% | 80% | `test.ps1` |
 | `tools/identity` | 75% | 75% | `test.ps1` |
 | `tools/linuxicons` | 67.7% | 67% | `test.ps1` |
-| `tools/genplaces` | 38.8% | 38% | `test.ps1` |
+| `tools/genplaces` | 58.6% | 38% | `test.ps1` |
 | `internal/infrastructure/appdata` | 100% | 100% | `test.ps1` |
 | `internal/infrastructure/runlog` | 76.5% | 76% | `test.ps1` |
-| the root package (the Wails facade) | 81.8% | 76% | `test.ps1` |
-| `internal/infrastructure/desktop` | 32.8% | 14% | `test.ps1` |
+| the root package (the Wails facade) | 84.6% | 76% | `test.ps1` |
+| `internal/infrastructure/desktop` | 35.8% | 14% | `test.ps1` |
 | `internal/product` | 100% | none | not gated |
 | `installer` | 0%, no tests | none | not gated |
 
 Every figure is the Windows build's, which is what `test.ps1` measures. The Windows build compiles
-260 Go test functions, counted from the test files `go list` selects for it; each runs once with no
+334 Go test functions, counted from the test files `go list` selects for it; each runs once with no
 subtests, plus one `TestMain` in `internal/infrastructure/setup`. Twenty-four of them are the
 structural tests in `tests/structural`, which read the source rather than run it and are the same
 on every platform; [ARCHITECTURE.md](ARCHITECTURE.md) lists each against the rule it holds. One
 test in `store` holds a promise rather than a rule of structure:
 `TestA1Point0SettingsFileIsReadWhole` reads a frozen settings file of the first release (NFR-C-1);
-see ARCHITECTURE.md, The settings file. The macOS and Linux builds compile 241 each
+see ARCHITECTURE.md, The settings file. The macOS and Linux builds compile 310 each
 ([On macOS and Linux](#on-macos-and-linux)).
 
 ### The front end
 
-82 tests across 8 files, under Vitest with jsdom: the ribbon, Settings, About, Licence and the
-update panel; the self-reading cycle; the watch on the page's `devicePixelRatio`; then the setup
+100 tests across 12 files, under Vitest with jsdom: the ribbon, Settings, About, Licence and the
+update panel; the sun map's surface and handle, its day and night blend and where its labels stand
+(FR-914); the page's background colour; the self-reading cycle; the watch on the page's `devicePixelRatio`; then the setup
 page's screens, keyboard ring and unreachable-program cases. The front end has no coverage figure:
 no coverage provider is installed, so none is measured or claimed.
 
@@ -108,24 +110,27 @@ GitHub is asked only by the running application (M-13).
 
 ### The platform owns it
 
-- **`internal/infrastructure/desktop` (14.7%).** The tray icon, the native menus, the move fence and
+- **`internal/infrastructure/desktop` (35.8%).** The tray icon, the native menus, the move fence and
   the desktop's broadcasts all run on a hidden window's message loop; the ribbon functions act on the
   real ribbon window. `PixelsPerDIP`, which on Windows hands the page's ratio straight back, is
   called only by the root package's tests, which this figure does not count. The tests cover the
   menu identifier numbering (a submenu included), the fence's rectangle arithmetic, a work area read
   at a point, Windows' drag distance, an address Windows cannot open being refused and the clock
-  watch seeing a jump of the wall clock, then stopping. The loop itself, the menus as drawn (with
-  `separatedBefore`, which only drawing calls), the broadcasts arriving and a browser actually
-  opening (M-11) are checks for a person.
+  watch seeing a jump of the wall clock, then stopping; the window's cut (FR-913) joining its parts
+  into one region and refusing a window that is not there. The loop itself, the menus as drawn (with
+  `separatedBefore`, which only drawing calls), the broadcasts arriving, a browser actually opening
+  (M-11) and the desktop showing through the cut (M-15) are checks for a person.
 - **`internal/infrastructure/monitors` (82.6%).** The displays are read for real; what is not reached
   is Windows refusing to enumerate them or to describe one.
 - **`internal/infrastructure/runlog` (76.5%).** Opening the log and pointing standard error at it are
   tested, as is the folder refusing to be made; the log file refusing to open, the start line failing
   to write and `SetStdHandle` refusing only fail inside the system.
-- **The root package (76.6%).** The facade's tests are `facade_test.go`, `window_life_test.go`,
-  `updates_test.go` and `quit_signal_test.go`, over the scripted service in `fakes_test.go`. The
-  facade's decisions are tested: which calls fit the ribbon, that a drag whose save failed is still
-  fitted, the panel state, the menu actions, the close, a signal from outside ending the application
+- **The root package (84.6%).** The facade's tests are `facade_test.go`, `window_life_test.go`,
+  `unpinned_test.go`, `sunmap_test.go`, `background_test.go`, `effect_test.go`, `updates_test.go`
+  and `quit_signal_test.go`, over the scripted service in `fakes_test.go`. The facade's decisions are
+  tested: which calls fit the ribbon, that a drag whose save failed is still fitted, the panel state,
+  the tab, the window holding the ribbon with its map and cut to them before every placing, the menu
+  actions, the close, a signal from outside ending the application
   even with the tray up, the recover round each desktop event and each update check, the update
   watch's timing and what Download and Skip act on. Not reached: the composition root (`main.go`,
   `launch.go`), `startup`, `listen` and `shutdown`, which need the real ribbon window and the tray's
@@ -151,7 +156,7 @@ GitHub is asked only by the running application (M-13).
   `Places` accessor, which only the setup program's facade reads.
 - **`internal/infrastructure/startup` (80.6%).** Written, read and removed under a scratch key; the
   registry refusing to open the key or to read, write or delete its value is not reached.
-- **`internal/infrastructure/store` (92.9%).** The folder refusing to be made and the rename over the
+- **`internal/infrastructure/store` (93.3%).** The folder refusing to be made and the rename over the
   old file failing are tested. Not reached: the temporary file refusing to be made, written, flushed
   or closed, which only a failing disk produces; the error returns in `encode` and `extrasOf`, which
   guard values and a file already known to be well formed.
@@ -160,9 +165,9 @@ GitHub is asked only by the running application (M-13).
   Windows' own version API on 2026-09-27.
 - **`tools/payload` (82.8%).** `main` hands `run` the real arguments; the archive failing to close
   or to move into place is not reached.
-- **`tools/genplaces` (38.8%).** `main`, `run`, `readTable` and `readVersion` read the tz database's
-  own files, which a test machine need not have. The parsing and the writing of the catalogue are
-  tested; a test in `zones` holds every zone in the committed catalogue to resolving.
+- **`tools/genplaces` (58.6%).** `main`, `run`, `readTable` and `readVersion` read the tz database's
+  own files, which a test machine need not have. The parsing (the zone table's coordinates included)
+  and the writing of the catalogue are tested; a test in `zones` holds every zone in the committed catalogue to resolving.
 
 ## On macOS and Linux
 
@@ -170,7 +175,7 @@ The macOS and Linux halves of infrastructure compile only for their own platform
 face the desktop (`cocoamain`, `gtkmain`, `monitors`, `desktop`) also need cgo against AppKit or
 GTK. `test.ps1` reaches none of them. They are checked on a machine of their own
 platform, set up as [DEVELOPMENT.md](DEVELOPMENT.md) says, from a checkout with the page built. Each
-build compiles 241 Go test functions: the shared ones, the structural tests and its own.
+build compiles 310 Go test functions: the shared ones, the structural tests and its own.
 
 | What | macOS | Linux |
 |---|---|---|
@@ -249,7 +254,7 @@ Windows, installing and removing the DMG on macOS and the Flatpak on Linux.
 | M-12 | Each Position item puts the ribbon flush against its edge and centred along it on the display it is on; it opens there next time; choosing Horizontal or Vertical from either menu sends it to the top or right edge; small clocks show their whole date and time in both styles; the Settings title and Close stay put while the panel scrolls; each colour scheme looks right and unmistakably its own in Light, Dark and System, Neon glowing on its dark side only; every date format shows its whole date in large and small cells, a Wednesday in September the widest |
 | M-13 | Help's Check for updates says this is the latest version with the network on and that GitHub could not be reached with it off; a build older than the latest release shows the update panel a few seconds after it starts; Download opens this platform's download in the browser; after Skip this version the next start shows nothing; the Flatpak build reaches GitHub too |
 | M-14 | Unticking Pin ribbon in either menu shrinks the ribbon to an accent tab 8 wide on the edge it stands against a second after the pointer leaves (a ribbon away from every edge first moves to the edge last used); dragged away from every edge it stays in full with Pin ribbon still unticked; dropped within 16 DIP of an edge (an edge between two displays included) it snaps flush and collapses again; resting the pointer on the tab for 0.3 s opens it while the window being typed in keeps focus, with no flash of a close button, a stretched band or white as it grows; crossing the tab quickly does not; the tab stays above a maximised window with Always on top off; the right-click menu and a panel keep it open; dragging the open ribbon does not collapse it; a Stream Deck press hides the tab and the next brings it back; ticking Pin ribbon ends all of it. On Linux, dragging and the menu are the checks that matter most: crossings made by a grab are ignored, which no test can reach |
-| M-15 | Ticking Sun map in either menu shows the map below a horizontal ribbon at the top edge and above one at the bottom, as long as the ribbon, lit where it is day with city lights where it is night; each clock's city is a red dot beside its label; a vertical ribbon shows a handle whose click slides the map out beside it and back, kept across a restart; dragging the map moves both; the map hides with the tab and returns with the ribbon; after a minute the line between day and night has moved |
+| M-15 | Ticking Sun map in either menu shows the map below a horizontal ribbon at the top edge and above one at the bottom, as long as the ribbon, lit where it is day with city lights where it is night; each clock's city is a red dot beside its label; a vertical ribbon shows a handle whose click slides the map out beside it and back, kept across a restart; dragging the map moves both; the map hides with the tab and returns with the ribbon; after a minute the line between day and night has moved; on Windows the desktop shows (and takes clicks) wherever the window holds neither ribbon nor map; no label on the map prints over another label or a dot |
 | Wheel at 250% | On a display at 250%, one notch of a plain wheel over a scrolling horizontal ribbon moves it as far as a native notch moves a vertical one; only a physical wheel settles it |
 
 The ribbon's layout at its full size was measured in headless Edge 154.0.4258.37, the version of the

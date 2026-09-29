@@ -77,9 +77,14 @@ does not exist.
   `testdata`; `placement/sunmap.go` puts the sun map beside the ribbon on the side away from its edge
   (`InnerSide`) at its size (`MapBeside`, FR-902 to FR-904). The map shares the ribbon's window:
   every placement is decided for the ribbon alone, the facade makes the window the ribbon with its
-  map (`windowOf`) and reads a dragged window back to the ribbon's corner (`ribbonFromWindow`). The
-  page lays the two out (`Surface.tsx`) and blends the day and night pictures by solar altitude
-  (`sunLight.ts`); the zone cities come from the tz database's `zone.tab` through `tools/genplaces`.
+  map (`windowOf`) and reads a dragged window back to the ribbon's corner (`ribbonFromWindow`). On
+  Windows that window is then cut to the two (`placement.Shape`, `desktop.Shape` over
+  `SetWindowRgn`, FR-913), so the desktop shows round a map shorter or longer than the ribbon; the
+  cut is made before every placing, in the new window's pixels; the tab and panels keep the whole
+  window. The page lays the two out (`Surface.tsx`) and blends the day and night pictures by
+  solar altitude (`sunLight.ts`); each label is measured once drawn, then stood clear of the other
+  labels and dots (`labels.ts`, FR-914), the dot size and gap read from the page's style. The zone
+  cities come from the tz database's `zone.tab` through `tools/genplaces`.
   `hover` decides when an unpinned ribbon opens from its tab and collapses back (FR-615, FR-616). It
   is told the pointer arrived or left and the time; it answers whether the ribbon is open and when
   to ask again. The facade owns its timer and carries the answer out (`unpinned.go`). Opening tells

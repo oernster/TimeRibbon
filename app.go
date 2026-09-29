@@ -119,6 +119,9 @@ type App struct {
 	scrolls   atomic.Bool
 	// panelWidth is the open panel's width in DIP, which fitting its height keeps.
 	panelWidth atomic.Int64
+	// pixelsPerDIP is the window pixels to each of the page's units that the service sizes windows
+	// with, as math.Float64bits; zero until the page has reported its ratio (SetPixelRatio).
+	pixelsPerDIP atomic.Uint64
 
 	// updates holds the update check's timing and the outcome it last offered (FR-509).
 	updates updateWatch
@@ -160,7 +163,8 @@ func (a *App) Snapshot() snapshotDTO {
 	shown.Collapsed = a.collapsed()
 	side, ribbon, sunMap, drawn := a.mapLayout()
 	shown.SunMap.Side, shown.SunMap.Shown = string(side), drawn
-	shown.SunMap.Ribbon, shown.SunMap.Map = boxOf(ribbon), boxOf(sunMap)
+	perDIP := math.Float64frombits(a.pixelsPerDIP.Load())
+	shown.SunMap.Ribbon, shown.SunMap.Map = boxOf(ribbon, perDIP), boxOf(sunMap, perDIP)
 	shown.Choices = choicesOf(a.service.SettingsChoices())
 	return shown
 }
@@ -266,7 +270,12 @@ func (a *App) SetScrollbar(dip int) error { return a.refitted(a.service.SetScrol
 // whenever it changes, then fits the window to the page as it is really drawn. Windows' text size
 // enlarges the page without changing the display's DPI, so the DPI alone left the page cut off.
 func (a *App) SetPixelRatio(ratio float64) error {
-	return a.refitted(a.service.SetPixelsPerDIP(desktop.PixelsPerDIP(ratio)))
+	perDIP := desktop.PixelsPerDIP(ratio)
+	err := a.service.SetPixelsPerDIP(perDIP)
+	if err == nil {
+		a.pixelsPerDIP.Store(math.Float64bits(perDIP))
+	}
+	return a.refitted(err)
 }
 
 // SetBackground takes the colour the page paints behind everything, which it reports once it has

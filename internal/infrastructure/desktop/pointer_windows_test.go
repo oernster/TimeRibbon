@@ -98,6 +98,32 @@ func TestThePointerIsReadAgainstTheWindow(t *testing.T) {
 	}
 }
 
+// FR-616, FR-913: the pointer is read against the window's shape, not its rectangle. A vertical
+// ribbon's map is shorter than the ribbon, so the window is cut away above and below it; measured
+// 2026-09-29, a pointer resting there counted as on the ribbon, which then never collapsed.
+func TestThePointerIsReadAgainstTheWindowsShape(t *testing.T) {
+	runtime.LockOSThread()
+	defer runtime.UnlockOSThread()
+	window := testRibbonWindow(t)
+	aroundPointer(t, window, true)
+	// The pointer stands at the middle of the window, 50 in from its corner; this cut keeps a
+	// corner square alone, well clear of it.
+	corner := placement.Rect{Right: 20, Bottom: 20}
+	if err := Shape(window, []placement.Rect{corner}); err != nil {
+		t.Fatal(err)
+	}
+	if inside, err := pointerInside(window); err != nil || inside {
+		t.Errorf("over the cut away part of the window: inside %v, %v", inside, err)
+	}
+	whole := placement.Rect{Right: 100, Bottom: 100}
+	if err := Shape(window, []placement.Rect{whole}); err != nil {
+		t.Fatal(err)
+	}
+	if inside, err := pointerInside(window); err != nil || !inside {
+		t.Errorf("over the window's shape: inside %v, %v", inside, err)
+	}
+}
+
 // Tracking reports where the pointer is as it starts, stops when asked and logs a window it cannot
 // read once rather than at every reading.
 func TestTrackingReportsThePointerAndStops(t *testing.T) {

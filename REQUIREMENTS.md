@@ -690,8 +690,12 @@ Acceptance: given a vertical ribbon 196 DIP long on a work area 1032 DIP tall at
 DIP down; it opens there next time.
 Verified by: `TestAgainstEdgeIsFlushAndCentredAlongTheEdge` (domain);
 `TestToEdgePutsAVerticalRibbonFlushAndKeepsIt`, `TestToEdgeUsesTheDisplayTheRibbonIsOn`,
-`TestToEdgeThatCannotBeSavedMakesRoomForItsNotice`, `TestPositionOffersTheEdgesAlongTheOrientation`
-(application); `TestAPositionItemPutsTheRibbonAgainstItsEdge` (facade); check M-12.
+`TestToEdgeThatCannotBeSavedMakesRoomForItsNotice`, `TestPositionOffersTheEdgesAlongTheOrientation`,
+`TestAPlaceKeptAgainstTheEdgeIsSaved` (application); `TestAPositionItemPutsTheRibbonAgainstItsEdge`
+(facade); check M-12.
+Note (2026-09-29): a ribbon kept against its edge while it shrinks or grows across its breadth, as
+turning the sun map off does to a vertical one, has that place stored too; only a change of length
+was, so the next launch put it 16 pixels off the edge, where an unpinned ribbon never collapses.
 
 **FR-409 An orientation's home edge**
 Priority: Must (Amendment 9, Oliver, 2026-09-28).
@@ -1046,8 +1050,12 @@ Acceptance: given a collapsed ribbon, when the pointer rests on the tab for 0.3 
 shows in full at its stored placement while the focused window keeps focus; when the
 pointer crosses the tab in 0.1 s, then the ribbon stays collapsed.
 Verified by: `TestTheRibbonOpensAfterTheRest`, `TestAPassingPointerDoesNotOpenIt` (domain, hover,
-with the instant injected); `TestTheTabOpensAfterTheRestAndCollapsesOnceAway` (facade); focus by
-check M-14.
+with the instant injected); `TestTheTabOpensAfterTheRestAndCollapsesOnceAway`,
+`TestAnOpeningRibbonIsDrawnWithItsMap`, `TestTheMapsPartsReachThePageInItsOwnUnits` (facade);
+`surface.test.tsx`; focus by check M-14.
+Note (2026-09-29): the page draws an opening ribbon while the window is still its tab. With the sun
+map on it scaled the ribbon by the window's width, drawing it 8 pixels wide in a window then grown
+to 175; it was also told of no map. The grown window showed blank clocks or a blank map.
 
 **FR-616 The ribbon collapses after the pointer leaves**
 Priority: Should (Amendment 18, Oliver, 2026-09-28).
@@ -1458,7 +1466,8 @@ counts the pointer as on the ribbon (FR-616).
 Rationale: Oliver, 2026-09-29: the map hides with the tab (OQ-18).
 Acceptance: given an unpinned ribbon with the sun map shown, when it collapses, then neither shows
 but the tab; while the pointer rests on the map, the ribbon stays open.
-Verified by: `TestTheMapHidesWithTheTab` (facade); `surface.test.tsx`; check M-15.
+Verified by: `TestTheMapHidesWithTheTab`, `TestAnOpeningRibbonIsDrawnWithItsMap` (facade);
+`surface.test.tsx`; check M-15.
 
 **FR-911 The imagery is built in**
 Priority: Should.
@@ -1489,8 +1498,11 @@ dev build's window left the desktop showing where it was cut away; the cut held 
 Acceptance: given a vertical ribbon 708 DIP long flush against the right edge with the pull out open
 and its map 708 by 354 DIP, then the desktop shows above and below the map and a click there reaches
 the window behind; when the pull out closes, then the window is the ribbon alone.
+Note (2026-09-29): a pointer resting where the window is cut away is off the ribbon, so an unpinned
+one collapses there (FR-616). Read against the window's rectangle, it counted as on; a vertical
+ribbon with its map out never collapsed.
 Verified by: `TestTheShapeIsTheRibbonAndItsMap` (domain, placement); `TestTheShapeFollowsEveryRefit`
-(facade); check M-15.
+(facade); `TestThePointerIsReadAgainstTheWindowsShape` (infrastructure, desktop); check M-15.
 
 **FR-914 Labels stand clear**
 Priority: Should (Amendment 21, Oliver, 2026-09-29).

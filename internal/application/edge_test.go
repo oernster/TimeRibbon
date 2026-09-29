@@ -217,6 +217,39 @@ func TestShrinkingKeepsTheRibbonAgainstItsEdge(t *testing.T) {
 	}
 }
 
+// FR-408, FR-610: a ribbon kept against its edge while it shrinks across its breadth, as turning the
+// sun map off shrinks a vertical one, keeps that place across a restart. Measured 2026-09-29: only a
+// change of length was saved, so the next launch put the narrower ribbon 16 pixels off the right
+// edge, where an unpinned ribbon never collapses (FR-619).
+func TestAPlaceKeptAgainstTheEdgeIsSaved(t *testing.T) {
+	t.Parallel()
+	start := draggedTo(2, settings.Vertical, placement.Point{X: 700, Y: 40})
+	start.SunMap = true
+	r := newRig(t, start)
+	if _, err := r.service.Launch(); err != nil {
+		t.Fatal(err)
+	}
+	flush, err := r.service.ToEdge(placement.Point{X: 700, Y: 40}, placement.Right)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := r.service.SetSunMap(false); err != nil {
+		t.Fatal(err)
+	}
+	narrower, err := r.service.Rearrange(flush.At)
+	if err != nil || narrower.Size.Height != flush.Size.Height || narrower.Size.Width >= flush.Size.Width {
+		t.Fatalf("turning the map off gave %+v from %+v (%v); want it narrower and as long", narrower, flush, err)
+	}
+	restarted := newRig(t, r.store.saved[len(r.store.saved)-1])
+	got, err := restarted.service.Launch()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Edge != placement.Right || got.At.X+got.Size.Width != 1920 {
+		t.Errorf("after a restart the shrunk ribbon stands at %+v, off the right edge", got)
+	}
+}
+
 // FR-610: small cells make a smaller ribbon, two small analogue cells stacked: 120 + 16 across,
 // 2 x 100 + 16 along; the snapshot carries the size and its layout, the size is saved; a size the
 // setting does not offer is refused.

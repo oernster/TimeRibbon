@@ -51,17 +51,17 @@ function handleAt(side: string, ribbon: Placed): { left: number; top: number } {
 /**
  * Surface is the window's content while it is the ribbon: the ribbon alone, else the ribbon with its
  * sun map beside it, horizontal or vertical, with the handle that pulls the map out and puts it back
- * (FR-902, FR-903). Go places the two in window pixels; the window's own width turns them into the
- * page's units.
+ * (FR-902, FR-903). Go places the two, in the page's units.
  */
 export function Surface({ snapshot, onAddClock, refused }: Props) {
   const map = snapshot.sunMap
   if (snapshot.collapsed || map.side === '') {
     return <Ribbon snapshot={snapshot} onAddClock={onAddClock} refused={refused} />
   }
-  const right = Math.max(map.ribbon.x + map.ribbon.width, map.shown ? map.map.x + map.map.width : 0)
-  const scale = right > 0 ? window.innerWidth / right : 1
-  const place = (box: Box): Placed => ({ left: box.x * scale, top: box.y * scale, width: box.width * scale, height: box.height * scale })
+  // Go sends each part already in the page's units, so it is drawn as it comes. Scaling it by the
+  // window's width drew an opening ribbon, which is drawn while the window is still its tab (FR-615),
+  // 8 wide in a window then grown to 175, blank and deaf to a right-click (measured 2026-09-29).
+  const place = (box: Box): Placed => ({ left: box.x, top: box.y, width: box.width, height: box.height })
   const ribbon = place(map.ribbon)
   const arrow = arrows[map.side]
   // The handle stands in the lane, which is drawn at the ribbon's scale (FR-623).
@@ -74,7 +74,7 @@ export function Surface({ snapshot, onAddClock, refused }: Props) {
       </div>
       {map.shown && (
         <div className="surface-part" style={place(map.map)}>
-          <SunMap sunMap={map} width={map.map.width * scale} height={map.map.height * scale} dragThreshold={snapshot.dragThreshold} refused={refused} />
+          <SunMap sunMap={map} width={map.map.width} height={map.map.height} dragThreshold={snapshot.dragThreshold} refused={refused} />
         </div>
       )}
       {arrow !== undefined && (

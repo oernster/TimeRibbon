@@ -70,6 +70,22 @@ describe('Surface (FR-902, FR-903, FR-910)', () => {
     }
   })
 
+  it('draws the ribbon at the box Go gives, whatever the window\'s width, so one drawn inside the tab fits once the window grows (FR-615)', () => {
+    installBridge()
+    const width = Object.getOwnPropertyDescriptor(window, 'innerWidth')
+    // The page draws an opening ribbon while the window is still the tab, 8 pixels wide; measured
+    // 2026-09-29, a vertical ribbon with the sun map on then grew to 175 pixels drawn 8 wide.
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 8 })
+    try {
+      render(<Surface snapshot={snapshot({ orientation: 'vertical', sunMap: sunMap({ side: 'right', ribbon: { x: 0, y: 0, width: 140, height: 659.2 } }) })} onAddClock={vi.fn()} refused={vi.fn()} />)
+      const part = (document.querySelector('.ribbon') as HTMLElement).closest('.surface-part') as HTMLElement
+      expect(part.style.width).toBe('140px')
+      expect(part.style.height).toBe('659.2px')
+    } finally {
+      Object.defineProperty(window, 'innerWidth', width ?? { configurable: true, value: 1024 })
+    }
+  })
+
   it('shows no map with the tab', () => {
     installBridge()
     render(<Surface snapshot={snapshot({ collapsed: true, sunMap: sunMap({ side: 'bottom', shown: true, marks: [{ label: 'Mum', latitude: 0, longitude: 0 }] }) })} onAddClock={vi.fn()} refused={vi.fn()} />)

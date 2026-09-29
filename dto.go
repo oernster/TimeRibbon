@@ -105,12 +105,12 @@ func choicesOf(items []application.MenuItem) []choiceDTO {
 	return out
 }
 
-// boxDTO is a rectangle inside the window, in the window's pixels.
+// boxDTO is a rectangle inside the window, in the page's units.
 type boxDTO struct {
-	X      int `json:"x"`
-	Y      int `json:"y"`
-	Width  int `json:"width"`
-	Height int `json:"height"`
+	X      float64 `json:"x"`
+	Y      float64 `json:"y"`
+	Width  float64 `json:"width"`
+	Height float64 `json:"height"`
 }
 
 // markDTO is one clock's place on the sun map (FR-908).
@@ -135,8 +135,18 @@ type sunMapDTO struct {
 	Marks     []markDTO `json:"marks"`
 }
 
-func boxOf(r placement.Rect) boxDTO {
-	return boxDTO{X: r.Left, Y: r.Top, Width: r.Width(), Height: r.Height()}
+// boxOf answers r, a rectangle in window pixels, in the page's units: divided by perDIP, the window
+// pixels to each of them. The page then draws the box as it is, whatever size the window has at that
+// moment; an opening ribbon is drawn while the window is still its tab (FR-615). Before the page has
+// reported its ratio perDIP is zero and r goes as it is, one pixel to a unit.
+func boxOf(r placement.Rect, perDIP float64) boxDTO {
+	if perDIP == 0 {
+		perDIP = 1
+	}
+	return boxDTO{
+		X: float64(r.Left) / perDIP, Y: float64(r.Top) / perDIP,
+		Width: float64(r.Width()) / perDIP, Height: float64(r.Height()) / perDIP,
+	}
 }
 
 // sunMapOf answers the wire form of the sun map's content; where it is drawn is the facade's.

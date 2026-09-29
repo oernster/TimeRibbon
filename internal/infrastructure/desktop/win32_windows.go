@@ -66,6 +66,8 @@ var (
 	procCombineRgn    = gdi32.NewProc("CombineRgn")
 	procDeleteObject  = gdi32.NewProc("DeleteObject")
 	procSetWindowRgn  = user32.NewProc("SetWindowRgn")
+	procGetWindowRgn  = user32.NewProc("GetWindowRgn")
+	procPtInRegion    = gdi32.NewProc("PtInRegion")
 
 	procShellNotifyIcon        = shell32.NewProc("Shell_NotifyIconW")
 	procExtractIconEx          = shell32.NewProc("ExtractIconExW")

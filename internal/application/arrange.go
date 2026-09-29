@@ -43,7 +43,8 @@ func (s *Service) Launch() (Arrangement, error) {
 // Rearrange arranges a ribbon now at at after its content or the displays changed: the same
 // top-left corner, moved the least distance that keeps it wholly inside the work area it overlaps
 // most (FR-406); re-centred along its length on that work area where its length changed (FR-104).
-// Only a re-centring is saved, so a monitor that comes back finds its placement kept.
+// A re-centring is saved, as is a move on the display its place was saved on; a move onto another
+// display is not, so a monitor that comes back finds its placement kept.
 func (s *Service) Rearrange(at placement.Point) (Arrangement, error) {
 	return s.recentredKept(func() (Arrangement, placement.Monitor, bool, error) { return s.recovered(at) })
 }
@@ -106,12 +107,13 @@ func (s *Service) toEdgeOf(pick func([]placement.Monitor) placement.Monitor, edg
 }
 
 // recentredKept answers what arrange answers, saving the ribbon's place where arrange says it was
-// moved, re-centred or put against an edge, so the next launch finds it there (FR-104, FR-408). A
-// save that fails raises a notice, one more cell (FR-707), so the ribbon is arranged once more to
-// fit it; that arrangement is not saved again.
+// moved, re-centred or put against an edge; likewise where it now stands elsewhere on the display its
+// place was saved on. The next launch finds it there (FR-104, FR-408). A save that fails raises a
+// notice, one more cell (FR-707), so the ribbon is arranged once more to fit it; that arrangement is
+// not saved again.
 func (s *Service) recentredKept(arrange func() (Arrangement, placement.Monitor, bool, error)) (Arrangement, error) {
 	arranged, monitor, recentred, err := arrange()
-	if err != nil || !recentred {
+	if err != nil || !(recentred || s.movedOnItsDisplay(arranged.At, monitor)) {
 		return arranged, err
 	}
 	if s.record(arranged.At, monitor) == nil {
@@ -119,6 +121,15 @@ func (s *Service) recentredKept(arrange func() (Arrangement, placement.Monitor, 
 	}
 	arranged, _, _, err = arrange()
 	return arranged, err
+}
+
+// movedOnItsDisplay answers whether a ribbon arranged at at on monitor stands somewhere other than
+// the place saved for it on that same display, as one kept against its edge while it shrinks or grows
+// across its breadth does (FR-408, FR-610). A ribbon moved onto another display is not, so a display
+// that comes back finds its place kept (FR-405).
+func (s *Service) movedOnItsDisplay(at placement.Point, monitor placement.Monitor) bool {
+	stored := s.Settings().Placement
+	return stored != nil && stored.Device == monitor.Device && stored.Offset != placement.Record(at, monitor).Offset
 }
 
 // record stores at as the ribbon's place on monitor.

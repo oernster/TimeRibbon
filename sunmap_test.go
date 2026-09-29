@@ -72,6 +72,56 @@ func TestTheMapHidesWithTheTab(t *testing.T) {
 	}
 }
 
+// FR-615, FR-903: the page is told where the ribbon and its map go in its own units, the window
+// pixels divided by the pixels to each unit that windows are sized with, so it draws them at their
+// size even while the window is still the tab. A ratio the service refused changes nothing.
+func TestTheMapsPartsReachThePageInItsOwnUnits(t *testing.T) {
+	t.Parallel()
+	app, service, _ := unpinnedApp(t)
+	service.arrangement = withMap
+	service.settings.Pinned = true
+	const ratio = 1.25
+	if err := app.SetPixelRatio(ratio); err != nil {
+		t.Fatal(err)
+	}
+	if err := app.placeLaunched(); err != nil {
+		t.Fatal(err)
+	}
+	perDIP := desktop.PixelsPerDIP(ratio)
+	want := boxDTO{X: 90 / perDIP, Y: 0, Width: 300 / perDIP, Height: 90 / perDIP}
+	if got := app.Snapshot().SunMap; got.Ribbon != want || got.Map.Width != 480/perDIP {
+		t.Errorf("at %v pixels to a unit the page was told %+v, want the ribbon at %+v", perDIP, got, want)
+	}
+	service.changeErr = errPlanted
+	_ = app.SetPixelRatio(2 * ratio)
+	if got := app.Snapshot().SunMap.Ribbon; got != want {
+		t.Errorf("a refused ratio moved the ribbon to %+v", got)
+	}
+}
+
+// FR-615, FR-910: an opening ribbon is drawn before the window grows, so the page is told of its map
+// while it draws, not only once grown. Measured 2026-09-29: told of no map, the page drew the ribbon
+// alone and the window then grew round a blank map.
+func TestAnOpeningRibbonIsDrawnWithItsMap(t *testing.T) {
+	t.Parallel()
+	app, service, seen, _ := newTestApp(t)
+	service.settings.Pinned = false
+	service.arrangement = withMap
+	if err := app.placeLaunched(); err != nil {
+		t.Fatal(err)
+	}
+	app.show()
+	app.handleSafely(desktop.Event{Kind: desktop.EventPointerArrived})
+	fire(t, seen)
+	if seen.drawPending == nil {
+		t.Fatal("opening did not wait for the page")
+	}
+	got := app.Snapshot()
+	if got.Collapsed || !got.SunMap.Shown || got.SunMap.Map != (boxDTO{X: 0, Y: 90, Width: 480, Height: 240}) {
+		t.Errorf("while drawing the page was told %+v, collapsed %v; want the ribbon with its map", got.SunMap, got.Collapsed)
+	}
+}
+
 // FR-913: every placing of the window is cut first, to the ribbon and its map while the map shows and
 // to the whole window otherwise: no map, the tab, a panel. A cut that fails still places the window.
 func TestTheShapeFollowsEveryRefit(t *testing.T) {

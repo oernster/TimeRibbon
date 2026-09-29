@@ -86,7 +86,10 @@ does not exist.
   Windows that window is then cut to the two (`placement.Shape`, `desktop.Shape` over
   `SetWindowRgn`, FR-913), so the desktop shows round a map shorter or longer than the ribbon; the
   cut is made before every placing, in the new window's pixels; the tab and panels keep the whole
-  window. The page lays the two out (`Surface.tsx`) and blends the day and night pictures by
+  window. The page lays the two out (`Surface.tsx`) at boxes Go sends already in the page's units,
+  divided by the pixels to each unit that windows are sized with (`boxOf`), so an opening ribbon drawn
+  while the window is still its tab is drawn at its full size; the map counts as shown while that
+  drawing is under way (`mapLayout`). It blends the day and night pictures by
   solar altitude (`sunLight.ts`); each label is measured once drawn, then stood clear of the other
   labels and dots (`labels.ts`, FR-914), the dot size and gap read from the page's style. The zone
   cities come from the tz database's `zone.tab` through `tools/genplaces`.
@@ -99,7 +102,8 @@ does not exist.
   colour (`frontend/src/background.ts`, `SetBackground`). Each of the three removed a flicker
   measured on Windows (REQUIREMENTS section 2.3). Where the
   pointer is comes from the desktop, differently on each system because each was measured to need
-  it: read every 50 ms on Windows and macOS, told by GTK's crossing events on Linux, since under
+  it: read every 50 ms on Windows and macOS (on Windows against the window's cut shape, so the
+  desktop showing beside a vertical ribbon's map counts as off it), told by GTK's crossing events on Linux, since under
   XWayland neither the page nor the X server sees it leave (REQUIREMENTS section 2.3).
 - **Application** (`internal/application`): one `Service` holding every use case over seven ports
   (`Store`, `Zones`, `Clock`, `IDs`, `Monitors`, `StartupEntry` in `ports.go`; `ReleaseSource` in

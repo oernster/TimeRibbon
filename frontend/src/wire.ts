@@ -80,7 +80,7 @@ export interface MenuChoice {
   children: MenuChoice[]
 }
 
-/** A rectangle inside the window, in the window's pixels. */
+/** A rectangle inside the window, in the page's units. */
 export interface Box {
   x: number
   y: number

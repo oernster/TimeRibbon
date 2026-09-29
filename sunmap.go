@@ -64,11 +64,13 @@ func (a *App) redrawn(err error) error {
 }
 
 // mapLayout answers where the page draws the ribbon and its map inside the window, in the window's
-// pixels: the map shown only while the full ribbon is, never with the tab or a panel (FR-910).
+// pixels: the map shown only while the full ribbon is, never with the tab or a panel (FR-910). An
+// opening ribbon counts as shown while the page draws it, as collapsed agrees, since the window grows
+// round what was drawn then (FR-615).
 func (a *App) mapLayout() (side placement.Edge, ribbon, sunMap placement.Rect, shown bool) {
 	a.unpin.guard.Lock()
 	full := a.unpin.full
-	open := a.unpin.shownOpen && !a.panelOpen.Load()
+	open := (a.unpin.shownOpen || a.unpin.drawing) && !a.panelOpen.Load()
 	a.unpin.guard.Unlock()
 	at, _, offset := windowOf(full)
 	ribbon = placement.Rect{Left: offset.X, Top: offset.Y, Right: offset.X + full.Size.Width, Bottom: offset.Y + full.Size.Height}

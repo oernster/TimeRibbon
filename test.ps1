@@ -86,7 +86,7 @@ try {
 $measured = [ordered]@{
     '.'                                  = 86
     './internal/infrastructure/appdata'  = 100
-    './internal/infrastructure/desktop'  = 35
+    './internal/infrastructure/desktop'  = 37
     './internal/infrastructure/iconscale' = 100
     './internal/infrastructure/runlog'   = 76
     './internal/infrastructure/monitors' = 82

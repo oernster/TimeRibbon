@@ -56,7 +56,13 @@ func Position(ribbon Window) (placement.Point, error) {
 	return placement.Point{X: int(bounds.left), Y: int(bounds.top)}, nil
 }
 
-// pointerInside answers whether the pointer is on the ribbon's window now (FR-615, FR-616).
+// noWindowRegion is what GetWindowRgn answers for a window with no shape set (ERROR): all of its
+// rectangle is the window.
+const noWindowRegion = 0
+
+// pointerInside answers whether the pointer is on the ribbon's window now (FR-615, FR-616): inside
+// its rectangle and inside the shape it is cut to, so a pointer resting where the shape cuts the
+// window away (beside a vertical ribbon's map, measured 2026-09-29) is off it (FR-913).
 func pointerInside(ribbon Window) (bool, error) {
 	var cursor point
 	if ok, _, err := procGetCursorPos.Call(uintptr(unsafe.Pointer(&cursor))); ok == 0 {
@@ -66,7 +72,20 @@ func pointerInside(ribbon Window) (bool, error) {
 	if ok, _, err := procGetWindowRect.Call(uintptr(ribbon), uintptr(unsafe.Pointer(&bounds))); ok == 0 {
 		return false, fmt.Errorf("reading the ribbon's rectangle: %w", err)
 	}
-	return cursor.x >= bounds.left && cursor.x < bounds.right && cursor.y >= bounds.top && cursor.y < bounds.bottom, nil
+	if cursor.x < bounds.left || cursor.x >= bounds.right || cursor.y < bounds.top || cursor.y >= bounds.bottom {
+		return false, nil
+	}
+	shape, _, _ := procCreateRectRgn.Call(0, 0, 0, 0)
+	if shape == 0 {
+		return false, fmt.Errorf("reading the ribbon's shape: %w", errNoRegion)
+	}
+	defer procDeleteObject.Call(shape)
+	if kind, _, _ := procGetWindowRgn.Call(uintptr(ribbon), shape); kind == noWindowRegion {
+		return true, nil
+	}
+	// The shape is held in the window's own pixels, from its top-left corner.
+	in, _, _ := procPtInRegion.Call(shape, uintptr(cursor.x-bounds.left), uintptr(cursor.y-bounds.top))
+	return in != 0, nil
 }
 
 // tabStyles are the styles Wails gives its frameless window (style 0x4ca0000, measured 2026-09-28)

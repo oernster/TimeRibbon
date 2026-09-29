@@ -65,6 +65,7 @@ export function installBridge() {
     TogglePullOut: vi.fn(async () => undefined),
     ShowContextMenu: vi.fn(async () => undefined),
     OpenPanel: vi.fn(async () => undefined),
+    FitPanel: vi.fn(async () => undefined),
     ClosePanel: vi.fn(async () => undefined),
     Hide: vi.fn(async () => undefined),
     OpenDonation: vi.fn(async () => undefined),

@@ -5,6 +5,7 @@ import { PlaceSearch } from './PlaceSearch'
 import { ArtButton, addClockTip } from './ArtButton'
 import addClockArt from './assets/add-clock.png'
 import donateMark from './assets/donate.png'
+import { usePanelFit } from './panelFit'
 
 /** The picture alone does not say pressing it leaves the application, so the tip does. */
 export const donateTip = 'Buy the author a drink (opens your browser)'
@@ -61,6 +62,7 @@ export function Settings({ snapshot, startAdding, reload, onClose }: Props) {
   const [search, setSearch] = useState<Search>(startAdding ? { mode: 'add' } : null)
   const [problem, setProblem] = useState('')
   const [startWithWindows, setStartWithWindows] = useState<boolean | null>(null)
+  const panel = usePanelFit<HTMLElement>(setProblem)
 
   useEffect(() => {
     void api.startWithWindows(setProblem).then(setStartWithWindows)
@@ -84,7 +86,7 @@ export function Settings({ snapshot, startAdding, reload, onClose }: Props) {
   }
 
   return (
-    <main className="settings" onKeyDown={escape}>
+    <main className="settings" ref={panel} onKeyDown={escape}>
       <header>
         <h1>Settings</h1>
         <button type="button" onClick={onClose}>

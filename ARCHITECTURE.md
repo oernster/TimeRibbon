@@ -191,6 +191,12 @@ the ribbon's display and never larger than its work area (`Service.Centred`); cl
 window to where the ribbon was last left. While a panel is open, a move of the window is not recorded
 as the ribbon's and a change of content is fitted when the panel closes.
 
+Settings then grows to its content (FR-621). Whenever anything inside it changes, `panelFit.ts`
+measures the panel laid out with no height of its own and hands that height to `FitPanel`, which centres
+the panel again at it through the same `Service.Centred`; so on a display with room nothing scrolls,
+while a shorter one still caps it at the work area. About keeps `panelSize`; Licence keeps it too,
+since it reads itself down its own scroller.
+
 The window opens hidden. `startup` finds it, takes it off the taskbar, fences its moves and places
 it, all before the page is shown, so it never appears blank or in the wrong place. On Windows it is
 found by the class `TimeRibbonWindow`; Wails always marks its window as an application window, which

@@ -102,6 +102,11 @@ tried on. Measured on the reference machine, the widest date already needed 2 DI
 cell gave it. Each size's widths are now the least a cell is drawn at; a cell is widened to
 its widest time and date as the page draws them (FR-620). Section 11 records the ruling (OQ-24).
 
+Amendment 25 (Oliver, 2026-09-29): Settings shows whole where the display has room. It opened at a
+fixed 760 DIP, so on a large display it still had to be scrolled; with five clocks its content
+measured 1064 DIP. It now grows to the height of its content, capped by the work area, where it
+scrolls as before (FR-621). Section 11 records the ruling (OQ-25).
+
 Source: the initial product specification of 2026-09-27, written under the product's former name,
 plus Oliver's rulings of 2026-09-27: the stack is Go with Wails; orientation is a setting offering
 both horizontal and vertical, both in the first release; a setup program ships with the first
@@ -1089,6 +1094,22 @@ Verified by: `TestSamplesHoldEveryTimeOnce`, `TestSamplesHoldEveryPairingOfWeekd
 `TestAMeasurementCountsOnlyForItsOwnChoices` (application); `TestTheMeasurementRoundTrip` (facade);
 `measure.test.ts`; check M-12.
 
+**FR-621 Settings fits its content**
+Priority: Should (Amendment 25, Oliver, 2026-09-29).
+While Settings is open, its window shall be as tall as its whole content, measured as the page lays
+it out, re-centred on its display; never taller than that display's work area, where the content
+scrolls beneath the title and Close as before. Whenever the content's height changes (a clock added
+or removed, a search answered, a notice shown), the window follows it. Its width stays the panel's
+own; About and Licence keep the panel's size.
+Rationale: a fixed height made Settings scroll on displays with room to spare (OQ-25).
+Acceptance: given five clocks on a display whose work area is 1400 DIP tall, when Settings opens,
+then it is 1064 DIP tall and does not scroll; when a clock is removed, then it grows shorter; given
+a work area shorter than the content, then Settings fills its height and scrolls.
+Verified by: `TestFitPanelMakesTheOpenPanelAsTallAsItsContent`,
+`TestFitPanelLeavesTheRibbonAloneAndRefusesANegativeHeight`, `TestFitPanelAnswersWhatStoppedIt`
+(facade); `TestSettingsOpenCentredOnTheRibbonsDisplay`, the cap to the work area (application);
+`panelFit.test.tsx`; check M-12.
+
 ### 3.7 Persistence and recovery
 
 **FR-701 Settings file**
@@ -1538,7 +1559,7 @@ recover, snapshot) is executable from a Go test with no window open before the f
 | Priority | Content |
 |---|---|
 | **Must** | FR-101 to FR-107, FR-201 to FR-209, FR-301 to FR-305, FR-401 to FR-409, FR-501, FR-502, FR-504 to FR-508, FR-601 to FR-604, FR-607 to FR-610, FR-620, FR-701 to FR-707, FR-801 to FR-811, NFR-P-1 to NFR-P-4, NFR-U-1 to NFR-U-5, NFR-S-1 to NFR-S-3, NFR-M-1, NFR-M-2, NFR-C-1, NFR-O-1 |
-| **Should** | FR-108, FR-307, FR-410, FR-411, FR-503, FR-509, FR-605, FR-606, FR-611 to FR-619, FR-901 to FR-914, NFR-P-5, NFR-C-2 |
+| **Should** | FR-108, FR-307, FR-410, FR-411, FR-503, FR-509, FR-605, FR-606, FR-611 to FR-619, FR-621, FR-901 to FR-914, NFR-P-5, NFR-C-2 |
 | **Could** | FR-308 |
 | **Withdrawn** | FR-306 (Amendment 6) |
 | **Won't this time** | Everything in the out-of-scope table of section 1.3 |
@@ -1578,7 +1599,8 @@ There are no open questions. The five raised while drafting were ruled by Oliver
 the four raised by Amendment 18 on 2026-09-28; the three raised by Amendment 19 on 2026-09-29, when
 OQ-6 was also reversed; the six raised by Amendment 20 the same day; the two raised by
 Amendment 21 the same day; the two raised by Amendment 22 the same day; the one raised by
-Amendment 23 the same day; the one raised by Amendment 24 the same day:
+Amendment 23 the same day; the one raised by Amendment 24 the same day; the one raised by
+Amendment 25 the same day:
 
 | ID | Question | Ruling | Now held by |
 |---|---|---|---|
@@ -1606,6 +1628,7 @@ Amendment 23 the same day; the one raised by Amendment 24 the same day:
 | OQ-22 | Is the pull out remembered per orientation? | No: one choice for both | FR-903 |
 | OQ-23 | Where does the handle stand so it covers no clock? | In a lane of its own; the ribbon grows deeper by it while the sun map is on | FR-903 |
 | OQ-24 | What decides how wide a cell is? | Its widest time and date as the page draws them, never less than the size's own width | FR-610, FR-620 |
+| OQ-25 | How tall is Settings? | As tall as its content, capped by the display's work area | FR-621 |
 
 ---
 
@@ -1628,7 +1651,7 @@ is installing and removing the DMG on macOS and the Flatpak on Linux.
 | M-9 | Setup installs, updates, repairs and uninstalls on a real machine without asking for administrator rights, closing a running copy first. |
 | M-10 | Both menus open a Help submenu whose About and Licence each show their panel; the licence reads itself down after 5 s, a wheel stops it and it resumes; setup's Licence screen does the same. |
 | M-11 | The donate button at the foot of Settings opens the default browser on the donation page. |
-| M-12 | Each Position item puts the ribbon flush against its edge and centred along it on the display it is on; it opens there next time; choosing Horizontal or Vertical from either menu sends it to the top or right edge; small clocks show their whole date and time in both styles; the Settings title and Close stay put while the panel scrolls; each colour scheme looks right and unmistakably its own in Light, Dark and System, Neon glowing on its dark side only; every date format shows its whole date in large and small cells, a Wednesday in September the widest. |
+| M-12 | Each Position item puts the ribbon flush against its edge and centred along it on the display it is on; it opens there next time; choosing Horizontal or Vertical from either menu sends it to the top or right edge; small clocks show their whole date and time in both styles; Settings opens tall enough to show everything without scrolling where the display has room, following a clock added or removed; on a short display its title and Close stay put while the panel scrolls; each colour scheme looks right and unmistakably its own in Light, Dark and System, Neon glowing on its dark side only; every date format shows its whole date in large and small cells, a Wednesday in September the widest. |
 | M-13 | Help's Check for updates says this is the latest version with the network on and that GitHub could not be reached with it off; a build older than the latest release shows the update panel a few seconds after it starts; Download opens this platform's download in the browser; after Skip this version the next start shows nothing; the Flatpak build reaches GitHub too. |
 | M-14 | Unticking Pin ribbon in either menu shrinks the ribbon to an accent tab on the edge it stands against a second after the pointer leaves (a ribbon away from every edge first moves to the edge last used); dragged away from every edge it stays in full with Pin ribbon still unticked; dropped within 16 DIP of an edge (an edge between two displays included) it snaps flush and collapses again; resting the pointer on the tab for 0.3 s opens it while the window being typed in keeps focus, with no flash of a close button, a stretched band or white as it grows; crossing the tab quickly does not; the tab stays above a maximised window with Always on top off; a Stream Deck press hides the tab and the next brings it back; ticking Pin ribbon ends all of it. |
 | M-15 | Ticking Sun map in either menu shows a handle with an arrow on the ribbon's inner side, horizontal and vertical alike, covering no

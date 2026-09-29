@@ -36,6 +36,7 @@ interface Bridge {
   TogglePullOut(): Promise<void>
   ShowContextMenu(): Promise<void>
   OpenPanel(): Promise<void>
+  FitPanel(height: number): Promise<void>
   ClosePanel(): Promise<void>
   Hide(): Promise<void>
   OpenDonation(): Promise<void>
@@ -100,6 +101,7 @@ export const api = {
   togglePullOut: (refused: Refused) => call((b) => b.TogglePullOut(), refused),
   showContextMenu: (refused: Refused) => call((b) => b.ShowContextMenu(), refused),
   openPanel: (refused: Refused) => call((b) => b.OpenPanel(), refused),
+  fitPanel: (height: number, refused: Refused) => call((b) => b.FitPanel(height), refused),
   closePanel: (refused: Refused) => call((b) => b.ClosePanel(), refused),
   hide: (refused: Refused) => call((b) => b.Hide(), refused),
   openDonation: (refused: Refused) => call((b) => b.OpenDonation(), refused),

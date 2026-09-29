@@ -299,6 +299,27 @@ func (a *App) OpenPanel() error {
 	return a.placeWhole(arranged.At, arranged.Size)
 }
 
+// FitPanel makes an open panel as tall as its content in DIP, the page's measure of it, re-centred on
+// the display it is on; never taller than that display's work area, where it scrolls instead
+// (FR-621). With no panel open there is nothing to fit, nor with no height; a negative one is refused.
+func (a *App) FitPanel(height int) error {
+	if height < 0 {
+		return fmt.Errorf("%w: a panel %d tall", application.ErrNegativeLength, height)
+	}
+	if !a.panelOpen.Load() || height == 0 {
+		return nil
+	}
+	at, err := a.position()
+	if err != nil {
+		return err
+	}
+	arranged, err := a.service.Centred(at, placement.Size{Width: a.panel.Width, Height: height})
+	if err != nil {
+		return err
+	}
+	return a.placeWhole(arranged.At, arranged.Size)
+}
+
 // ClosePanel returns the window to the ribbon, where it was last left (CON-6, FR-405), then lets an
 // unpinned one collapse once the pointer is away (FR-616).
 func (a *App) ClosePanel() error {

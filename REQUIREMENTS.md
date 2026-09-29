@@ -85,6 +85,11 @@ map shows, the window is cut to the ribbon and the map together, so the desktop 
 wherever neither is (FR-913). A clock's label on the map moves aside rather than print over another
 label or dot (FR-914). Section 11 records the rulings (OQ-19, OQ-20).
 
+Amendment 22 (Oliver, 2026-09-29): one handle for both orientations. A horizontal ribbon carries the
+pull out's handle too; its map shows only while the pull out is open, exactly as a vertical one's
+does, so every sun map opens and closes the same way (FR-902, FR-903). One remembered choice serves
+both orientations; the settings file gains no key. Section 11 records the rulings (OQ-21, OQ-22).
+
 Source: the initial product specification of 2026-09-27, written under the product's former name,
 plus Oliver's rulings of 2026-09-27: the stack is Go with Wails; orientation is a setting offering
 both horizontal and vertical, both in the first release; a setup program ships with the first
@@ -165,7 +170,7 @@ Oliver Ernster as author and decision owner; contributors to the open source pro
 | **Style** | Digital or analogue: how every cell presents its time. |
 | **Format** | 12-hour or 24-hour: how every digital time and every textual time is written. |
 | **Sun map** | The world map lit by day and dark by night shown with the ribbon (section 3.9). |
-| **Pull out** | The sun map beside a vertical ribbon, opened and closed by its handle (FR-903). |
+| **Pull out** | The sun map beside the ribbon, opened and closed by its handle (FR-903). |
 | **Zone mark** | The text beside a label naming the zone's current abbreviation or UTC offset (FR-203). |
 | **Local date** | The weekday, day and month at the clock's zone for the current instant. |
 | **Work area** | A monitor's rectangle minus the taskbar and docked toolbars, as Windows reports it. |
@@ -1150,31 +1155,40 @@ Verified by: `TestA1Point0SettingsFileIsReadWhole`, `TestSettingsRoundTrip` (inf
 
 **FR-902 The map beside a horizontal ribbon**
 Priority: Should.
-While the sun map is on, the ribbon is horizontal and shown in full, the application shall show the
-sun map adjoining the ribbon's long side that faces away from the edge the ribbon stands against:
-below a ribbon against the top edge, above one against the bottom edge. Against no edge, the map
-shall adjoin the side facing the more room in the work area; below at an equal distance.
+While the sun map is on, the pull out is open (FR-903), the ribbon is horizontal and shown in full,
+the application shall show the sun map adjoining the ribbon's long side that faces away from the
+edge the ribbon stands against: below a ribbon against the top edge, above one against the bottom
+edge. Against no edge, the map shall adjoin the side facing the more room in the work area; below at
+an equal distance.
 Rationale: Oliver, 2026-09-29: clocks in a row above the map, as the reference shows; above a ribbon
-at the bottom edge, where below has no room (OQ-13).
-Acceptance: given a horizontal ribbon flush against the top edge with the sun map on, then the map's
-top edge meets the ribbon's bottom edge along the ribbon's length; dragged flush against the bottom
-edge, then the map's bottom edge meets the ribbon's top edge.
+at the bottom edge, where below has no room (OQ-13). Amendment 22: it waits for the pull out, as a
+vertical ribbon's map does (OQ-21).
+Acceptance: given a horizontal ribbon flush against the top edge with the sun map on and the pull
+out open, then the map's top edge meets the ribbon's bottom edge along the ribbon's length; dragged
+flush against the bottom edge, then the map's bottom edge meets the ribbon's top edge.
 Verified by: `TestTheMapAdjoinsTheSideAwayFromTheEdge` (domain, placement);
 `TestAHorizontalRibbonsMapGoesBelowIt` (application); check M-15.
 
-**FR-903 The pull out beside a vertical ribbon**
+**FR-903 The pull out**
 Priority: Should.
-While the sun map is on and the ribbon is vertical and shown in full, the ribbon shall show a handle
-on its long side facing away from the edge it stands against (against no edge, the side facing the
-more room). When the handle is chosen, the application shall show the sun map adjoining that side if
-it was hidden; else hide it. The application shall remember whether the pull out is open in the
-settings file.
+While the sun map is on and the ribbon is shown in full, the ribbon shall show a handle half way
+along its long side facing away from the edge it stands against (against no edge, the side facing
+the more room), with an arrow pointing the way the map will move. When the handle is chosen, the
+application shall show the sun map adjoining that side if it was hidden; else hide it. The
+application shall remember whether the pull out is open in the settings file, one choice for both
+orientations.
 Rationale: Oliver, 2026-09-29: adjacent to a vertical ribbon as a pull out, opened by a handle
-(OQ-14). The handle is a control, so a press on it starts no drag (FR-402).
+(OQ-14); Amendment 22, a horizontal ribbon the same, so every sun map opens and closes one way
+(OQ-21), with one remembered choice (OQ-22). The handle is a control, so a press on it starts no
+drag (FR-402).
 Acceptance: given a vertical ribbon flush against the right edge with the sun map on and the pull
 out closed, when the handle is clicked, then the map shows adjoining the ribbon's left side; when it
-is clicked again, then the map hides; after a restart, the pull out is as it was left.
-Verified by: `TestAVerticalRibbonsMapWaitsForThePullOut` (application);
+is clicked again, then the map hides; after a restart, the pull out is as it was left. Given a
+horizontal ribbon flush against the top edge with the sun map on and the pull out closed, then a
+handle with a downward arrow shows half way along its bottom side and no map shows; when the handle
+is clicked, then the map shows below the ribbon and the arrow points up.
+Verified by: `TestAVerticalRibbonsMapWaitsForThePullOut`, `TestAHorizontalRibbonsMapWaitsForThePullOut`
+(application);
 `TestTheSunMapItemAndTheHandleFlipTheirChoices` (facade); `surface.test.tsx`; check M-15.
 
 **FR-904 The map's size**
@@ -1525,7 +1539,7 @@ implementation; where no test can hold it, its `Verified by:` line names the che
 There are no open questions. The five raised while drafting were ruled by Oliver on 2026-09-27;
 the four raised by Amendment 18 on 2026-09-28; the three raised by Amendment 19 on 2026-09-29, when
 OQ-6 was also reversed; the six raised by Amendment 20 the same day; the two raised by
-Amendment 21 the same day:
+Amendment 21 the same day; the two raised by Amendment 22 the same day:
 
 | ID | Question | Ruling | Now held by |
 |---|---|---|---|
@@ -1549,6 +1563,8 @@ Amendment 21 the same day:
 | OQ-18 | What does the map do while the ribbon is its tab? | Hides with it | FR-910 |
 | OQ-19 | What covers the desktop beside a map shorter or longer than the ribbon? | Nothing: on Windows the window is cut to ribbon and map | FR-913 |
 | OQ-20 | What happens when two labels on the map collide? | The later one moves aside; every label stays | FR-914 |
+| OQ-21 | Does a horizontal ribbon get the handle too? | Yes: its map is a pull out like a vertical one's, for consistency | FR-902, FR-903 |
+| OQ-22 | Is the pull out remembered per orientation? | No: one choice for both | FR-903 |
 
 ---
 
@@ -1574,4 +1590,4 @@ is installing and removing the DMG on macOS and the Flatpak on Linux.
 | M-12 | Each Position item puts the ribbon flush against its edge and centred along it on the display it is on; it opens there next time; choosing Horizontal or Vertical from either menu sends it to the top or right edge; small clocks show their whole date and time in both styles; the Settings title and Close stay put while the panel scrolls; each colour scheme looks right and unmistakably its own in Light, Dark and System, Neon glowing on its dark side only; every date format shows its whole date in large and small cells, a Wednesday in September the widest. |
 | M-13 | Help's Check for updates says this is the latest version with the network on and that GitHub could not be reached with it off; a build older than the latest release shows the update panel a few seconds after it starts; Download opens this platform's download in the browser; after Skip this version the next start shows nothing; the Flatpak build reaches GitHub too. |
 | M-14 | Unticking Pin ribbon in either menu shrinks the ribbon to an accent tab on the edge it stands against a second after the pointer leaves (a ribbon away from every edge first moves to the edge last used); dragged away from every edge it stays in full with Pin ribbon still unticked; dropped within 16 DIP of an edge (an edge between two displays included) it snaps flush and collapses again; resting the pointer on the tab for 0.3 s opens it while the window being typed in keeps focus, with no flash of a close button, a stretched band or white as it grows; crossing the tab quickly does not; the tab stays above a maximised window with Always on top off; a Stream Deck press hides the tab and the next brings it back; ticking Pin ribbon ends all of it. |
-| M-15 | Ticking Sun map in either menu shows the map below a horizontal ribbon at the top edge and above one at the bottom, as long as the ribbon, lit where it is day with city lights where it is night; each clock's city is a red dot beside its label; a vertical ribbon shows a handle whose click slides the map out beside it and back, kept across a restart; dragging the map moves both; the map hides with the tab and returns with the ribbon; after a minute the line between day and night has moved; on Windows the desktop shows (and takes clicks) wherever the window holds neither ribbon nor map; no label on the map prints over another label or a dot. |
+| M-15 | Ticking Sun map in either menu shows a handle with an arrow on the ribbon's inner side, horizontal and vertical alike; its click slides the map out (below a horizontal ribbon at the top edge, above one at the bottom, beside a vertical one) and back, kept across a restart; the map is as long as the ribbon, lit where it is day with city lights where it is night; each clock's city is a red dot beside its label; dragging the map moves both; the map hides with the tab and returns with the ribbon; after a minute the line between day and night has moved; on Windows the desktop shows (and takes clicks) wherever the window holds neither ribbon nor map; no label on the map prints over another label or a dot. |

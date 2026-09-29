@@ -87,19 +87,23 @@ type Reading struct {
 func Read(instant time.Time, location *time.Location, format Format, dateFormat DateFormat) Reading {
 	local := instant.In(location)
 	abbreviation, offset := local.Zone()
-	layout := layoutTwentyFour
-	if format == TwelveHour {
-		layout = layoutTwelve
-	}
 	minutes := float64(local.Minute())
 	return Reading{
-		Time:          local.Format(layout),
+		Time:          local.Format(timeLayout(format)),
 		Date:          local.Format(dateLayouts[dateFormat]),
 		ZoneMark:      ZoneMark(abbreviation, offset),
 		HourAngle:     float64(local.Hour()%hoursPerDial)*degreesPerTurn/hoursPerDial + minutes*degreesPerTurn/(hoursPerDial*minutesPerHour),
 		MinuteAngle:   minutes * degreesPerTurn / minutesPerHour,
 		OffsetSeconds: offset,
 	}
+}
+
+// timeLayout answers the Go reference layout a time is written with in format.
+func timeLayout(format Format) string {
+	if format == TwelveHour {
+		return layoutTwelve
+	}
+	return layoutTwentyFour
 }
 
 // ZoneMark answers the text naming a zone beside its label (FR-203): the abbreviation the tz

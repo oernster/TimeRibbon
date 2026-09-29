@@ -209,10 +209,20 @@ covers them. The bar is the web engine's, not one Windows reports, so
 the page measures it once it has loaded and hands it to Go through `SetScrollbar`. The ribbon hides
 overflow on both axes and scrolls only along its own; hiding one axis alone let the browser turn the
 other into a second scroll bar, measured in Edge on 2026-09-27. A plain wheel moves a scrolling
-horizontal ribbon along.
+horizontal ribbon along. While the sun map is on, the ribbon is deeper by the handle's lane, so
+the handle never covers a cell either (FR-903).
+
+**Cell width (FR-620).** A size's widths in `main.go` are the least a clock cell is drawn at. Only
+the page knows the font it really draws with, so it measures: `clock.Samples` writes every time of
+the day and every date of a 28 year span in the chosen formats; `measure.ts` lays them all out in
+one pass with a cell's own classes and hands the widest, padding and divider included, to Go
+through `SetMeasured`. `layoutFor` in `measure.go` widens the style's cell to it when it was taken
+under the choices now in force; the snapshot and `ribbonSize` both read `layoutFor`, so the cells
+the page draws and the window Go sizes cannot disagree. The page measures again whenever the size,
+style or either format changes.
 
 Every change that can alter the cells (a clock added or removed, the style or size changed, a notice
-raised by a failed save or dismissed, the scroll bar reported) refits the ribbon where it stands; a
+raised by a failed save or dismissed, the scroll bar or a cell width reported) refits the ribbon where it stands; a
 change of orientation sends it to that orientation's home edge instead (FR-409, below). Where the
 refit changes the ribbon's length, it is centred along that length on its display with its
 position across kept (`placement.CentredAlong`); `recentredKept` in `arrange.go` stores

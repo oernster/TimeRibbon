@@ -56,6 +56,8 @@ export function installBridge() {
     SetStartWithWindows: vi.fn(async () => undefined),
     DismissNotices: vi.fn(async () => undefined),
     SetScrollbar: vi.fn(async () => undefined),
+    TextSamples: vi.fn(async () => ({ times: ['00:00', '23:59'], dates: ['Friday, 1 May', 'Wednesday, 30 September'] })),
+    SetMeasured: vi.fn(async () => undefined),
     SetPixelRatio: vi.fn(async () => undefined),
     SetBackground: vi.fn(async () => undefined),
     RibbonDrawn: vi.fn(async () => undefined),

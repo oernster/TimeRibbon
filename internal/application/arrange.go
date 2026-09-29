@@ -258,6 +258,8 @@ type content struct {
 	cells        int
 	scrollbar    int
 	pixelsPerDIP float64
+	// layout is the cells' layout, widened to the measured text where it applies (FR-620).
+	layout Layout
 }
 
 func (s *Service) ribbonContent() content {
@@ -269,6 +271,7 @@ func (s *Service) ribbonContent() content {
 		cells:        len(s.notices()) + max(len(current.Clocks), 1),
 		scrollbar:    s.scrollbar,
 		pixelsPerDIP: s.pixelsPerDIP,
+		layout:       s.layoutFor(current),
 	}
 }
 
@@ -279,7 +282,7 @@ func (s *Service) ribbonContent() content {
 // It answers the length along the orientation in DIP too, which a move between scalings keeps.
 func (s *Service) ribbonSize(content content, monitor placement.Monitor) (placement.Size, bool, int) {
 	current := content.settings
-	layout := s.layouts.For(current.Size)
+	layout := content.layout
 	cell := layout.Digital
 	switch {
 	case len(current.Clocks) == 0:

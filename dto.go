@@ -25,6 +25,22 @@ type layoutDTO struct {
 	HandleLane int     `json:"handleLane"`
 }
 
+// textSamplesDTO is every time and date a cell can show under the current formats (FR-620).
+type textSamplesDTO struct {
+	Times []string `json:"times"`
+	Dates []string `json:"dates"`
+}
+
+// measuredDTO is the cell width the page measured its widest text to need, with the choices it
+// measured under (FR-620).
+type measuredDTO struct {
+	Size       string `json:"size"`
+	Style      string `json:"style"`
+	Format     string `json:"format"`
+	DateFormat string `json:"dateFormat"`
+	CellWidth  int    `json:"cellWidth"`
+}
+
 // cellDTO is one cell of the ribbon.
 type cellDTO struct {
 	ID          string  `json:"id"`

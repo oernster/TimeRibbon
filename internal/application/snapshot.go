@@ -116,7 +116,7 @@ func (s *Service) Snapshot() Snapshot {
 		Orientation: current.Orientation,
 		Theme:       current.Theme,
 		AlwaysOnTop: current.AlwaysOnTop,
-		Layout:      s.layouts.For(current.Size),
+		Layout:      s.layoutFor(current),
 		Now:         now,
 		NextRefresh: clock.NextRefresh(now),
 		Notices:     s.notices(),

@@ -4,9 +4,9 @@
 // Every call that Go can refuse takes a refusal handler as its last argument and answers null
 // rather than rejecting, so a call without a handler does not compile (ported from Bridge Talk).
 
-import type { About, Place, Snapshot } from './wire'
+import type { About, Measured, Place, Snapshot, TextSamples } from './wire'
 
-export type { About, Box, Cell, Credit, Layout, Mark, Place, Size, Snapshot, SunMap, UpdateStatus } from './wire'
+export type { About, Box, Cell, Credit, Layout, Mark, Measured, Place, Size, Snapshot, SunMap, TextSamples, UpdateStatus } from './wire'
 
 /** A handler told, in words, why a call was refused. */
 export type Refused = (reason: string) => void
@@ -27,6 +27,8 @@ interface Bridge {
   SetStartWithWindows(on: boolean): Promise<void>
   DismissNotices(): Promise<void>
   SetScrollbar(dip: number): Promise<void>
+  TextSamples(): Promise<TextSamples>
+  SetMeasured(measured: Measured): Promise<void>
   SetPixelRatio(ratio: number): Promise<void>
   SetBackground(red: number, green: number, blue: number): Promise<void>
   RibbonDrawn(): Promise<void>
@@ -88,6 +90,8 @@ export const api = {
   setStartWithWindows: (on: boolean, refused: Refused) => call((b) => b.SetStartWithWindows(on), refused),
   dismissNotices: (refused: Refused) => call((b) => b.DismissNotices(), refused),
   setScrollbar: (dip: number, refused: Refused) => call((b) => b.SetScrollbar(dip), refused),
+  textSamples: (refused: Refused) => call((b) => b.TextSamples(), refused),
+  setMeasured: (measured: Measured, refused: Refused) => call((b) => b.SetMeasured(measured), refused),
   setPixelRatio: (ratio: number, refused: Refused) => call((b) => b.SetPixelRatio(ratio), refused),
   setBackground: (red: number, green: number, blue: number, refused: Refused) =>
     call((b) => b.SetBackground(red, green, blue), refused),

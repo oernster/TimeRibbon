@@ -61,6 +61,8 @@ type ribbonService interface {
 	SetStartWithWindows(on bool) error
 	DismissNotices()
 	SetScrollbar(dip int) error
+	TextSamples() (times, dates []string)
+	SetMeasured(measured application.Measured) error
 	SetPixelsPerDIP(scale float64) error
 	ContextMenu() []application.MenuItem
 	CloseRequested() application.MenuAction

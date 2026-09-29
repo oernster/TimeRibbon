@@ -14,6 +14,21 @@ export interface Layout {
   handleLane: number
 }
 
+/** Every time and date a cell can show under the current formats, for the page to measure (FR-620). */
+export interface TextSamples {
+  times: string[]
+  dates: string[]
+}
+
+/** The cell width the page measured its widest text to need, with the choices it measured under (FR-620). */
+export interface Measured {
+  size: string
+  style: string
+  format: string
+  dateFormat: string
+  cellWidth: number
+}
+
 export interface Cell {
   id: string
   label: string

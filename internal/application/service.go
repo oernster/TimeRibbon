@@ -72,6 +72,9 @@ type Service struct {
 	// scrollbar is the thickness in DIP of the scroll bar the page draws, as the page measured it;
 	// zero until it says (FR-106).
 	scrollbar int
+	// measured is the cell width the page last measured its widest time and date to need, with the
+	// choices it was measured for; the zero value, before it says, widens nothing (FR-620).
+	measured Measured
 	// pixelsPerDIP is the scale the page is really drawn at, in window pixels to each DIP, as the
 	// page reported it; zero until it says, when the display's DPI stands in for it.
 	pixelsPerDIP float64

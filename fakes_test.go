@@ -24,6 +24,8 @@ type scriptedService struct {
 	places      []application.Place
 	menu        []application.MenuItem
 	arrangement application.Arrangement
+	// measured is the last measurement SetMeasured was handed.
+	measured application.Measured
 	// lastEdge, when set, is what ToLastEdge answers.
 	lastEdge *application.Arrangement
 	// changeErr answers every change; arrangeErr and movedErr answer the arranging calls.
@@ -134,6 +136,15 @@ func (s *scriptedService) SetStartWithWindows(bool) error { return s.change("Set
 func (s *scriptedService) DismissNotices() { s.record("DismissNotices") }
 
 func (s *scriptedService) SetScrollbar(int) error { return s.change("SetScrollbar") }
+
+func (s *scriptedService) TextSamples() (times, dates []string) {
+	return []string{"23:59"}, []string{"Wednesday, 30 September"}
+}
+
+func (s *scriptedService) SetMeasured(measured application.Measured) error {
+	s.measured = measured
+	return s.change("SetMeasured")
+}
 
 func (s *scriptedService) SetPixelsPerDIP(float64) error { return s.change("SetPixelsPerDIP") }
 

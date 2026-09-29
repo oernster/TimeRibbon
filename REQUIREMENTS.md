@@ -96,6 +96,12 @@ were using. While the sun map is on, the ribbon is deeper by a lane along the si
 the handle stands in that lane, so it covers no cell in either orientation (FR-903). Section 11
 records the ruling (OQ-23).
 
+Amendment 24 (Oliver, 2026-09-29): a cell fits its text. On a friend's machine the dates were cut
+short; the cell widths were fixed numbers that happened to fit the fonts on the machines they were
+tried on. Measured on the reference machine, the widest date already needed 2 DIP more than a large
+cell gave it. Each size's widths are now the least a cell is drawn at; a cell is widened to
+its widest time and date as the page draws them (FR-620). Section 11 records the ruling (OQ-24).
+
 Source: the initial product specification of 2026-09-27, written under the product's former name,
 plus Oliver's rulings of 2026-09-27: the stack is Go with Wails; orientation is a setting offering
 both horizontal and vertical, both in the first release; a setup program ships with the first
@@ -884,7 +890,7 @@ The ribbon shall draw every clock cell at the size held in settings, large or sm
 large when none is held, so a settings file written before the size existed keeps the clocks it
 had. Small cells are 146 by 72 DIP digital and 146 by 116 DIP analogue against large's 176 by 92 and
 176 by 176, with their text and dial reduced to fit; the empty ribbon's prompt is the same at either
-size. A ribbon lying flush against an edge of its display stays against that edge when the size
+size. Those widths are the least a clock cell is drawn at; FR-620 widens it to fit its text. A ribbon lying flush against an edge of its display stays against that edge when the size
 changes, as it does when its cells change for any other reason (Oliver, 2026-09-28).
 Rationale: small screens such as a 13 inch laptop, where large analogue cells leave room for few
 clocks.
@@ -1061,6 +1067,27 @@ Verified by: `TestFlushnessGivesThePinInEffect`, `TestAnUnpinnedRibbonIsAlwaysOn
 settings); `TestOnlyAnEdgeAlongTheOrientationIsFlush`, `TestAnInnerEdgeCounts` (domain, placement);
 `TestAnUnpinnedRibbonOffAnEdgeShowsInFull`, `TestDraggingBackOntoAnEdgeCollapsesAgain`,
 `TestUnpinningOnAnEdgeMovesNothingAndRecentringKeepsThePin` (facade); check M-14.
+
+**FR-620 A cell fits its text**
+Priority: Must (Amendment 24, Oliver, 2026-09-29).
+Every clock cell shall be at least as wide as the widest time and the widest date its chosen size,
+style, time format and date format can show, measured in the font the page really draws with, its
+padding and the divider between cells included; no narrower than FR-610's width for its size. The
+widest are taken over every minute of the day and every day of a 28 year span, within which every
+weekday falls on every day of every month. An analogue cell shows no time, so only its date counts.
+After any of those four choices changes, the page measures again and the ribbon is fitted to the
+result.
+Rationale: a fixed width fits only the fonts it was tried with; on a friend's machine the dates
+were cut short, while on the reference machine `Wednesday, 30 September` needed 178 DIP of a large
+cell's 176 (OQ-24).
+Acceptance: given large digital clocks in the day-month format drawn in Segoe UI Variable Text,
+then each cell is 178 DIP wide and shows `Wednesday, 30 September` whole; given a font wider than
+that, then the cells widen with it and no date is cut short; given a measurement taken under a size
+or format that is no longer chosen, then it widens nothing.
+Verified by: `TestSamplesHoldEveryTimeOnce`, `TestSamplesHoldEveryPairingOfWeekdayDayAndMonth`
+(domain, clock); `TestTheTextSamplesFollowTheFormats`, `TestAMeasuredWidthWidensTheCells`,
+`TestAMeasurementCountsOnlyForItsOwnChoices` (application); `TestTheMeasurementRoundTrip` (facade);
+`measure.test.ts`; check M-12.
 
 ### 3.7 Persistence and recovery
 
@@ -1510,7 +1537,7 @@ recover, snapshot) is executable from a Go test with no window open before the f
 
 | Priority | Content |
 |---|---|
-| **Must** | FR-101 to FR-107, FR-201 to FR-209, FR-301 to FR-305, FR-401 to FR-409, FR-501, FR-502, FR-504 to FR-508, FR-601 to FR-604, FR-607 to FR-610, FR-701 to FR-707, FR-801 to FR-811, NFR-P-1 to NFR-P-4, NFR-U-1 to NFR-U-5, NFR-S-1 to NFR-S-3, NFR-M-1, NFR-M-2, NFR-C-1, NFR-O-1 |
+| **Must** | FR-101 to FR-107, FR-201 to FR-209, FR-301 to FR-305, FR-401 to FR-409, FR-501, FR-502, FR-504 to FR-508, FR-601 to FR-604, FR-607 to FR-610, FR-620, FR-701 to FR-707, FR-801 to FR-811, NFR-P-1 to NFR-P-4, NFR-U-1 to NFR-U-5, NFR-S-1 to NFR-S-3, NFR-M-1, NFR-M-2, NFR-C-1, NFR-O-1 |
 | **Should** | FR-108, FR-307, FR-410, FR-411, FR-503, FR-509, FR-605, FR-606, FR-611 to FR-619, FR-901 to FR-914, NFR-P-5, NFR-C-2 |
 | **Could** | FR-308 |
 | **Withdrawn** | FR-306 (Amendment 6) |
@@ -1551,7 +1578,7 @@ There are no open questions. The five raised while drafting were ruled by Oliver
 the four raised by Amendment 18 on 2026-09-28; the three raised by Amendment 19 on 2026-09-29, when
 OQ-6 was also reversed; the six raised by Amendment 20 the same day; the two raised by
 Amendment 21 the same day; the two raised by Amendment 22 the same day; the one raised by
-Amendment 23 the same day:
+Amendment 23 the same day; the one raised by Amendment 24 the same day:
 
 | ID | Question | Ruling | Now held by |
 |---|---|---|---|
@@ -1578,6 +1605,7 @@ Amendment 23 the same day:
 | OQ-21 | Does a horizontal ribbon get the handle too? | Yes: its map is a pull out like a vertical one's, for consistency | FR-902, FR-903 |
 | OQ-22 | Is the pull out remembered per orientation? | No: one choice for both | FR-903 |
 | OQ-23 | Where does the handle stand so it covers no clock? | In a lane of its own; the ribbon grows deeper by it while the sun map is on | FR-903 |
+| OQ-24 | What decides how wide a cell is? | Its widest time and date as the page draws them, never less than the size's own width | FR-610, FR-620 |
 
 ---
 

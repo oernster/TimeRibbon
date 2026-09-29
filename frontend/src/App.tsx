@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { api, on, type Snapshot, type UpdateStatus } from './api'
 import { backgroundReporter } from './background'
 import { About, Licence, Update } from './Help'
+import { useMeasuredCells } from './measure'
 import { watchPixelRatio } from './pixelRatio'
 import { scrollbarThickness } from './scrollbar'
 import { Settings } from './Settings'
@@ -53,6 +54,9 @@ export function App() {
     setView('ribbon')
     void api.closePanel(setProblem).then(load)
   }, [load])
+
+  // Go widens the cells to the widest time and date the page really draws, which only it can measure.
+  useMeasuredCells(snapshot, load, setProblem)
 
   useEffect(() => {
     // Go makes room for the scroll bar a scrolling ribbon shows, which only the page can measure.

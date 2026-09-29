@@ -27,6 +27,7 @@ func TestEveryChangeFitsTheRibbonAndAnswersTheServicesError(t *testing.T) {
 		"SetTheme":        func(app *App) error { return app.SetTheme("dark") },
 		"SetAlwaysOnTop":  func(app *App) error { return app.SetAlwaysOnTop(true) },
 		"SetScrollbar":    func(app *App) error { return app.SetScrollbar(12) },
+		"SetMeasured":     func(app *App) error { return app.SetMeasured(measuredDTO{CellWidth: 180}) },
 		"SetPixelsPerDIP": func(app *App) error { return app.SetPixelRatio(1.25) },
 		"DismissNotices":  func(app *App) error { app.DismissNotices(); return nil },
 	}

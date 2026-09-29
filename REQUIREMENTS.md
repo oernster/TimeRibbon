@@ -130,6 +130,10 @@ side, while About, Licence and the update panel keep 560 (FR-625). The place sea
 Settings with the Add clock picture beside its box (FR-626). Section 11 records the rulings (OQ-29
 to OQ-31).
 
+Amendment 29 (Oliver, 2026-09-29): the place search matches what is typed at the start of a word
+and lists the best matches first. It matched anywhere and sorted alphabetically, so typing `l`
+began with Adelaide and Algiers (FR-302).
+
 Source: the initial product specification of 2026-09-27, written under the product's former name,
 plus Oliver's rulings of 2026-09-27: the stack is Go with Wails; orientation is a setting offering
 both horizontal and vertical, both in the first release; a setup program ships with the first
@@ -558,6 +562,11 @@ the default label, the zone id and the country name.
 Acceptance: typing `york` offers `New York (America/New_York)`; typing `kolkata` offers `Kolkata`.
 Note: a city without a zone of its own (Manchester, Brighton) is not searchable; the user picks its
 zone and types the label (FR-303). Ruled on OQ-1 by Oliver, 2026-09-27.
+Amendment 29 (Oliver, 2026-09-29): what is typed must begin a word of the label, the country or the
+zone id, still ignoring case; a match inside a word no longer counts. The list is ordered best match
+first: labels beginning with what is typed, then labels with a later word beginning with it, then
+countries and zone ids; by label within each. Typing `l` offers La Paz, Lagos, Lima and London
+before anything else; it never offers Adelaide or Algiers.
 Verified by: `TestPlaceSearchMatchesLabelZoneOrCountry` (application).
 
 **FR-303 Edit a clock's label**

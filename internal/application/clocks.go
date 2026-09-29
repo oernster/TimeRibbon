@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"slices"
 	"strings"
+	"unicode"
+	"unicode/utf8"
 
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
@@ -59,21 +61,70 @@ func (s *Service) RemoveClock(id string) error {
 	})
 }
 
-// SearchPlaces answers the places whose default label, zone id or country contains query, ignoring
-// case, ordered by label then zone (FR-302). An empty query answers every place.
+// How well a place matches a query, best first (FR-302, Amendment 29): its label begins with the
+// query; a later word of its label does; a word of its country or zone does. A query found only
+// inside a word is no match, so "l" lists London and not Adelaide.
+const (
+	labelBegins = iota
+	labelWordBegins
+	elsewhereWordBegins
+	noMatch
+)
+
+// SearchPlaces answers the places a word of whose default label, country or zone id begins with
+// query, ignoring case: the best matches first, then by label then zone (FR-302). An empty query
+// answers every place.
 func (s *Service) SearchPlaces(query string) []Place {
 	wanted := strings.ToLower(strings.TrimSpace(query))
-	var found []Place
+	type ranked struct {
+		place Place
+		rank  int
+	}
+	var found []ranked
 	for _, place := range s.ports.Zones.Catalogue() {
-		haystack := strings.ToLower(place.Label + "\n" + place.Zone + "\n" + place.Country)
-		if strings.Contains(haystack, wanted) {
-			found = append(found, place)
+		if rank := matchRank(place, wanted); rank != noMatch {
+			found = append(found, ranked{place, rank})
 		}
 	}
-	slices.SortFunc(found, func(a, b Place) int {
-		return cmp.Or(cmp.Compare(a.Label, b.Label), cmp.Compare(a.Zone, b.Zone))
+	slices.SortFunc(found, func(a, b ranked) int {
+		return cmp.Or(cmp.Compare(a.rank, b.rank), cmp.Compare(a.place.Label, b.place.Label), cmp.Compare(a.place.Zone, b.place.Zone))
 	})
-	return found
+	places := make([]Place, 0, len(found))
+	for _, each := range found {
+		places = append(places, each.place)
+	}
+	return places
+}
+
+// matchRank answers how well place matches wanted, which is already lower case.
+func matchRank(place Place, wanted string) int {
+	label := strings.ToLower(place.Label)
+	switch {
+	case strings.HasPrefix(label, wanted):
+		return labelBegins
+	case beginsAWord(label, wanted):
+		return labelWordBegins
+	case beginsAWord(strings.ToLower(place.Country), wanted), beginsAWord(strings.ToLower(place.Zone), wanted):
+		return elsewhereWordBegins
+	}
+	return noMatch
+}
+
+// beginsAWord answers whether wanted appears in text where a word begins: at its start or just
+// after a character that is neither a letter nor a digit, such as a space, "/", "_" or "(".
+func beginsAWord(text, wanted string) bool {
+	for from := 0; ; {
+		at := strings.Index(text[from:], wanted)
+		if at < 0 {
+			return false
+		}
+		at += from
+		before, _ := utf8.DecodeLastRuneInString(text[:at])
+		if at == 0 || !(unicode.IsLetter(before) || unicode.IsDigit(before)) {
+			return true
+		}
+		from = at + 1
+	}
 }
 
 // known answers ErrUnknownZone, naming zone, when the tz database does not know it.

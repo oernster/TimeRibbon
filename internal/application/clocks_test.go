@@ -153,6 +153,11 @@ func TestPlaceSearchMatchesLabelZoneOrCountry(t *testing.T) {
 		"united states":  {"America/Indiana/Indianapolis", "America/New_York"},
 		"indiana/":       {"America/Indiana/Indianapolis"},
 		"nowhere at all": nil,
+		// Amendment 29: a letter inside a word matches nothing, so "l" is London alone, not
+		// Kolkata or Indianapolis; a label beginning with the query comes before a country that does.
+		"l":   {"Europe/London"},
+		"ata": nil,
+		"in":  {"America/Indiana/Indianapolis", "Asia/Kolkata"},
 	}
 	for query, want := range cases {
 		if got := zones(r.service.SearchPlaces(query)); !slices.Equal(got, want) {

@@ -21,8 +21,30 @@ describe('Settings', () => {
     await act(async () => fireEvent.click(screen.getByLabelText('12-hour')))
     expect(bridge.SetFormat).toHaveBeenCalledWith('12h')
     await act(async () => fireEvent.click(screen.getByLabelText('Always on top')))
-    expect(bridge.SetAlwaysOnTop).toHaveBeenCalledWith(true)
+    expect(bridge.Choose).toHaveBeenCalledWith('always-on-top')
     expect(reload).toHaveBeenCalled()
+  })
+
+  it('offers every choice the menus do, ticked as Go says, each carried out by Go (FR-624)', async () => {
+    const { bridge } = await open()
+    for (const legend of ['Style', 'Colour', 'Orientation', 'Position']) {
+      expect(screen.getByText(legend).tagName).toBe('LEGEND')
+    }
+    expect((screen.getByLabelText('Digital') as HTMLInputElement).checked).toBe(true)
+    expect((screen.getByLabelText('Pin ribbon') as HTMLInputElement).checked).toBe(true)
+    expect((screen.getByLabelText('Sun map') as HTMLInputElement).checked).toBe(false)
+    const picks: [HTMLElement, string][] = [
+      [screen.getByLabelText('Analogue'), 'analogue'],
+      [screen.getByLabelText('Neon'), 'colour-neon'],
+      [screen.getByLabelText('Vertical'), 'vertical'],
+      [screen.getByText('Centre on bottom edge'), 'bottom-edge'],
+      [screen.getByLabelText('Pin ribbon'), 'pin'],
+      [screen.getByLabelText('Sun map'), 'sun-map'],
+    ]
+    for (const [control, action] of picks) {
+      await act(async () => fireEvent.click(control))
+      expect(bridge.Choose).toHaveBeenLastCalledWith(action)
+    }
   })
 
   it('offers every date format with the current one chosen, applying one at once (FR-612)', async () => {
@@ -40,13 +62,6 @@ describe('Settings', () => {
     await act(async () => fireEvent.click(screen.getByLabelText('Start at sign-in')))
     expect(bridge.SetStartWithWindows).toHaveBeenCalledWith(true)
     expect(screen.queryByText(/Windows/)).toBeNull()
-  })
-
-  it('leaves style and orientation to the menus (FR-601)', async () => {
-    await open()
-    for (const gone of ['Style', 'Digital', 'Analogue', 'Orientation', 'Horizontal', 'Vertical']) {
-      expect(screen.queryByText(gone)).toBeNull()
-    }
   })
 
   it('asks before removing, naming the clock; Cancel removes nothing (FR-305)', async () => {
@@ -79,10 +94,30 @@ describe('Settings', () => {
 
   it('adds the highlighted place on Enter, moving with the arrows (FR-301, NFR-U-3)', async () => {
     const { bridge } = await open(true)
-    const search = screen.getByLabelText('Search places')
+    const search = screen.getByLabelText('Search places') as HTMLInputElement
+    expect(document.activeElement).toBe(search)
+    await act(async () => fireEvent.change(search, { target: { value: 'o' } }))
     fireEvent.keyDown(search, { key: 'ArrowDown' })
     await act(async () => fireEvent.keyDown(search, { key: 'Enter' }))
     expect(bridge.AddClock).toHaveBeenCalledWith('Europe/Oslo')
+    expect(search.value).toBe('')
+  })
+
+  it('keeps the place search open with the Add clock picture beside it (FR-626)', async () => {
+    const { bridge } = await open()
+    const search = screen.getByLabelText('Search places') as HTMLInputElement
+    expect(document.activeElement).not.toBe(search)
+    expect(screen.getByRole('listbox', { hidden: true }).hidden).toBe(true)
+    const picture = screen.getByLabelText('Add a clock for another place: search by city, zone or country')
+    expect(picture.closest('.search-row')).toBe(search.closest('.search-row'))
+    await act(async () => fireEvent.click(picture))
+    expect(bridge.AddClock).not.toHaveBeenCalled()
+    expect(document.activeElement).toBe(search)
+    await act(async () => fireEvent.change(search, { target: { value: 'k' } }))
+    expect(screen.getByRole('listbox').hidden).toBe(false)
+    await act(async () => fireEvent.click(picture))
+    expect(bridge.AddClock).toHaveBeenCalledWith('Asia/Kolkata')
+    expect(screen.queryByText('Cancel')).toBeNull()
   })
 
   it('changes a clock\'s place through the same search (FR-304)', async () => {
@@ -93,11 +128,18 @@ describe('Settings', () => {
     expect(bridge.RezoneClock).toHaveBeenCalledWith('ny', 'Asia/Kolkata')
   })
 
-  it('closes on Escape; Escape in the search closes the search alone', async () => {
+  it('closes on Escape; Escape with something typed clears it first; it cancels a change of place', async () => {
     const { onClose } = await open(true)
-    fireEvent.keyDown(screen.getByLabelText('Search places'), { key: 'Escape' })
+    const search = screen.getByLabelText('Search places') as HTMLInputElement
+    await act(async () => fireEvent.change(search, { target: { value: 'Oslo' } }))
+    fireEvent.keyDown(search, { key: 'Escape' })
+    expect(search.value).toBe('')
     expect(onClose).not.toHaveBeenCalled()
-    fireEvent.keyDown(screen.getByText('Settings'), { key: 'Escape' })
+    await act(async () => fireEvent.click(screen.getAllByText('Change place')[0]))
+    await act(async () => fireEvent.keyDown(screen.getByLabelText('Search places'), { key: 'Escape' }))
+    expect(screen.queryByText('Change the place of New York')).toBeNull()
+    expect(onClose).not.toHaveBeenCalled()
+    await act(async () => fireEvent.keyDown(screen.getByLabelText('Search places'), { key: 'Escape' }))
     expect(onClose).toHaveBeenCalled()
   })
 

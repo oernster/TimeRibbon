@@ -67,6 +67,17 @@ export interface Snapshot {
   /** True while the window is an unpinned ribbon's tab (FR-614). */
   collapsed: boolean
   sunMap: SunMap
+  /** The menus' choices, which Settings offers as well (FR-624). */
+  choices: MenuChoice[]
+}
+
+/** One of the menus' choices: either a group of children or one item whose action goes back to Choose. */
+export interface MenuChoice {
+  action: string
+  label: string
+  checkable: boolean
+  checked: boolean
+  children: MenuChoice[]
 }
 
 /** A rectangle inside the window, in the window's pixels. */

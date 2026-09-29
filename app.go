@@ -68,6 +68,7 @@ type ribbonService interface {
 	SetMeasured(measured application.Measured) error
 	SetPixelsPerDIP(scale float64) error
 	ContextMenu() []application.MenuItem
+	SettingsChoices() []application.MenuItem
 	CloseRequested() application.MenuAction
 	Launch() (application.Arrangement, error)
 	Rearrange(at placement.Point) (application.Arrangement, error)
@@ -85,7 +86,7 @@ type App struct {
 	service ribbonService
 	desktop *desktop.Desktop
 	log     io.Writer
-	panel   placement.Size
+	panels  panelSizes
 
 	// The facade's calls into Wails and the desktop. Each is a field so a test can stand in for it
 	// and read what the facade did; newApp points them at the real calls in wails_calls.go and
@@ -116,6 +117,8 @@ type App struct {
 	quitting  atomic.Bool
 	panelOpen atomic.Bool
 	scrolls   atomic.Bool
+	// panelWidth is the open panel's width in DIP, which fitting its height keeps.
+	panelWidth atomic.Int64
 
 	// updates holds the update check's timing and the outcome it last offered (FR-509).
 	updates updateWatch
@@ -124,10 +127,11 @@ type App struct {
 	unpin unpinned
 }
 
-// newApp answers the facade over service, reporting on desktop, with every panel drawn at panel DIP.
-func newApp(service ribbonService, desk *desktop.Desktop, log io.Writer, panelSize placement.Size) *App {
+// newApp answers the facade over service, reporting on desktop, with each panel drawn at its size in
+// panels.
+func newApp(service ribbonService, desk *desktop.Desktop, log io.Writer, panels panelSizes) *App {
 	built := &App{
-		service: service, desktop: desk, log: log, panel: panelSize,
+		service: service, desktop: desk, log: log, panels: panels,
 		updates: updateWatch{delay: updateCheckDelay, every: updateCheckEvery},
 	}
 	built.emit = built.emitToWails
@@ -157,6 +161,7 @@ func (a *App) Snapshot() snapshotDTO {
 	side, ribbon, sunMap, drawn := a.mapLayout()
 	shown.SunMap.Side, shown.SunMap.Shown = string(side), drawn
 	shown.SunMap.Ribbon, shown.SunMap.Map = boxOf(ribbon), boxOf(sunMap)
+	shown.Choices = choicesOf(a.service.SettingsChoices())
 	return shown
 }
 
@@ -286,56 +291,6 @@ func (a *App) SetBackground(red, green, blue int) error {
 func (a *App) ShowContextMenu() {
 	a.menuShown()
 	a.showMenu(a.service.ContextMenu())
-}
-
-// OpenPanel turns the window into a panel (Settings, About or Licence), centred on the ribbon's
-// display (CON-6). A panel holds an unpinned ribbon open until it closes (FR-616).
-func (a *App) OpenPanel() error {
-	if !a.panelOpen.Swap(true) {
-		a.hold(true)
-	}
-	at, err := a.ribbonAt()
-	if err != nil {
-		return err
-	}
-	arranged, err := a.service.Centred(at, a.panel)
-	if err != nil {
-		return err
-	}
-	a.report("giving the panel its frame", a.tabFrame(false))
-	return a.placeWhole(arranged.At, arranged.Size)
-}
-
-// FitPanel makes an open panel as tall as its content in DIP, the page's measure of it, re-centred on
-// the display it is on; never taller than that display's work area, where it scrolls instead
-// (FR-621). With no panel open there is nothing to fit, nor with no height; a negative one is refused.
-func (a *App) FitPanel(height int) error {
-	if height < 0 {
-		return fmt.Errorf("%w: a panel %d tall", application.ErrNegativeLength, height)
-	}
-	if !a.panelOpen.Load() || height == 0 {
-		return nil
-	}
-	at, err := a.position()
-	if err != nil {
-		return err
-	}
-	arranged, err := a.service.Centred(at, placement.Size{Width: a.panel.Width, Height: height})
-	if err != nil {
-		return err
-	}
-	return a.placeWhole(arranged.At, arranged.Size)
-}
-
-// ClosePanel returns the window to the ribbon, where it was last left (CON-6, FR-405), then lets an
-// unpinned one collapse once the pointer is away (FR-616).
-func (a *App) ClosePanel() error {
-	wasOpen := a.panelOpen.Swap(false)
-	err := a.placeLaunched()
-	if wasOpen {
-		a.release()
-	}
-	return err
 }
 
 // OpenDonation hands the donation page to the desktop's browser. The application never fetches it,

@@ -56,8 +56,12 @@ var layouts = application.Layouts{
 	},
 }
 
-// panelSize is the window in DIP while it shows a panel: Settings, About or Licence (CON-6).
-var panelSize = placement.Size{Width: 560, Height: 760}
+// panels are the window's sizes in DIP while it shows a panel (CON-6): Settings wide enough for its
+// choices to sit side by side (FR-625); About, Licence and the update panel narrower, for their text.
+var panels = panelSizes{
+	settings: placement.Size{Width: 900, Height: 760},
+	other:    placement.Size{Width: 560, Height: 760},
+}
 
 func main() {
 	if generatingBindings {
@@ -130,7 +134,7 @@ func run(log io.Writer) error {
 	}
 	var app *App
 	desk := desktop.New(func() []application.MenuItem { return service.TrayMenu(app.visible.Load()) }, log)
-	app = newApp(service, desk, log, panelSize)
+	app = newApp(service, desk, log, panels)
 	preparePlatform(app, desk)
 	if err := desk.Start(); err != nil {
 		fmt.Fprintf(log, "starting the tray icon: %v; closing the ribbon will exit\n", err)

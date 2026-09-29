@@ -303,6 +303,7 @@ so a build carrying the development placeholder is never offered a release.
 | `main.go` | the composition root; each cell's least size (the page's measure of its widest time and date can widen it), the pull out handle's lane and the panel's size (Settings then grows or shrinks to its content) |
 | `app.go`, `window_life.go` | the facade: the calls the page makes; the window's own life with the desktop's events |
 | `unpinned.go`, `sunmap.go` | the facade's side of the unpinned ribbon and its tab; of the sun map sharing the ribbon's window |
+| `panel.go`, `choices.go` | the facade's calls that make the window a panel at its size (CON-6, FR-625); Settings' way of making one of the menus' choices (FR-624) |
 | `measure.go`, `clockscale.go`, `opacity.go` | the facade's calls for a cell's measured width (FR-620), the corner grip's scale (FR-623) and the window's opacity (FR-622) |
 | `wails_calls.go` | the facade's calls into Wails (show, hide, quit, always on top, events), held as fields so its tests can stand in for them |
 | `updates.go` | the facade's side of the update check (FR-509): its timing, the check itself whether automatic or asked for from Help and the calls the update panel makes |

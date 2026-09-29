@@ -79,6 +79,30 @@ type snapshotDTO struct {
 	// Collapsed is true while the window is an unpinned ribbon's tab (FR-614).
 	Collapsed bool      `json:"collapsed"`
 	SunMap    sunMapDTO `json:"sunMap"`
+	// Choices are the menus' choices, which Settings offers as well (FR-624).
+	Choices []choiceDTO `json:"choices"`
+}
+
+// choiceDTO is one of the menus' choices as Settings draws it (FR-624): either a group of Children
+// or one item whose Action the page hands back to Choose.
+type choiceDTO struct {
+	Action    string      `json:"action"`
+	Label     string      `json:"label"`
+	Checkable bool        `json:"checkable"`
+	Checked   bool        `json:"checked"`
+	Children  []choiceDTO `json:"children"`
+}
+
+// choicesOf answers the wire form of menu items, every list present so the page never meets null.
+func choicesOf(items []application.MenuItem) []choiceDTO {
+	out := make([]choiceDTO, 0, len(items))
+	for _, item := range items {
+		out = append(out, choiceDTO{
+			Action: string(item.Action), Label: item.Label, Checkable: item.Checkable, Checked: item.Checked,
+			Children: choicesOf(item.Children),
+		})
+	}
+	return out
 }
 
 // boxDTO is a rectangle inside the window, in the window's pixels.

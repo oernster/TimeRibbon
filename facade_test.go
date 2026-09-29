@@ -116,7 +116,7 @@ func TestSetAlwaysOnTopAppliesTheSettingAtOnce(t *testing.T) {
 
 func TestOpenPanelCentresThePanelOnTheRibbonsDisplay(t *testing.T) {
 	app, service, seen, _ := newTestApp(t)
-	if err := app.OpenPanel(); err != nil {
+	if err := app.OpenPanel(openAtAbout); err != nil {
 		t.Fatal(err)
 	}
 	if !app.panelOpen.Load() || service.at[0] != testRibbonAt || service.centred != testPanel {
@@ -135,7 +135,7 @@ func TestOpenPanelAnswersWhatStoppedIt(t *testing.T) {
 	} {
 		app, service, seen, _ := newTestApp(t)
 		plant(service, seen)
-		if err := app.OpenPanel(); !errors.Is(err, errPlanted) {
+		if err := app.OpenPanel(openAtAbout); !errors.Is(err, errPlanted) {
 			t.Errorf("OpenPanel answered %v, want the failure", err)
 		}
 		if !app.panelOpen.Load() {

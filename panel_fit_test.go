@@ -15,7 +15,7 @@ const fittedHeight = 1200
 // where the window stands.
 func TestFitPanelMakesTheOpenPanelAsTallAsItsContent(t *testing.T) {
 	app, service, seen, _ := newTestApp(t)
-	if err := app.OpenPanel(); err != nil {
+	if err := app.OpenPanel(openAtAbout); err != nil {
 		t.Fatal(err)
 	}
 	if err := app.FitPanel(fittedHeight); err != nil {

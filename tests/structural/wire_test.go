@@ -25,7 +25,7 @@ var wirePairs = map[string]string{
 	"sizeDTO": "Size", "layoutDTO": "Layout", "cellDTO": "Cell", "snapshotDTO": "Snapshot", "placeDTO": "Place",
 	"aboutDTO": "About", "creditDTO": "Credit", "updateDTO": "UpdateStatus",
 	"boxDTO": "Box", "markDTO": "Mark", "sunMapDTO": "SunMap",
-	"textSamplesDTO": "TextSamples", "measuredDTO": "Measured",
+	"textSamplesDTO": "TextSamples", "measuredDTO": "Measured", "choiceDTO": "MenuChoice",
 }
 
 // windowWords names each constant app.go sends the page with the shape the page must state its value

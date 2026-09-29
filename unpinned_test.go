@@ -94,7 +94,7 @@ func TestAPanelAndTheMenuHoldTheRibbonOpen(t *testing.T) {
 	t.Parallel()
 	app, _, seen := unpinnedApp(t)
 	app.ShowContextMenu()
-	if err := app.OpenPanel(); err != nil {
+	if err := app.OpenPanel(openAtAbout); err != nil {
 		t.Fatal(err)
 	}
 	app.handleSafely(desktop.Event{Kind: desktop.EventPointerLeft})
@@ -202,7 +202,7 @@ func TestLeavingWhileThePageDrawsCollapsesAgain(t *testing.T) {
 func TestAPanelOpenedWhileThePageDrawsStays(t *testing.T) {
 	t.Parallel()
 	app, seen := openedToDrawing(t)
-	if err := app.OpenPanel(); err != nil {
+	if err := app.OpenPanel(openAtAbout); err != nil {
 		t.Fatal(err)
 	}
 	placed := len(seen.placed)

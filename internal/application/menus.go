@@ -95,6 +95,16 @@ func (s *Service) ContextMenu() []MenuItem {
 	}
 }
 
+// SettingsChoices answers every choice the menus offer, for Settings to offer as well (FR-624): the
+// same items both menus hold, so their words and ticks have one home. What is left of the menus is
+// commands (show or hide, Add clock, Settings, Help, Exit), which choose nothing.
+func (s *Service) SettingsChoices() []MenuItem {
+	return []MenuItem{
+		s.styleItem(), s.colourItem(), s.orientationItem(), s.positionItem(),
+		s.alwaysOnTopItem(), s.pinItem(), s.sunMapItem(),
+	}
+}
+
 // positionItem is the Position submenu both menus hold (FR-408): the two edges along which the
 // ribbon runs its length, so a vertical ribbon is offered the left and right edges and a horizontal
 // one the top and bottom.

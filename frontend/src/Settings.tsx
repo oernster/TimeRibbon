@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type KeyboardEvent } from 'react'
-import { api, type Cell, type Place, type Snapshot } from './api'
+import { api, type Cell, type MenuChoice, type Place, type Refused, type Snapshot } from './api'
 import { ClockList } from './ClockList'
 import { PlaceSearch } from './PlaceSearch'
 import { ArtButton, addClockTip } from './ArtButton'
@@ -13,13 +13,11 @@ export const donateTip = 'Buy the author a drink (opens your browser)'
 
 interface Props {
   snapshot: Snapshot
-  /** startAdding opens straight onto the place search, as Add clock does. */
+  /** startAdding puts the cursor in the place search, as Add clock does. */
   startAdding: boolean
   reload: () => void
   onClose: () => void
 }
-
-type Search = { mode: 'add' } | { mode: 'rezone'; cell: Cell } | null
 
 interface Choice {
   label: string
@@ -27,8 +25,8 @@ interface Choice {
 }
 
 /**
- * Each choice Settings offers, with its values in the words shown (FR-601). Style and orientation
- * are chosen from the menus instead, so they are not repeated here.
+ * The choices Settings alone offers, with their values in the words shown (FR-601). The menus'
+ * choices come from Go in the snapshot, so their words have one home (FR-624).
  */
 const choices: { name: string; key: 'size' | 'format' | 'dateFormat' | 'theme'; options: Choice[] }[] = [
   { name: 'Size', key: 'size', options: [{ label: 'Large', value: 'large' }, { label: 'Small', value: 'small' }] },
@@ -55,12 +53,51 @@ const setters = {
   theme: api.setTheme,
 }
 
+interface ChoiceProps {
+  choice: MenuChoice
+  choose: (action: string) => void
+}
+
 /**
- * Settings is the small set of choices plus the clocks (FR-601). Every change applies and is kept
- * at once, with no Save step (FR-602). Escape closes it.
+ * MenuGroup draws one of the menus' submenus (FR-624): one choice among ticked items as radio
+ * buttons, a set of moves such as Position as plain buttons.
+ */
+function MenuGroup({ choice, choose }: ChoiceProps) {
+  return (
+    <fieldset>
+      <legend>{choice.label}</legend>
+      {choice.children.map((item) =>
+        item.checkable ? (
+          <label key={item.action}>
+            <input type="radio" name={choice.label} value={item.action} checked={item.checked} onChange={() => choose(item.action)} />
+            {item.label}
+          </label>
+        ) : (
+          <button key={item.action} type="button" onClick={() => choose(item.action)}>
+            {item.label}
+          </button>
+        ),
+      )}
+    </fieldset>
+  )
+}
+
+/** MenuToggle draws one of the menus' ticked items that stands alone, such as Pin ribbon (FR-624). */
+function MenuToggle({ choice, choose }: ChoiceProps) {
+  return (
+    <label>
+      <input type="checkbox" checked={choice.checked} onChange={() => choose(choice.action)} />
+      {choice.label}
+    </label>
+  )
+}
+
+/**
+ * Settings is the clocks plus every choice, the menus' included (FR-601, FR-624). Every change
+ * applies and is kept at once, with no Save step (FR-602). Escape closes it.
  */
 export function Settings({ snapshot, startAdding, reload, onClose }: Props) {
-  const [search, setSearch] = useState<Search>(startAdding ? { mode: 'add' } : null)
+  const [rezoning, setRezoning] = useState<Cell | null>(null)
   const [problem, setProblem] = useState('')
   const [startWithWindows, setStartWithWindows] = useState<boolean | null>(null)
   const panel = usePanelFit<HTMLElement>(setProblem)
@@ -70,21 +107,26 @@ export function Settings({ snapshot, startAdding, reload, onClose }: Props) {
   }, [])
 
   const then = useCallback(() => reload(), [reload])
+  const refused: Refused = setProblem
+  const choose = (action: string) => void api.choose(action, refused).then(then)
 
-  const chosen = (place: Place) => {
-    if (search?.mode === 'rezone') {
-      void api.rezoneClock(search.cell.id, place.zone, setProblem).then(then)
-    } else {
-      void api.addClock(place.zone, setProblem).then(then)
+  const added = (place: Place) => void api.addClock(place.zone, refused).then(then)
+
+  const rezoned = (place: Place) => {
+    if (rezoning != null) {
+      void api.rezoneClock(rezoning.id, place.zone, refused).then(then)
     }
-    setSearch(null)
+    setRezoning(null)
   }
 
   const escape = (event: KeyboardEvent<HTMLElement>) => {
-    if (event.key === 'Escape' && search == null) {
+    if (event.key === 'Escape') {
       onClose()
     }
   }
+
+  const groups = snapshot.choices.filter((choice) => choice.children.length > 0)
+  const toggles = snapshot.choices.filter((choice) => choice.children.length === 0)
 
   return (
     <main className="settings" ref={panel} onKeyDown={escape}>
@@ -103,75 +145,77 @@ export function Settings({ snapshot, startAdding, reload, onClose }: Props) {
       <h2>Clocks</h2>
       <ClockList
         cells={snapshot.cells}
-        onRename={(id, label) => void api.renameClock(id, label, setProblem).then(then)}
-        onChangePlace={(cell) => setSearch({ mode: 'rezone', cell })}
-        onRemove={(id) => void api.removeClock(id, setProblem).then(then)}
+        onRename={(id, label) => void api.renameClock(id, label, refused).then(then)}
+        onChangePlace={setRezoning}
+        onRemove={(id) => void api.removeClock(id, refused).then(then)}
       />
-      {search == null ? (
-        <ArtButton art={addClockArt} label={addClockTip} large onClick={() => setSearch({ mode: 'add' })} />
+      {rezoning == null ? (
+        <PlaceSearch
+          key="add"
+          heading="Add a clock"
+          onChoose={added}
+          refused={refused}
+          autoFocus={startAdding}
+          picture={{ art: addClockArt, label: addClockTip }}
+        />
       ) : (
         <PlaceSearch
-          heading={search.mode === 'rezone' ? `Change the place of ${search.cell.label}` : 'Add a clock'}
-          onChoose={chosen}
-          onCancel={() => setSearch(null)}
-          refused={setProblem}
+          key={`rezone-${rezoning.id}`}
+          heading={`Change the place of ${rezoning.label}`}
+          onChoose={rezoned}
+          onCancel={() => setRezoning(null)}
+          refused={refused}
+          autoFocus
         />
       )}
 
-      {choices.map((choice) => (
-        <fieldset key={choice.key}>
-          <legend>{choice.name}</legend>
-          {choice.options.map((option) => (
-            <label key={option.value}>
-              <input
-                type="radio"
-                name={choice.key}
-                value={option.value}
-                checked={snapshot[choice.key] === option.value}
-                onChange={() => void setters[choice.key](option.value, setProblem).then(then)}
-              />
-              {option.label}
-            </label>
+      <div className="settings-choices">
+        {choices.map((choice) => (
+          <fieldset key={choice.key}>
+            <legend>{choice.name}</legend>
+            {choice.options.map((option) => (
+              <label key={option.value}>
+                <input
+                  type="radio"
+                  name={choice.key}
+                  value={option.value}
+                  checked={snapshot[choice.key] === option.value}
+                  onChange={() => void setters[choice.key](option.value, refused).then(then)}
+                />
+                {option.label}
+              </label>
+            ))}
+          </fieldset>
+        ))}
+
+        {groups.map((choice) => (
+          <MenuGroup key={choice.label} choice={choice} choose={choose} />
+        ))}
+
+        <OpacitySlider snapshot={snapshot} refused={refused} then={then} />
+
+        <fieldset>
+          <legend>Window</legend>
+          {toggles.map((choice) => (
+            <MenuToggle key={choice.action} choice={choice} choose={choose} />
           ))}
+          <label>
+            <input
+              type="checkbox"
+              disabled={startWithWindows == null}
+              checked={startWithWindows === true}
+              onChange={(event) => {
+                const on = event.target.checked
+                void api.setStartWithWindows(on, refused).then(() => api.startWithWindows(refused).then(setStartWithWindows))
+              }}
+            />
+            {snapshot.startLabel}
+          </label>
         </fieldset>
-      ))}
-
-      <OpacitySlider snapshot={snapshot} refused={setProblem} then={then} />
-
-      <fieldset>
-        <legend>Window</legend>
-        <label>
-          <input
-            type="checkbox"
-            checked={snapshot.alwaysOnTop}
-            onChange={(event) => void api.setAlwaysOnTop(event.target.checked, setProblem).then(then)}
-          />
-          Always on top
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={snapshot.sunMap.on}
-            onChange={(event) => void api.setSunMap(event.target.checked, setProblem).then(then)}
-          />
-          Sun map
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            disabled={startWithWindows == null}
-            checked={startWithWindows === true}
-            onChange={(event) => {
-              const on = event.target.checked
-              void api.setStartWithWindows(on, setProblem).then(() => api.startWithWindows(setProblem).then(setStartWithWindows))
-            }}
-          />
-          {snapshot.startLabel}
-        </label>
-      </fieldset>
+      </div>
 
       <footer className="settings-foot">
-        <ArtButton art={donateMark} label={donateTip} onClick={() => void api.openDonation(setProblem)} />
+        <ArtButton art={donateMark} label={donateTip} onClick={() => void api.openDonation(refused)} />
         <p className="muted">Free to use and staying free: nothing is held back behind a donation.</p>
       </footer>
     </main>

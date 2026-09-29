@@ -47,8 +47,9 @@ export function App() {
   const openPanel = useCallback((at?: unknown, outcome?: unknown) => {
     setAdding(at === addClock)
     setUpdate((outcome as UpdateStatus | undefined) ?? null)
-    setView(panelFor[String(at)] ?? 'settings')
-    void api.openPanel(setProblem)
+    const panel = panelFor[String(at)] ?? 'settings'
+    setView(panel)
+    void api.openPanel(panel, setProblem)
   }, [])
 
   const closePanel = useCallback(() => {

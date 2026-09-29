@@ -104,7 +104,7 @@ func TestTheShapeFollowsEveryRefit(t *testing.T) {
 	if got := lastShape(); !slices.Equal(got, whole(testArrange.Size)) {
 		t.Errorf("no map: cut to %+v", got)
 	}
-	if err := app.OpenPanel(); err != nil {
+	if err := app.OpenPanel(openAtAbout); err != nil {
 		t.Fatal(err)
 	}
 	if got := lastShape(); !slices.Equal(got, whole(lastPlaced(t, seen).Size)) {

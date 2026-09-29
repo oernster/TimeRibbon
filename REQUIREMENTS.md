@@ -122,6 +122,14 @@ top of Large or Small; no free window resizing, so no shape the layout was not m
 are the application's own rather than the user's (FR-623). The settings file gains the `scale` key
 (NFR-C-1 allows it). Section 11 records the rulings (OQ-27, OQ-28).
 
+Amendment 28 (Oliver, 2026-09-29): Settings offers everything the menus choose. Style, Colour,
+Orientation, Position and Pin ribbon were on the menus alone; Settings now offers every choice the
+menus do, from the same items, so the two cannot drift apart. The menus keep them too, which widens
+Amendment 9 rather than reversing it (FR-624). Settings grows to 900 DIP wide, its choices side by
+side, while About, Licence and the update panel keep 560 (FR-625). The place search stays open in
+Settings with the Add clock picture beside its box (FR-626). Section 11 records the rulings (OQ-29
+to OQ-31).
+
 Source: the initial product specification of 2026-09-27, written under the product's former name,
 plus Oliver's rulings of 2026-09-27: the stack is Go with Wails; orientation is a setting offering
 both horizontal and vertical, both in the first release; a setup program ships with the first
@@ -411,6 +419,7 @@ Amendment 1 (Oliver, 2026-09-27, after the first build): the default changed fro
 vertical.
 Amendment 9 (Oliver, 2026-09-28): the orientation is chosen from the `Orientation` submenu of both
 menus rather than in Settings (FR-108, FR-502, FR-601).
+Amendment 28 (Oliver, 2026-09-29): Settings offers it as well, from the menus' own items (FR-624).
 Verified by: `TestDefaultsAreDigitalTwentyFourHourVerticalAndNotOnTop` (domain); `ribbon.test.tsx`.
 
 **FR-104 Changing orientation keeps the ribbon on screen**
@@ -838,6 +847,8 @@ Amendment 9 (Oliver, 2026-09-28): style and orientation leave Settings for the m
 FR-502), so Settings offers size, format and theme.
 Later amendments add to that list: the date format (FR-612, Amendment 16), `Sun map` (FR-901,
 Amendment 20) and Opacity (FR-622, Amendment 26).
+Amendment 28 (Oliver, 2026-09-29): every choice of the menus returns as well (FR-624); the panel is
+wider (FR-625) and the place search stays open (FR-626).
 Verified by: `settings.test.tsx`; the header by check M-12; the donate button by check M-11.
 
 **FR-602 Settings apply at once**
@@ -1177,6 +1188,47 @@ Verified by: `TestScaleIsHeldWithinItsBounds` (domain); `TestAScaledRibbonGrowsI
 `TestAPreviewIsDrawnButNotKept`, `TestAChangeOfScaleRecentresTheRibbon`, `TestTheScrollBarIsNotScaled`
 (application); `TestSettingsRoundTrip` (infrastructure, store); `TestAChangeOfScaleTellsThePageToDrawAgain`,
 `TestEveryChangeFitsTheRibbonAndAnswersTheServicesError` (facade); `scaleGrip.test.tsx`; check M-17.
+
+**FR-624 Settings offers every menu choice**
+Priority: Should (Amendment 28, Oliver, 2026-09-29).
+Settings shall offer every choice either menu offers (Style, Colour, Orientation, Position, Always
+on top, Pin ribbon and Sun map), drawn from the menus' own items with their words and ticks; a group
+of ticked items as one choice among them, Position's moves as buttons, a ticked item on its own as a
+tick box. Choosing one in Settings shall do exactly what the menu item does. The menus keep every
+one. What the menus hold besides is commands (show or hide, Add clock, Settings, Help, Exit), which
+Settings does not repeat.
+Rationale: Oliver, 2026-09-29: "make sure all settings on the menu are in the settings dialog",
+"don't exclude anything" (OQ-29).
+Acceptance: given Classic chosen, when Settings opens, then its Colour group lists every scheme with
+Classic chosen; when Neon is chosen there, then the ribbon is Neon and both menus tick Neon; when
+Centre on bottom edge is pressed, then the ribbon goes to the bottom edge as the menu item sends it.
+Verified by: `TestEveryMenuChoiceIsOfferedBySettings`, `TestSettingsChoicesAreTheMenusOwnItems`
+(application); `TestTheSnapshotCarriesTheMenusChoices`, `TestChooseCarriesOutOnlyTheChoicesSettingsOffers`
+(facade); `settings.test.tsx`; check M-18.
+
+**FR-625 Settings is wide**
+Priority: Should (Amendment 28, Oliver, 2026-09-29).
+Settings shall open 900 DIP wide, its choice groups side by side in as many columns as that width
+holds, never wider than its display's work area, where the columns fold to fit. Fitting its height
+keeps that width (FR-621). About, Licence and the update panel stay 560 DIP wide.
+Rationale: Oliver, 2026-09-29: a tall narrow panel wastes the display's width; text panels read
+better narrow (OQ-30).
+Acceptance: given a 1920 by 1080 display at 100 percent, when Settings opens, then it is 900 DIP
+wide with three columns of choices; when About opens, then it is 560 DIP wide.
+Verified by: `TestSettingsOpensAndFitsAtItsOwnWidth` (facade); check M-18.
+
+**FR-626 The place search stays open**
+Priority: Should (Amendment 28, Oliver, 2026-09-29).
+Settings shall show the place search at all times beneath the clocks, with the Add clock picture
+beside its box. Places are listed once something is typed. Pressing the picture adds the highlighted
+place; with nothing typed it puts the cursor in the box instead. Enter and a click on a place add it
+too; the box empties after each. Escape with something typed empties the box; with nothing typed it
+closes Settings. Change place opens the search for that clock with a Cancel, as before (FR-304).
+Rationale: Oliver, 2026-09-29: the picture belongs beside the search it adds from (OQ-31).
+Acceptance: given Settings open, when "Oslo" is typed and the picture pressed, then a clock for
+Oslo is added and the box is empty; when the picture is pressed with nothing typed, then nothing is
+added and the cursor is in the box.
+Verified by: `settings.test.tsx`; check M-18.
 
 ### 3.7 Persistence and recovery
 
@@ -1631,7 +1683,7 @@ recover, snapshot) is executable from a Go test with no window open before the f
 | Priority | Content |
 |---|---|
 | **Must** | FR-101 to FR-107, FR-201 to FR-209, FR-301 to FR-305, FR-401 to FR-409, FR-501, FR-502, FR-504 to FR-508, FR-601 to FR-604, FR-607 to FR-610, FR-620, FR-701 to FR-707, FR-801 to FR-811, NFR-P-1 to NFR-P-4, NFR-U-1 to NFR-U-5, NFR-S-1 to NFR-S-3, NFR-M-1, NFR-M-2, NFR-C-1, NFR-O-1 |
-| **Should** | FR-108, FR-307, FR-410, FR-411, FR-503, FR-509, FR-605, FR-606, FR-611 to FR-619, FR-621 to FR-623, FR-901 to FR-914, NFR-P-5, NFR-C-2 |
+| **Should** | FR-108, FR-307, FR-410, FR-411, FR-503, FR-509, FR-605, FR-606, FR-611 to FR-619, FR-621 to FR-626, FR-901 to FR-914, NFR-P-5, NFR-C-2 |
 | **Could** | FR-308 |
 | **Withdrawn** | FR-306 (Amendment 6) |
 | **Won't this time** | Everything in the out-of-scope table of section 1.3 |
@@ -1673,7 +1725,7 @@ OQ-6 was also reversed; the six raised by Amendment 20 the same day; the two rai
 Amendment 21 the same day; the two raised by Amendment 22 the same day; the one raised by
 Amendment 23 the same day; the one raised by Amendment 24 the same day; the one raised by
 Amendment 25 the same day; the one raised by Amendment 26 the same day; the two raised by
-Amendment 27 the same day:
+Amendment 27 the same day; the three raised by Amendment 28 the same day:
 
 | ID | Question | Ruling | Now held by |
 |---|---|---|---|
@@ -1705,6 +1757,9 @@ Amendment 27 the same day:
 | OQ-26 | How faint may the window be drawn? | 20 percent at least, so it can always be seen and found | FR-622 |
 | OQ-27 | How are the clocks resized by hand? | A grip in the ribbon's corner scales everything in them together, on top of Large or Small | FR-623 |
 | OQ-28 | Who sets the bounds of that scale? | The application: 75 to 200 percent, readable at the least and held by a 720 line display at the most | FR-623 |
+| OQ-29 | Which of the menus' items does Settings offer? | Every choice, Position's moves included; the commands stay on the menus alone | FR-624 |
+| OQ-30 | How wide is Settings? Do the other panels follow? | 900 DIP, capped by the work area; the others stay 560 | FR-625 |
+| OQ-31 | Where does the Add clock picture go? | Beside the place search, which stays open | FR-626 |
 
 ---
 
@@ -1733,3 +1788,4 @@ is installing and removing the DMG on macOS and the Flatpak on Linux.
 | M-15 | Ticking Sun map in either menu shows a handle with an arrow on the ribbon's inner side, horizontal and vertical alike, covering no part of any clock with an odd number of clocks at either size; its click slides the map out (below a horizontal ribbon at the top edge, above one at the bottom, beside a vertical one) and back, kept across a restart; the map is as long as the ribbon, lit where it is day with city lights where it is night; each clock's city is a red dot beside its label; dragging the map moves both; the map hides with the tab and returns with the ribbon; after a minute the line between day and night has moved; on Windows the desktop shows (and takes clicks) wherever the window holds neither ribbon nor map; no label on the map prints over another label or a dot. |
 | M-16 | Settings' Opacity slider runs from 20 to 100 percent; dragging it fades the ribbon, the sun map and Settings itself as it moves, the desktop and the windows behind showing through; at 100 percent the window looks as it did before; the choice is kept across a restart; each colour scheme reads in Light and Dark at 20 percent. Made on Windows, macOS and Linux, since each draws a see-through window its own way. |
 | M-17 | Dragging the grip in the ribbon's corner outward grows the clocks and back shrinks them, text, dials and padding together, the window following smoothly in both orientations and with the sun map on; it stops at 75 and 200 percent; pressing the grip never drags the window; the size is kept across a restart and over a change between Large and Small; a double-click returns the clocks to their own size; a scrolling ribbon's bar never covers the cells. Made on Windows, macOS and Linux. |
+| M-18 | Settings opens 900 DIP wide with its choices in columns, every choice of the menus among them, each one's tick agreeing with the menus; a choice made in Settings shows at once in the ribbon and in both menus; one made from a menu shows in Settings; each Position button moves the ribbon as its menu item does; the place search stays open with the Add clock picture beside it, adding the highlighted place when pressed; About and Licence open at their old width. |

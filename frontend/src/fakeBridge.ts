@@ -1,7 +1,7 @@
 // A stand-in for the Go facade in tests: every call is recorded, every answer is canned.
 
 import { vi } from 'vitest'
-import type { About, Cell, Place, Snapshot } from './wire'
+import type { About, Cell, MenuChoice, Place, Snapshot } from './wire'
 
 export const about: About = {
   name: 'Product', version: '0.1.0', author: 'The Author', copyright: '© The Author',
@@ -18,6 +18,25 @@ export function cell(overrides: Partial<Cell> = {}): Cell {
   }
 }
 
+function item(action: string, label: string, checked?: boolean): MenuChoice {
+  return { action, label, checkable: checked != null, checked: checked === true, children: [] }
+}
+
+function group(label: string, children: MenuChoice[]): MenuChoice {
+  return { action: '', label, checkable: false, checked: false, children }
+}
+
+/** The menus' choices as Go sends them, in their order; Colour cut to two schemes. */
+export const choices: MenuChoice[] = [
+  group('Style', [item('digital', 'Digital', true), item('analogue', 'Analogue', false)]),
+  group('Colour', [item('colour-classic', 'Classic', true), item('colour-neon', 'Neon', false)]),
+  group('Orientation', [item('horizontal', 'Horizontal', true), item('vertical', 'Vertical', false)]),
+  group('Position', [item('top-edge', 'Centre on top edge'), item('bottom-edge', 'Centre on bottom edge')]),
+  item('always-on-top', 'Always on top', false),
+  item('pin', 'Pin ribbon', true),
+  item('sun-map', 'Sun map', false),
+]
+
 export function snapshot(overrides: Partial<Snapshot> = {}): Snapshot {
   return {
     cells: [cell(), cell({ id: 'syd', label: 'Sydney', zone: 'Australia/Sydney', zoneMark: 'AEST', time: '06:37', date: 'Monday, 28 September' })],
@@ -29,6 +48,7 @@ export function snapshot(overrides: Partial<Snapshot> = {}): Snapshot {
       on: false, pullOut: false, side: '', shown: false, ribbon: { x: 0, y: 0, width: 0, height: 0 },
       map: { x: 0, y: 0, width: 0, height: 0 }, latitude: 0, longitude: 0, marks: [],
     },
+    choices,
     ...overrides,
   }
 }
@@ -51,7 +71,6 @@ export function installBridge() {
     SetFormat: vi.fn(async () => undefined),
     SetDateFormat: vi.fn(async () => undefined),
     SetTheme: vi.fn(async () => undefined),
-    SetAlwaysOnTop: vi.fn(async () => undefined),
     StartWithWindows: vi.fn(async () => false),
     SetStartWithWindows: vi.fn(async () => undefined),
     DismissNotices: vi.fn(async () => undefined),
@@ -64,9 +83,9 @@ export function installBridge() {
     SetPixelRatio: vi.fn(async () => undefined),
     SetBackground: vi.fn(async () => undefined),
     RibbonDrawn: vi.fn(async () => undefined),
-    SetSunMap: vi.fn(async () => undefined),
     TogglePullOut: vi.fn(async () => undefined),
     ShowContextMenu: vi.fn(async () => undefined),
+    Choose: vi.fn(async () => undefined),
     OpenPanel: vi.fn(async () => undefined),
     FitPanel: vi.fn(async () => undefined),
     ClosePanel: vi.fn(async () => undefined),

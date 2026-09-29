@@ -55,7 +55,7 @@ and what stops it. An unexplained shortfall cannot be told from an oversight.
 | `internal/infrastructure/update` | 100% | 100% | `test.ps1` |
 | `internal/infrastructure/zones` | 100% | 100% | `test.ps1` |
 | `internal/infrastructure/iconscale` | 100% | 100% | `test.ps1` |
-| `internal/infrastructure/store` | 93.4% | 92% | `test.ps1` |
+| `internal/infrastructure/store` | 93.4% | 93% | `test.ps1` |
 | `internal/infrastructure/setup` | 84.0% | 84% | `test.ps1` |
 | `tools/versioninfo` | 86.7% | 86% | `test.ps1` |
 | `tools/payload` | 82.8% | 82% | `test.ps1` |
@@ -63,16 +63,16 @@ and what stops it. An unexplained shortfall cannot be told from an oversight.
 | `internal/infrastructure/startup` | 80.6% | 80% | `test.ps1` |
 | `tools/identity` | 75% | 75% | `test.ps1` |
 | `tools/linuxicons` | 67.7% | 67% | `test.ps1` |
-| `tools/genplaces` | 58.6% | 38% | `test.ps1` |
+| `tools/genplaces` | 58.6% | 58% | `test.ps1` |
 | `internal/infrastructure/appdata` | 100% | 100% | `test.ps1` |
 | `internal/infrastructure/runlog` | 76.5% | 76% | `test.ps1` |
-| the root package (the Wails facade) | 85.5% | 76% | `test.ps1` |
-| `internal/infrastructure/desktop` | 35.8% | 14% | `test.ps1` |
+| the root package (the Wails facade) | 86.1% | 86% | `test.ps1` |
+| `internal/infrastructure/desktop` | 35.8% | 35% | `test.ps1` |
 | `internal/product` | 100% | none | not gated |
 | `installer` | 0%, no tests | none | not gated |
 
 Every figure is the Windows build's, which is what `test.ps1` measures. The Windows build compiles
-359 Go test functions, counted from the test files `go list` selects for it; each runs once with no
+365 Go test functions, counted from the test files `go list` selects for it; each runs once with no
 subtests, plus one `TestMain` in `internal/infrastructure/setup`. Twenty-seven of them are the
 structural tests in `tests/structural`, which read the source rather than run it and are the same
 on every platform; [ARCHITECTURE.md](ARCHITECTURE.md) lists each against the rule it holds. One
@@ -81,12 +81,12 @@ test in `store` holds a promise rather than a rule of structure:
 see ARCHITECTURE.md, The settings file. Three hold NFR-U-1: `contrast_test.go` reads every scheme's
 colours from `theme.css` and `colours.css` and requires 4.5:1 for each text colour on the cell and
 the surface in both themes. It is a Go test because Vitest hands a CSS import back empty. The macOS
-and Linux builds compile 335 each
+and Linux builds compile 340 each
 ([On macOS and Linux](#on-macos-and-linux)).
 
 ### The front end
 
-128 tests across 18 files, under Vitest with jsdom: the ribbon, Settings, About, Licence and the
+129 tests across 18 files, under Vitest with jsdom: the ribbon, Settings, About, Licence and the
 update panel; every icon-only control on each of them carrying an accessible name and a tooltip
 (`a11y.test.tsx`, NFR-U-4); the sun map's surface and handle, its day and night blend and where its labels stand
 (FR-914); the page's background colour; the self-reading cycle; the watch on the page's
@@ -195,7 +195,7 @@ The macOS and Linux halves of infrastructure compile only for their own platform
 face the desktop (`cocoamain`, `gtkmain`, `monitors`, `desktop`) also need cgo against AppKit or
 GTK. `test.ps1` reaches none of them. They are checked on a machine of their own
 platform, set up as [DEVELOPMENT.md](DEVELOPMENT.md) says, from a checkout with the page built. Each
-build compiles 335 Go test functions: the shared ones, the structural tests and its own.
+build compiles 340 Go test functions: the shared ones, the structural tests and its own.
 
 | What | macOS | Linux |
 |---|---|---|
@@ -277,6 +277,7 @@ Windows, installing and removing the DMG on macOS and the Flatpak on Linux.
 | M-15 | Ticking Sun map in either menu shows a handle with an arrow on the ribbon's inner side, horizontal and vertical alike, covering no part of any clock with an odd number of clocks at either size; its click slides the map out (below a horizontal ribbon at the top edge, above one at the bottom, beside a vertical one) and back, kept across a restart; the map is as long as the ribbon, lit where it is day with city lights where it is night; each clock's city is a red dot beside its label; dragging the map moves both; the map hides with the tab and returns with the ribbon; after a minute the line between day and night has moved; on Windows the desktop shows (and takes clicks) wherever the window holds neither ribbon nor map; no label on the map prints over another label or a dot |
 | M-16 | Settings' Opacity slider runs from 20 to 100 percent; dragging it fades the ribbon, the sun map and Settings itself as it moves, the desktop and the windows behind showing through; at 100 percent the window looks as it did before; the choice is kept across a restart; each colour scheme reads in Light and Dark at 20 percent. Made on Windows, macOS and Linux, since each draws a see-through window its own way |
 | M-17 | Dragging the grip in the ribbon's corner outward grows the clocks and back shrinks them, text, dials and padding together, the window following smoothly in both orientations and with the sun map on; it stops at 75 and 200 percent; pressing the grip never drags the window; the size is kept across a restart and over a change between Large and Small; a double-click returns the clocks to their own size; a scrolling ribbon's bar never covers the cells. Made on Windows, macOS and Linux |
+| M-18 | Settings opens 900 DIP wide with its choices in columns, every choice of the menus among them, each one's tick agreeing with the menus; a choice made in Settings shows at once in the ribbon and in both menus; one made from a menu shows in Settings; each Position button moves the ribbon as its menu item does; the place search stays open with the Add clock picture beside it, adding the highlighted place when pressed; About and Licence open at their old width |
 | Wheel at 250% | On a display at 250%, one notch of a plain wheel over a scrolling horizontal ribbon moves it as far as a native notch moves a vertical one; only a physical wheel settles it |
 
 The ribbon's layout at its full size was measured in headless Edge 154.0.4258.37, the version of the

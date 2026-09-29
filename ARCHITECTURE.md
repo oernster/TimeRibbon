@@ -151,7 +151,7 @@ than a resource in the executable, then ends the run on SIGTERM or SIGINT throug
 (`exitWhen` in `quit_signal.go`). `platform_linux.go` sends GTK through X11 before Wails opens it;
 `platform_darwin.go` links the UniformTypeIdentifiers framework, which Wails' macOS half uses and
 which the `wails` command would otherwise have added. The cell sizes with the padding and the
-handle's lane (`layouts`) and the panel size (`panelSize`) have their one home there. No service is held in a package-level variable and there
+handle's lane (`layouts`) and the panel sizes (`panels`) have their one home there. No service is held in a package-level variable and there
 is no service locator.
 
 The facade is `app.go` (the calls the page makes) and `window_life.go` (startup, showing, hiding,
@@ -194,7 +194,8 @@ the log, read the settings or show a tray icon.
 ## One window
 
 Wails v2 offers one window, so the ribbon, Settings, About and Licence share it (CON-6). The ribbon is
-the window at the size its clocks need. Opening a panel resizes the window to `panelSize`, centred on
+the window at the size its clocks need. Opening a panel resizes the window to its size in `panels`
+(`panel.go`: Settings 900 DIP wide for its columns of choices, FR-625; every other panel 560), centred on
 the ribbon's display and never larger than its work area (`Service.Centred`); closing one returns the
 window to where the ribbon was last left. While a panel is open, a move of the window is not recorded
 as the ribbon's and a change of content is fitted when the panel closes.
@@ -202,8 +203,9 @@ as the ribbon's and a change of content is fitted when the panel closes.
 Settings then grows to its content (FR-621). Whenever anything inside it changes, `panelFit.ts`
 measures the panel laid out with no height of its own and hands that height to `FitPanel`, which centres
 the panel again at it through the same `Service.Centred`; so on a display with room nothing scrolls,
-while a shorter one still caps it at the work area. About and the update panel keep `panelSize`;
-Licence keeps it too, since it reads itself down its own scroller.
+while a shorter one still caps it at the work area; the fit keeps the width the panel opened at.
+About and the update panel keep their size in `panels`; Licence keeps it too, since it reads itself
+down its own scroller.
 
 **Opacity (FR-622).** The web view is transparent on Windows and macOS and the window translucent on
 Linux (`launch.go`); check M-16 is the one that looks at the desktop showing through. Everything is
@@ -397,11 +399,16 @@ nothing.
 Both menus are native popup menus, so the ribbon's small window never clips them. Their items and
 words have one home, `internal/application/menus.go` with its submenus of choices in
 `menu_choices.go` beside it. The tray menu offers Show ribbon or Hide ribbon (whichever applies),
-Add clock, Settings, Style, Colour, Orientation, Position, Always on top, Help and Exit; the
-ribbon's right-click menu offers Add clock, Settings, Style, Colour, Orientation, Position, Always
-on top, Help, Hide ribbon and Exit. Style, Colour and Orientation are submenus ticking the current
-choice, whose items reach the facade's own `SetStyle`, `SetColour` and `SetOrientation` (FR-502);
-style, colour and orientation are not offered in Settings. Position is a submenu holding the two
+Add clock, Settings, Style, Colour, Orientation, Position, Always on top, Pin ribbon, Sun map, Help
+and Exit; the ribbon's right-click menu offers Add clock, Settings, Style, Colour, Orientation,
+Position, Always on top, Pin ribbon, Sun map, Help, Hide ribbon and Exit. Style, Colour and
+Orientation are submenus ticking the current choice, whose items reach the facade's own `SetStyle`,
+`SetColour` and `SetOrientation` (FR-502). Settings offers every one of those choices too, from the
+same items: `Service.SettingsChoices` answers them, the snapshot carries them and the page hands the
+chosen item's action to the facade's `Choose` (`choices.go`), which refuses any action not among
+them and otherwise does exactly what the menu item does (FR-624). What stays on the menus alone is
+commands. `TestEveryMenuChoiceIsOfferedBySettings` fails for a menu item that is neither a command
+nor offered by Settings, so a choice added to the menus cannot be missed. Position is a submenu holding the two
 edges the ribbon runs along (FR-408); Help is a submenu holding About, Licence and Check for updates
 in both. On Windows a left click on the tray icon shows or hides the ribbon; on Linux the tray
 host's activation does the same (a double click on Ubuntu); on macOS a click opens the menu, as

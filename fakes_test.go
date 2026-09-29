@@ -23,6 +23,7 @@ type scriptedService struct {
 	snapshot    application.Snapshot
 	places      []application.Place
 	menu        []application.MenuItem
+	choices     []application.MenuItem
 	arrangement application.Arrangement
 	// measured is the last measurement SetMeasured was handed.
 	measured application.Measured
@@ -162,6 +163,8 @@ func (s *scriptedService) SetPixelsPerDIP(float64) error { return s.change("SetP
 
 func (s *scriptedService) ContextMenu() []application.MenuItem { return s.menu }
 
+func (s *scriptedService) SettingsChoices() []application.MenuItem { return s.choices }
+
 func (s *scriptedService) CloseRequested() application.MenuAction { return application.ActionHide }
 
 func (s *scriptedService) Launch() (application.Arrangement, error) {
@@ -284,8 +287,10 @@ var (
 		At: placement.Point{X: 10, Y: 20}, Size: placement.Size{Width: 300, Height: 90}, Scrolls: true,
 		Edge: placement.Right,
 	}
-	testAway  = application.Arrangement{At: placement.Point{X: 400, Y: 300}, Size: testArrange.Size}
-	testPanel = placement.Size{Width: 560, Height: 760}
+	testAway = application.Arrangement{At: placement.Point{X: 400, Y: 300}, Size: testArrange.Size}
+	// testPanel is every panel's size but Settings', which is testSettingsPanel.
+	testPanel         = placement.Size{Width: 560, Height: 760}
+	testSettingsPanel = placement.Size{Width: 900, Height: 760}
 )
 
 // testRibbon is the ribbon's window handle once startup has found it: any value that is not none.
@@ -298,7 +303,7 @@ func newTestApp(t *testing.T) (*App, *scriptedService, *window, *bytes.Buffer) {
 	service := &scriptedService{arrangement: testArrange}
 	seen := &window{ribbonAt: testRibbonAt}
 	log := &bytes.Buffer{}
-	app := newApp(service, nil, log, testPanel)
+	app := newApp(service, nil, log, panelSizes{settings: testSettingsPanel, other: testPanel})
 	app.ctx = context.Background()
 	app.ribbon = testRibbon
 	app.emit = func(event string, data ...any) { seen.events = append(seen.events, emitted{event, data}) }

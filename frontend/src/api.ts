@@ -6,7 +6,7 @@
 
 import type { About, Measured, Place, Snapshot, TextSamples } from './wire'
 
-export type { About, Box, Cell, Credit, Layout, Mark, Measured, Place, Size, Snapshot, SunMap, TextSamples, UpdateStatus } from './wire'
+export type { About, Box, Cell, Credit, Layout, Mark, Measured, MenuChoice, Place, Size, Snapshot, SunMap, TextSamples, UpdateStatus } from './wire'
 
 /** A handler told, in words, why a call was refused. */
 export type Refused = (reason: string) => void
@@ -22,7 +22,6 @@ interface Bridge {
   SetFormat(format: string): Promise<void>
   SetDateFormat(dateFormat: string): Promise<void>
   SetTheme(theme: string): Promise<void>
-  SetAlwaysOnTop(on: boolean): Promise<void>
   StartWithWindows(): Promise<boolean>
   SetStartWithWindows(on: boolean): Promise<void>
   DismissNotices(): Promise<void>
@@ -35,10 +34,10 @@ interface Bridge {
   SetPixelRatio(ratio: number): Promise<void>
   SetBackground(red: number, green: number, blue: number): Promise<void>
   RibbonDrawn(): Promise<void>
-  SetSunMap(on: boolean): Promise<void>
   TogglePullOut(): Promise<void>
   ShowContextMenu(): Promise<void>
-  OpenPanel(): Promise<void>
+  Choose(action: string): Promise<void>
+  OpenPanel(panel: string): Promise<void>
   FitPanel(height: number): Promise<void>
   ClosePanel(): Promise<void>
   Hide(): Promise<void>
@@ -89,7 +88,6 @@ export const api = {
   setFormat: (format: string, refused: Refused) => call((b) => b.SetFormat(format), refused),
   setDateFormat: (dateFormat: string, refused: Refused) => call((b) => b.SetDateFormat(dateFormat), refused),
   setTheme: (theme: string, refused: Refused) => call((b) => b.SetTheme(theme), refused),
-  setAlwaysOnTop: (on: boolean, refused: Refused) => call((b) => b.SetAlwaysOnTop(on), refused),
   startWithWindows: (refused: Refused) => call((b) => b.StartWithWindows(), refused),
   setStartWithWindows: (on: boolean, refused: Refused) => call((b) => b.SetStartWithWindows(on), refused),
   dismissNotices: (refused: Refused) => call((b) => b.DismissNotices(), refused),
@@ -103,10 +101,10 @@ export const api = {
   setBackground: (red: number, green: number, blue: number, refused: Refused) =>
     call((b) => b.SetBackground(red, green, blue), refused),
   ribbonDrawn: (refused: Refused) => call((b) => b.RibbonDrawn(), refused),
-  setSunMap: (on: boolean, refused: Refused) => call((b) => b.SetSunMap(on), refused),
   togglePullOut: (refused: Refused) => call((b) => b.TogglePullOut(), refused),
   showContextMenu: (refused: Refused) => call((b) => b.ShowContextMenu(), refused),
-  openPanel: (refused: Refused) => call((b) => b.OpenPanel(), refused),
+  choose: (action: string, refused: Refused) => call((b) => b.Choose(action), refused),
+  openPanel: (panel: string, refused: Refused) => call((b) => b.OpenPanel(panel), refused),
   fitPanel: (height: number, refused: Refused) => call((b) => b.FitPanel(height), refused),
   closePanel: (refused: Refused) => call((b) => b.ClosePanel(), refused),
   hide: (refused: Refused) => call((b) => b.Hide(), refused),

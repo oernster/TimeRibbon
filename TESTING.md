@@ -31,10 +31,8 @@ checkout made before that file existed may hold CRLF; checking it out afresh bri
 
 **A floor is a measurement, never an aspiration.** A floor in `test.ps1` sits at or just below what
 that package measured, so it fails once cover is lost, which is the only moment worth being told. A
-floor picked from an aspiration only teaches people to lower it. Three floors do not meet that
-today: the root package, `internal/infrastructure/desktop` and `tools/genplaces` measure well above
-the floors set when each was first gated (the table below shows both), so each could lose that much
-cover before the gate says so.
+floor picked from an aspiration only teaches people to lower it. Every floor in the table below is
+its package's measured figure with the fraction dropped.
 
 **A gap is named or it is closed.** Where something cannot be tested, this document says what it is
 and what stops it. An unexplained shortfall cannot be told from an oversight.
@@ -72,7 +70,7 @@ and what stops it. An unexplained shortfall cannot be told from an oversight.
 | `installer` | 0%, no tests | none | not gated |
 
 Every figure is the Windows build's, which is what `test.ps1` measures. The Windows build compiles
-369 Go test functions, counted from the test files `go list` selects for it; each runs once with no
+368 Go test functions, counted from the test files `go list` selects for it; each runs once with no
 subtests, plus one `TestMain` in `internal/infrastructure/setup`. Twenty-seven of them are the
 structural tests in `tests/structural`, which read the source rather than run it and are the same
 on every platform; [ARCHITECTURE.md](ARCHITECTURE.md) lists each against the rule it holds. One

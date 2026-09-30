@@ -1323,7 +1323,7 @@ Verified by: `TestWriteFailureIsReportedAndCleared` (application).
 | NFR-M-2 | Go code passes gofmt, go vet and staticcheck; the front end passes eslint, `tsc --noEmit` and Vitest. | `test.ps1` |
 | NFR-C-1 | From 1.0.0, every later 1.x release shall read every settings file 1.0.0 writes to the same settings: no key 1.0.0 writes is renamed, dropped or given another meaning; no stored word changes. A later release may add keys; 1.0.0 keeps a key it does not know and writes it back. Amendment 4 (Oliver, 2026-09-27). Amendment 11 (Oliver, 2026-09-28): the next major version still reads that shape to the same settings; the file now lives in the renamed folder and nothing is read from the former one. | `TestA1Point0SettingsFileIsReadWhole` over the frozen fixture `internal/infrastructure/store/testdata/settings-1.0.0.json` |
 | NFR-P-5 | Amendment 20: drawing the sun map (FR-905) at 960 by 480 DIP shall take at most 100 ms on the reference machine. | Timed around the draw in the page, median of 10 minute refreshes, written to the log. Measured 2026-09-29 on the reference machine with forced redraws in place of minute refreshes: a temporary probe repeated the draw (both pictures scaled, blended, put) at 960 by 480 ten times with the sun moved each time, on three launches of a dev build; medians 13.3, 12.6 and 13.3 ms, slowest 18.7 ms. The probe was removed |
-| NFR-C-2 | Amendment 20: the built-in map images (FR-911) shall add at most 4 MB to the application's executable. | Executable size compared with and without the images, read by `build.ps1` |
+| NFR-C-2 | Amendment 20: the built-in map images (FR-911) shall add at most 4 MB to the application's executable. | The images' own size: the page's build copies them byte for byte into `frontend/dist`, which the executable embeds. Measured 2026-09-30: `sun-day.jpg` 318,480 bytes and `sun-night.jpg` 151,835, 470,315 in all |
 | NFR-O-1 | The application shall write a log to `%APPDATA%\TimeRibbon\TimeRibbon.log` recording launch, placement recovery decisions, settings failures and invalid clocks; standard error is pointed at it before anything can fail. Amendment 13: on macOS and Linux, `TimeRibbon.log` in the settings folder of CON-8. | `TestLogReceivesStandardError` (infrastructure) |
 
 ### 3.9 The sun map
@@ -1631,6 +1631,8 @@ proposed before the first build had one `internal/infrastructure/windows` packag
 | Domain | `internal/domain/clock` | Clock, zone mark rule, time and date formatting, hand angles; takes an instant |
 | Domain | `internal/domain/placement` | Monitors as rectangles, default placement, edges, DPI scaling, recovery by clamping |
 | Domain | `internal/domain/settings` | Settings value, defaults, clock operations |
+| Domain | `internal/domain/hover` | When an unpinned ribbon opens from its tab and collapses back; takes an instant |
+| Domain | `internal/domain/sun` | The subsolar point for an instant (FR-906) |
 | Application | `internal/application` | Use cases: snapshot (in time order), add, edit, remove, change setting, place, recover, menus, update check; ports for store, monitors, startup entry, zone catalogue, release source |
 | Infrastructure | `internal/infrastructure/store` | JSON settings file, atomic write, tolerant clock decoding |
 | Infrastructure | `internal/infrastructure/zones` | Zone resolution through `time.LoadLocation` with `time/tzdata` built in (CON-5); the place catalogue |

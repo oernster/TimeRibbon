@@ -37,16 +37,18 @@ in a small frameless ribbon you can put anywhere on any monitor.
   The order is worked out afresh at every refresh, so a change of daylight saving moves a clock
   where it moves its offset. Clocks keeping the same time stay in the order they were added.
 - **Finds places by city, zone or country.** Search the 418 zones of the tz database by name, zone
-  id or country; label a clock whatever you like, up to 32 characters (a city with no zone of its
-  own, such as Manchester, takes its zone's clock and your label). Settings lists your clocks, where
-  each can be renamed, moved to another place or removed; removing one asks first.
+  id or country. What you type matches the start of a word, so `l` finds London but never Adelaide;
+  places whose name begins with it come first. Label a clock whatever you like, up to 32 characters
+  (a city with no zone of its own, such as Manchester, takes its zone's clock and your label).
+  Settings lists your clocks, where each can be renamed, moved to another place or removed; removing
+  one asks first. The search stays open beneath them, with the Add clock button beside its box.
 - **Stays out of the way.** The ribbon has no title bar, no border and no taskbar or Dock button;
   its icon lives in the notification area on Windows, the menu bar on macOS and the system tray on
   Linux. The icon's menu and the ribbon's own right-click menu both add a clock, open Settings,
   choose digital or analogue, choose a colour scheme, choose horizontal or vertical, centre the
   ribbon on an edge, turn Always on top, Pin ribbon and Sun map on or off, open Help (About, Licence
-  and Check for updates) and exit. The icon's menu also shows or hides the ribbon; the ribbon's own menu hides it. Hiding
-  it leaves TimeRibbon running; only Exit ends it.
+  and Check for updates) and exit. The icon's menu also shows or hides the ribbon; the ribbon's own
+  menu hides it. Hiding it leaves TimeRibbon running; only Exit ends it.
 - **Answers the icon the way each desktop expects.** On Windows a left click on the icon shows or
   hides the ribbon and a right click opens the menu. On macOS a click opens the menu, as every menu
   bar icon does. On Linux the tray decides: on Ubuntu a click opens the menu and a double click
@@ -87,10 +89,11 @@ in a small frameless ribbon you can put anywhere on any monitor.
   step. The schemes are Classic, Neon (glowing digits and hands when dark), Ocean, Sunset, Forest,
   Amber, Ruby, Indigo, Berry and Contrast (black and white); each follows the light or dark theme.
   The date reads "Monday, 28 September" or "Monday, September 28" in words; in numbers it reads
-  "Mon 28/09/2026", "Mon 09/28/2026" or "Mon 2026/09/28". Style, colour and orientation are in
-  the menus; size, time format, date format, theme and opacity are in Settings. Small clocks suit a
-  small screen such as a 13 inch laptop. The theme can follow the system's. Settings opens as tall
-  as its content, up to the height of the display, where it scrolls instead. The Opacity slider draws
+  "Mon 28/09/2026", "Mon 09/28/2026" or "Mon 2026/09/28". Settings offers every choice the menus
+  do, from the same items, so the two always agree; size, time format, date format, theme and
+  opacity are in Settings alone. Small clocks suit a small screen such as a 13 inch laptop. The
+  theme can follow the system's. Settings opens wide with its choices side by side; it is as tall as
+  its content, up to the size of the display, where it scrolls instead. The Opacity slider draws
   the whole window from 20 to 100 percent opaque, so the ribbon can sit over other work without
   hiding it. The grip in the ribbon's corner resizes the clocks by hand, from 75 to 200 percent of
   either size, everything in them together; a double-click on it returns them to their own size.

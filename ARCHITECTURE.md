@@ -108,7 +108,8 @@ does not exist.
 - **Application** (`internal/application`): one `Service` holding every use case over seven ports
   (`Store`, `Zones`, `Clock`, `IDs`, `Monitors`, `StartupEntry` in `ports.go`; `ReleaseSource` in
   `updates.go`). It builds the snapshot the ribbon draws, adds, edits and removes clocks, searches
-  places, changes settings, arranges the ribbon (`Launch`, `Rearrange`, `Moved`, `ToEdge`,
+  places (what is typed beginning a word, the best matches first: `SearchPlaces` in `clocks.go`,
+  FR-302), changes settings, arranges the ribbon (`Launch`, `Rearrange`, `Moved`, `ToEdge`,
   `ToLastEdge`, `Centred`), takes the cell width the page measured (`SetMeasured`) and the scale the
   grip previews or keeps (`PreviewScale`, `SetScale` in `scale.go`), checks for an update
   (`CheckForUpdate`, `SkipUpdate`) and answers the tray and context menus. The snapshot orders its cells east from Greenwich (`eastFromGreenwich` in `snapshot.go`):
@@ -604,7 +605,7 @@ own web view data and step log sit under the temporary folder.
 | What | Where |
 |---|---|
 | Settings | `settings.json` in the settings folder: `%APPDATA%\TimeRibbon` on Windows, `~/Library/Application Support/TimeRibbon` on macOS, `~/.var/app/uk.codecrafter.TimeRibbon/config/TimeRibbon` for the Flatpak (measured 2026-09-28) and `~/.config/TimeRibbon` for a Linux build run outside it; `settings.unreadable.json` beside it when a damaged file was kept aside |
-| Run log | `TimeRibbon.log` in the settings folder, started afresh by a run that finds it over 1 MB |
+| Run log | `TimeRibbon.log` in the settings folder, started afresh by a run that finds it over 1 MiB |
 | The window's web view data on Windows | `%APPDATA%\TimeRibbon\WebView2`, named in `launch.go` inside the settings folder so uninstalling with **Also forget my settings** removes it; nothing of TimeRibbon's own is kept there |
 | Time zone rules and the place catalogue | built into the executable; macOS and Linux read their own zone files first |
 | Installed files | Windows: `%LOCALAPPDATA%\Programs\TimeRibbon`, with `uninstall.exe`. macOS: wherever the user drags `TimeRibbon.app`. Linux: the user's Flatpak installation |

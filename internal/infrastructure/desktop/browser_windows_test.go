@@ -7,7 +7,7 @@ import (
 )
 
 // An address Windows has nothing to open with is refused with the address named, rather than
-// ignored. Success would open a real browser, so it is a check for a person (TESTING.md).
+// ignored. Success would open a real browser, so it is checked by hand.
 func TestAnAddressWindowsCannotOpenIsRefused(t *testing.T) {
 	absent := filepath.Join(t.TempDir(), "absent", "nothing-here.xyz")
 	err := OpenInBrowser(absent)

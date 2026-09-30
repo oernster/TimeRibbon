@@ -212,7 +212,7 @@ About and the update panel keep their size in `panels`; Licence keeps it too, si
 down its own scroller.
 
 **Opacity (FR-622).** The web view is transparent on Windows and macOS and the window translucent on
-Linux (`launch.go`); check M-16 is the one that looks at the desktop showing through. Everything is
+Linux (`launch.go`); the desktop showing through is checked by hand in a real build. Everything is
 drawn inside `#root`, which carries the page's background at the chosen opacity; `html` and `body`
 are clear. The window's own paint shows behind any part of the page drawn less than opaque, so
 `opacity.go` paints it in the page's colour only at full opacity (a window catching up with a new
@@ -283,8 +283,8 @@ small, each giving a digital, an analogue and a prompt cell plus the padding and
 The service picks the layout for the current size (`Layouts.For`, widened by `layoutFor` as above)
 and hands it to the page in the snapshot along with the size itself; the page marks the ribbon
 `small` so `app.css` reduces the text and the dial to fit. The widths in the table are floors, so a
-date format or a font wider than they allow still shows whole once the page has measured it; check
-M-12 is the one that looks at each date format on screen.
+date format or a font wider than they allow still shows whole once the page has measured it; each date
+format on screen is checked by hand in a real build.
 
 **Centred on an edge (FR-408).** The Position submenu's items name an edge each (`EdgeOf` in
 `menus.go`); `ToEdge` puts the ribbon flush against that edge of the work area it overlaps most,

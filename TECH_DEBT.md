@@ -13,7 +13,21 @@ are deliberately unnumbered and are not open items.
 History is not recorded here. A resolved item is deleted outright, never rewritten as done and never
 archived. A resolution worth remembering belongs in the release notes.
 
-There is no open technical debt.
+## 1. A Linux and macOS test writes the panel's size out again
+
+`TestTheRibbonReturnsFromAPanelToWhereItIsPlaced` in `internal/infrastructure/desktop/ribbon_unix_test.go`
+grows the window to a panel and back, with the panel's size written in as 560 by 760. The one home of
+the panel sizes is `panels` in `main.go`, which the desktop package cannot import, so the test holds a
+second copy that nothing keeps in step. It has already drifted in meaning: 560 by 760 is now About's
+size, while Settings opens at 900 by 760 (FR-625), so the larger of the two jumps is not the one this
+test makes.
+
+Cost of leaving it: low. The test still proves what it was written for, that the window is put back
+where it was placed after any larger window; a panel size changed in `main.go` breaks nothing here.
+It only stops describing the sizes the application really uses. Resolving it means giving the panel
+sizes a home the desktop tests can read (the `internal/product` package, say) or making the test
+exercise both sizes read from there. Blocked on nothing but a machine to run it on, since the test
+builds for Linux and macOS only.
 
 ## Looks like debt, not worth touching
 
@@ -21,7 +35,7 @@ There is no open technical debt.
 message Wails' own drag regions send, rather than a documented call. It is the one way to hand a
 press to the platform's own move loop without writing that loop again; on macOS Wails answers it
 with `performWindowDragWithEvent` on the press it kept. The Wails version in `go.mod` pins it.
-Check it by hand on every platform on any Wails upgrade (TESTING.md, M-2).
+Check dragging by hand on every platform on any Wails upgrade.
 
 **macOS hides the Dock icon after Wails shows it.** Wails 2.12.0 has its activation policy option
 commented out and makes TimeRibbon a regular application as it finishes launching, so the switch to

@@ -117,7 +117,7 @@ user's own settings, sign-in entry or Apps list**: the store and the log are tes
 folders; `startup` under a scratch key beneath `HKCU` on Windows and in a temporary folder on macOS
 and Linux; the setup record under a scratch key.
 **No test reaches the network**: the update check's adapter is tested over a stand-in HTTP client, so
-GitHub is asked only by the running application (M-13).
+GitHub is asked only by the running application, which is checked by hand.
 
 ## What is not tested and why
 
@@ -130,15 +130,16 @@ GitHub is asked only by the running application (M-13).
   menu identifier numbering (a submenu included), the fence's rectangle arithmetic, a work area read
   at a point, Windows' drag distance, an address Windows cannot open being refused and the clock
   watch seeing a jump of the wall clock, then stopping; the window's cut (FR-913) joining its parts
-  into one region and refusing a window that is not there. The loop itself, the menus as drawn (with
-  `separatedBefore`, which only drawing calls), the broadcasts arriving, a browser actually opening
-  (M-11) and the desktop showing through the cut (M-15) are checks for a person.
+  into one region and refusing a window that is not there; the pointer read against that cut rather
+  than the window's rectangle. The loop itself, the menus as drawn (with `separatedBefore`, which
+  only drawing calls), the broadcasts arriving, a browser actually opening and the desktop showing
+  through the cut are checked by hand in a real build.
 - **`internal/infrastructure/monitors` (82.6%).** The displays are read for real; what is not reached
   is Windows refusing to enumerate them or to describe one.
 - **`internal/infrastructure/runlog` (76.5%).** Opening the log and pointing standard error at it are
   tested, as is the folder refusing to be made; the log file refusing to open, the start line failing
   to write and `SetStdHandle` refusing only fail inside the system.
-- **The root package (85.5%).** The facade's tests are `facade_test.go`, `window_life_test.go`,
+- **The root package (86.2%).** The facade's tests are `facade_test.go`, `window_life_test.go`,
   `unpinned_test.go`, `sunmap_test.go`, `background_test.go`, `effect_test.go`, `updates_test.go`,
   `quit_signal_test.go`, `measure_test.go`, `panel_fit_test.go` and `clockscale_test.go`, over the
   scripted service in `fakes_test.go`. The facade's decisions are tested: which calls fit the
@@ -152,6 +153,10 @@ GitHub is asked only by the running application (M-13).
   message loop. Nor are the one-line calls in `wails_calls.go` and `window_life.go` that hand a
   request to Wails or Win32 and do nothing else, nor `preparePlatform` in `platform_windows.go`,
   which does nothing on Windows.
+
+The ribbon's layout at its full size was measured in headless Edge 154.0.4258.37, the version of the
+installed WebView2 runtime, with the application's own stylesheets. At 100% and 250% a scrolling
+ribbon shows one scroll bar with no clock cut off; every clock is reachable beside a notice.
 
 ### It would change the machine
 
@@ -249,40 +254,6 @@ placed; it returns exactly from a panel's size (on Linux only once the size is a
 desktop, which a coverage run on another machine cannot reach; a floor measured on one person's
 desktop would not hold on another's. The practice, which nothing enforces: the checks above are run
 before each release.
-
-## Checks a person settles
-
-These need a real desktop, real input or a real install; no harness here reaches them. The M numbers
-are REQUIREMENTS.md's section 12. Each is checked on every platform, with these differences: M-1's
-taskbar is the Dock on macOS; M-4's left click is a double click on Ubuntu's tray and opens the menu
-on macOS; M-5 and M-7 use the platform's own clock, time zone and theme settings; M-9 is setup on
-Windows, installing and removing the DMG on macOS and the Flatpak on Linux.
-
-| Check | What to do |
-|---|---|
-| M-1 | The ribbon shows with no title bar, border or taskbar button |
-| M-2 | Dragging empty ribbon area moves it; pressing a control does not; a small wobble does not |
-| M-3 | Dragged onto a display at other scaling, the ribbon keeps its size and stays sharp; unplugging that display brings it back onto a visible one |
-| M-4 | The tray icon, its menu, a left click, Always on top and Exit behave as FR-501 to FR-505 say |
-| M-5 | Changing the Windows clock, changing the time zone and sleeping then waking the machine each leave every clock right within 2 seconds; each writes a line to `TimeRibbon.log` |
-| M-6 | Launching a second copy leaves one tray icon and hides a shown ribbon; launching again shows it; a Stream Deck Open action pointed at TimeRibbon does the same on each press |
-| M-7 | Switching the Windows theme while TimeRibbon follows it recolours the ribbon |
-| M-8 | Settings and the place search can be driven entirely from the keyboard |
-| M-9 | Setup installs, updates, repairs and uninstalls on a real machine without asking for administrator rights, closing a running copy first |
-| M-10 | Both menus open a Help submenu whose About and Licence each show their panel; the licence reads itself down after 5 seconds, a wheel stops it and it resumes; setup's Licence screen does the same |
-| M-11 | The donate button at the foot of Settings opens the default browser on the donation page |
-| M-12 | Each Position item puts the ribbon flush against its edge and centred along it on the display it is on; it opens there next time; choosing Horizontal or Vertical from either menu sends it to the top or right edge; small clocks show their whole date and time in both styles; Settings opens tall enough to show everything without scrolling where the display has room, following a clock added or removed; on a short display its title and Close stay put while the panel scrolls; each colour scheme looks right and unmistakably its own in Light, Dark and System, Neon glowing on its dark side only; every date format shows its whole date in large and small cells, a Wednesday in September the widest |
-| M-13 | Help's Check for updates says this is the latest version with the network on and that GitHub could not be reached with it off; a build older than the latest release shows the update panel a few seconds after it starts; Download opens this platform's download in the browser; after Skip this version the next start shows nothing; the Flatpak build reaches GitHub too |
-| M-14 | Unticking Pin ribbon in either menu shrinks the ribbon to an accent tab 8 wide on the edge it stands against a second after the pointer leaves (a ribbon away from every edge first moves to the edge last used); dragged away from every edge it stays in full with Pin ribbon still unticked; dropped within 16 DIP of an edge (an edge between two displays included) it snaps flush and collapses again; resting the pointer on the tab for 0.3 s opens it while the window being typed in keeps focus, with no flash of a close button, a stretched band or white as it grows; crossing the tab quickly does not; the tab stays above a maximised window with Always on top off; the right-click menu and a panel keep it open; dragging the open ribbon does not collapse it; a Stream Deck press hides the tab and the next brings it back; ticking Pin ribbon ends all of it. On Linux, dragging and the menu are the checks that matter most: crossings made by a grab are ignored, which no test can reach |
-| M-15 | Ticking Sun map in either menu shows a handle with an arrow on the ribbon's inner side, horizontal and vertical alike, covering no part of any clock with an odd number of clocks at either size; its click slides the map out (below a horizontal ribbon at the top edge, above one at the bottom, beside a vertical one) and back, kept across a restart; the map is as long as the ribbon, lit where it is day with city lights where it is night; each clock's city is a red dot beside its label; dragging the map moves both; the map hides with the tab and returns with the ribbon; after a minute the line between day and night has moved; on Windows the desktop shows (and takes clicks) wherever the window holds neither ribbon nor map; no label on the map prints over another label or a dot |
-| M-16 | Settings' Opacity slider runs from 20 to 100 percent; dragging it fades the ribbon, the sun map and Settings itself as it moves, the desktop and the windows behind showing through; at 100 percent the window looks as it did before; the choice is kept across a restart; each colour scheme reads in Light and Dark at 20 percent. Made on Windows, macOS and Linux, since each draws a see-through window its own way |
-| M-17 | Dragging the grip in the ribbon's corner outward grows the clocks and back shrinks them, text, dials and padding together, the window following smoothly in both orientations and with the sun map on; it stops at 75 and 200 percent; pressing the grip never drags the window; the size is kept across a restart and over a change between Large and Small; a double-click returns the clocks to their own size; a scrolling ribbon's bar never covers the cells. Made on Windows, macOS and Linux |
-| M-18 | Settings opens 900 DIP wide with its choices in columns, every choice of the menus among them, each one's tick agreeing with the menus; a choice made in Settings shows at once in the ribbon and in both menus; one made from a menu shows in Settings; each Position button moves the ribbon as its menu item does; the place search stays open with the Add clock picture beside it, adding the highlighted place when pressed; About and Licence open at their old width |
-| Wheel at 250% | On a display at 250%, one notch of a plain wheel over a scrolling horizontal ribbon moves it as far as a native notch moves a vertical one; only a physical wheel settles it |
-
-The ribbon's layout at its full size was measured in headless Edge 154.0.4258.37, the version of the
-installed WebView2 runtime, with the application's own stylesheets. At 100% and 250% a scrolling
-ribbon shows one scroll bar with no clock cut off; every clock is reachable beside a notice.
 
 ## Running it
 

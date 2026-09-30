@@ -9,7 +9,7 @@ import (
 )
 
 // An address the desktop cannot open is refused with the address named, rather than ignored.
-// Success would open a real browser, so it is a check for a person (TESTING.md).
+// Success would open a real browser, so it is checked by hand.
 func TestAnAddressTheDesktopCannotOpenIsRefused(t *testing.T) {
 	t.Parallel()
 	missing := filepath.Join(t.TempDir(), "no-such-opener")

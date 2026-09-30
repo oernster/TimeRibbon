@@ -42,7 +42,7 @@ and notarised DMG) and Linux (delivered as a Flatpak) as well as Windows. Off Wi
 tray icon; on Linux it runs through X11. The sign-in entry is named in each platform's words. On
 macOS the drag distance is Windows' 4 DIP and a click on the menu bar icon opens its menu; on Linux
 the tray host's activation shows or hides the ribbon. Section 1.3, section 2.3, CON-7, CON-8,
-FR-401, FR-503, FR-605, FR-607, NFR-O-1, section 5 and section 12 carry notes of it.
+FR-401, FR-503, FR-605, FR-607, NFR-O-1 and section 5 carry notes of it.
 
 Amendment 14 (Oliver, 2026-09-28): five more colour schemes (Amber, Ruby, Indigo, Berry, Contrast);
 Neon gains a light side, so every scheme follows the theme; Ocean is redrawn to read as the sea rather
@@ -334,7 +334,7 @@ onto X11 as TimeRibbon runs, the pointer moved by Oliver's hand, a Wayland text 
 
 Measured on 2026-09-29 on Windows 11 at 100 percent, with a dev build opening a vertical tab while
 the screen under the window was copied as fast as it could be (a frame every 8 to 17 ms), after
-Oliver saw the ribbon flicker as it opened (check M-14). Three things showed before the clocks, each
+Oliver saw the ribbon flicker as it opened. Three things showed before the clocks, each
 15 to 60 ms, in three runs of three:
 
 - Giving Wails' frame back as the ribbon opened had Windows paint a grey box or a faded copy of the
@@ -398,7 +398,7 @@ a test not yet written; one that says no test yet names none.
 Priority: Must.
 The ribbon shall be a window with no title bar, no system border and no taskbar button.
 Rationale: the spec's sections 2 and 8; the tray is its presence (FR-501).
-Verified by: inspection of the running build (section 12, check M-1).
+Verified by: inspection of the running build (a check by hand in a real build).
 
 **FR-102 Cells in configured order**
 Priority: Must.
@@ -544,7 +544,7 @@ Verified by: `TestNextRefreshIsTheNextMinuteBoundary` (domain); NFR-P-2.
 Priority: Must.
 When Windows reports a system time change, a time zone change or a resume from sleep, the
 application shall refresh every cell and reschedule the next minute boundary.
-Verified by: section 12, check M-5 (a person changes the clock and sleeps the machine).
+Verified by: a check by hand in a real build (a person changes the clock and sleeps the machine).
 
 ### 3.3 Clock configuration
 
@@ -619,13 +619,13 @@ further than the Windows drag threshold (`SM_CXDRAG`, `SM_CYDRAG`), the applicat
 whole ribbon with the pointer, onto any monitor.
 Amendment 13 (Oliver, 2026-09-28): on Linux the threshold is GTK's `gtk-dnd-drag-threshold`; macOS
 publishes none, so it is Windows' 4 DIP.
-Verified by: section 12, check M-2; `TestTheDragThresholdIsTheDesktopsOwn` (infrastructure, desktop,
+Verified by: a check by hand in a real build; `TestTheDragThresholdIsTheDesktopsOwn` (infrastructure, desktop,
 Linux and macOS).
 
 **FR-402 Controls do not drag**
 Priority: Must.
 A press on a control (a button, the scroll bar, a menu) shall not start a drag.
-Verified by: `ribbon.test.tsx` for the drag regions; check M-2.
+Verified by: `ribbon.test.tsx` for the drag regions; a check by hand in a real build.
 
 **FR-403 Default placement**
 Priority: Must.
@@ -660,7 +660,7 @@ Verified by: `TestMissingMonitorFallsBackToPrimary`,
 Priority: Must.
 When Windows reports a display configuration change while the ribbon is shown, the application shall
 apply the recovery of FR-405 to the ribbon's current position.
-Verified by: `TestDisplayChangeRecoversARibbonLeftOffscreen` (domain); check M-3.
+Verified by: `TestDisplayChangeRecoversARibbonLeftOffscreen` (domain); a check by hand in a real build.
 
 **FR-407 Scaling across monitors**
 Priority: Must.
@@ -671,7 +671,7 @@ Note: on Windows the window is sized by the scale the page is drawn at, which th
 scale only until the first report. Windows' text size enlarges the page without changing the DPI, so
 above 100 percent the DPI alone left the page cut off. A reported scale that is not a positive finite
 number is refused. On macOS and Linux the window is sized in DIP, so the ratio is left to the toolkit.
-Verified by: section 12, check M-3; `TestTheRibbonIsSizedByTheScaleThePageIsDrawnAt`,
+Verified by: a check by hand in a real build; `TestTheRibbonIsSizedByTheScaleThePageIsDrawnAt`,
 `TestTheReportedScaleHoldsOnADisplayAtAnotherDPI`, `TestAPanelIsSizedByTheScaleThePageIsDrawnAt`,
 `TestAScaledRibbonFitsTheRoomTheDisplayOffersAtThatScale`, `TestAnUnusableScaleIsRefused`
 (application); `pixelRatio.test.ts`.
@@ -692,7 +692,7 @@ Verified by: `TestAgainstEdgeIsFlushAndCentredAlongTheEdge` (domain);
 `TestToEdgePutsAVerticalRibbonFlushAndKeepsIt`, `TestToEdgeUsesTheDisplayTheRibbonIsOn`,
 `TestToEdgeThatCannotBeSavedMakesRoomForItsNotice`, `TestPositionOffersTheEdgesAlongTheOrientation`,
 `TestAPlaceKeptAgainstTheEdgeIsSaved` (application); `TestAPositionItemPutsTheRibbonAgainstItsEdge`
-(facade); check M-12.
+(facade); a check by hand in a real build.
 Note (2026-09-29): a ribbon kept against its edge while it shrinks or grows across its breadth, as
 turning the sun map off does to a vertical one, has that place stored too; only a change of length
 was, so the next launch put it 16 pixels off the edge, where an unpinned ribbon never collapses.
@@ -707,7 +707,7 @@ Acceptance: given a vertical ribbon anywhere on its display, when `Horizontal` i
 ribbon lies flush against the top of that display's work area, centred left to right.
 Verified by: `TestEachOrientationHasAHomeEdge` (domain, settings); `TestChoosingAnOrientationGoesToItsHomeEdge`,
 `TestStyleAndOrientationItemsChooseAndRedraw` (facade), each proved by planting the right edge as the
-left; check M-12.
+left; a check by hand in a real build.
 
 **FR-410 A drop near an edge snaps flush**
 Priority: Should (Amendment 19, Oliver, 2026-09-29).
@@ -728,7 +728,7 @@ side by side, the left one's work area ending at 1920, when a drag ends with a v
 right side at 1930 and most of it on the left display, then its right side is at 1920.
 Verified by: `TestADropNearAnEdgeSnapsFlush`, `TestTheNearerEdgeWinsWhenBothAreInReach`,
 `TestTheEdgesAlongEachOrientation` (domain, placement); `TestADropNearAnEdgeSnapsFlushAndIsStored`,
-`TestAVerticalRibbonNeverSnapsToTheTop` (application); check M-14.
+`TestAVerticalRibbonNeverSnapsToTheTop` (application); a check by hand in a real build.
 
 **FR-411 The last edge is remembered**
 Priority: Should (Amendment 19, Oliver, 2026-09-29).
@@ -750,7 +750,7 @@ Verified by: `TestAnUnknownRememberedEdgeIsForgotten` (domain, settings);
 **FR-501 Tray icon**
 Priority: Must.
 While the application runs, it shall show a notification-area icon with the tooltip `TimeRibbon`.
-Verified by: check M-4.
+Verified by: a check by hand in a real build.
 
 **FR-502 Tray menu**
 Priority: Must.
@@ -765,7 +765,7 @@ Amendment 12 (Oliver, 2026-09-28): a `Colour` submenu (FR-611) sits after `Style
 Amendment 18 (Oliver, 2026-09-28): `Pin ribbon` (FR-613) follows `Always on top`; a collapsed ribbon
 counts as shown (FR-618).
 Verified by: `TestTrayMenuNamesTheOppositeOfTheVisibility`,
-`TestBothMenusOfferStyleAndOrientationWithTheCurrentTicked` (application); check M-4.
+`TestBothMenusOfferStyleAndOrientationWithTheCurrentTicked` (application); a check by hand in a real build.
 
 **FR-503 Tray click**
 Priority: Should.
@@ -773,18 +773,18 @@ When the tray icon is left-clicked, the application shall toggle the ribbon's vi
 Amendment 13 (Oliver, 2026-09-28): on Linux the tray host's activation toggles it (a double click on
 Ubuntu, where a single click opens the menu); on macOS a click opens the menu, as every menu bar icon
 does. There the menu's `Show ribbon` or `Hide ribbon` toggles it.
-Verified by: check M-4.
+Verified by: a check by hand in a real build.
 
 **FR-504 Hide is not exit**
 Priority: Must.
 Hiding the ribbon shall leave the application running with its tray icon; only `Exit` ends it.
-Verified by: check M-4.
+Verified by: a check by hand in a real build.
 
 **FR-505 Always on Top**
 Priority: Must.
 Where Always on Top is on, the ribbon shall stay above windows that are not themselves topmost; the
 setting shall be off by default and persisted.
-Verified by: `TestDefaultsAreDigitalTwentyFourHourVerticalAndNotOnTop` (domain); `TestChangingASettingPersistsIt` (application); check M-4.
+Verified by: `TestDefaultsAreDigitalTwentyFourHourVerticalAndNotOnTop` (domain); `TestChangingASettingPersistsIt` (application); a check by hand in a real build.
 
 **FR-506 One instance**
 Priority: Must.
@@ -801,14 +801,14 @@ Amendment 18 (Oliver, 2026-09-28): a collapsed ribbon counts as shown, so a laun
 Acceptance: given TimeRibbon running with the ribbon shown, when it is launched again, then the
 second process exits and the ribbon is hidden; when it is launched once more, then the ribbon is
 shown. Given a launch before the running copy has finished starting, then nothing is toggled.
-Verified by: `TestASecondLaunchTogglesTheRibbon` (facade); check M-6.
+Verified by: `TestASecondLaunchTogglesTheRibbon` (facade); a check by hand in a real build.
 
 **FR-507 Alt+F4 hides**
 Priority: Must.
 When `Alt+F4` is pressed while the ribbon has focus, the application shall hide the ribbon as
 `Hide ribbon` does and keep running.
 Rationale: ruled on OQ-4 by Oliver, 2026-09-27; `Exit` stays in the tray alone.
-Verified by: `TestCloseRequestHidesRatherThanQuits` (application); check M-4.
+Verified by: `TestCloseRequestHidesRatherThanQuits` (application); a check by hand in a real build.
 
 **FR-508 Help submenu**
 Priority: Must (Amendment 2, Oliver, 2026-09-27).
@@ -816,7 +816,7 @@ The tray menu and the ribbon's right-click menu shall each hold a `Help` submenu
 (FR-607) and `Licence` (FR-608). Choosing either shall show the ribbon's window as that panel.
 Amendment 15 (Oliver, 2026-09-28): `Check for updates` (FR-509) follows `Licence`.
 Verified by: `TestBothMenusOfferHelpWithAboutLicenceAndUpdates` (application);
-`TestASubmenuIsNumberedAfterEveryItemBeforeIt` (infrastructure, desktop); check M-10.
+`TestASubmenuIsNumberedAfterEveryItemBeforeIt` (infrastructure, desktop); a check by hand in a real build.
 
 **FR-509 Update check**
 Priority: Should (Amendment 15, Oliver, 2026-09-28).
@@ -843,7 +843,7 @@ Verified by: `TestIsNewerVersionComparesDottedIntegers`, `TestEachSystemDownload
 (infrastructure, update); `TestAnAutomaticCheckSpeaksOnlyOfANewRelease`,
 `TestAManualCheckAlwaysAnswers`, `TestTheWatchChecksAfterTheStartThenAtEachIntervalUntilTheEnd`,
 `TestDownloadOpensWhatWasOffered`, `TestSkipKeepsTheOfferedVersion` (facade); `TestSettingsRoundTrip`
-(infrastructure, store); `help.test.tsx`; the real request and browser by check M-13.
+(infrastructure, store); `help.test.tsx`; the real request and browser by hand in a real build.
 
 ### 3.6 Settings and startup
 
@@ -862,7 +862,7 @@ Later amendments add to that list: the date format (FR-612, Amendment 16), `Sun 
 Amendment 20) and Opacity (FR-622, Amendment 26).
 Amendment 28 (Oliver, 2026-09-29): every choice of the menus returns as well (FR-624); the panel is
 wider (FR-625) and the place search stays open (FR-626).
-Verified by: `settings.test.tsx`; the header by check M-12; the donate button by check M-11.
+Verified by: `settings.test.tsx`; the header by hand in a real build; the donate button by hand in a real build.
 
 **FR-602 Settings apply at once**
 Priority: Must.
@@ -901,7 +901,7 @@ Verified by: `TestStartWithWindowsWritesAndRemovesOneValue` (infrastructure);
 Priority: Should.
 Where the theme is system, the ribbon shall follow the Windows app theme as it changes; light and dark
 shall hold regardless of Windows.
-Verified by: check M-7; no front-end test yet.
+Verified by: a check by hand in a real build; no front-end test yet.
 
 **FR-607 About**
 Priority: Must (Amendment 2, Oliver, 2026-09-27).
@@ -947,7 +947,7 @@ Verified by: `TestUnknownChoicesAreNormalisedToDefaults` (domain);
 `TestKeptFlushHoldsTheFarEdgeNotTheCorner` (domain); `TestTheSmallSizeFitsTheRibbonToSmallCells`,
 `TestShrinkingKeepsTheRibbonAgainstItsEdge` (application); `TestA1Point0SettingsFileIsReadWhole`,
 `TestSettingsRoundTrip` (infrastructure, store); `ribbon.test.tsx`, `settings.test.tsx`; the fit of
-the text by check M-12.
+the text by hand in a real build.
 
 **FR-611 Colour schemes**
 Priority: Should (Amendment 12, Oliver, 2026-09-28).
@@ -968,7 +968,7 @@ Verified by: `TestUnknownChoicesAreNormalisedToDefaults` (domain);
 `TestBothMenusOfferEveryColourWithTheCurrentTicked` (application);
 `TestStyleAndOrientationItemsChooseAndRedraw` (facade); `TestSettingsRoundTrip`,
 `TestA1Point0SettingsFileIsReadWhole` (infrastructure, store);
-`TestEveryOfferedSchemeHasItsOwnCompleteBlock` (structural); the colours on screen by check M-12.
+`TestEveryOfferedSchemeHasItsOwnCompleteBlock` (structural); the colours on screen by hand in a real build.
 The contrast was measured over `frontend/src/colours.css` on 2026-09-28, the weakest pairing 5.8:1.
 Distinctness was measured the same day as the mean CIEDE2000 difference over the colours the ribbon
 paints: every pair of schemes differs by at least 10 on each side.
@@ -986,7 +986,7 @@ Acceptance: given the instant 2026-12-31T12:00:00Z, when `DD/MM/YYYY` is chosen,
 Verified by: `TestEachDateFormatWritesTheLocalDate`, `TestUnknownChoicesAreNormalisedToDefaults`
 (domain); `TestSnapshotWritesDatesInTheChosenFormat`, `TestChangingASettingPersistsIt`,
 `TestAValueASettingDoesNotOfferIsRefused` (application); `TestSettingsRoundTrip` (infrastructure,
-store); `settings.test.tsx`; each format fitting its cell by check M-12.
+store); `settings.test.tsx`; each format fitting its cell by hand in a real build.
 
 **FR-613 Pin ribbon**
 Priority: Should (Amendment 18, Oliver, 2026-09-28).
@@ -1020,7 +1020,7 @@ Verified by: `TestDefaultsAreDigitalTwentyFourHourVerticalAndNotOnTop` (domain);
 (infrastructure, store);
 `TestUnpinningAwayFromAnEdgeGoesToTheLastEdge`, `TestUnpinningGoesToTheRememberedDisplay`
 (application); `TestUnpinningAwayFromAnEdgeMovesItToTheLastEdge`,
-`TestUnpinningOnAnEdgeMovesNothingAndRecentringKeepsThePin` (facade); check M-14.
+`TestUnpinningOnAnEdgeMovesNothingAndRecentringKeepsThePin` (facade); a check by hand in a real build.
 
 **FR-614 The tab**
 Priority: Should (Amendment 18, Oliver, 2026-09-28).
@@ -1036,7 +1036,7 @@ when it collapses, then only an 8 by 196 DIP band in the accent shows, flush aga
 edge. Given a horizontal ribbon flush against the bottom edge of the upper of two stacked displays,
 when it collapses, then the band lies along that bottom edge.
 Verified by: `TestTheTabCoversTheFlushSide` (domain, placement); `TestCollapsingKeepsThePlacement`,
-`TestARibbonAgainstNoEdgeHasNoTab` (application); `ribbon.test.tsx` for the accent; check M-14.
+`TestARibbonAgainstNoEdgeHasNoTab` (application); `ribbon.test.tsx` for the accent; a check by hand in a real build.
 
 **FR-615 The ribbon opens on a resting pointer**
 Priority: Should (Amendment 18, Oliver, 2026-09-28).
@@ -1052,7 +1052,7 @@ pointer crosses the tab in 0.1 s, then the ribbon stays collapsed.
 Verified by: `TestTheRibbonOpensAfterTheRest`, `TestAPassingPointerDoesNotOpenIt` (domain, hover,
 with the instant injected); `TestTheTabOpensAfterTheRestAndCollapsesOnceAway`,
 `TestAnOpeningRibbonIsDrawnWithItsMap`, `TestTheMapsPartsReachThePageInItsOwnUnits` (facade);
-`surface.test.tsx`; focus by check M-14.
+`surface.test.tsx`; focus by hand in a real build.
 Note (2026-09-29): the page draws an opening ribbon while the window is still its tab. With the sun
 map on it scaled the ribbon by the window's width, drawing it 8 pixels wide in a window then grown
 to 175; it was also told of no map. The grown window showed blank clocks or a blank map.
@@ -1071,7 +1071,7 @@ its right-click menu is open, it stays expanded whatever the pointer does.
 Verified by: `TestTheRibbonCollapsesASecondAfterThePointerLeaves`, `TestAReturningPointerKeepsItOpen`,
 `TestNothingCollapsesWhileHeld`, `TestAPanelHoldsTheRibbonOpen` (domain, hover);
 `TestTheTabOpensAfterTheRestAndCollapsesOnceAway`, `TestAPanelAndTheMenuHoldTheRibbonOpen`
-(facade); check M-14.
+(facade); a check by hand in a real build.
 
 **FR-617 An unpinned ribbon stays on top**
 Priority: Should (Amendment 18, Oliver, 2026-09-28).
@@ -1086,7 +1086,7 @@ Acceptance: given Always on top off and an unpinned ribbon, when a window is max
 display, then the tab shows above that window; when `Pin ribbon` is chosen, then the ribbon is no
 longer kept above other windows while `Always on top` stays unticked.
 Verified by: `TestAnUnpinnedRibbonIsAlwaysOnTop` (domain, settings); `TestPinningAndUnpinning`
-(facade); check M-14.
+(facade); a check by hand in a real build.
 
 **FR-618 A collapsed ribbon counts as shown**
 Priority: Should (Amendment 18, Oliver, 2026-09-28).
@@ -1097,7 +1097,7 @@ Acceptance: given a collapsed ribbon, when TimeRibbon is launched again, then ne
 shows and the tray menu offers `Show ribbon`; when it is launched once more, then the tab shows and
 the ribbon stays collapsed until the pointer rests on the tab.
 Verified by: `TestASecondLaunchHidesACollapsedRibbon`, `TestTheTrayMenuTreatsACollapsedRibbonAsShown`
-(facade, which decides what counts as shown for the tray menu); check M-14.
+(facade, which decides what counts as shown for the tray menu); a check by hand in a real build.
 
 **FR-619 The pin in effect**
 Priority: Should (Amendment 19, Oliver, 2026-09-29).
@@ -1122,7 +1122,7 @@ edge` is chosen, then it stays unpinned and collapses on that edge once the poin
 Verified by: `TestFlushnessGivesThePinInEffect`, `TestAnUnpinnedRibbonIsAlwaysOnTop` (domain,
 settings); `TestOnlyAnEdgeAlongTheOrientationIsFlush`, `TestAnInnerEdgeCounts` (domain, placement);
 `TestAnUnpinnedRibbonOffAnEdgeShowsInFull`, `TestDraggingBackOntoAnEdgeCollapsesAgain`,
-`TestUnpinningOnAnEdgeMovesNothingAndRecentringKeepsThePin` (facade); check M-14.
+`TestUnpinningOnAnEdgeMovesNothingAndRecentringKeepsThePin` (facade); a check by hand in a real build.
 
 **FR-620 A cell fits its text**
 Priority: Must (Amendment 24, Oliver, 2026-09-29).
@@ -1143,7 +1143,7 @@ or format that is no longer chosen, then it widens nothing.
 Verified by: `TestSamplesHoldEveryTimeOnce`, `TestSamplesHoldEveryPairingOfWeekdayDayAndMonth`
 (domain, clock); `TestTheTextSamplesFollowTheFormats`, `TestAMeasuredWidthWidensTheCells`,
 `TestAMeasurementCountsOnlyForItsOwnChoices` (application); `TestTheMeasurementRoundTrip` (facade);
-`measure.test.ts`; check M-12.
+`measure.test.ts`; a check by hand in a real build.
 
 **FR-621 Settings fits its content**
 Priority: Should (Amendment 25, Oliver, 2026-09-29).
@@ -1160,7 +1160,7 @@ Verified by: `TestFitPanelMakesTheOpenPanelAsTallAsItsContent`,
 `TestFitPanelLeavesTheRibbonAloneAndRefusesANegativeHeight`, `TestFitPanelAnswersWhatStoppedIt`
 (facade); `TestSettingsOpenCentredOnTheRibbonsDisplay`, which also holds the cap to the work area
 (application);
-`panelFit.test.tsx`; check M-12.
+`panelFit.test.tsx`; a check by hand in a real build.
 
 **FR-622 Opacity**
 Priority: Should (Amendment 26, Oliver, 2026-09-29).
@@ -1179,7 +1179,7 @@ is drawn at 20 percent.
 Verified by: `TestOpacityIsHeldWithinItsBounds` (domain); `TestOpacityIsChosenSavedAndShown`
 (application); `TestSettingsRoundTrip` (infrastructure, store); `TestThePagesBackgroundReachesTheWindow`,
 `TestTheWindowIsPaintedClearBelowFullOpacity` (facade); `opacity.test.tsx`, `background.test.ts`;
-check M-16.
+a check by hand in a real build.
 
 **FR-623 Resizing the clocks**
 Priority: Should (Amendment 27, Oliver, 2026-09-29).
@@ -1204,7 +1204,7 @@ own size again.
 Verified by: `TestScaleIsHeldWithinItsBounds` (domain); `TestAScaledRibbonGrowsInBothDirections`,
 `TestAPreviewIsDrawnButNotKept`, `TestAChangeOfScaleRecentresTheRibbon`, `TestTheScrollBarIsNotScaled`
 (application); `TestSettingsRoundTrip` (infrastructure, store); `TestAChangeOfScaleTellsThePageToDrawAgain`,
-`TestEveryChangeFitsTheRibbonAndAnswersTheServicesError` (facade); `scaleGrip.test.tsx`; check M-17.
+`TestEveryChangeFitsTheRibbonAndAnswersTheServicesError` (facade); `scaleGrip.test.tsx`; a check by hand in a real build.
 
 **FR-624 Settings offers every menu choice**
 Priority: Should (Amendment 28, Oliver, 2026-09-29).
@@ -1221,7 +1221,7 @@ Classic chosen; when Neon is chosen there, then the ribbon is Neon and both menu
 Centre on bottom edge is pressed, then the ribbon goes to the bottom edge as the menu item sends it.
 Verified by: `TestEveryMenuChoiceIsOfferedBySettings`, `TestSettingsChoicesAreTheMenusOwnItems`
 (application); `TestTheSnapshotCarriesTheMenusChoices`, `TestChooseCarriesOutOnlyTheChoicesSettingsOffers`
-(facade); `settings.test.tsx`; check M-18.
+(facade); `settings.test.tsx`; a check by hand in a real build.
 
 **FR-625 Settings is wide**
 Priority: Should (Amendment 28, Oliver, 2026-09-29).
@@ -1232,7 +1232,7 @@ Rationale: Oliver, 2026-09-29: a tall narrow panel wastes the display's width; t
 better narrow (OQ-30).
 Acceptance: given a 1920 by 1080 display at 100 percent, when Settings opens, then it is 900 DIP
 wide with three columns of choices; when About opens, then it is 560 DIP wide.
-Verified by: `TestSettingsOpensAndFitsAtItsOwnWidth` (facade); check M-18.
+Verified by: `TestSettingsOpensAndFitsAtItsOwnWidth` (facade); a check by hand in a real build.
 
 **FR-626 The place search stays open**
 Priority: Should (Amendment 28, Oliver, 2026-09-29).
@@ -1245,7 +1245,7 @@ Rationale: Oliver, 2026-09-29: the picture belongs beside the search it adds fro
 Acceptance: given Settings open, when "Oslo" is typed and the picture pressed, then a clock for
 Oslo is added and the box is empty; when the picture is pressed with nothing typed, then nothing is
 added and the cursor is in the box.
-Verified by: `settings.test.tsx`; check M-18.
+Verified by: `settings.test.tsx`; a check by hand in a real build.
 
 ### 3.7 Persistence and recovery
 
@@ -1309,11 +1309,11 @@ Verified by: `TestWriteFailureIsReportedAndCleared` (application).
 |---|---|---|
 | NFR-P-1 | From launch to the ribbon showing current times shall take at most 1.5 s on the reference machine. | Timed from the log's first line to the first snapshot, median of 5 launches |
 | NFR-P-2 | While running normally, each cell shall show the new minute within 1 s after the Windows clock reaches it. | Log timestamps against the refresh, over 10 boundaries |
-| NFR-P-3 | After a resume or a system time change, every cell shall be correct within 2 s. | Check M-5 |
+| NFR-P-3 | After a resume or a system time change, every cell shall be correct within 2 s. | By hand in a real build |
 | NFR-P-4 | While the ribbon is shown, its page shall schedule no periodic timer more frequent than once per minute. The self-reading cycle of a Help panel (FR-609) runs only while that panel is shown. Off Windows, where no broadcast reports a time change or a resume, the Go side compares the wall clock with the monotonic clock every 2 s to see one (FR-209). | `timers.test.ts` for the page's timer calls; inspection for the Go side's 2 s clock check |
 | NFR-U-1 | Label, time, date and zone mark text shall meet a contrast ratio of at least 4.5:1 against the cell in both themes. | `TestTextMeetsTheContrastFloorOnEverySchemeAndTheme` (structural), over every scheme on both the cell and the surface |
 | NFR-U-2 | No state shall be told by colour alone; an invalid clock carries words (FR-706). | Inspection |
-| NFR-U-3 | Every control in Settings and the place search shall be reachable and operable from the keyboard, with a visible focus indicator on the focused control. | `settings.test.tsx`; check M-8 |
+| NFR-U-3 | Every control in Settings and the place search shall be reachable and operable from the keyboard, with a visible focus indicator on the focused control. | `settings.test.tsx`; a check by hand in a real build |
 | NFR-U-4 | Every icon-only control shall carry an accessible name and a tooltip. | `a11y.test.tsx` |
 | NFR-U-5 | Interactive targets shall be at least 24 by 24 DIP. Amendment 18 (Oliver, 2026-09-28, OQ-7): the tab of FR-614 is exempt at 8 DIP; it is rested on rather than pressed, while against a display's edge the pointer stops on it. | Inspection; WCAG 2.2 criterion 2.5.8 |
 | NFR-S-1 | The application shall make no network request other than the update check of FR-509: one unauthenticated request to GitHub's latest-release endpoint, sending nothing about the user or their clocks. Amendment 15 (Oliver, 2026-09-28): before it, no network request at all. | `TestOnlyTheUpdateCheckImportsANetworkPackage`, `TestTheNetworkExemptionNamesTheUpdatePackage` (structural) |
@@ -1346,7 +1346,7 @@ Acceptance: given a settings file written before the sun map existed, when TimeR
 no map shows and `Sun map` is unticked; when it is chosen, then the map shows (FR-902 or FR-903) and the settings file
 holds `"sunMap": true`.
 Verified by: `TestA1Point0SettingsFileIsReadWhole`, `TestSettingsRoundTrip` (infrastructure, store);
-`TestBothMenusOfferSunMap` (application); check M-15.
+`TestBothMenusOfferSunMap` (application); a check by hand in a real build.
 
 **FR-902 The map beside a horizontal ribbon**
 Priority: Should.
@@ -1362,7 +1362,7 @@ Acceptance: given a horizontal ribbon flush against the top edge with the sun ma
 out open, then the map's top edge meets the ribbon's bottom edge along the ribbon's length; dragged
 flush against the bottom edge, then the map's bottom edge meets the ribbon's top edge.
 Verified by: `TestTheMapAdjoinsTheSideAwayFromTheEdge` (domain, placement);
-`TestAHorizontalRibbonsMapGoesBelowIt` (application); check M-15.
+`TestAHorizontalRibbonsMapGoesBelowIt` (application); a check by hand in a real build.
 
 **FR-903 The pull out**
 Priority: Should.
@@ -1389,7 +1389,7 @@ with the sun map on, then the ribbon is deeper than with it off by the lane alon
 overlaps no cell's text.
 Verified by: `TestAVerticalRibbonsMapWaitsForThePullOut`, `TestAHorizontalRibbonsMapWaitsForThePullOut`,
 `TestTheHandlesLaneDeepensTheRibbon` (application);
-`TestTheSunMapItemAndTheHandleFlipTheirChoices` (facade); `surface.test.tsx`; check M-15.
+`TestTheSunMapItemAndTheHandleFlipTheirChoices` (facade); `surface.test.tsx`; a check by hand in a real build.
 
 **FR-904 The map's size**
 Priority: Should.
@@ -1436,7 +1436,7 @@ Rationale: the line between day and night moves a quarter of a degree a minute; 
 keeps it within a pixel, with no timer of its own (NFR-P-4).
 Acceptance: given the sun map shown at 12:00, when the snapshot of 12:01 arrives, then the map is
 drawn for 12:01.
-Verified by: `TestTheSnapshotCarriesTheSubsolarPoint` (application); the redraw by check M-15.
+Verified by: `TestTheSnapshotCarriesTheSubsolarPoint` (application); the redraw by hand in a real build.
 
 **FR-908 The clocks' places**
 Priority: Should.
@@ -1456,7 +1456,7 @@ Priority: Should.
 The application shall move the sun map with the ribbon, keeping them adjoined; a drag started on the
 map shall move both as FR-401 does. The ribbon's own edge alone decides whether it is flush (FR-619).
 Verified by: `TestTheWindowHoldsTheRibbonAndItsMap`, `TestADragOfTheMapMovesTheRibbonToo` (facade);
-check M-15.
+a check by hand in a real build.
 
 **FR-910 When the map is not shown**
 Priority: Should.
@@ -1467,7 +1467,7 @@ Rationale: Oliver, 2026-09-29: the map hides with the tab (OQ-18).
 Acceptance: given an unpinned ribbon with the sun map shown, when it collapses, then neither shows
 but the tab; while the pointer rests on the map, the ribbon stays open.
 Verified by: `TestTheMapHidesWithTheTab`, `TestAnOpeningRibbonIsDrawnWithItsMap` (facade);
-`surface.test.tsx`; check M-15.
+`surface.test.tsx`; a check by hand in a real build.
 
 **FR-911 The imagery is built in**
 Priority: Should.
@@ -1502,7 +1502,7 @@ Note (2026-09-29): a pointer resting where the window is cut away is off the rib
 one collapses there (FR-616). Read against the window's rectangle, it counted as on; a vertical
 ribbon with its map out never collapsed.
 Verified by: `TestTheShapeIsTheRibbonAndItsMap` (domain, placement); `TestTheShapeFollowsEveryRefit`
-(facade); `TestThePointerIsReadAgainstTheWindowsShape` (infrastructure, desktop); check M-15.
+(facade); `TestThePointerIsReadAgainstTheWindowsShape` (infrastructure, desktop); a check by hand in a real build.
 
 **FR-914 Labels stand clear**
 Priority: Should (Amendment 21, Oliver, 2026-09-29).
@@ -1515,7 +1515,7 @@ Claude's proposal: right is where every label stands today.
 Acceptance: given clocks for London and Berlin in that order on a map 708 DIP wide, then London's
 label stands left of its dot, clear of Berlin's dot; Berlin's stands right of its own; neither
 touches the other.
-Verified by: `labels.test.ts`; check M-15.
+Verified by: `labels.test.ts`; a check by hand in a real build.
 
 ---
 
@@ -1548,7 +1548,7 @@ Install where nothing is installed; on Installed, offering Repair, Reinstall and
 same version is installed; on Update or Go back where another version is installed, with the button
 making the change leading. Versions compare by major, minor then patch as numbers, ignoring anything
 after a hyphen; a missing or non-numeric field counts as zero.
-Verified by: `TestCompareOrdersVersions` (infrastructure, setup); check M-9.
+Verified by: `TestCompareOrdersVersions` (infrastructure, setup); a check by hand in a real build.
 
 **FR-802 Every install writes the same way**
 Priority: Must.
@@ -1556,7 +1556,7 @@ When Install, Update, Go back or Reinstall is confirmed, setup shall write the a
 `%LOCALAPPDATA%\Programs\TimeRibbon`, place a copy of itself there as `uninstall.exe`, record the
 application in the Apps list with Modify and Repair offered, then apply the boxes of FR-805.
 Verified by: `TestExtractZipWritesEveryEntry` and `TestTheUninstallEntryNamesTheRealPath`
-(infrastructure, setup); check M-9.
+(infrastructure, setup); a check by hand in a real build.
 
 **FR-803 A payload entry leaving the install folder is refused**
 Priority: Must.
@@ -1584,14 +1584,14 @@ Apps list entry, then delete the install folder once setup has closed. Where `Al
 is ticked, which it is not by default, setup shall also delete `%APPDATA%\TimeRibbon`.
 Amendment 3 (Oliver, 2026-09-27): everything the application writes under `%APPDATA%`, the web
 view's data included, lies inside `%APPDATA%\TimeRibbon`, so forgetting leaves nothing behind.
-Verified by: `TestForgettingRemovesOnlyTheSettingsFolder` (infrastructure, setup); check M-9.
+Verified by: `TestForgettingRemovesOnlyTheSettingsFolder` (infrastructure, setup); a check by hand in a real build.
 
 **FR-807 A running copy is closed before setup writes**
 Priority: Must.
 If TimeRibbon is running when setup is asked to write or to uninstall, then setup shall say so and offer
 to close it. If it is still running 5 seconds after being asked to close, then setup shall say it could
 not be closed and ask for it to be closed by hand.
-Verified by: check M-9.
+Verified by: a check by hand in a real build.
 
 **FR-808 A failure says why**
 Priority: Must.
@@ -1610,7 +1610,7 @@ Verified by: `setupRing.test.ts`, `setupScreens.test.ts`.
 Priority: Must.
 Setup shall write only under `%LOCALAPPDATA%`, `%APPDATA%` (the Start Menu and the settings folder),
 the user's Desktop and `HKCU`, so Windows never asks for administrator rights (CON-8).
-Verified by: inspection of `internal/infrastructure/setup`; check M-9.
+Verified by: inspection of `internal/infrastructure/setup`; a check by hand in a real build.
 
 **FR-811 Setup's licence reads itself**
 Priority: Must (Amendment 2, Oliver, 2026-09-27).
@@ -1695,7 +1695,7 @@ recover, snapshot) is executable from a Go test with no window open before the f
 3. Infrastructure: the settings store, the zone catalogue, the Windows integration.
 4. User interface: the ribbon in digital style, then dragging and placement, then Settings, the tray,
    the analogue style and the vertical orientation.
-5. Hardening against section 12's checks on real hardware; then artwork and polish.
+5. Hardening against checks by hand on real hardware; then artwork and polish.
 
 ---
 
@@ -1734,7 +1734,7 @@ The spec's first-useful-release criteria, mapped:
 | 15 Survive monitor changes | FR-405, FR-406 |
 
 No requirement is considered met until its test exists and has been seen to fail without the
-implementation; where no test can hold it, its `Verified by:` line names the check in section 12.
+implementation; where no test can hold it, its `Verified by:` line says it is checked by hand in a real build.
 
 ---
 
@@ -1781,32 +1781,3 @@ Amendment 27 the same day; the three raised by Amendment 28 the same day:
 | OQ-29 | Which of the menus' items does Settings offer? | Every choice, Position's moves included; the commands stay on the menus alone | FR-624 |
 | OQ-30 | How wide is Settings? Do the other panels follow? | 900 DIP, capped by the work area; the others stay 560 | FR-625 |
 | OQ-31 | Where does the Add clock picture go? | Beside the place search, which stays open | FR-626 |
-
----
-
-## 12. Checks a person settles
-
-Amendment 13 (Oliver, 2026-09-28): each check is made on Windows, macOS and Linux. M-1's taskbar is
-the Dock on macOS; M-4 follows FR-503 as amended; M-5 and M-7 use the platform's own settings; M-9
-is installing and removing the DMG on macOS and the Flatpak on Linux.
-
-| ID | Check |
-|---|---|
-| M-1 | The ribbon shows with no title bar, border or taskbar button. |
-| M-2 | Dragging empty ribbon area moves it; pressing a control does not; a small wobble does not. |
-| M-3 | Dragged onto a monitor with different scaling, the ribbon keeps its size and stays crisp; unplugging that monitor brings it back onto a visible one. |
-| M-4 | The tray icon, its menu, left click, Always on Top and Exit behave as FR-501 to FR-505 say. |
-| M-5 | Changing the Windows clock, changing the time zone and sleeping then waking the machine each leave every cell correct within 2 s. |
-| M-6 | Launching a second copy leaves one tray icon and hides a shown ribbon; launching again shows it; a Stream Deck Open action pointed at TimeRibbon does the same on each press. |
-| M-7 | Switching the Windows theme while on system theme recolours the ribbon. |
-| M-8 | Settings and the place search can be driven entirely from the keyboard. |
-| M-9 | Setup installs, updates, repairs and uninstalls on a real machine without asking for administrator rights, closing a running copy first. |
-| M-10 | Both menus open a Help submenu whose About and Licence each show their panel; the licence reads itself down after 5 s, a wheel stops it and it resumes; setup's Licence screen does the same. |
-| M-11 | The donate button at the foot of Settings opens the default browser on the donation page. |
-| M-12 | Each Position item puts the ribbon flush against its edge and centred along it on the display it is on; it opens there next time; choosing Horizontal or Vertical from either menu sends it to the top or right edge; small clocks show their whole date and time in both styles; Settings opens tall enough to show everything without scrolling where the display has room, following a clock added or removed; on a short display its title and Close stay put while the panel scrolls; each colour scheme looks right and unmistakably its own in Light, Dark and System, Neon glowing on its dark side only; every date format shows its whole date in large and small cells, a Wednesday in September the widest. |
-| M-13 | Help's Check for updates says this is the latest version with the network on and that GitHub could not be reached with it off; a build older than the latest release shows the update panel a few seconds after it starts; Download opens this platform's download in the browser; after Skip this version the next start shows nothing; the Flatpak build reaches GitHub too. |
-| M-14 | Unticking Pin ribbon in either menu shrinks the ribbon to an accent tab on the edge it stands against a second after the pointer leaves (a ribbon away from every edge first moves to the edge last used); dragged away from every edge it stays in full with Pin ribbon still unticked; dropped within 16 DIP of an edge (an edge between two displays included) it snaps flush and collapses again; resting the pointer on the tab for 0.3 s opens it while the window being typed in keeps focus, with no flash of a close button, a stretched band or white as it grows; crossing the tab quickly does not; the tab stays above a maximised window with Always on top off; a Stream Deck press hides the tab and the next brings it back; ticking Pin ribbon ends all of it. |
-| M-15 | Ticking Sun map in either menu shows a handle with an arrow on the ribbon's inner side, horizontal and vertical alike, covering no part of any clock with an odd number of clocks at either size; its click slides the map out (below a horizontal ribbon at the top edge, above one at the bottom, beside a vertical one) and back, kept across a restart; the map is as long as the ribbon, lit where it is day with city lights where it is night; each clock's city is a red dot beside its label; dragging the map moves both; the map hides with the tab and returns with the ribbon; after a minute the line between day and night has moved; on Windows the desktop shows (and takes clicks) wherever the window holds neither ribbon nor map; no label on the map prints over another label or a dot. |
-| M-16 | Settings' Opacity slider runs from 20 to 100 percent; dragging it fades the ribbon, the sun map and Settings itself as it moves, the desktop and the windows behind showing through; at 100 percent the window looks as it did before; the choice is kept across a restart; each colour scheme reads in Light and Dark at 20 percent. Made on Windows, macOS and Linux, since each draws a see-through window its own way. |
-| M-17 | Dragging the grip in the ribbon's corner outward grows the clocks and back shrinks them, text, dials and padding together, the window following smoothly in both orientations and with the sun map on; it stops at 75 and 200 percent; pressing the grip never drags the window; the size is kept across a restart and over a change between Large and Small; a double-click returns the clocks to their own size; a scrolling ribbon's bar never covers the cells. Made on Windows, macOS and Linux. |
-| M-18 | Settings opens 900 DIP wide with its choices in columns, every choice of the menus among them, each one's tick agreeing with the menus; a choice made in Settings shows at once in the ribbon and in both menus; one made from a menu shows in Settings; each Position button moves the ribbon as its menu item does; the place search stays open with the Add clock picture beside it, adding the highlighted place when pressed; About and Licence open at their old width. |

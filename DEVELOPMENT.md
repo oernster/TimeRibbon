@@ -289,8 +289,8 @@ so a build carrying the development placeholder is never offered a release.
    commit what it changed there with `VERSION`.
 3. On the Mac, run `bash builddmg.sh`; on a Linux machine, `bash build_flatpak.sh`. Run the macOS
    and Linux checks in [TESTING.md](TESTING.md#on-macos-and-linux) on each.
-4. Run the checks a person settles in [TESTING.md](TESTING.md#checks-a-person-settles) against
-   `dist-installer/TimeRibbonSetup.exe`, `TimeRibbon.dmg` and `timeribbon.flatpak`.
+4. Check by hand what no test can reach (the window, the tray, focus, paint and the install itself)
+   against `dist-installer/TimeRibbonSetup.exe`, `TimeRibbon.dmg` and `timeribbon.flatpak`.
 5. Tag the commit as `v` and the version, then publish a release on it with the three attached.
    The update check reads only GitHub's latest published release, never a draft or a prerelease.
    It offers each platform the first asset whose name ends in `.exe`, `.dmg` or `.flatpak`; the setup

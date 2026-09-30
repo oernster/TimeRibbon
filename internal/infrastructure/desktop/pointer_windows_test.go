@@ -30,7 +30,7 @@ func testRibbonWindow(t *testing.T) Window {
 
 // FR-614: the tab's frame takes Wails' caption styles off and gives them back exactly. That the Wails
 // window then takes 8 was measured on the probe (REQUIREMENTS section 2.3); a STATIC window stands in
-// here and was measured to size otherwise (32 without them), so the width is left to check M-14.
+// here and was measured to size otherwise (32 without them), so the width is left to a check by hand.
 func TestTheTabFrameTakesTheCaptionStylesOffAndGivesThemBack(t *testing.T) {
 	runtime.LockOSThread()
 	defer runtime.UnlockOSThread()

@@ -159,6 +159,16 @@ modules:
           - frontend/node_modules
 MANIFEST_EOF
 
+# A copy left running holds the single-instance lock, so the new build's first launch would only
+# toggle the old ribbon and exit (FR-506). flatpak kill fails when nothing runs, hence the check.
+section "Stopping a running ${APP_NAME}"
+if flatpak ps --columns=application | grep -x "${APP_ID}" > /dev/null; then
+    flatpak kill "${APP_ID}"
+    echo "  Stopped."
+else
+    echo "  Not running, skipping."
+fi
+
 section "Building ${APP_NAME} ${VERSION} with flatpak-builder"
 flatpak-builder --user --install --force-clean \
     --install-deps-from=flathub \

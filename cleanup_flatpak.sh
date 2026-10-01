@@ -15,6 +15,17 @@ bold=$(tput bold 2>/dev/null || true)
 reset=$(tput sgr0 2>/dev/null || true)
 section() { echo; echo "${bold}=== $* ===${reset}"; }
 
+# Uninstalling leaves a running copy running, holding the single-instance lock, so the next
+# install's first launch would only toggle it and exit (FR-506). flatpak kill fails when nothing
+# runs, hence the check.
+section "Stopping a running ${APP_NAME}"
+if flatpak ps --columns=application | grep -x "${APP_ID}" > /dev/null; then
+    flatpak kill "${APP_ID}"
+    echo "  Stopped."
+else
+    echo "  Not running, skipping."
+fi
+
 section "Uninstalling ${APP_ID}"
 if flatpak list --user --app --columns=application | grep -qx "${APP_ID}"; then
     flatpak uninstall --user -y "${APP_ID}"

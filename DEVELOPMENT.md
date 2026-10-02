@@ -76,7 +76,8 @@ It does these things in order and stops at the first failure:
 
 1. Reads the version from `VERSION` and refuses one that is not `major.minor.patch`; stamps it into
    the site's version tokens under `docs/` through `python stamp_version.py`, which touches nothing
-   when they already match. Reads the module path from `go.mod` and each executable's name from its
+   when they already match. It also versions the site's stylesheet and script links with each
+   file's content hash. Reads the module path from `go.mod` and each executable's name from its
    `wails.json`.
 2. Pins `CGO_ENABLED=0` for everything that follows, so the tests exercise what ships.
 3. Runs `test.ps1`, the gate [TESTING.md](TESTING.md#running-it) describes. There is no switch to

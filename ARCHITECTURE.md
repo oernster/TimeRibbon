@@ -468,6 +468,17 @@ On Linux GTK is sent through X11 (`gtkmain.ForceX11`), since a window on Wayland
 it stands. The web view's DMABUF renderer is turned off before it starts (`gtkmain.AvoidDMABUF`),
 since on NVIDIA's own driver it draws nothing but the window's background (measured 2026-10-02); a
 value already in `WEBKIT_DISABLE_DMABUF_RENDERER` is kept (`TestAChosenDMABUFSettingIsKept`).
+WebKit's hardware acceleration is off too (`WebviewGpuPolicyNever` in `launch.go`). Wails turns it
+off unless Linux options are given, as the workaround for its blank windows; giving them left the
+policy at its zero value, Always. The ribbon still draws see-through at a lowered opacity
+without it (checked on Plasma, 2026-10-02).
+
+**The first showing (`launch_show.go`).** A launched ribbon is shown once the page is ready and has
+reported both its scale and its widest text, the two reports that resize the window after it
+loads; a page that has not within a second is shown anyway. Shown at the page's readiness alone,
+the window grew while visible. At a fractional KDE scale WebKitGTK then often kept painting the
+size it was first shown at, the ribbon cut off until the page next changed (measured 2026-10-02 at
+150 percent: 8 of 16 launches cut off; shown once sized, 16 of 16 whole).
 
 **The end of a move (FR-404).** Neither platform says when the button is let go, so a move ends when
 the ribbon has stood still for 300 ms (`moveSettle`), heard through GTK's `configure-event` or

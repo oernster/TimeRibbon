@@ -54,8 +54,14 @@ func launch(app *App, dir string) error {
 			DisablePinchZoom:     true,
 			IsZoomControlEnabled: false,
 		},
-		Mac:           &mac.Options{WebviewIsTransparent: true},
-		Linux:         &linux.Options{WindowIsTranslucent: true},
+		Mac: &mac.Options{WebviewIsTransparent: true},
+		// Wails turns WebKitGTK's hardware acceleration off unless Linux options are given, as the
+		// workaround for its blank windows (wailsapp/wails#2977); giving them leaves the policy at
+		// its zero value, Always. Never keeps Wails' choice for the ribbon too.
+		Linux: &linux.Options{
+			WindowIsTranslucent: true,
+			WebviewGpuPolicy:    linux.WebviewGpuPolicyNever,
+		},
 		OnStartup:     app.startup,
 		OnDomReady:    app.domReady,
 		OnBeforeClose: app.beforeClose,

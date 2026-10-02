@@ -219,7 +219,8 @@ own machine and what only a person can check.
 `build.ps1` runs the gate first. [DEVELOPMENT.md](DEVELOPMENT.md) sets up each machine from
 nothing. [ARCHITECTURE.md](ARCHITECTURE.md) explains the layering and the reasoning behind each
 decision. [TECH_DEBT.md](TECH_DEBT.md) lists what is still open, what is deliberately left and what
-only looks like debt.
+only looks like debt. [`DECISIONS-TRADEOFFS.md`](DECISIONS-TRADEOFFS.md) sets out the decisions
+TimeRibbon rests on, with what each one gains and what it costs.
 
 ## Supporting TimeRibbon
 

@@ -268,6 +268,8 @@ type window struct {
 	drawPending func()
 	// toolkitScale is the toolkit's window scale the desktop reports; unscaled unless a test sets it.
 	toolkitScale int
+	// sizePending is the launch's fallback for a page that never sizes the ribbon.
+	sizePending func()
 }
 
 // sawEvent reports whether the facade sent event with data first, when data is given.
@@ -339,6 +341,10 @@ func newTestApp(t *testing.T) (*App, *scriptedService, *window, *bytes.Buffer) {
 		if wait == drawWait {
 			seen.drawPending = do
 			return func() bool { seen.drawPending = nil; return true }
+		}
+		if wait == sizeWait {
+			seen.sizePending = do
+			return func() bool { seen.sizePending = nil; return true }
 		}
 		seen.pending, seen.waited = do, wait
 		return func() bool { seen.pending = nil; return true }

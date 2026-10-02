@@ -111,6 +111,8 @@ type App struct {
 	watchPointer func(on bool)
 	// toolkitScale answers the toolkit's own window scale, which the page's ratio is divided by.
 	toolkitScale func() int
+	// launch is what the launched ribbon's first showing waits for (launch_show.go).
+	launch launchShow
 
 	ctx       context.Context
 	ribbon    desktop.Window
@@ -278,7 +280,11 @@ func (a *App) SetPixelRatio(ratio float64) error {
 	if err == nil {
 		a.pixelsPerDIP.Store(math.Float64bits(perDIP))
 	}
-	return a.refitted(err)
+	err = a.refitted(err)
+	if err == nil {
+		a.pageScaled()
+	}
+	return err
 }
 
 // SetBackground takes the colour the page paints behind everything, which it reports once it has

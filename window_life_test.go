@@ -275,10 +275,22 @@ func TestNothingReachesTheWindowBeforeStartup(t *testing.T) {
 	}
 }
 
-func TestDomReadyShowsTheRibbon(t *testing.T) {
+func TestDomReadyShowsTheRibbonOnceThePageHasSizedIt(t *testing.T) {
 	app, _, seen, _ := newTestApp(t)
 	app.domReady(context.Background())
+	if seen.shown != 0 {
+		t.Fatalf("shown %d times before the page reported its scale and widths", seen.shown)
+	}
+	if err := app.SetPixelRatio(1); err != nil {
+		t.Fatal(err)
+	}
+	if seen.shown != 0 {
+		t.Fatalf("shown %d times before the page reported its widths", seen.shown)
+	}
+	if err := app.SetMeasured(testMeasured); err != nil {
+		t.Fatal(err)
+	}
 	if seen.shown != 1 {
-		t.Errorf("shown %d times, want once the page has drawn", seen.shown)
+		t.Errorf("shown %d times, want once the page is ready and sized", seen.shown)
 	}
 }

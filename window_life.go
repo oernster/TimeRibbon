@@ -32,8 +32,9 @@ func (a *App) startup(ctx context.Context) {
 	go a.listen()
 }
 
-// domReady shows the ribbon once the page has drawn, so it never appears blank.
-func (a *App) domReady(context.Context) { a.show() }
+// domReady shows the ribbon once the page has drawn and its scale is known, so it never appears
+// blank and never grows while first painting (launch_show.go).
+func (a *App) domReady(context.Context) { a.pageReady() }
 
 // beforeClose answers a request to close the ribbon, such as Alt+F4: it hides the ribbon and the
 // application keeps running (FR-507). An Exit already decided passes through, as does any close

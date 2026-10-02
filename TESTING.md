@@ -79,8 +79,7 @@ test in `store` holds a promise rather than a rule of structure:
 see ARCHITECTURE.md, The settings file. Three hold NFR-U-1: `contrast_test.go` reads every scheme's
 colours from `theme.css` and `colours.css` and requires 4.5:1 for each text colour on the cell and
 the surface in both themes. It is a Go test because Vitest hands a CSS import back empty. The macOS
-and Linux builds compile 343 each
-([On macOS and Linux](#on-macos-and-linux)).
+build compiles 343 and the Linux build 345 ([On macOS and Linux](#on-macos-and-linux)).
 
 ### The front end
 

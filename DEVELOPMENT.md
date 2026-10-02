@@ -226,7 +226,8 @@ bash build_flatpak.sh
 ```
 
 It writes the desktop entry, the metainfo and the manifest (named for the app id, all gitignored),
-builds the page, the icon sizes (`tools/linuxicons`) and the executable
+stops a copy left running (which would hold the single-instance lock, so the new build's first
+launch would only show or hide the old ribbon), builds the page, the icon sizes (`tools/linuxicons`) and the executable
 (`-tags desktop,production,webkit2_41`) inside the sandbox, installs the result for the current user
 and exports `timeribbon.flatpak`. Run what it installed:
 
@@ -234,8 +235,8 @@ and exports `timeribbon.flatpak`. Run what it installed:
 flatpak run uk.codecrafter.TimeRibbon
 ```
 
-`cleanup_flatpak.sh` uninstalls it, removes its sign-in entry and deletes the build outputs; the
-settings under `~/.var/app` are left alone.
+`cleanup_flatpak.sh` stops a copy left running, uninstalls it, removes its sign-in entry and
+deletes the build outputs; the settings under `~/.var/app` are left alone.
 
 ## Generated files
 
@@ -311,7 +312,7 @@ so a build carrying the development placeholder is never offered a release.
 | `quit_signal.go` | ending the run when a signal from outside asks, which a close would only turn into hiding while the tray is up |
 | `*_test.go` in the root | the facade's tests, over a scripted service and a stand-in window (`fakes_test.go`) |
 | `identity.go`, `dto.go`, `launch.go` | About and Licence, the wire, the window's options |
-| `platform_windows.go`, `platform_unix.go`, `platform_linux.go`, `platform_darwin.go` | what each platform's run needs before Wails opens: the tray's image and ending on a signal off Windows, X11 on Linux, a framework to link on macOS |
+| `platform_windows.go`, `platform_unix.go`, `platform_linux.go`, `platform_darwin.go` | what each platform's run needs before Wails opens: the tray's image and ending on a signal off Windows, X11 and the web view's DMABUF renderer off on Linux, a framework to link on macOS |
 | `bindings_on.go`, `bindings_off.go` | keep the binding-generation run from writing the log or showing a tray icon |
 | `internal/domain` | clock readings, placement and the settings value; no I/O |
 | `internal/application` | the use cases over their ports |

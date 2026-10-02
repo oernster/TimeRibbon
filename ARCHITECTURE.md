@@ -153,7 +153,8 @@ anything can fail, builds the adapters, injects them into the service by constru
 platform, starts the tray and hands the facade to Wails. `preparePlatform` does nothing on Windows;
 on Linux and macOS (`platform_unix.go`) it hands the desktop the icon, which there is an image rather
 than a resource in the executable, then ends the run on SIGTERM or SIGINT through Exit
-(`exitWhen` in `quit_signal.go`). `platform_linux.go` sends GTK through X11 before Wails opens it;
+(`exitWhen` in `quit_signal.go`). `platform_linux.go` sends GTK through X11 and turns off the web view's DMABUF renderer before Wails
+opens it;
 `platform_darwin.go` links the UniformTypeIdentifiers framework, which Wails' macOS half uses and
 which the `wails` command would otherwise have added. The cell sizes with the padding and the
 handle's lane (`layouts`) and the panel sizes (`panels`) have their one home there. No service is held in a package-level variable and there
@@ -552,7 +553,9 @@ then packages the result. `tools/identity` hands both scripts the product's name
   bus name; the bus name of Wails' single-instance lock; the session's autostart folder; the
   network, for the update check alone (FR-509), without which every check would report GitHub out
   of reach. No other part of the file system. `cleanup_flatpak.sh` uninstalls it and
-  removes its sign-in entry and build outputs, leaving the settings alone.
+  removes its sign-in entry and build outputs, leaving the settings alone. Each script first stops
+  a copy left running, which holds the single-instance lock: a new build's first launch would
+  otherwise only show or hide the old ribbon (FR-506).
 
 ## The setup program
 
@@ -670,6 +673,7 @@ module's own refusals (such as `ErrNoSuchClock` or `ErrNoMonitors`) apart by it.
 | Everything per user | Nothing needs administrator rights, so nothing asks for them | A machine-wide install |
 | GTK and AppKit reached directly through cgo | Wails' screen list and position calls fall short on every platform (CON-7); the desktop's own calls do not | Wails' position calls; a cross-platform window library over them |
 | Linux forced onto X11 | A window on Wayland may not choose where it stands, which the ribbon must (ruled 2026-09-28) | Wayland, with the compositor placing the ribbon |
+| WebKit's DMABUF renderer off on Linux | On NVIDIA's own driver it drew only the window's background (measured on an RTX 3080 Ti, 2026-10-02); the clocks redraw once a minute, so the faster path buys nothing here | Leaving it on and telling NVIDIA users to set the variable; setting it in the Flatpak manifest alone, which a build run outside it would miss |
 | TimeRibbon's own StatusNotifierItem on Linux | `fyne.io/systray` offered no way to rebuild the menu as it opens and kept its state global (measured in v1.12.2) | `fyne.io/systray`; no tray icon off Windows |
 | One code path for Linux and macOS where the toolkit does not matter | Written once in `_unix.go` files, the move-end settling, the events and the sign-in file cannot drift apart | A copy per platform |
 

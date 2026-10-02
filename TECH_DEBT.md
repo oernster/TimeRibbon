@@ -83,5 +83,10 @@ build with. Removing the line breaks the link, measured 2026-09-28.
 `fyne.io/systray` was measured and rejected (ARCHITECTURE.md, Design decisions); going back to it
 would lose a menu rebuilt as it opens.
 
+**WebKit's DMABUF renderer is off on every Linux machine, not only NVIDIA's.** On NVIDIA's own driver
+it drew a blank window (measured 2026-10-02), while on Mesa it works. Telling the drivers apart
+would mean reading the GPU before GTK opens, to save a faster path the clocks never need; a value the
+user sets in `WEBKIT_DISABLE_DMABUF_RENDERER` is kept, so the choice stays theirs.
+
 **The scroll bar's thickness comes from the page.** It is the web engine's bar, which Windows' own
 scroll bar metric does not describe, so the page is the only place that can measure it.

@@ -178,7 +178,10 @@ flatpak install --user timeribbon.flatpak
 flatpak run uk.codecrafter.TimeRibbon
 ```
 
-To remove it, turn off Start when I sign in in its Settings first, then:
+Choose Exit from its menu before installing a newer release over it. A copy left running keeps
+running the old release; launching the new one then only shows or hides that old ribbon.
+
+To remove it, turn off Start when I sign in in its Settings and choose Exit first, then:
 
 ```bash
 flatpak uninstall --user uk.codecrafter.TimeRibbon
@@ -202,7 +205,7 @@ coverage and most other packages to a floor at the coverage each reaches:
 ./test.ps1
 ```
 
-[TESTING.md](TESTING.md) says what each figure means, how the Linux and macOS code is tested on its
+[TESTING.md](TESTING.md) says what each figure means, how the macOS and Linux code is tested on its
 own machine and what only a person can check.
 
 ## Building

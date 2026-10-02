@@ -44,6 +44,9 @@ fi
 
 section "Removing flatpak build artefacts"
 rm -f "${BIN_NAME}.flatpak"
+# Go writes its module cache read-only. A build that fails leaves its build directory behind with
+# that cache in it, before the manifest's own chmod has run, so plain rm cannot remove it.
+[[ -d .flatpak-builder ]] && chmod -R u+w .flatpak-builder
 rm -rf .flatpak-build .flatpak-repo .flatpak-builder build/linux
 rm -f "${APP_ID}.yml"
 rm -rf packaging/

@@ -203,7 +203,7 @@ tests and its own.
 | What | macOS | Linux |
 |---|---|---|
 | Tags | `desktop,production` | `desktop,production,webkit2_41` |
-| Tests that need cgo | `cocoamain` 3, `monitors` 3, `desktop` 16 (with the shared `_unix` tests) | `gtkmain` 3, `monitors` 2, `desktop` 17 (with the shared `_unix` tests) |
+| Tests that need cgo | `cocoamain` 3, `monitors` 3, `desktop` 16 (with the shared `_unix` tests) | `gtkmain` 5, `monitors` 2, `desktop` 17 (with the shared `_unix` tests) |
 | Needs | a signed-in desktop | a signed-in desktop session with a display and a tray host |
 
 With the tags for the platform in `TAGS`, run each check and read its exit code:

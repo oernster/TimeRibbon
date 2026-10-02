@@ -101,8 +101,9 @@ in a small frameless ribbon you can put anywhere on any monitor.
   it lives is in [Your settings](#your-settings)). A damaged file is kept aside under another name
   and never overwritten; a notice on the ribbon says so. A save that fails keeps the change in
   effect with a notice until a later save succeeds. One clock that cannot be read leaves the others
-  working. The file is a promise: a file 1.0.0 wrote still reads to the same clocks and choices. A
-  later release may add keys but never renames, drops or changes the meaning of one 1.0.0 wrote.
+  working. The file is a promise: a file the first release wrote still reads to the same clocks and
+  choices. A later release may add keys but never renames, drops or changes the meaning of one the
+  first release wrote.
 - **Starts when you sign in, when asked.** Off until you turn it on in Settings (or in setup on
   Windows). Each platform names it in its own words: Start with Windows, Open at Login on macOS,
   Start when I sign in on Linux.
@@ -219,7 +220,7 @@ own machine and what only a person can check.
 `build.ps1` runs the gate first. [DEVELOPMENT.md](DEVELOPMENT.md) sets up each machine from
 nothing. [ARCHITECTURE.md](ARCHITECTURE.md) explains the layering and the reasoning behind each
 decision. [TECH_DEBT.md](TECH_DEBT.md) lists what is still open, what is deliberately left and what
-only looks like debt. [`DECISIONS-TRADEOFFS.md`](DECISIONS-TRADEOFFS.md) sets out the decisions
+only looks like debt. [DECISIONS-TRADEOFFS.md](DECISIONS-TRADEOFFS.md) sets out the decisions
 TimeRibbon rests on, with what each one gains and what it costs.
 
 ## Supporting TimeRibbon

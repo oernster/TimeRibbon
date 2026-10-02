@@ -23,26 +23,26 @@ weekday and date there and plans nothing.
 
 ### Go and Wails with a web page
 
-The application is Go on Wails v2, drawing a React and TypeScript page in the
+The application is Go on Wails, drawing a React and TypeScript page in the
 platform's own web view.
 
 - **Rather than:** a Python and Qt desktop stack.
 - **Gains:** one executable with no runtime to install; the same stack draws
   the setup program.
-- **Costs:** Wails v2 offers one window and falls short at placing it, so the
+- **Costs:** Wails offers one window and falls short at placing it, so the
   desktop is reached directly on every platform.
 
 ### Requirements before code
 
-Every requirement was written down and baselined before the first line of
-code, each naming the test that verifies it. A later change arrives as a
-numbered amendment rather than an edit that hides what came before.
+Every requirement was written down and agreed before the first line of code,
+each naming the test that verifies it. A later change arrives as a numbered
+amendment rather than an edit that hides what came before.
 
 - **Rather than:** building first and describing afterwards.
 - **Gains:** a ruled-out idea stays ruled out; a requirement counts as met only
   once its test has been seen to fail without the code.
-- **Costs:** the specification is work of its own to keep true; it carries
-  twenty-nine amendments.
+- **Costs:** the specification is work of its own to keep true; it grows with
+  every amendment.
 
 ### One choice for every clock
 
@@ -59,24 +59,24 @@ every clock follows. No clock shows seconds.
 ### One network request, held by a test
 
 The update check is the only thing that reaches the network. A structural
-test fails for any Go file outside the update package that imports a network
-package. A second test fails should that exemption name a folder that is not
-there.
+test fails for any of the Go code outside the update check that could open a
+connection; a second fails should that exemption point at nothing. The page
+makes no request of its own.
 
 - **Rather than:** a promise that the network is used sparingly.
 - **Gains:** "nothing else touches the network" is a test result rather than
   a sentence.
-- **Costs:** any new outward feature has to go through the update package or
+- **Costs:** any new outward feature has to go through the update check or
   change the test that forbids it.
 
 ### Update checks: shortly after start, then daily
 
-A check runs three seconds after launch and then every twenty-four hours. It
-asks GitHub for the latest published release, unauthenticated, gives up after
-five seconds and reads at most a megabyte of the answer. It says nothing
-unless the release is newer than the running copy and not one the user chose
-to skip. A check asked for from Help always answers, even when GitHub cannot
-be reached. A version that is not dotted whole numbers is never newer.
+A check runs shortly after launch and then once a day. It asks GitHub for the
+latest published release without signing in, gives up quickly and never reads
+more than a release's answer could need. It says nothing unless that release
+is newer than the running copy and not one the user chose to skip. A check
+asked for from Help always answers, even when GitHub cannot be reached. A
+version it cannot read is never newer.
 
 - **Rather than:** no check at all; one that reports every outcome.
 - **Gains:** a new release is found without nagging; a draft, a prerelease or
@@ -86,7 +86,8 @@ be reached. A version that is not dotted whole numbers is never newer.
 ### It never installs an update itself
 
 Download hands this platform's file to the browser; where the release has no
-file for it, the release's page goes instead. Installing it is the user's to do.
+file for it, the release's page goes instead. Installing it is the user's to
+do.
 
 - **Rather than:** downloading and running the new version from inside the
   application.
@@ -97,10 +98,10 @@ file for it, the release's page goes instead. Installing it is the user's to do.
 ### The browser opens through the desktop, not through Wails
 
 The donation page and an offered download are handed to the system's own
-opener on each platform, each of which reports a refusal. Settings or Help
-shows the refusal with the address.
+opener on each platform, which reports a refusal. Settings or Help shows the
+refusal with the address.
 
-- **Rather than:** Wails' own call, which answers no error, so a machine with
+- **Rather than:** Wails' own call, which reports nothing, so a machine with
   no browser left the donate button doing nothing with nothing said.
 - **Gains:** a refusal is seen; TimeRibbon itself fetches neither page.
 - **Costs:** one opener per platform to keep.
@@ -108,22 +109,22 @@ shows the refusal with the address.
 ### The map's pictures are built in
 
 The sun map's day and night pictures are NASA's Blue Marble and Black Marble,
-reduced and carried inside the executable, credited in About. Measured, they
-add 470,315 bytes against a limit of four megabytes.
+reduced and carried inside the executable, credited in About.
 
 - **Rather than:** fetching imagery, live cloud or weather.
 - **Gains:** the map works with no network; drawing it sends nothing.
-- **Costs:** the pictures are fixed; no clouds, weather or moon.
+- **Costs:** the pictures are fixed, with no clouds, weather or moon; they add
+  to the size of the executable.
 
 ### Time zone rules built in, the system's own first
 
-The tz database is built into the executable. Windows keeps no zone files Go
-can read, so there the built-in rules are the ones used. macOS and Linux read
-the system's own files first, falling back on the built-in rules only for a
-zone they lack.
+The tz database is built into the executable. Windows keeps no zone rules the
+application can read, so there the built-in rules are the ones used. macOS and
+Linux read the system's own rules first, falling back on the built-in ones
+only for a zone they lack.
 
-- **Rather than:** relying on the machine's zone files alone; offsets written
-  by hand.
+- **Rather than:** relying on the machine's rules alone; offsets written by
+  hand.
 - **Gains:** daylight saving follows the rules themselves on every platform;
   no rule is written by hand.
 - **Costs:** on Windows a government's change of clocks after a release is
@@ -148,8 +149,8 @@ stay in the order they were added.
 ### A zone's letters where it has them, else its offset
 
 Each clock is marked with its zone's abbreviation where the tz database gives
-one beginning with a letter, such as EDT; otherwise with UTC and the signed
-offset, such as UTC+5:45.
+one in letters, such as EDT; otherwise with UTC and the signed offset, such as
+UTC+5:45.
 
 - **Rather than:** an offset for every zone; the bare numbers the database
   gives where a zone has no letters.
@@ -157,28 +158,28 @@ offset, such as UTC+5:45.
   does.
 - **Costs:** none recorded.
 
-### Each refresh is scheduled from the current time
+### The minute changes on the minute
 
-Every snapshot carries the time left to the next minute; the page takes its
-next snapshot then and sets no periodic timer of its own. A test holds every
-timer the page can call to an allow-list with its reason.
+Every reading of the clocks carries the time left to the next minute; the
+next reading is taken then. The page keeps no periodic timer for its clocks,
+which a test holds.
 
 - **Rather than:** a timer ticking at a fixed interval.
-- **Gains:** the minute changes on the minute, without drift; between minutes
-  the ribbon does nothing.
+- **Gains:** the minute changes when it should, without drift; between
+  minutes the ribbon does nothing.
 - **Costs:** none recorded.
 
 ### A change of clock is heard, not waited out
 
-On Windows the system's broadcasts for a time change and a resume take a
-fresh snapshot at once. macOS and Linux broadcast neither, so the wall clock
-is compared with a clock that does not move with it every two seconds; a gap
-of more than two seconds counts as a jump.
+On Windows the system's own notices of a time change and a resume from sleep
+bring a fresh reading at once. macOS and Linux send no such notice, so the
+wall clock is compared every few seconds with a clock that does not move with
+it; a gap between the two counts as a jump.
 
 - **Rather than:** waiting for the next minute to come round.
 - **Gains:** after a sleep or a change of time every cell is correct within
   seconds.
-- **Costs:** off Windows, a comparison every two seconds while the
+- **Costs:** off Windows, a small check repeated for as long as the
   application runs.
 
 ### Search matches the start of a word
@@ -194,10 +195,10 @@ zones.
 
 ### Places are zones; the label is the user's
 
-The catalogue is the tz database's own list of 418 zones with their countries
-and cities, generated from its files; a test holds every one to resolving. A
-label is free text of up to 32 characters. A town with no zone of its own
-takes its zone's clock and the label typed for it.
+The places offered are the tz database's own zones with their countries and
+cities, generated from its files; a test holds every one to resolving. A label
+is short free text. A town with no zone of its own takes its zone's clock and
+the label typed for it.
 
 - **Rather than:** a gazetteer of every city.
 - **Gains:** nothing to look up; every place offered is one the rules know.
@@ -208,10 +209,10 @@ takes its zone's clock and the label typed for it.
 
 ### One readable file, written whole
 
-Every choice and clock is kept in one indented JSON file, written to a
-temporary file in the same folder, flushed and renamed over the old one. A
-key the running version does not know is written back as it was found.
-Derived values such as offsets and abbreviations are never stored.
+Every choice and clock is kept in one indented JSON file. A save writes a new
+file beside it and puts it in place only once it is complete. A key the
+running version does not know is written back as it was found. Derived values
+such as offsets and abbreviations are never stored.
 
 - **Rather than:** a database.
 - **Gains:** a person can read and repair it; a crash part way through a
@@ -246,8 +247,7 @@ a later save succeeds.
 Every later release reads every file the first release wrote to the same
 settings. No key it wrote is renamed, dropped or given another meaning; no
 stored word changes. Later keys are added after it. A test reads a frozen file
-of the first release with every key set away from its default; it requires
-each key to be read.
+of the first release and requires every key in it to be read.
 
 - **Rather than:** reshaping the file as the product grows.
 - **Gains:** an upgrade never loses anybody's clocks.
@@ -263,35 +263,37 @@ Settings, About, Licence and the update panel are shown by resizing the
 ribbon's one window, centred on its display, then returning it to where the
 ribbon was.
 
-- **Rather than:** a second window per panel, which Wails v2 does not offer.
+- **Rather than:** a second window per panel, which Wails does not offer.
 - **Gains:** one window to place, hide and show.
 - **Costs:** a panel replaces the ribbon while it is open; a move or a change
   of length during a panel is held until it closes.
 
 ### Displays and placing through the system's own calls
 
-Displays are read and the window placed through Win32 on Windows, GDK and GTK
-on Linux and AppKit on macOS.
+Displays are read and the window placed through each platform's own desktop
+calls. What macOS and Linux share is written once for both, each toolkit
+supplying only the rest.
 
-- **Rather than:** Wails' screen list, which carries no origin, device name or
-  work area; Wails' position calls, which place relative to one monitor and
-  report absolute coordinates.
-- **Gains:** the ribbon goes exactly where it is put, on any display.
+- **Rather than:** Wails' own screen list and position calls, which know
+  nothing of work areas or which display is which and mix two ways of
+  counting position; a copy of the shared code per platform.
+- **Gains:** the ribbon goes exactly where it is put, on any display; the two
+  platforms that share code cannot drift apart.
 - **Costs:** three platforms' worth of desktop code; macOS and Linux need cgo
   against their toolkit.
 
-### Off the taskbar by changing its window style
+### No taskbar or Dock button
 
-Wails always marks its window as an application window, which forces a
-taskbar button, so that mark is taken off once before the window is shown.
-Linux marks the window to skip the taskbar; macOS makes the application an
+Wails always gives its window a taskbar button, so TimeRibbon takes that away
+before the window is first shown: on Windows by changing the window's style,
+on Linux by marking the window, on macOS by making the application an
 accessory once launching has finished.
 
 - **Rather than:** accepting a taskbar or Dock button.
 - **Gains:** the ribbon stays out of the way; its icon lives in the tray or
   the menu bar.
-- **Costs:** it rests on what Wails does inside; on macOS it rests on the
-  order in which Wails finishes launching, checked by hand on any upgrade.
+- **Costs:** it rests on what Wails does inside, so it is checked by hand on
+  any upgrade of Wails.
 
 ### Native popup menus
 
@@ -318,48 +320,33 @@ ribbon there, as does a stored display that has gone.
 
 When a clock, a notice or a change of style, size or scale changes the
 ribbon's length, it is centred along that length on its display with its
-position across kept. Otherwise only a drag, Position or a change of
-orientation moves it.
+position across kept. A ribbon against the right or bottom edge stays flush
+there when it grows or shrinks across. Otherwise only a drag, Position or a
+change of orientation moves it.
 
-- **Rather than:** growing from its corner.
-- **Gains:** a ribbon centred on an edge stays centred as clocks come and go.
+- **Rather than:** growing from its corner, which would pull a ribbon off the
+  right or bottom edge.
+- **Gains:** a ribbon centred on an edge stays centred and flush as clocks come
+  and go.
 - **Costs:** a ribbon dragged off-centre is re-centred at the next change of
   length.
 
-### Kept flush when it changes thickness
-
-A ribbon is placed by its top-left corner, so against the right or bottom edge
-a change of thickness would pull it off. The service remembers where it last
-placed the ribbon and keeps the far edge flush.
-
-- **Rather than:** placing by the corner alone.
-- **Gains:** a ribbon against the right or bottom edge stays there; a test
-  fails without it.
-- **Costs:** none recorded.
-
-### A drag is fenced on Windows, corrected elsewhere
-
-On Windows each step of a drag is held inside the display under the pointer.
-macOS and Linux offer no say while a drag lasts, so a ribbon left partly off
-every display is put back once it has stood still for 300 ms.
-
-- **Rather than:** a move loop of TimeRibbon's own on macOS and Linux, which
-  would fight the desktop.
-- **Gains:** the ribbon can be carried onto any display but never left half
-  off one.
-- **Costs:** on macOS and Linux it can hang off a display until let go.
-
-### The drag borrows Wails' own message
+### Dragging is the platform's own
 
 A press on empty ribbon that moves past the system's drag distance is handed
-to the platform's own move loop through the message Wails' drag regions send.
-macOS publishes no drag distance, so it borrows Windows' 4 DIP.
+to the platform's own move loop, through the same message Wails' drag regions
+send. On Windows each step of a drag is held inside the display under the
+pointer. macOS and Linux give no say while a drag lasts, so a ribbon left
+partly off every display is put back once it stands still.
 
-- **Rather than:** writing a move loop again.
+- **Rather than:** writing a move loop of TimeRibbon's own, which would fight
+  the desktop.
 - **Gains:** the drag behaves as every other window's does; a press on a
-  control never starts one.
-- **Costs:** the message is internal to Wails rather than documented; the
-  Wails version is pinned and dragging is checked by hand on any upgrade.
+  control never starts one; the ribbon can be carried onto any display but
+  never left half off one.
+- **Costs:** the message is internal to Wails rather than documented, so
+  dragging is checked by hand on any upgrade of Wails; on macOS and Linux the
+  ribbon can hang off a display until let go.
 
 ### It fits its clocks, then scrolls
 
@@ -371,30 +358,22 @@ covers them. A plain wheel moves a horizontal ribbon along.
 - **Gains:** every clock stays its own size and reachable.
 - **Costs:** on a long ribbon some clocks are out of sight.
 
-### A cell is as wide as the page measures
+### The page measures; the window follows
 
-The page measures every time of day and every date of a 28 year span, in the
-chosen formats and the font it really draws with; it hands the widest to Go.
-The widths in the code are floors. The scroll bar is measured by the page in
-the same way.
+Only the page knows the font it really draws with and the scale it is really
+drawn at, so it measures both and Go sizes the window from what it reports. A
+cell is as wide as the widest time and date its formats can show; the scroll
+bar is the thickness the page measures; the display's own scaling stands in
+only until the page has reported.
 
-- **Rather than:** fixed widths, which fitted only the fonts they were tried
-  with: on a friend's machine the dates were cut short. Measured, a large cell
-  needs 178 DIP against the 176 it had.
-- **Gains:** no time or date is ever cut short, whatever the font.
+- **Rather than:** fixed cell widths, which fitted only the fonts they were
+  tried with, so on a friend's machine the dates were cut short; sizing from
+  the display's scaling alone, which on Windows misses the user's text size
+  and so cut the page off.
+- **Gains:** no time or date is ever cut short, whatever the font; the window
+  fits the page at any scaling and text size.
 - **Costs:** the page measures again whenever the size, style or a format
   changes.
-
-### Sized at the scale the page is really drawn at
-
-The page reports its pixel ratio once loaded and whenever it changes; every
-window size is converted with it. The display's DPI stands in only until it
-has.
-
-- **Rather than:** sizing from the display's DPI, which on Windows misses the
-  user's text size and so cut the page off.
-- **Gains:** the window fits the page at any scaling and text size.
-- **Costs:** none recorded.
 
 ### Closing hides; one copy runs; a launch toggles
 
@@ -423,7 +402,7 @@ XWayland.
 ### WebKit's DMABUF renderer off on every Linux machine
 
 The web view's DMABUF renderer is turned off before it starts, unless the
-environment already holds a value for it, which is then left alone.
+user has already chosen a setting for it, which is then left alone.
 
 - **Rather than:** leaving it on and telling NVIDIA users to turn it off;
   turning it off in the Flatpak alone, which a build run outside it would
@@ -435,33 +414,23 @@ environment already holds a value for it, which is then left alone.
 
 ### A Linux tray icon of its own
 
-The Linux tray icon is TimeRibbon's own status notifier with its menu over
-D-Bus, registered by object path so it needs no bus name or sandbox permission
-of its own. Its menu is rebuilt as the tray is about to show it.
+The Linux tray icon is TimeRibbon's own, speaking the desktop's tray protocol
+directly, in a way that needs no sandbox permission of its own. Its menu is
+rebuilt as the tray is about to show it.
 
-- **Rather than:** `fyne.io/systray`, which offered no way to rebuild the menu
-  as it opens and kept its state global.
+- **Rather than:** an existing tray library, which offered no way to rebuild
+  the menu as it opens and kept its state global.
 - **Gains:** the menu always shows the current ticks.
 - **Costs:** the tray code is TimeRibbon's own to maintain.
-
-### What Linux and macOS share is written once
-
-The desktop's events, the settling at the end of a move, the clock watch, the
-window registry, the browser opener and the sign-in file live once in files
-built for both; each toolkit supplies only the rest.
-
-- **Rather than:** a copy per platform.
-- **Gains:** the two cannot drift apart.
-- **Costs:** none recorded.
 
 ## The unpinned ribbon
 
 ### A tab only against an edge
 
-Unpinned, the ribbon shrinks to a thin tab in the scheme's accent a second
+Unpinned, the ribbon shrinks to a thin tab in the scheme's accent shortly
 after the pointer leaves. It does so only while flush against an edge along
 its orientation, inner edges between displays included. Anywhere else it
-shows in full as though pinned, the choice kept. A drop within 16 DIP of such an edge
+shows in full as though pinned, the choice kept. A drop near such an edge
 snaps flush; the last edge is remembered. It is pinned unless chosen
 otherwise.
 
@@ -472,42 +441,34 @@ otherwise.
 
 ### The pointer is read as each platform was measured to need
 
-Resting on the tab for 0.3 s opens the ribbon without taking focus; it
-collapses a second after the pointer leaves. Windows and macOS read the
-pointer's position every 50 ms, Windows against the window's cut shape; Linux
-listens for GTK's crossing events.
+Resting on the tab opens the ribbon without taking the keyboard from what has
+it; moving away collapses it again. Windows and macOS read where the pointer
+is at short intervals, Windows against the window's cut shape; Linux listens
+for GTK's own events of the pointer arriving and leaving.
 
 - **Rather than:** the page's own pointer events everywhere. Measured, the
   page on macOS is blind while the application is inactive; under XWayland
-  neither the page nor a poll sees the pointer leave.
+  neither the page nor a reading of the pointer sees it leave.
 - **Gains:** the tab opens and closes reliably on all three, never stealing
   the keyboard.
-- **Costs:** three ways of reading the pointer; a poll running on Windows and
-  macOS.
+- **Costs:** three ways of reading the pointer; a repeated reading on Windows
+  and macOS.
 
-### Opening without a flicker
+### A thin tab that stays on top, opening cleanly
 
-An unpinned ribbon keeps the tab's frame when it opens; the page is told
-first and the window grows once the page says it has drawn (after a quarter
-of a second should it never say); the window takes the page's own
-background colour.
+The tab is far thinner than the least size a pressed target should have,
+since it is rested on rather than pressed. Unpinned, the ribbon stays above
+other windows. As it opens it keeps the tab's frame, the page is told first
+and the window grows once the page has drawn, in the page's own background
+colour.
 
-- **Rather than:** giving Wails' frame back as it opens, which showed a close
-  button, a stretched band and a white frame, each measured by screen capture.
-- **Gains:** the ribbon opens with no caption, band or white.
-- **Costs:** an opening waits on the page for up to a quarter of a second.
-
-### An 8 DIP tab that stays on top
-
-The tab is 8 DIP deep, exempt from the 24 DIP least target size, since it is
-rested on rather than pressed. Unpinned, the ribbon stays above other windows.
-While collapsed on Windows it is a popup window, since an ordinary one is held
-at least 39 pixels tall.
-
-- **Rather than:** a tab big enough to press; one other windows can cover.
-- **Gains:** the tab costs almost no room and is never lost.
+- **Rather than:** a tab big enough to press; one other windows can cover;
+  handing the ribbon back its ordinary frame as it opens, which flashed a
+  close button, a stretched band and white, each seen by screen capture.
+- **Gains:** the tab costs almost no room and is never lost; the ribbon opens
+  with no caption, band or white.
 - **Costs:** a touch screen reports no resting pointer, so touch users keep
-  the ribbon pinned.
+  the ribbon pinned; an opening waits briefly on the page.
 
 ## The sun map
 
@@ -537,9 +498,9 @@ ribbon. macOS and Linux stay rectangles.
 
 ### Labels move aside
 
-Each label is measured once drawn, then placed in clock order at the first of
-right, left, below and above that stands clear of every dot and earlier
-label; right where none does.
+Each label is measured once drawn, then placed in clock order at the first
+spot round its dot that stands clear of every dot and earlier label; to the
+right where none does.
 
 - **Rather than:** every label to the right of its dot, printing over its
   neighbours.
@@ -560,47 +521,45 @@ in Settings alone; commands stay on the menus.
 - **Gains:** the menus and Settings cannot disagree.
 - **Costs:** a new choice has to fit both.
 
-### Settings is as tall as its content
+### Settings is wide and as tall as its content
 
-Settings opens 900 DIP wide with its choices in columns and grows to the
-height of its content, capped by the display's work area, where it scrolls.
-The other panels keep 560.
+Settings opens wide with its choices in columns and grows to the height of
+its content, capped by the display's work area, where it scrolls. The other
+panels stay narrow, for their text.
 
-- **Rather than:** a fixed 760 DIP, which had to be scrolled even on a large
-  display; with five clocks its content measured 1064.
+- **Rather than:** a fixed height, which had to be scrolled even on a large
+  display; a tall narrow panel.
 - **Gains:** on a display with room nothing scrolls.
 - **Costs:** the window changes height as clocks are added or removed.
 
 ### See-through, never invisible
 
-An opacity slider draws the whole window from 20 to 100 percent in steps of
-5. It previews while it moves and is saved once let go.
+An opacity slider draws the whole window anywhere from faint to fully opaque,
+never fully transparent. It previews while it moves and is saved once let go.
 
 - **Rather than:** allowing it to fade out entirely.
 - **Gains:** the ribbon can sit over other work, while it can always be seen
   and found again.
-- **Costs:** the web view is transparent on every platform, so the window's
-  own paint has to be cleared below full opacity.
+- **Costs:** the web view is drawn transparent, so the window's own paint has
+  to be cleared below full opacity.
 
 ### Resized by a grip, within bounds
 
-A grip in the ribbon's corner draws everything in the clocks from 75 to 200
-percent on top of Large or Small; a double-click returns to 100. The window
-cannot be resized freely.
+A grip in the ribbon's corner draws everything in the clocks smaller or larger
+together, on top of Large or Small; a double-click returns them to their own
+size. The window cannot be resized freely.
 
 - **Rather than:** free window resizing; bounds set by the user.
 - **Gains:** no shape the layout was not made for; the least size stays
-  readable and the largest fits a 720 line display.
+  readable and the largest still fits a small display.
 - **Costs:** none recorded.
 
 ### One home for every colour, contrast held by test
 
-Classic's colours live in one file and the other nine schemes in another,
-each token stated once for light and dark together. A scheme's hue lives in
-the colours the ribbon itself paints. Tests require every offered scheme to
-state each of Classic's tokens bar the problem colour; its text must meet
-4.5:1 against the cell and the surface
-in both themes.
+Every colour of every scheme has one home, each stated once for light and dark
+together. A scheme's hue lives in the colours the ribbon itself paints. Tests
+require every offered scheme to state every colour the ribbon needs and its
+text to meet the accessibility standard's contrast floor in both themes.
 
 - **Rather than:** colours written where they are used; a scheme whose hue
   lives only in the accent, which the ribbon never paints, so Ocean measured
@@ -613,7 +572,7 @@ in both themes.
 
 About, Licence and setup's Licence scroll gently on their own when they hold
 more than fits; they stop the moment the reader takes over. The cycle is one
-script beside the setup page, which the window's build imports.
+script, shared by the setup page and the window.
 
 - **Rather than:** static pages; the cycle written twice, once for each.
 - **Gains:** long text can be read hands free; both surfaces run the same
@@ -624,8 +583,7 @@ script beside the setup page, which the window's build imports.
 ### The licence shown as written
 
 Licence keeps the licence file's own line breaks and never wraps it again; its
-type is sized so the widest line fits. A test holds the width the page is
-sized for to the file's widest line.
+type is sized so the widest line fits, which a test holds.
 
 - **Rather than:** letting the page wrap the text.
 - **Gains:** the licence reads exactly as it was written.
@@ -645,27 +603,22 @@ on Linux the Flatpak is installed for the user's account.
 ### A setup program of its own on Windows
 
 Install, update, going back, repair and removal are one bespoke program,
-ported in shape from Bridge Talk, with its install logic in a package of its
-own. Which screen opens is decided by one reading of the machine. Every entry
-in the payload is checked to land inside the install folder before any is
+ported in shape from Bridge Talk, with its install logic kept apart from its
+window. Which screen opens is decided by one reading of the machine. Every
+file in the payload is checked to land inside the install folder before any is
 written. A running copy is asked to close first. The user's settings are
-removed only when asked.
+removed only when asked. Everything the application keeps lives inside its
+settings folder, the web view's own data included, so forgetting the settings
+leaves nothing behind. The built application never reaches the repository: the
+build puts its empty placeholder back whether or not it succeeded.
 
-- **Rather than:** a generic installer.
-- **Gains:** one identity throughout; a hostile payload writes nothing.
+- **Rather than:** a generic installer; the web view's data left where Wails
+  puts it, beside the settings folder, which uninstalling did not reach.
+- **Gains:** one identity throughout; a hostile payload writes nothing; a
+  clone builds and tests without a built executable.
 - **Costs:** the setup program is TimeRibbon's own to maintain; its window's
-  facade acts on the machine and has no tests.
-
-### The real payload never reaches a commit
-
-The build packs the application into the setup program's payload, then
-writes the empty placeholder back whether or not the setup build succeeded.
-
-- **Rather than:** leaving the built payload in the tree.
-- **Gains:** a clone builds and tests without it; the repository never holds a
-  built executable.
-- **Costs:** an interrupted build can leave it behind; building again puts the
-  placeholder back.
+  side acts on the machine and has no tests; an interrupted build can leave
+  the payload behind until the next build.
 
 ### macOS: Apple Silicon only, signed and notarised
 
@@ -683,37 +636,24 @@ and the DMG are signed and notarised.
 
 ### A Flatpak with a narrow sandbox
 
-The Linux build is a Flatpak granted X11 with its shared memory, the GPU, the
-tray host's bus name, the bus name of the single-instance lock, the autostart
-folder and the network for the update check. No other part of the file
-system.
+The Linux build is a Flatpak granted X11, the GPU, the tray, the
+single-instance lock, the autostart folder and the network for the update
+check. No other part of the file system.
 
 - **Rather than:** a native package; a sandbox with wider access.
 - **Gains:** the application holds only what it uses.
 - **Costs:** Linux users need Flatpak; the network is granted to the whole
   application although only the update check uses it.
 
-### The web view's data inside the settings folder
-
-On Windows the web view keeps its data in a folder inside TimeRibbon's own
-settings folder.
-
-- **Rather than:** Wails' default, a folder beside the settings folder that
-  uninstalling with Also forget my settings left behind; deleting that folder
-  by name at uninstall, which rests on a rule Wails does not promise.
-- **Gains:** forgetting the settings leaves nothing behind.
-- **Costs:** none recorded.
-
 ## Engineering
 
 ### Layers with one place where they meet
 
 The code is split into domain, application, infrastructure and interface,
-each depending only inward. Only the composition root and the two facade
-files import both the application and infrastructure; the service is built
-there by constructor,
-held in no package-level variable and found through no locator. Structural
-tests hold every boundary.
+each depending only inward. Only the composition root and the facade over it
+see both the application and infrastructure; the service is built there by
+constructor, held in no global and found through no locator. Structural tests
+hold every boundary.
 
 - **Rather than:** convention alone; a dependency injection framework.
 - **Gains:** clock, placement and settings rules are tested with no disk,
@@ -722,21 +662,22 @@ tests hold every boundary.
 
 ### Complete coverage where it means something
 
-The domain and application layers are held to 100 percent coverage. Every
-other gated package is held to a floor at the coverage it measured, so a lost
-test fails the gate.
+The domain and application layers are held to complete coverage. Every other
+gated package is held to a floor at the coverage it measured, so a lost test
+fails the gate.
 
 - **Rather than:** one figure over the whole program; floors picked as
   aspirations.
 - **Gains:** anything short of complete in the pure layers is a decision
   nobody made; every shortfall elsewhere is named in TESTING.md.
-- **Costs:** the desktop package sits far lower and relies on checks by hand;
+- **Costs:** the desktop code sits far lower and relies on checks by hand;
   the macOS and Linux halves carry no figure at all.
 
 ### Small files
 
-No source file may exceed 400 lines; one landing between 381 and 400 is cut
-to 350 or fewer. Build scripts are exempt.
+Every source file is held under a fixed size, with a band below the limit
+that sends a file well clear of it rather than a line under it. Build scripts
+are exempt.
 
 - **Rather than:** letting files grow.
 - **Gains:** files split at real seams.
@@ -747,18 +688,18 @@ to 350 or fewer. Build scripts are exempt.
 
 The shapes crossing between Go and the page are stated in Go and again in
 TypeScript; a structural test fails when the two disagree, as another does
-when the page misses an event Go emits.
+when the page misses an event Go sends.
 
 - **Rather than:** Wails' generated bindings, which are left out of the
-  repository and imported by nothing.
+  repository and used by nothing.
 - **Gains:** a contract both sides are checked against.
 - **Costs:** every change to the wire is made twice.
 
 ### A refusal cannot be dropped on the page
 
-Every call the page makes that Go can refuse takes a refusal handler as its
-last argument and answers nothing rather than throwing; a call written
-without one does not compile.
+Every call the page makes that Go can refuse takes a refusal handler and
+answers nothing rather than throwing; a call written without one does not
+compile.
 
 - **Rather than:** promises that reject.
 - **Gains:** no refusal is lost; each is shown beneath the control pressed.
@@ -768,9 +709,9 @@ without one does not compile.
 
 No Go test uses a mocking library; every double is written by hand against
 the real interface. The facade holds each call into Wails and the desktop as
-a field, so its decisions can be tested. No test reaches the network or
-writes to the user's own settings, sign-in entry or Apps list. Every guard is
-proved by planting a violation and watching it fail.
+a replaceable part, so its decisions can be tested. No test reaches the
+network or writes to the user's own settings, sign-in entry or Apps list.
+Every guard is proved by planting a violation and watching it fail.
 
 - **Rather than:** a mocking library; an untested facade.
 - **Gains:** a passing test means the real behaviour holds; a guard is known
@@ -779,9 +720,9 @@ proved by planting a violation and watching it fail.
 
 ### The gate cannot be skipped
 
-The Windows build runs the whole gate first with no switch to skip it. It
-pins cgo off for the gate and the build alike. The macOS and Linux code is
-checked on a machine of its own platform.
+The Windows build runs the whole gate first with no switch to skip it, built
+the same way as what ships. The macOS and Linux code is checked on a machine
+of its own platform.
 
 - **Rather than:** an optional test step.
 - **Gains:** nothing ships that failed a check.
@@ -791,10 +732,9 @@ checked on a machine of its own platform.
 ### Every name and the version have one home
 
 The product's name, its app id, the donation address, the author and the
-credits live in one package; the version lives in one file and is passed
-into every build, version resource and the site. Tests hold the Wails
-configuration to those names and forbid the product's former name anywhere
-in the repository.
+credits live in one place; the version lives in one file and is passed into
+every build and the site. Tests hold the build configuration to those names
+and forbid the product's former name anywhere in the repository.
 
 - **Rather than:** copies written where they are needed.
 - **Gains:** a rename is made once and cannot drift.
@@ -803,10 +743,10 @@ in the repository.
 
 ### Desktop events never block the desktop
 
-The desktop reports its events on a buffered channel; when nobody is reading,
-an event is dropped with a line in the log rather than holding up the thread
-the system called in on. A panic there or in handling an event is recovered
-and logged.
+The desktop hands its events on without waiting; when nobody is reading, an
+event is dropped with a line in the log rather than holding up the thread the
+system called in on. A panic there or in handling an event is recovered and
+logged.
 
 - **Rather than:** calling back into the application from the desktop's
   thread.

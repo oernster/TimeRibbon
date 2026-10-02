@@ -658,6 +658,9 @@ module's own refusals (such as `ErrNoSuchClock` or `ErrNoMonitors`) apart by it.
 
 ## Design decisions
 
+The architectural decisions, with the evidence behind each. The whole set the product rests on,
+with what each one costs, is in [DECISIONS-TRADEOFFS.md](DECISIONS-TRADEOFFS.md).
+
 | Decision | Why | Rejected alternative |
 |---|---|---|
 | Go with Wails and a web front end | One executable with no runtime to install; the same stack draws the setup program | A Python and Qt desktop stack |

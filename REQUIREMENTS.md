@@ -358,7 +358,7 @@ its title, `WindowSetPosition` counts from the current screen's visible frame an
 is made regular as it finishes launching; on Linux `SetPosition` is monitor-relative while
 `GetPosition` is absolute.
 
-Measured on 2026-10-02 by a friend running the 2.3.0 Flatpak on Bazzite (KDE) with an NVIDIA
+Measured on 2026-10-02 by a friend running the released Flatpak on Bazzite (KDE) with an NVIDIA
 GeForce RTX 3080 Ti on NVIDIA's own driver: the window showed only the page's background, `#111418`,
 although the page had run (it reported that colour and Go had sized the window as a panel). With
 `WEBKIT_DISABLE_DMABUF_RENDERER=1` the page drew; with `WEBKIT_DISABLE_COMPOSITING_MODE=1` in its
@@ -1531,7 +1531,8 @@ Verified by: `labels.test.ts`; a check by hand in a real build.
 
 README.md, ARCHITECTURE.md, TESTING.md and DEVELOPMENT.md, ported in shape from BridgeTalk, are
 written with the first build and kept true by the docs pass. NOTES.md holds the release notes;
-TECH_DEBT.md holds the known technical debt.
+TECH_DEBT.md holds the known technical debt; DECISIONS-TRADEOFFS.md records the decisions the
+product rests on, with what each one gains and what it costs.
 
 ---
 

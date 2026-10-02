@@ -277,8 +277,13 @@ are computed in DIP, so a ribbon moved between displays at different scaling kee
 reports its `devicePixelRatio` once it has loaded and again whenever it changes
 (`frontend/src/pixelRatio.ts`, `SetPixelRatio`); the display's DPI stands in only until it has.
 On Windows that ratio includes the user's text size, which enlarges the page without changing the
-display's DPI, so a window sized by the DPI alone cut the page off above 100%. On Linux and macOS
-the toolkit sizes the window in DIP, so one CSS pixel is one unit (`desktop.PixelsPerDIP`).
+display's DPI, so a window sized by the DPI alone cut the page off above 100%. On macOS AppKit
+sizes the window in points, so one CSS pixel is one unit. On Linux GTK sizes the window in its own
+units, device pixels over its whole window scale, while WebKitGTK draws the page at a ratio that
+also carries the font DPI the desktop sets: KDE hands an X11 program a fractional display scale as
+font DPI alone, so at 150% the page reports 1.5 with GTK's scale still 1. A window takes the ratio
+over GTK's scale (`desktop.PixelsPerDIP`, with the scale read by `desktop.ToolkitScale`); one unit
+for every CSS pixel left the ribbon cut off and Settings squeezed into a narrower layout.
 
 The cell sizes live in one table in `main.go`, one layout per size setting (FR-610): large and
 small, each giving a digital, an analogue and a prompt cell plus the padding and the handle's lane.

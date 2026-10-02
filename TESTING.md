@@ -123,7 +123,9 @@ GitHub is asked only by the running application, which is checked by hand.
 - **`internal/infrastructure/desktop` (37.8%).** The tray icon, the native menus, the move fence and
   the desktop's broadcasts all run on a hidden window's message loop; the ribbon functions act on the
   real ribbon window. `PixelsPerDIP`, which on Windows hands the page's ratio straight back, is
-  called only by the root package's tests, which this figure does not count. The tests cover the
+  called only by the root package's tests, which this figure does not count; on Linux it divides
+  the ratio by GTK's window scale, which `scale_linux_test.go` covers along with reading that scale
+  from GDK. The tests cover the
   menu identifier numbering (a submenu included), the fence's rectangle arithmetic, a work area read
   at a point, Windows' drag distance, an address Windows cannot open being refused and the clock
   watch seeing a jump of the wall clock, then stopping; the window's cut (FR-913) joining its parts

@@ -87,7 +87,7 @@ func TestTheMapsPartsReachThePageInItsOwnUnits(t *testing.T) {
 	if err := app.placeLaunched(); err != nil {
 		t.Fatal(err)
 	}
-	perDIP := desktop.PixelsPerDIP(ratio)
+	perDIP := desktop.PixelsPerDIP(ratio, testUnscaled)
 	want := boxDTO{X: 90 / perDIP, Y: 0, Width: 300 / perDIP, Height: 90 / perDIP}
 	if got := app.Snapshot().SunMap; got.Ribbon != want || got.Map.Width != 480/perDIP {
 		t.Errorf("at %v pixels to a unit the page was told %+v, want the ribbon at %+v", perDIP, got, want)

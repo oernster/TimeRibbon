@@ -266,6 +266,8 @@ type window struct {
 	pending     func()
 	waited      time.Duration
 	drawPending func()
+	// toolkitScale is the toolkit's window scale the desktop reports; unscaled unless a test sets it.
+	toolkitScale int
 }
 
 // sawEvent reports whether the facade sent event with data first, when data is given.
@@ -295,6 +297,9 @@ var (
 
 // testRibbon is the ribbon's window handle once startup has found it: any value that is not none.
 const testRibbon = 1
+
+// testUnscaled is the toolkit scale of a desktop that does not scale windows itself.
+const testUnscaled = 1
 
 // newTestApp answers a facade over a scripted service, started and with its ribbon found, whose
 // Wails and desktop calls land in the window answered with it.
@@ -346,6 +351,8 @@ func newTestApp(t *testing.T) (*App, *scriptedService, *window, *bytes.Buffer) {
 		return nil
 	}
 	app.watchPointer = func(on bool) { seen.watching = append(seen.watching, on) }
+	seen.toolkitScale = testUnscaled
+	app.toolkitScale = func() int { return seen.toolkitScale }
 	service.settings.Pinned = true
 	return app, service, seen, log
 }

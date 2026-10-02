@@ -109,6 +109,8 @@ type App struct {
 	after        func(wait time.Duration, do func()) func() bool
 	tabFrame     func(tab bool) error
 	watchPointer func(on bool)
+	// toolkitScale answers the toolkit's own window scale, which the page's ratio is divided by.
+	toolkitScale func() int
 
 	ctx       context.Context
 	ribbon    desktop.Window
@@ -152,6 +154,7 @@ func newApp(service ribbonService, desk *desktop.Desktop, log io.Writer, panels 
 	built.after = func(wait time.Duration, do func()) func() bool { return time.AfterFunc(wait, do).Stop }
 	built.tabFrame = func(tab bool) error { return desktop.SetTabFrame(built.ribbon, tab) }
 	built.watchPointer = func(on bool) { desk.TrackPointer(built.ribbon, on) }
+	built.toolkitScale = desktop.ToolkitScale
 	// The window opens as the full ribbon; it is collapsed only once it has been arranged.
 	built.unpin.shownOpen = true
 	return built
@@ -270,7 +273,7 @@ func (a *App) SetScrollbar(dip int) error { return a.refitted(a.service.SetScrol
 // whenever it changes, then fits the window to the page as it is really drawn. Windows' text size
 // enlarges the page without changing the display's DPI, so the DPI alone left the page cut off.
 func (a *App) SetPixelRatio(ratio float64) error {
-	perDIP := desktop.PixelsPerDIP(ratio)
+	perDIP := desktop.PixelsPerDIP(ratio, a.toolkitScale())
 	err := a.service.SetPixelsPerDIP(perDIP)
 	if err == nil {
 		a.pixelsPerDIP.Store(math.Float64bits(perDIP))

@@ -459,7 +459,9 @@ awaited before the move (`awaitSize`, up to 500 ms): the window manager keeps a 
 the size it has when the move arrives, so a move sent before a shrink landed was clamped as if the
 window were still large (measured 2026-09-28, `TestTheRibbonReturnsFromAPanelToWhereItIsPlaced`).
 On Linux GTK is sent through X11 (`gtkmain.ForceX11`), since a window on Wayland may not choose where
-it stands.
+it stands. The web view's DMABUF renderer is turned off before it starts (`gtkmain.AvoidDMABUF`),
+since on NVIDIA's own driver it draws nothing but the window's background (measured 2026-10-02); a
+value already in `WEBKIT_DISABLE_DMABUF_RENDERER` is kept (`TestAChosenDMABUFSettingIsKept`).
 
 **The end of a move (FR-404).** Neither platform says when the button is let go, so a move ends when
 the ribbon has stood still for 300 ms (`moveSettle`), heard through GTK's `configure-event` or

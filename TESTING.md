@@ -197,8 +197,9 @@ ribbon shows one scroll bar with no clock cut off; every clock is reachable besi
 The macOS and Linux halves of infrastructure compile only for their own platform; the parts that
 face the desktop (`cocoamain`, `gtkmain`, `monitors`, `desktop`) also need cgo against AppKit or
 GTK. `test.ps1` reaches none of them. They are checked on a machine of their own
-platform, set up as [DEVELOPMENT.md](DEVELOPMENT.md) says, from a checkout with the page built. Each
-build compiles 343 Go test functions: the shared ones, the structural tests and its own.
+platform, set up as [DEVELOPMENT.md](DEVELOPMENT.md) says, from a checkout with the page built. The
+macOS build compiles 343 Go test functions and the Linux build 345: the shared ones, the structural
+tests and its own.
 
 | What | macOS | Linux |
 |---|---|---|

@@ -131,7 +131,9 @@ in a small frameless ribbon you can put anywhere on any monitor.
   system lacks.
 - **It never changes the system clock or time zone.** It reads them.
 - **On Linux it draws through X11, never Wayland directly.** A window on Wayland may not choose
-  where it stands, which the ribbon must; on a Wayland desktop it runs through XWayland.
+  where it stands, which the ribbon must; on a Wayland desktop it runs through XWayland. It also
+  turns off WebKit's DMABUF renderer, which draws a blank window on NVIDIA's own driver, unless
+  `WEBKIT_DISABLE_DMABUF_RENDERER` is already set, in which case that value is left as it is.
 
 ## Built with
 

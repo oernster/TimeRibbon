@@ -197,6 +197,20 @@ flatpak uninstall --user uk.codecrafter.TimeRibbon
 | macOS | `~/Library/Application Support/TimeRibbon` |
 | Linux (the Flatpak) | `~/.var/app/uk.codecrafter.TimeRibbon/config/TimeRibbon` |
 
+## Known issues
+
+Three problems on Linux are still open.
+
+- **On KDE Plasma at 150 percent scaling the web view can stay smaller than its window.** When the
+  window grew to fit the page, the web view sometimes kept its smaller size (2 of 6 launches). The
+  ribbon is now shown only once the page has sized it; 16 of 16 launches at 150 percent have come up
+  whole since. Whether that has ended this fault is not yet confirmed.
+- **Under KWin, Settings comes out a little short and off centre.** KWin reports the display's work
+  area in logical units, which leaves Settings short of its full height and away from the centre.
+- **With an NVIDIA RTX 3080 Ti, Settings may ghost while it scrolls.** The web view's hardware
+  acceleration is now off on Linux. Whether that ends the ghosting is not yet known; it needs that
+  machine to check.
+
 ## Testing
 
 On Windows the gate checks formatting, runs vet and staticcheck, runs every Go test and the front

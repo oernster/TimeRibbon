@@ -342,7 +342,9 @@ func newTestApp(t *testing.T) (*App, *scriptedService, *window, *bytes.Buffer) {
 			seen.drawPending = do
 			return func() bool { seen.drawPending = nil; return true }
 		}
-		if wait == sizeWait {
+		// sizeWait and hover.Away are the same length, so the length alone cannot tell the launch's
+		// fallback from a collapse; the fallback is armed only while a ready page is not yet shown.
+		if wait == sizeWait && app.launch.ready.Load() && !app.launch.shown.Load() {
 			seen.sizePending = do
 			return func() bool { seen.sizePending = nil; return true }
 		}

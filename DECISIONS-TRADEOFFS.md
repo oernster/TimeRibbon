@@ -368,12 +368,26 @@ only until the page has reported.
 
 - **Rather than:** fixed cell widths, which fitted only the fonts they were
   tried with, so on a friend's machine the dates were cut short; sizing from
-  the display's scaling alone, which on Windows misses the user's text size
-  and so cut the page off.
+  the display's scaling alone, which cut the page off wherever it missed part
+  of the scale: the user's text size on Windows, a fractional scale handed over
+  as font size alone on Linux.
 - **Gains:** no time or date is ever cut short, whatever the font; the window
   fits the page at any scaling and text size.
 - **Costs:** the page measures again whenever the size, style or a format
   changes.
+
+### Shown only once it is sized
+
+A launched ribbon stays hidden until the page is ready and has reported its
+scale and its widest text; a page that never reports is shown shortly after
+anyway.
+
+- **Rather than:** showing it as soon as the page is ready, then growing it
+  in view, which on a fractionally scaled Linux desktop often left it cut off
+  until the next change.
+- **Gains:** the ribbon first appears whole, at its final size.
+- **Costs:** the ribbon appears a moment later; a page that never reports
+  delays it by up to a second.
 
 ### Closing hides; one copy runs; a launch toggles
 
@@ -399,17 +413,18 @@ XWayland.
 - **Costs:** under XWayland neither the page nor the X server sees the pointer
   leave, so the tab relies on GTK's own events.
 
-### WebKit's DMABUF renderer off on every Linux machine
+### WebKit's faster drawing paths off on every Linux machine
 
 The web view's DMABUF renderer is turned off before it starts, unless the
-user has already chosen a setting for it, which is then left alone.
+user has already chosen a setting for it, which is then left alone. Its
+hardware acceleration is off too, as Wails itself would choose.
 
-- **Rather than:** leaving it on and telling NVIDIA users to turn it off;
-  turning it off in the Flatpak alone, which a build run outside it would
-  miss.
-- **Gains:** on NVIDIA's own driver, where it drew only the window's
+- **Rather than:** leaving them on and telling NVIDIA users to turn the
+  renderer off; turning it off in the Flatpak alone, which a build run outside
+  it would miss.
+- **Gains:** on NVIDIA's own driver, where the renderer drew only the window's
   background, the page draws.
-- **Costs:** machines where it works lose a faster path, which clocks redrawn
+- **Costs:** machines where they work lose a faster path, which clocks redrawn
   once a minute do not need.
 
 ### A Linux tray icon of its own

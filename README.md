@@ -134,7 +134,8 @@ in a small frameless ribbon you can put anywhere on any monitor.
 - **On Linux it draws through X11, never Wayland directly.** A window on Wayland may not choose
   where it stands, which the ribbon must; on a Wayland desktop it runs through XWayland. It also
   turns off WebKit's DMABUF renderer, which draws a blank window on NVIDIA's own driver, unless
-  `WEBKIT_DISABLE_DMABUF_RENDERER` is already set, in which case that value is left as it is.
+  `WEBKIT_DISABLE_DMABUF_RENDERER` is already set, in which case that value is left as it is. The
+  web view's hardware acceleration is off as well; clocks redrawn once a minute do not need it.
 
 ## Built with
 

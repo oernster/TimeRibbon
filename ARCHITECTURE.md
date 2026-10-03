@@ -170,7 +170,8 @@ for the service, Wails and the desktop and read what it decided. `identity.go` a
 Licence; `updates.go` runs the update check ([The update check](#the-update-check)); `measure.go`,
 `clockscale.go` and `opacity.go` carry the page's measurement, the grip's scale and the opacity to
 the service ([The ribbon's size and place](#the-ribbons-size-and-place), [One window](#one-window));
-`dto.go` holds the wire; `launch.go` holds the window's options; `bindings_on.go` and `bindings_off.go` tell the
+`dto.go` holds the wire; `launch.go` holds the window's options; `launch_show.go` decides when the
+launched ribbon is first shown ([One window](#one-window)); `bindings_on.go` and `bindings_off.go` tell the
 run `wails build` makes to generate bindings, which carries the `bindings` build tag, not to write
 the log, read the settings or show a tray icon.
 
@@ -237,6 +238,13 @@ found by the class `TimeRibbonWindow`; Wails always marks its window as an appli
 forces a taskbar button, so `HideFromTaskbar` takes that style off and marks it a tool window once,
 before it is shown. Linux and macOS find it by its title and keep it off the taskbar or Dock their
 own way ([below](#the-desktop-on-linux-and-macos)).
+
+**The first showing (`launch_show.go`, every platform).** A launched ribbon is shown once the page
+is ready and has reported both its scale and its widest text, the two reports that resize the
+window after it loads; a page that has not within a second (`sizeWait`) is shown anyway. Shown at
+the page's readiness alone, the window grew while visible. At a fractional KDE scale WebKitGTK then
+often kept painting the size it was first shown at, the ribbon cut off until the page next changed
+(measured 2026-10-02 at 150 percent: 8 of 16 launches cut off; shown once sized, 16 of 16 whole).
 
 ## The ribbon's size and place
 
@@ -473,13 +481,6 @@ off unless Linux options are given, as the workaround for its blank windows; giv
 policy at its zero value, Always. The ribbon still draws see-through at a lowered opacity
 without it (checked on Plasma, 2026-10-02).
 
-**The first showing (`launch_show.go`).** A launched ribbon is shown once the page is ready and has
-reported both its scale and its widest text, the two reports that resize the window after it
-loads; a page that has not within a second is shown anyway. Shown at the page's readiness alone,
-the window grew while visible. At a fractional KDE scale WebKitGTK then often kept painting the
-size it was first shown at, the ribbon cut off until the page next changed (measured 2026-10-02 at
-150 percent: 8 of 16 launches cut off; shown once sized, 16 of 16 whole).
-
 **The end of a move (FR-404).** Neither platform says when the button is let go, so a move ends when
 the ribbon has stood still for 300 ms (`moveSettle`), heard through GTK's `configure-event` or
 AppKit's `NSWindowDidMoveNotification`. A position `Place` put the ribbon at is never a move and
@@ -693,6 +694,8 @@ with what each one costs, is in [DECISIONS-TRADEOFFS.md](DECISIONS-TRADEOFFS.md)
 | GTK and AppKit reached directly through cgo | Wails' screen list and position calls fall short on every platform (CON-7); the desktop's own calls do not | Wails' position calls; a cross-platform window library over them |
 | Linux forced onto X11 | A window on Wayland may not choose where it stands, which the ribbon must (ruled 2026-09-28) | Wayland, with the compositor placing the ribbon |
 | WebKit's DMABUF renderer off on Linux | On NVIDIA's own driver it drew only the window's background (measured on an RTX 3080 Ti, 2026-10-02); the clocks redraw once a minute, so the faster path buys nothing here | Leaving it on and telling NVIDIA users to set the variable; setting it in the Flatpak manifest alone, which a build run outside it would miss |
+| WebKit's hardware acceleration off on Linux | It is what Wails itself chooses as the workaround for its blank windows; giving Linux options had left the policy at Always by accident | The zero value, Always, on every Linux machine |
+| The first showing waits for the page to size the window | Shown before it was sized, the window grew while visible and at a fractional KDE scale often stayed cut off (8 of 16 launches, 2026-10-02) | Showing it as soon as the page is ready |
 | TimeRibbon's own StatusNotifierItem on Linux | `fyne.io/systray` offered no way to rebuild the menu as it opens and kept its state global (measured in v1.12.2) | `fyne.io/systray`; no tray icon off Windows |
 | One code path for Linux and macOS where the toolkit does not matter | Written once in `_unix.go` files, the move-end settling, the events and the sign-in file cannot drift apart | A copy per platform |
 

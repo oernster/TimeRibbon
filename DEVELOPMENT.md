@@ -311,7 +311,7 @@ so a build carrying the development placeholder is never offered a release.
 | `updates.go` | the facade's side of the update check (FR-509): its timing, the check itself whether automatic or asked for from Help and the calls the update panel makes |
 | `quit_signal.go` | ending the run when a signal from outside asks, which a close would only turn into hiding while the tray is up |
 | `*_test.go` in the root | the facade's tests, over a scripted service and a stand-in window (`fakes_test.go`) |
-| `identity.go`, `dto.go`, `launch.go` | About and Licence, the wire, the window's options |
+| `identity.go`, `dto.go`, `launch.go`, `launch_show.go` | About and Licence, the wire, the window's options, when the launched ribbon is first shown |
 | `platform_windows.go`, `platform_unix.go`, `platform_linux.go`, `platform_darwin.go` | what each platform's run needs before Wails opens: the tray's image and ending on a signal off Windows, X11 and the web view's DMABUF renderer off on Linux, a framework to link on macOS |
 | `bindings_on.go`, `bindings_off.go` | keep the binding-generation run from writing the log or showing a tray icon |
 | `internal/domain` | clock readings, placement and the settings value; no I/O |

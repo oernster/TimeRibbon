@@ -11,7 +11,8 @@ self-reading licence in setup (FR-811); CON-6, FR-108 and FR-502 carry notes of 
 
 Amendment 3 (Oliver, 2026-09-27): the web view's data moves inside `%APPDATA%\TimeRibbon` (FR-806).
 
-Amendment 4 (Oliver, 2026-09-27): with 1.0.0 the settings file becomes a contract (NFR-C-1).
+Amendment 4 (Oliver, 2026-09-27): with the first release the settings file becomes a contract
+(NFR-C-1).
 
 Amendment 5 (Oliver, 2026-09-27): the right-click menu gains `Exit` (FR-108); each setup screen opens
 with nothing focused rather than on its lead action (FR-809).
@@ -678,11 +679,16 @@ Note: on Windows the window is sized by the scale the page is drawn at, which th
 `devicePixelRatio` once it has loaded and again whenever that changes; the display's DPI sets the
 scale only until the first report. Windows' text size enlarges the page without changing the DPI, so
 above 100 percent the DPI alone left the page cut off. A reported scale that is not a positive finite
-number is refused. On macOS and Linux the window is sized in DIP, so the ratio is left to the toolkit.
+number is refused. On macOS the window is sized in points, so the ratio is left to AppKit. On Linux
+GTK sizes the window in its own units, device pixels over its whole window scale, while the page's
+ratio also carries the font DPI the desktop sets (KDE hands an X11 program a fractional scale that
+way alone), so the window takes the page's ratio over GTK's window scale.
 Verified by: a check by hand in a real build; `TestTheRibbonIsSizedByTheScaleThePageIsDrawnAt`,
 `TestTheReportedScaleHoldsOnADisplayAtAnotherDPI`, `TestAPanelIsSizedByTheScaleThePageIsDrawnAt`,
 `TestAScaledRibbonFitsTheRoomTheDisplayOffersAtThatScale`, `TestAnUnusableScaleIsRefused`
-(application); `pixelRatio.test.ts`.
+(application); `TestThePagesRatioIsTakenWithTheToolkitsScale` (facade);
+`TestTheWindowTakesThePagesRatioOverGTKsScale`, `TestGTKsWindowScaleIsRead` (infrastructure,
+desktop, Linux); `pixelRatio.test.ts`.
 
 **FR-408 Centre on an edge**
 Priority: Must (Amendment 8, Oliver, 2026-09-28).
@@ -1329,7 +1335,7 @@ Verified by: `TestWriteFailureIsReportedAndCleared` (application).
 | NFR-S-3 | Non-claim: time zone rules are those of the tz database embedded at build time wherever the system offers none, which on Windows is always (CON-5). There a rule change made by a government after the build is shown only after a new release. The README states this. | Inspection of the README |
 | NFR-M-1 | The coverage floor of CON-3, the size limit of CON-2 and the layering of CON-1 are enforced by `test.ps1`, which `build.ps1` runs first with no switch to skip it. | `build.ps1` |
 | NFR-M-2 | Go code passes gofmt, go vet and staticcheck; the front end passes eslint, `tsc --noEmit` and Vitest. | `test.ps1` |
-| NFR-C-1 | From 1.0.0, every later 1.x release shall read every settings file 1.0.0 writes to the same settings: no key 1.0.0 writes is renamed, dropped or given another meaning; no stored word changes. A later release may add keys; 1.0.0 keeps a key it does not know and writes it back. Amendment 4 (Oliver, 2026-09-27). Amendment 11 (Oliver, 2026-09-28): the next major version still reads that shape to the same settings; the file now lives in the renamed folder and nothing is read from the former one. | `TestA1Point0SettingsFileIsReadWhole` over the frozen fixture `internal/infrastructure/store/testdata/settings-1.0.0.json` |
+| NFR-C-1 | From the first release, every later release of that major version shall read every settings file the first release writes to the same settings: no key it writes is renamed, dropped or given another meaning; no stored word changes. A later release may add keys; the first release keeps a key it does not know and writes it back. Amendment 4 (Oliver, 2026-09-27). Amendment 11 (Oliver, 2026-09-28): the next major version still reads that shape to the same settings; the file now lives in the renamed folder and nothing is read from the former one. | `TestA1Point0SettingsFileIsReadWhole` over the frozen fixture `internal/infrastructure/store/testdata/settings-1.0.0.json` |
 | NFR-P-5 | Amendment 20: drawing the sun map (FR-905) at 960 by 480 DIP shall take at most 100 ms on the reference machine. | Timed around the draw in the page, median of 10 minute refreshes, written to the log. Measured 2026-09-29 on the reference machine with forced redraws in place of minute refreshes: a temporary probe repeated the draw (both pictures scaled, blended, put) at 960 by 480 ten times with the sun moved each time, on three launches of a dev build; medians 13.3, 12.6 and 13.3 ms, slowest 18.7 ms. The probe was removed |
 | NFR-C-2 | Amendment 20: the built-in map images (FR-911) shall add at most 4 MB to the application's executable. | The images' own size: the page's build copies them byte for byte into `frontend/dist`, which the executable embeds. Measured 2026-09-30: `sun-day.jpg` 318,480 bytes and `sun-night.jpg` 151,835, 470,315 in all |
 | NFR-O-1 | The application shall write a log to `%APPDATA%\TimeRibbon\TimeRibbon.log` recording launch, placement recovery decisions, settings failures and invalid clocks; standard error is pointed at it before anything can fail. Amendment 13: on macOS and Linux, `TimeRibbon.log` in the settings folder of CON-8. | `TestLogReceivesStandardError` (infrastructure) |

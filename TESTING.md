@@ -65,12 +65,12 @@ and what stops it. An unexplained shortfall cannot be told from an oversight.
 | `internal/infrastructure/appdata` | 100% | 100% | `test.ps1` |
 | `internal/infrastructure/runlog` | 76.5% | 76% | `test.ps1` |
 | the root package (the Wails facade) | 86.2% | 86% | `test.ps1` |
-| `internal/infrastructure/desktop` | 37.8% | 37% | `test.ps1` |
+| `internal/infrastructure/desktop` | 37.6% | 37% | `test.ps1` |
 | `internal/product` | 100% | none | not gated |
 | `installer` | 0%, no tests | none | not gated |
 
 Every figure is the Windows build's, which is what `test.ps1` measures. The Windows build compiles
-368 Go test functions, counted from the test files `go list` selects for it; each runs once with no
+372 Go test functions, counted from the test files `go list` selects for it; each runs once with no
 subtests, plus one `TestMain` in `internal/infrastructure/setup`. Twenty-seven of them are the
 structural tests in `tests/structural`, which read the source rather than run it and are the same
 on every platform; [ARCHITECTURE.md](ARCHITECTURE.md) lists each against the rule it holds. One
@@ -79,7 +79,7 @@ test in `store` holds a promise rather than a rule of structure:
 see ARCHITECTURE.md, The settings file. Three hold NFR-U-1: `contrast_test.go` reads every scheme's
 colours from `theme.css` and `colours.css` and requires 4.5:1 for each text colour on the cell and
 the surface in both themes. It is a Go test because Vitest hands a CSS import back empty. The macOS
-build compiles 343 and the Linux build 345 ([On macOS and Linux](#on-macos-and-linux)).
+build compiles 347 and the Linux build 351 ([On macOS and Linux](#on-macos-and-linux)).
 
 ### The front end
 
@@ -120,7 +120,7 @@ GitHub is asked only by the running application, which is checked by hand.
 
 ### The platform owns it
 
-- **`internal/infrastructure/desktop` (37.8%).** The tray icon, the native menus, the move fence and
+- **`internal/infrastructure/desktop` (37.6%).** The tray icon, the native menus, the move fence and
   the desktop's broadcasts all run on a hidden window's message loop; the ribbon functions act on the
   real ribbon window. `PixelsPerDIP`, which on Windows hands the page's ratio straight back, is
   called only by the root package's tests, which this figure does not count; on Linux it divides
@@ -140,14 +140,16 @@ GitHub is asked only by the running application, which is checked by hand.
   to write and `SetStdHandle` refusing only fail inside the system.
 - **The root package (86.2%).** The facade's tests are `facade_test.go`, `window_life_test.go`,
   `unpinned_test.go`, `sunmap_test.go`, `background_test.go`, `effect_test.go`, `updates_test.go`,
-  `quit_signal_test.go`, `measure_test.go`, `panel_fit_test.go` and `clockscale_test.go`, over the
-  scripted service in `fakes_test.go`. The facade's decisions are tested: which calls fit the
+  `quit_signal_test.go`, `measure_test.go`, `panel_fit_test.go`, `clockscale_test.go`,
+  `choices_test.go`, `pixelratio_test.go` and `launch_show_test.go`, over the scripted service in
+  `fakes_test.go`. The facade's decisions are tested: which calls fit the
   ribbon, that a drag whose save failed is still fitted, the panel state, Settings fitted to its
   content's height, the tab, the window holding the ribbon with its map and cut to them before every
   placing, the menu actions, the close, a signal from outside ending the application even with the
   tray up, the recover round each desktop event and each update check, the update watch's timing and
   what Download and Skip act on, the page's measurement reaching the service, a change of scale
-  telling the page to draw again and the window painted clear below full opacity. Not reached: the composition root (`main.go`,
+  telling the page to draw again, the window painted clear below full opacity and the launched
+  ribbon shown once: after the page has sized it, else by the fallback. Not reached: the composition root (`main.go`,
   `launch.go`), `startup`, `listen` and `shutdown`, which need the real ribbon window and the tray's
   message loop. Nor are the one-line calls in `wails_calls.go` and `window_life.go` that hand a
   request to Wails or Win32 and do nothing else, nor `preparePlatform` in `platform_windows.go`,
@@ -199,13 +201,13 @@ The macOS and Linux halves of infrastructure compile only for their own platform
 face the desktop (`cocoamain`, `gtkmain`, `monitors`, `desktop`) also need cgo against AppKit or
 GTK. `test.ps1` reaches none of them. They are checked on a machine of their own
 platform, set up as [DEVELOPMENT.md](DEVELOPMENT.md) says, from a checkout with the page built. The
-macOS build compiles 343 Go test functions and the Linux build 345: the shared ones, the structural
+macOS build compiles 347 Go test functions and the Linux build 351: the shared ones, the structural
 tests and its own.
 
 | What | macOS | Linux |
 |---|---|---|
 | Tags | `desktop,production` | `desktop,production,webkit2_41` |
-| Tests that need cgo | `cocoamain` 3, `monitors` 3, `desktop` 16 (with the shared `_unix` tests) | `gtkmain` 5, `monitors` 2, `desktop` 17 (with the shared `_unix` tests) |
+| Tests that need cgo | `cocoamain` 3, `monitors` 3, `desktop` 16 (with the shared `_unix` tests) | `gtkmain` 5, `monitors` 2, `desktop` 19 (with the shared `_unix` tests) |
 | Needs | a signed-in desktop | a signed-in desktop session with a display and a tray host |
 
 With the tags for the platform in `TAGS`, run each check and read its exit code:

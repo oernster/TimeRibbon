@@ -99,7 +99,8 @@ in a small frameless ribbon you can put anywhere on any monitor.
   either size, everything in them together; a double-click on it returns them to their own size.
 - **Keeps your clocks in one readable file,** `settings.json`, written whole or not at all (where
   it lives is in [Your settings](#your-settings)). A damaged file is kept aside under another name
-  and never overwritten; a notice on the ribbon says so. A save that fails keeps the change in
+  and never overwritten, nor is a copy kept aside earlier; a notice on the ribbon says so. A file
+  another program holds open as the ribbon starts is never saved over during that run. A save that fails keeps the change in
   effect with a notice until a later save succeeds. One clock that cannot be read leaves the others
   working. The file is a promise: a file the first release wrote still reads to the same clocks and
   choices. A later release may add keys but never renames, drops or changes the meaning of one the

@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"slices"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -38,21 +39,21 @@ type failingReader struct{}
 
 func (failingReader) Read([]byte) (int, error) { return 0, errors.New("connection dropped") }
 
-const release = `{"tag_name":"v2.1.0","html_url":"https://example.test/r","assets":[
-	{"name":"TimeRibbonSetup.exe","browser_download_url":"https://example.test/a.exe"},
-	{"name":"","browser_download_url":"https://example.test/nameless"},
+const release = `{"tag_name":"v2.1.0","html_url":"https://github.com/oernster/TimeRibbon/releases/tag/v2.1.0","assets":[
+	{"name":"TimeRibbonSetup.exe","browser_download_url":"https://github.com/oernster/TimeRibbon/releases/download/v2.1.0/a.exe"},
+	{"name":"","browser_download_url":"https://github.com/nameless"},
 	{"name":"TimeRibbon.dmg","browser_download_url":""},
-	{"name":"timeribbon.flatpak","browser_download_url":"https://example.test/a.flatpak"}]}`
+	{"name":"timeribbon.flatpak","browser_download_url":"https://github.com/oernster/TimeRibbon/releases/download/v2.1.0/a.flatpak"}]}`
 
 func TestTheLatestReleaseIsReadWithOnlyWholeAssets(t *testing.T) {
 	t.Parallel()
 	doer := answering(http.StatusOK, release)
 	got, err := NewWith(LatestReleaseAPIURL, doer).LatestRelease(context.Background())
 	want := []application.ReleaseAsset{
-		{Name: "TimeRibbonSetup.exe", DownloadURL: "https://example.test/a.exe"},
-		{Name: "timeribbon.flatpak", DownloadURL: "https://example.test/a.flatpak"},
+		{Name: "TimeRibbonSetup.exe", DownloadURL: "https://github.com/oernster/TimeRibbon/releases/download/v2.1.0/a.exe"},
+		{Name: "timeribbon.flatpak", DownloadURL: "https://github.com/oernster/TimeRibbon/releases/download/v2.1.0/a.flatpak"},
 	}
-	if err != nil || got.Version != "v2.1.0" || got.PageURL != "https://example.test/r" || !slices.Equal(got.Assets, want) {
+	if err != nil || got.Version != "v2.1.0" || got.PageURL != "https://github.com/oernster/TimeRibbon/releases/tag/v2.1.0" || !slices.Equal(got.Assets, want) {
 		t.Fatalf("answered %+v, %v", got, err)
 	}
 	if doer.seen.URL.String() != LatestReleaseAPIURL || doer.seen.Header.Get("Accept") != acceptHeader || doer.seen.Method != http.MethodGet {
@@ -79,9 +80,9 @@ func TestEveryUnusableAnswerIsAnError(t *testing.T) {
 		"not found":      answering(http.StatusNotFound, release),
 		"dropped":        {status: http.StatusOK, body: failingReader{}},
 		"not JSON":       answering(http.StatusOK, "<html>"),
-		"no tag":         answering(http.StatusOK, `{"html_url":"https://example.test/r"}`),
+		"no tag":         answering(http.StatusOK, `{"html_url":"https://github.com/oernster/TimeRibbon/releases/tag/v2.1.0"}`),
 		"no page":        answering(http.StatusOK, `{"tag_name":"v2.1.0"}`),
-		"wrong types":    answering(http.StatusOK, `{"tag_name":7,"html_url":"https://example.test/r"}`),
+		"wrong types":    answering(http.StatusOK, `{"tag_name":7,"html_url":"https://github.com/oernster/TimeRibbon/releases/tag/v2.1.0"}`),
 		"oversized":      answering(http.StatusOK, `{"tag_name":"v2.1.0","html_url":"`+strings.Repeat("x", maxBody)+`"}`),
 		"not an object":  answering(http.StatusOK, `[]`),
 		"assets unusual": answering(http.StatusOK, `{"tag_name":"v2.1.0","html_url":"x","assets":{}}`),
@@ -97,5 +98,28 @@ func TestAnAddressThatCannotBeAskedIsAnError(t *testing.T) {
 	t.Parallel()
 	if _, err := NewWith("://", answering(http.StatusOK, release)).LatestRelease(context.Background()); err == nil {
 		t.Error("a malformed address was asked")
+	}
+}
+
+// FR-509: an address the release names is handed to the desktop to open, so only https on GitHub is
+// taken. A page outside it refuses the release; a download outside it is left out.
+func TestOnlyHTTPSAddressesOnGitHubAreTaken(t *testing.T) {
+	t.Parallel()
+	const page = "https://github.com/oernster/TimeRibbon/releases/tag/v2.1.0"
+	for _, address := range []string{
+		`\\203.0.113.9\share\TimeRibbonSetup.exe`, "file:///C:/Windows/System32/calc.exe", "http://github.com/x",
+		"https://github.com.example.test/x", "https://user@github.com/x", "https://github.com:8443/x", "https:github.com/x",
+		"https://api.github.com/x", "%zz",
+	} {
+		asset := `{"name":"TimeRibbonSetup.exe","browser_download_url":` + strconv.Quote(address) + `}`
+		body := `{"tag_name":"v2.1.0","html_url":` + strconv.Quote(page) + `,"assets":[` + asset + `]}`
+		got, err := NewWith(LatestReleaseAPIURL, answering(http.StatusOK, body)).LatestRelease(context.Background())
+		if err != nil || len(got.Assets) != 0 {
+			t.Errorf("download %s was taken: %+v (%v)", address, got, err)
+		}
+		body = `{"tag_name":"v2.1.0","html_url":` + strconv.Quote(address) + `}`
+		if got, err := NewWith(LatestReleaseAPIURL, answering(http.StatusOK, body)).LatestRelease(context.Background()); err == nil {
+			t.Errorf("page %s was taken: %+v", address, got)
+		}
 	}
 }

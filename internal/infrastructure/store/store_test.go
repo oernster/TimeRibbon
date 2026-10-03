@@ -138,7 +138,7 @@ func TestUnreadableFileIsKeptAsideAndReported(t *testing.T) {
 		dir := t.TempDir()
 		write(t, dir, text)
 		loaded, err := New(dir).Load()
-		if err != nil || loaded.Notice != keptAsideNotice || len(loaded.Settings.Clocks) != 0 {
+		if err != nil || loaded.Notice != keptAsideNotice(UnreadableName) || len(loaded.Settings.Clocks) != 0 {
 			t.Errorf("%s: got %+v (%v)", name, loaded, err)
 		}
 		kept, err := os.ReadFile(filepath.Join(dir, UnreadableName))
@@ -238,14 +238,16 @@ func TestUnknownKeysAreKeptOnWrite(t *testing.T) {
 	}
 }
 
-// FR-704: when the unreadable file cannot be kept aside, nothing overwrites it.
+// FR-704: when the unreadable file cannot be kept aside, every name being taken, nothing
+// overwrites it.
 func TestAFileThatCannotBeKeptAsideIsNeverOverwritten(t *testing.T) {
 	t.Parallel()
 	dir := t.TempDir()
 	write(t, dir, "{ not JSON")
-	occupied := filepath.Join(dir, UnreadableName)
-	if err := os.MkdirAll(filepath.Join(occupied, "inside"), folderMode); err != nil {
-		t.Fatal(err)
+	for n := 1; n <= keptAsideLimit; n++ {
+		if err := os.Mkdir(filepath.Join(dir, keptAsideName(n)), folderMode); err != nil {
+			t.Fatal(err)
+		}
 	}
 	store := New(dir)
 	if _, err := store.Load(); !errors.Is(err, ErrNotKeptAside) {

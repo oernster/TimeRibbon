@@ -44,6 +44,9 @@ var knownKeys = []string{
 // edited or removed. It is never written: the entry is written back as it was found.
 const unreadableIDPrefix = "unreadable-"
 
+// byteOrderMark is UTF-8's, which Notepad and PowerShell 5 can put before the text (FR-701).
+const byteOrderMark = "\xef\xbb\xbf"
+
 // storedClock is one clock as the file holds it. Pointers tell a missing field from an empty one.
 type storedClock struct {
 	ID       *string `json:"id"`
@@ -77,6 +80,7 @@ type storedEdge struct {
 // decode reads a settings file. It answers false when the file is not a JSON object or its clocks
 // are not a list, since then nothing can be trusted. Any other bad value leaves its default.
 func decode(raw []byte) (settings.Settings, []pair, bool) {
+	raw = bytes.TrimPrefix(raw, []byte(byteOrderMark))
 	var object map[string]json.RawMessage
 	if err := json.Unmarshal(raw, &object); err != nil || object == nil {
 		return settings.Settings{}, nil, false
@@ -165,7 +169,43 @@ func decodeClocks(entries []json.RawMessage) []settings.Entry {
 	for _, each := range read {
 		out = append(out, each.entry)
 	}
-	return out
+	return withUniqueIDs(out)
+}
+
+// withUniqueIDs answers entries with every id its own, since a change names its clock by id (FR-705).
+// The first readable clock holding an id keeps it; a later one holding it again, as a hand-edited
+// file can, is given that id numbered, which a save then writes. An unreadable entry's id is the
+// session's alone, so it gives way to any id the file holds.
+func withUniqueIDs(entries []settings.Entry) []settings.Entry {
+	taken := make(map[string]bool, len(entries))
+	for _, entry := range entries {
+		if entry.Unreadable == "" {
+			taken[entry.ID] = true
+		}
+	}
+	kept := make(map[string]bool, len(entries))
+	for index, entry := range entries {
+		if entry.Unreadable == "" && !kept[entry.ID] {
+			kept[entry.ID] = true
+			continue
+		}
+		entries[index].ID = freeID(entry.ID, taken)
+		taken[entries[index].ID] = true
+	}
+	return entries
+}
+
+// firstNumberedID is the number the first id made from another is given; the original is the first.
+const firstNumberedID = 2
+
+// freeID answers id numbered with the first number that makes it one taken does not hold.
+func freeID(id string, taken map[string]bool) string {
+	for n := firstNumberedID; ; n++ {
+		candidate := id + "-" + strconv.Itoa(n)
+		if !taken[candidate] {
+			return candidate
+		}
+	}
 }
 
 // decodeClock reads one entry, answering it with its position; its index when it has none.

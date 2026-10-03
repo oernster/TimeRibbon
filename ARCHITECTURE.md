@@ -9,8 +9,11 @@ platform; each platform's own half sits in files its build tags or file names se
 infrastructure and in the root package's `platform_*.go` files
 ([The desktop on Linux and macOS](#the-desktop-on-linux-and-macos)). Its one network request
 is the update check (FR-509): of this module's Go files only those in `internal/infrastructure/update`
-import a network package, which `TestOnlyTheUpdateCheckImportsANetworkPackage` holds. The donation
-page and a release's download are handed to the desktop's browser rather than fetched.
+import a network package, which `TestOnlyTheUpdateCheckImportsANetworkPackage` holds. Each of those
+guards is a list of what is known, not a proof that nothing else asks: `requests_test.go` holds the
+other ways out (a program started, a Windows library loaded by name, a request from either page) to
+the ones named there. The donation page and a release's download are handed to the desktop's browser
+rather than fetched; a release's addresses are taken only as `https` on `github.com`.
 
 The requirements are in [REQUIREMENTS.md](REQUIREMENTS.md); the FR, NFR and CON numbers below are
 its.
@@ -35,7 +38,11 @@ does not exist.
 | No source file sits in the danger band of 381 to 400 lines | `TestNoFileInDangerBand` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | Every exported type carries a doc comment | `TestEveryExportedTypeIsDocumented` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | A file's lines are counted as an editor numbers them | `TestLineCountCountsTheLinesAnEditorShows` | [`linecount_test.go`](tests/structural/linecount_test.go) |
-| No Go file of this module outside `internal/infrastructure/update` imports a network package (NFR-S-1) | `TestOnlyTheUpdateCheckImportsANetworkPackage` | [`network_test.go`](tests/structural/network_test.go) |
+| No Go file of this module outside `internal/infrastructure/update` imports `net`, `crypto/tls` or `golang.org/x/net` (NFR-S-1; a denylist of imports, so the three rows after the next hold the other ways out) | `TestOnlyTheUpdateCheckImportsANetworkPackage` | [`network_test.go`](tests/structural/network_test.go) |
+| Only the files named in `processStarters` start a program or hand an address to the desktop; no shipped Go file names a Windows library outside `systemLibraries` (NFR-S-1) | `TestOnlyNamedFilesStartAProcess` | [`requests_test.go`](tests/structural/requests_test.go) |
+| Every file named in `processStarters` exists | `TestEveryNamedProcessStarterExists` | [`requests_test.go`](tests/structural/requests_test.go) |
+| No file of the page or the setup page uses a request API or names a web address, the SVG namespace aside (NFR-S-1) | `TestThePageMakesNoRequest` | [`requests_test.go`](tests/structural/requests_test.go) |
+| Those checks recognise `os/exec`, `ShellExecute`, a library such as `WinHTTP.DLL`, `fetch`, `WebSocket` and an address while passing look-alikes such as `prefetch` | `TestRequestRecognitionIsExact` | [`requests_test.go`](tests/structural/requests_test.go) |
 | The network exemption names a directory that exists, so a moved update package cannot leave it pointing at nothing | `TestTheNetworkExemptionNamesTheUpdatePackage` | [`network_test.go`](tests/structural/network_test.go) |
 | The network package check recognises `net`, `crypto/tls` and `golang.org/x/net` paths and passes look-alikes | `TestNetworkPackageRecognitionIsExact` | [`network_test.go`](tests/structural/network_test.go) |
 | The setup page loads every script beside it | `TestTheSetupPageLoadsEveryScript` | [`setup_test.go`](tests/structural/setup_test.go) |
@@ -370,11 +377,18 @@ Windows, `~/Library/Application Support/TimeRibbon` on macOS, `$XDG_CONFIG_HOME/
 (FR-701). Derived values (offsets, abbreviations, times) are never stored. It is written to a
 temporary file in the same folder, flushed and renamed over the old one, so a failure part way leaves
 the previous file whole (FR-702). Reading is tolerant: no file means the defaults and no notice
-(FR-703); a file that is not JSON is renamed to `settings.unreadable.json` and a notice says so
-(FR-704). Should that rename fail, saving is refused from then on so the only copy is never
-overwritten. One clock that cannot be read or names an unknown zone is kept in the file as it was and
-shown in words as an invalid clock while the others work (FR-705, FR-706). A top-level key this
-version does not know is written back as it was found.
+(FR-703); a file that is there but cannot be read (held open by another program at sign-in, say)
+raises a notice and refuses every save for the rest of the run, since the defaults standing in for
+it are not the user's. A file that is not JSON is renamed to `settings.unreadable.json` and a notice
+says so (FR-704); where that name is taken by an earlier copy, the first free of
+`settings.unreadable-2.json` onwards (up to `keptAsideLimit`) is used instead, so no kept copy is
+ever replaced. Should the rename fail or every name be taken, saving is refused from then on so the
+only copy is never overwritten. A UTF-8 byte order mark before the text, which Notepad and
+PowerShell 5 can write, is passed over. One clock that cannot be read or names an unknown zone is
+kept in the file as it was and shown in words as an invalid clock while the others work (FR-705,
+FR-706). Two clocks sharing an id, as a hand-edited file can hold, are both kept: the later is given
+that id numbered (`same-2`), which the next save writes, so a change to one never reaches the other.
+A top-level key this version does not know is written back as it was found.
 
 **The file is a contract from the first release (NFR-C-1).** Every later release, the next major
 version included (Amendment 11), reads every file the first release writes to the same settings. No key it writes may be
@@ -540,7 +554,9 @@ own contract. It is unauthenticated, bounded by a 5 second timeout, never retrie
 more than a megabyte of the answer. The service compares the release's tag with the version the
 build stamped into `internal/product`, as dotted integers; anything else is never newer. It picks
 this platform's asset by its ending and reads the skipped release from the settings, which a manual
-check ignores.
+check ignores. Both addresses are handed to the desktop to open, so the adapter takes only `https`
+addresses on `github.com` with no user or port (`onGitHub`): a page elsewhere refuses the release and
+a download elsewhere is left out, the page standing in for it.
 
 `updates.go` in the facade owns the timing: a goroutine started with the window checks 3 seconds in,
 then every 24 hours, until the run ends; Help's `Check for updates` runs one more on a goroutine of
@@ -548,7 +564,8 @@ its own. Each check recovers from a panic into the log. A check with something t
 ribbon and sends `open-panel` with the word `update` and the outcome, which the page draws as a
 fourth panel in the frame About and Licence share. The addresses and the version stay in Go: the
 page's Download and Skip ask Go to act on what it offered, so no address crosses from the page.
-`TestOnlyTheUpdateCheckImportsANetworkPackage` holds the network to this one package.
+`TestOnlyTheUpdateCheckImportsANetworkPackage` holds Go's network imports to this one package and
+`requests_test.go` the other ways out (see [Invariant](#invariant)).
 
 ## Delivery on macOS and Linux
 
@@ -626,7 +643,7 @@ own web view data and step log sit under the temporary folder.
 
 | What | Where |
 |---|---|
-| Settings | `settings.json` in the settings folder: `%APPDATA%\TimeRibbon` on Windows, `~/Library/Application Support/TimeRibbon` on macOS, `~/.var/app/uk.codecrafter.TimeRibbon/config/TimeRibbon` for the Flatpak (measured 2026-09-28) and `~/.config/TimeRibbon` for a Linux build run outside it; `settings.unreadable.json` beside it when a damaged file was kept aside |
+| Settings | `settings.json` in the settings folder: `%APPDATA%\TimeRibbon` on Windows, `~/Library/Application Support/TimeRibbon` on macOS, `~/.var/app/uk.codecrafter.TimeRibbon/config/TimeRibbon` for the Flatpak (measured 2026-09-28) and `~/.config/TimeRibbon` for a Linux build run outside it; `settings.unreadable.json` beside it when a damaged file was kept aside, then `settings.unreadable-2.json` and onwards for each later one |
 | Run log | `TimeRibbon.log` in the settings folder, started afresh by a run that finds it over 1 MiB |
 | The window's web view data on Windows | `%APPDATA%\TimeRibbon\WebView2`, named in `launch.go` inside the settings folder so uninstalling with **Also forget my settings** removes it; nothing of TimeRibbon's own is kept there |
 | Time zone rules and the place catalogue | built into the executable; macOS and Linux read their own zone files first |
@@ -646,7 +663,8 @@ module's own refusals (such as `ErrNoSuchClock` or `ErrNoMonitors`) apart by it.
   embedded place catalogue.** Standard error is pointed at the log as the first act of the run
   (`runlog.Keep`), so even the Go runtime's own panic report is kept. A settings folder that cannot
   be found falls back to a folder in the temporary folder; settings that cannot be read, a tray icon
-  that cannot be made and a missing executable path are logged and the ribbon still opens. A
+  that cannot be made and a missing executable path are logged and the ribbon still opens. Settings
+  that are there but cannot be read are never saved over that run ([The settings file](#the-settings-file)). A
   catalogue that fails to parse is a build defect, which a test holds against.
 - **Shown on the ribbon, which keeps working:** a settings file kept aside and a save that failed, as
   notices with OK; an invalid clock, in words in its own cell.

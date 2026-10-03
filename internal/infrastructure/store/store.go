@@ -12,6 +12,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/internal/domain/settings"
@@ -19,10 +20,16 @@ import (
 
 // File names inside the settings folder.
 const (
-	FileName       = "settings.json"
-	UnreadableName = "settings.unreadable.json"
-	tempPattern    = "settings-*.tmp"
+	FileName           = "settings.json"
+	keptAsideStem      = "settings.unreadable"
+	keptAsideExtension = ".json"
+	UnreadableName     = keptAsideStem + keptAsideExtension
+	tempPattern        = "settings-*.tmp"
 )
+
+// keptAsideLimit bounds how many damaged files are kept aside. Once every name is taken the next is
+// not renamed and saving is refused, so even then nothing is overwritten.
+const keptAsideLimit = 100
 
 // formatVersion is written into every file so a later version can tell what it is reading.
 const formatVersion = 1
@@ -33,8 +40,24 @@ const (
 	fileMode   fs.FileMode = 0o600
 )
 
-// keptAsideNotice is shown when an unreadable file was renamed (FR-704).
-const keptAsideNotice = "Settings could not be read; the old file was kept as " + UnreadableName
+// keptAsideNotice is shown when an unreadable file was renamed to name (FR-704).
+func keptAsideNotice(name string) string {
+	return "Settings could not be read; the old file was kept as " + name
+}
+
+// keptAsideName answers the name the nth kept-aside file takes: UnreadableName for the first, then
+// the same name numbered from 2, so an earlier copy is never the one replaced (FR-704).
+func keptAsideName(n int) string {
+	if n <= 1 {
+		return UnreadableName
+	}
+	return keptAsideStem + "-" + strconv.Itoa(n) + keptAsideExtension
+}
+
+// ErrNotRead is answered by Load and then by every Save when the file was there but could not be
+// read: held open by another program, say. The defaults standing in for it are not the user's, so
+// nothing is saved over it until the next run reads it (FR-704).
+var ErrNotRead = errors.New("nothing is saved over it until TimeRibbon is started again and reads it")
 
 // ErrNotKeptAside is answered by Save when an unreadable file could not be renamed, so writing
 // would destroy the only copy of the user's clocks.
@@ -45,8 +68,8 @@ type Store struct {
 	dir string
 	// extras are top-level keys this version does not know, written back as found.
 	extras []pair
-	// blocked is set when an unreadable file could not be kept aside.
-	blocked bool
+	// blocked is why saving is refused: ErrNotRead or ErrNotKeptAside beneath; nil while it is not.
+	blocked error
 }
 
 // New answers a store over dir, normally %APPDATA%\TimeRibbon. Nothing is read or made until Load
@@ -58,15 +81,16 @@ func New(dir string) *Store {
 // Path answers the settings file's path.
 func (s *Store) Path() string { return filepath.Join(s.dir, FileName) }
 
-// Load reads the settings (FR-703 to FR-705). No file answers the defaults with no notice; a fault
-// reading one that is there is answered as an error.
+// Load reads the settings (FR-703 to FR-705). No file answers the defaults with no notice. A fault
+// reading one that is there is answered as an error and refuses every later save (FR-704).
 func (s *Store) Load() (application.Loaded, error) {
 	raw, err := os.ReadFile(s.Path())
 	if errors.Is(err, fs.ErrNotExist) {
 		return application.Loaded{Settings: settings.Defaults()}, nil
 	}
 	if err != nil {
-		return application.Loaded{Settings: settings.Defaults()}, fmt.Errorf("reading %s: %w", s.Path(), err)
+		s.blocked = fmt.Errorf("reading %s: %w; %w", s.Path(), err, ErrNotRead)
+		return application.Loaded{Settings: settings.Defaults()}, s.blocked
 	}
 	decoded, extras, ok := decode(raw)
 	if !ok {
@@ -76,23 +100,46 @@ func (s *Store) Load() (application.Loaded, error) {
 	return application.Loaded{Settings: decoded}, nil
 }
 
-// keepAside renames an unreadable file and answers the defaults with the notice saying where it
-// went. If the rename fails, saving is refused from then on.
+// keepAside renames an unreadable file to the first kept-aside name not yet taken and answers the
+// defaults with the notice saying where it went; an earlier copy is never replaced (FR-704). If no
+// name is free or the rename fails, saving is refused from then on.
 func (s *Store) keepAside() (application.Loaded, error) {
 	defaults := application.Loaded{Settings: settings.Defaults()}
-	if err := os.Rename(s.Path(), filepath.Join(s.dir, UnreadableName)); err != nil {
-		s.blocked = true
-		return defaults, fmt.Errorf("%w: %w", ErrNotKeptAside, err)
+	name, err := s.freeKeptAsideName()
+	if err == nil {
+		err = os.Rename(s.Path(), filepath.Join(s.dir, name))
 	}
-	defaults.Notice = keptAsideNotice
+	if err != nil {
+		s.blocked = fmt.Errorf("%w: %w", ErrNotKeptAside, err)
+		return defaults, s.blocked
+	}
+	defaults.Notice = keptAsideNotice(name)
 	return defaults, nil
+}
+
+// errNoFreeName is answered when every kept-aside name is taken.
+var errNoFreeName = errors.New("every name a damaged file is kept under is taken")
+
+// freeKeptAsideName answers the first kept-aside name nothing in the folder holds.
+func (s *Store) freeKeptAsideName() (string, error) {
+	for n := 1; n <= keptAsideLimit; n++ {
+		name := keptAsideName(n)
+		_, err := os.Lstat(filepath.Join(s.dir, name))
+		if errors.Is(err, fs.ErrNotExist) {
+			return name, nil
+		}
+		if err != nil {
+			return "", err
+		}
+	}
+	return "", errNoFreeName
 }
 
 // Save writes the settings to a temporary file in the same folder and renames it over the old
 // one, so a failure part way leaves the previous file whole (FR-702).
 func (s *Store) Save(current settings.Settings) error {
-	if s.blocked {
-		return ErrNotKeptAside
+	if s.blocked != nil {
+		return s.blocked
 	}
 	body, err := encode(current, s.extras)
 	if err != nil {

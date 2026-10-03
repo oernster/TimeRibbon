@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/oernster/timeribbon/internal/application"
@@ -28,6 +29,21 @@ const requestTimeout = 5 * time.Second
 // maxBody caps what is read of the answer: a release's JSON is a few kilobytes, so anything near
 // this is not one. A size the server states is never trusted.
 const maxBody = 1 << 20
+
+// releaseScheme and releaseHost are the only scheme and host a release's page or download may name:
+// both are handed to the desktop to open, which must never be handed a file, a share or another
+// site (FR-509). A download refused here is left out, so the release page stands in for it.
+const (
+	releaseScheme = "https"
+	releaseHost   = "github.com"
+)
+
+// onGitHub answers whether address is an https address on GitHub's own host, naming no user and
+// no port.
+func onGitHub(address string) bool {
+	parsed, err := url.Parse(address)
+	return err == nil && parsed.Scheme == releaseScheme && parsed.Host == releaseHost && parsed.User == nil
+}
 
 // Doer sends one HTTP request; *http.Client is one and the tests stand in another.
 type Doer interface {
@@ -89,9 +105,12 @@ func (g *GitHub) LatestRelease(ctx context.Context) (application.ReleaseInfo, er
 	if payload.TagName == "" || payload.HTMLURL == "" {
 		return application.ReleaseInfo{}, fmt.Errorf("the release names no version or no page")
 	}
+	if !onGitHub(payload.HTMLURL) {
+		return application.ReleaseInfo{}, fmt.Errorf("the release's page %q is not on %s", payload.HTMLURL, releaseHost)
+	}
 	assets := make([]application.ReleaseAsset, 0, len(payload.Assets))
 	for _, asset := range payload.Assets {
-		if asset.Name != "" && asset.DownloadURL != "" {
+		if asset.Name != "" && onGitHub(asset.DownloadURL) {
 			assets = append(assets, application.ReleaseAsset{Name: asset.Name, DownloadURL: asset.DownloadURL})
 		}
 	}

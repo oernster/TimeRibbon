@@ -70,22 +70,15 @@ type timedCell struct {
 	shown         bool
 }
 
-// secondsPerDay is one turn of the world, which a place behind Greenwich is reached after going east.
-var secondsPerDay = int((24 * time.Hour).Seconds())
-
-// eastOfGreenwich answers how far east of Greenwich a zone's clock is, in seconds: its offset from
-// UTC where that is ahead or level, else a whole day more, since going east from Greenwich reaches
-// the places behind it last.
-func eastOfGreenwich(offsetSeconds int) int {
-	if offsetSeconds < 0 {
-		return offsetSeconds + secondsPerDay
-	}
-	return offsetSeconds
-}
+// behindGreenwich answers whether a zone's clock is behind UTC, which going east from Greenwich
+// reaches last.
+func behindGreenwich(offsetSeconds int) bool { return offsetSeconds < 0 }
 
 // eastFromGreenwich orders cells starting at Greenwich and going east round the world: London,
-// then Berlin, Tokyo, Melbourne, with New York last. A cell that cannot be shown goes after every
-// one that can.
+// then Berlin, Tokyo, Melbourne, with New York last. Every place level with or ahead of UTC comes
+// before every place behind it, each group by ascending offset, so UTC-10 never comes before UTC+14
+// although the two keep the same time of day (FR-102). A cell that cannot be shown goes after every one
+// that can.
 func eastFromGreenwich(a, b timedCell) int {
 	if a.shown != b.shown {
 		if a.shown {
@@ -93,7 +86,13 @@ func eastFromGreenwich(a, b timedCell) int {
 		}
 		return 1
 	}
-	return cmp.Compare(eastOfGreenwich(a.offsetSeconds), eastOfGreenwich(b.offsetSeconds))
+	if behind := behindGreenwich(a.offsetSeconds); behind != behindGreenwich(b.offsetSeconds) {
+		if behind {
+			return 1
+		}
+		return -1
+	}
+	return cmp.Compare(a.offsetSeconds, b.offsetSeconds)
 }
 
 // Snapshot answers what the ribbon shows now, one cell per clock ordered east from Greenwich, the

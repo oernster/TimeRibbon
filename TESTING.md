@@ -53,7 +53,7 @@ and what stops it. An unexplained shortfall cannot be told from an oversight.
 | `internal/infrastructure/update` | 100% | 100% | `test.ps1` |
 | `internal/infrastructure/zones` | 100% | 100% | `test.ps1` |
 | `internal/infrastructure/iconscale` | 100% | 100% | `test.ps1` |
-| `internal/infrastructure/store` | 93.4% | 93% | `test.ps1` |
+| `internal/infrastructure/store` | 94.0% | 94% | `test.ps1` |
 | `internal/infrastructure/setup` | 84.0% | 84% | `test.ps1` |
 | `tools/versioninfo` | 86.7% | 86% | `test.ps1` |
 | `tools/payload` | 82.8% | 82% | `test.ps1` |
@@ -70,8 +70,8 @@ and what stops it. An unexplained shortfall cannot be told from an oversight.
 | `installer` | 0%, no tests | none | not gated |
 
 Every figure is the Windows build's, which is what `test.ps1` measures. The Windows build compiles
-372 Go test functions, counted from the test files `go list` selects for it; each runs once with no
-subtests, plus one `TestMain` in `internal/infrastructure/setup`. Twenty-seven of them are the
+384 Go test functions, counted from the test files `go list` selects for it; each runs once with no
+subtests, plus one `TestMain` in `internal/infrastructure/setup`. Thirty-one of them are the
 structural tests in `tests/structural`, which read the source rather than run it and are the same
 on every platform; [ARCHITECTURE.md](ARCHITECTURE.md) lists each against the rule it holds. One
 test in `store` holds a promise rather than a rule of structure:
@@ -79,7 +79,7 @@ test in `store` holds a promise rather than a rule of structure:
 see ARCHITECTURE.md, The settings file. Three hold NFR-U-1: `contrast_test.go` reads every scheme's
 colours from `theme.css` and `colours.css` and requires 4.5:1 for each text colour on the cell and
 the surface in both themes. It is a Go test because Vitest hands a CSS import back empty. The macOS
-build compiles 347 and the Linux build 351 ([On macOS and Linux](#on-macos-and-linux)).
+build compiles 358 and the Linux build 362 ([On macOS and Linux](#on-macos-and-linux)).
 
 ### The front end
 
@@ -177,9 +177,11 @@ ribbon shows one scroll bar with no clock cut off; every clock is reachable besi
   `Places` accessor, which only the setup program's facade reads.
 - **`internal/infrastructure/startup` (80.6%).** Written, read and removed under a scratch key; the
   registry refusing to open the key or to read, write or delete its value is not reached.
-- **`internal/infrastructure/store` (93.4%).** The folder refusing to be made and the rename over the
-  old file failing are tested. Not reached: the temporary file refusing to be made, written, flushed
-  or closed, which only a failing disk produces; the error returns in `encode` and `extrasOf`, which
+- **`internal/infrastructure/store` (94.0%).** The folder refusing to be made and the rename over the
+  old file failing are tested, as is a file held open with no sharing as it is read, on Windows only
+  (`lock_windows_test.go`); elsewhere a folder in the file's place stands in for the fault. Not reached: the temporary file refusing to be made, written, flushed
+  or closed, which only a failing disk produces; the folder refusing to say whether a kept-aside name
+  is taken, once the file in it has just been read; the error returns in `encode` and `extrasOf`, which
   guard values and a file already known to be well formed.
 - **`tools/versioninfo` (86.7%).** `main` hands `run` the real arguments; an output folder that
   cannot be made is not reached. What it writes was read back from both released executables through
@@ -201,7 +203,7 @@ The macOS and Linux halves of infrastructure compile only for their own platform
 face the desktop (`cocoamain`, `gtkmain`, `monitors`, `desktop`) also need cgo against AppKit or
 GTK. `test.ps1` reaches none of them. They are checked on a machine of their own
 platform, set up as [DEVELOPMENT.md](DEVELOPMENT.md) says, from a checkout with the page built. The
-macOS build compiles 347 Go test functions and the Linux build 351: the shared ones, the structural
+macOS build compiles 358 Go test functions and the Linux build 362: the shared ones, the structural
 tests and its own.
 
 | What | macOS | Linux |

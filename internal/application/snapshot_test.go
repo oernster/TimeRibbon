@@ -85,6 +85,26 @@ func TestTheRibbonRunsEastFromGreenwich(t *testing.T) {
 	}
 }
 
+// FR-102 Amendment 6: every place level with or ahead of UTC comes before every place behind it,
+// even one a whole day behind, added first (FR-102).
+func TestEveryPlaceAheadOfUTCComesBeforeEveryPlaceBehindIt(t *testing.T) {
+	t.Parallel()
+	r := newRig(t, withEntries(
+		settings.Entry{ID: "hon", Zone: "Pacific/Honolulu"},
+		settings.Entry{ID: "kir", Zone: "Pacific/Kiritimati"},
+		settings.Entry{ID: "pago", Zone: "Pacific/Pago_Pago"},
+		settings.Entry{ID: "tonga", Zone: "Pacific/Tongatapu"},
+		settings.Entry{ID: "lon", Zone: "Europe/London"},
+	))
+	var ids []string
+	for _, cell := range r.service.Snapshot().Cells {
+		ids = append(ids, cell.ID)
+	}
+	if want := []string{"lon", "tonga", "kir", "pago", "hon"}; !slices.Equal(ids, want) {
+		t.Errorf("order %v, want %v", ids, want)
+	}
+}
+
 // FR-706: an invalid clock is never given another zone's time.
 func TestInvalidClockIsNeverGivenAnotherZone(t *testing.T) {
 	t.Parallel()

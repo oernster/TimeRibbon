@@ -2,91 +2,80 @@
 
 What is still open, what is deliberately left and what only looks like debt.
 
-Every item in this file is a behaviour-preserving internal concern. Nothing here reverts a feature or
-changes what the user sees. Read it against `ARCHITECTURE.md` and the structural tests, which are the
-authority on the invariants an item might threaten.
+Every item is a behaviour-preserving internal concern; nothing here reverts a feature or changes what
+the user sees. `ARCHITECTURE.md` and the structural tests are the authority on the invariants.
 
-Open items are numbered sections. A numbered heading is the definition of an open item, so a scan for
-`## <number>.` is the machine check for whether this file is clear. The two standing sections below
-are deliberately unnumbered and are not open items.
-
-History is not recorded here. A resolved item is deleted outright, never rewritten as done and never
-archived. A resolution worth remembering belongs in the release notes.
+Open items are numbered sections, so a scan for `## <number>.` tells whether the file is clear. The
+two standing sections at the end are unnumbered. A resolved item is deleted outright; history belongs
+in the release notes.
 
 ## 1. A Linux and macOS test writes the panel's size out again
 
 `TestTheRibbonReturnsFromAPanelToWhereItIsPlaced` in `internal/infrastructure/desktop/ribbon_unix_test.go`
-grows the window to a panel and back, with the panel's size written in as 560 by 760. The one home of
-the panel sizes is `panels` in `main.go`, which the desktop package cannot import, so the test holds a
-second copy that nothing keeps in step. It has already drifted in meaning: 560 by 760 is now About's
-size, while Settings opens at 900 by 760 (FR-625), so the larger of the two jumps is not the one this
-test makes.
+writes the panel's size in as 560 by 760, a second copy of `panels` in `main.go`, which the desktop
+package cannot import. It has drifted in meaning: that is About's size, while Settings opens at 900 by
+760 (FR-625).
 
-Cost of leaving it: low. The test still proves what it was written for, that the window is put back
-where it was placed after any larger window; a panel size changed in `main.go` breaks nothing here.
-It only stops describing the sizes the application really uses. Resolving it means giving the panel
-sizes a home the desktop tests can read (the `internal/product` package, say) or making the test
-exercise both sizes read from there. Blocked on nothing but a machine to run it on, since the test
-builds for Linux and macOS only.
+Cost of leaving it: low. The test still proves the ribbon returns to where it was placed after a
+larger window. Resolving it means giving the panel sizes a home the desktop tests can read, such as
+`internal/product`. Blocked on a Linux or macOS machine to run it.
+
+## 2. The grip's drag reads the page's pointer on macOS and Linux
+
+On Windows the corner grip's drag reads the cursor from the desktop (`desktop.Cursor`), because the
+page's pointer events were measured jumping backwards while the window was resized under them
+(FR-623). `desktop.Cursor` answers that it cannot read the pointer on macOS and Linux, so there the
+drag still follows the page's reading.
+
+Cost of leaving it: unknown until measured. Whether the page's pointer jumps there too has not been
+observed. Resolving it means reading the pointer through AppKit (`NSEvent mouseLocation`) and GDK in
+`desktop`, in the units `pointerAt` divides by. Blocked on a macOS and a Linux machine to measure and
+test it.
 
 ## Looks like debt, not worth touching
 
 **The drag sends Wails an internal message.** `startDrag` calls `window.WailsInvoke('drag')`, the
-message Wails' own drag regions send, rather than a documented call. It is the one way to hand a
-press to the platform's own move loop without writing that loop again; on macOS Wails answers it
-with `performWindowDragWithEvent` on the press it kept. The Wails version in `go.mod` pins it.
-Check dragging by hand on every platform on any Wails upgrade.
+message Wails' own drag regions send: the one way to hand a press to the platform's own move loop.
+The Wails version in `go.mod` pins it; check dragging by hand on every platform on any Wails upgrade.
 
-**macOS hides the Dock icon after Wails shows it.** Wails 2.12.0 has its activation policy option
-commented out and makes TimeRibbon a regular application as it finishes launching, so the switch to
-an accessory is made afterwards, through the main queue AppKit serves only once launching is done.
-It rests on that order inside Wails. Check `lsappinfo` reports `UIElement` on any Wails upgrade.
+**macOS hides the Dock icon after Wails shows it.** Wails 2.12.0 makes TimeRibbon a regular
+application as it finishes launching, so the switch to an accessory goes through the main queue
+afterwards. Check `lsappinfo` reports `UIElement` on any Wails upgrade.
 
-**macOS borrows Windows' drag distance.** macOS publishes no distance a press must move before it
-becomes a drag, so `ribbon_darwin.go` uses Windows' 4 DIP as a named value (ruled by Oliver,
-2026-09-28). There is nothing to read it from.
+**macOS borrows Windows' drag distance** of 4 DIP, since macOS publishes none (ruled by Oliver,
+2026-09-28).
 
-**`placement.Fit` still makes room for one cell when handed none.** The application now always
-counts at least one cell (the prompt), so that branch is never taken from there. It is the domain's
-own contract (tested at the domain) and costs one line.
+**`placement.Fit` still makes room for one cell when handed none.** The application always counts at
+least the prompt, so that branch is the domain's own tested contract at the cost of one line.
 
 ## Not debt (do not "fix" these)
 
 **The setup page's keyboard ring is the window's model written again.** The setup page has no build
-step and can import nothing, so its ring is its own script; `setupRing.test.ts` loads the shipped
-script and holds it to the same behaviour. The self-reading cycle went the other way because the
-window's build can import a script from the setup page's folder, so that one has a single home.
+step and can import nothing; `setupRing.test.ts` holds the shipped script to the same behaviour. The
+self-reading cycle went the other way because the window's build can import from the setup page's
+folder.
 
-**The setup program holds no install logic of its own.** Every act the setup window performs goes
-through `internal/infrastructure/setup`; `installer/app.go` decides only which screen to open and when
-to refuse. `setup` builds for Windows only and is unit tested there; `installer` has no tests, since
-every method on it acts on the machine.
+**The setup program holds no install logic.** Every act goes through `internal/infrastructure/setup`,
+tested on Windows; `installer` has no tests, since every method on it acts on the machine.
 
-**The browser opens through the desktop, not through Wails.** Wails' `BrowserOpenURL` answers no
-error, so a desktop with no browser left the donation button doing nothing with nothing said.
-`desktop.OpenInBrowser` calls `ShellExecute` on Windows, `open` on macOS and `xdg-open` on Linux,
-each of which reports a refusal. The donation page and an offered update (FR-509) both open through
-it; Settings or Help shows the refusal with the address. Moving it back to Wails would bring the
-silence back.
+**The browser opens through the desktop, not Wails.** Wails' `BrowserOpenURL` reports no error, so a
+machine with no browser left the donation button silent. `desktop.OpenInBrowser` reports the
+refusal, which Settings or Help shows with the address.
 
-**Nothing holds the ribbon on a display during a drag on macOS and Linux.** `KeepOnDisplays` does
-nothing there, since neither AppKit nor the window manager offers a say while a drag lasts; a ribbon
-left partly off every display is put back when the move ends, through the same `Service.Moved` as on
-Windows. Writing a move loop of their own to match Windows would fight the desktop.
+**Nothing holds the ribbon on a display during a drag on macOS and Linux.** Neither offers a say while
+a drag lasts; a ribbon left partly off every display is put back when the move ends. A move loop of
+our own would fight the desktop.
 
-**The macOS build names a framework Wails needs.** `platform_darwin.go` links UniformTypeIdentifiers
-because Wails' macOS half uses it and only the `wails` command adds it, which TimeRibbon does not
-build with. Removing the line breaks the link, measured 2026-09-28.
+**The macOS build names a framework Wails needs.** `platform_darwin.go` links UniformTypeIdentifiers,
+which only the `wails` command would otherwise add; removing it breaks the link (measured
+2026-09-28).
 
-**Linux has a tray icon of its own rather than a library's.** The StatusNotifierItem and its menu in
-`desktop/tray*_linux.go` and `desktop/dbusmenu_linux.go` look like something a library would do.
-`fyne.io/systray` was measured and rejected (ARCHITECTURE.md, Design decisions); going back to it
-would lose a menu rebuilt as it opens.
+**Linux has a tray icon of its own.** `fyne.io/systray` was measured and rejected
+(DECISIONS-TRADEOFFS.md); going back would lose a menu rebuilt as it opens.
 
-**WebKit's DMABUF renderer is off on every Linux machine, not only NVIDIA's.** On NVIDIA's own driver
-it drew a blank window (measured 2026-10-02), while on Mesa it works. Telling the drivers apart
-would mean reading the GPU before GTK opens, to save a faster path the clocks never need; a value the
-user sets in `WEBKIT_DISABLE_DMABUF_RENDERER` is kept, so the choice stays theirs.
+**WebKit's DMABUF renderer is off on every Linux machine.** It drew a blank window on NVIDIA's own
+driver (measured 2026-10-02); telling drivers apart would buy a faster path the clocks never need. A
+value the user sets in `WEBKIT_DISABLE_DMABUF_RENDERER` is kept.
 
 **The scroll bar's thickness comes from the page.** It is the web engine's bar, which Windows' own
-scroll bar metric does not describe, so the page is the only place that can measure it.
+metric does not describe.

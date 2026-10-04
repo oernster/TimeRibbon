@@ -1,151 +1,49 @@
 # TimeRibbon: Requirements Specification
 
 Status: baselined by Oliver on 2026-09-27. Section 11 records the rulings that closed its open
-questions; it holds none at present. Later changes arrive as dated amendments.
+questions; none is open. Later changes arrive as dated amendments, listed here and cited by number
+where they apply.
 
-Amendment 1 (Oliver, 2026-09-27, after the first build): the default orientation becomes vertical
-(FR-103).
+## Amendments
 
-Amendment 2 (Oliver, 2026-09-27): Help, About and Licence (FR-508, FR-607 to FR-609) plus the
-self-reading licence in setup (FR-811); CON-6, FR-108 and FR-502 carry notes of it.
-
-Amendment 3 (Oliver, 2026-09-27): the web view's data moves inside `%APPDATA%\TimeRibbon` (FR-806).
-
-Amendment 4 (Oliver, 2026-09-27): with the first release the settings file becomes a contract
-(NFR-C-1).
-
-Amendment 5 (Oliver, 2026-09-27): the right-click menu gains `Exit` (FR-108); each setup screen opens
-with nothing focused rather than on its lead action (FR-809).
-
-Amendment 6 (Oliver, 2026-09-27): the ribbon runs in time order east from Greenwich, the reference,
-worked out at each snapshot (FR-102); ordering by hand is withdrawn (FR-306).
-
-Amendment 7 (Oliver, 2026-09-27): a ribbon whose length changes is re-centred along it on its
-display, keeping its position across (FR-104).
-
-Amendment 8 (Oliver, 2026-09-28): the Position submenu centres the ribbon on an edge (FR-408);
-clocks come large or small (FR-610); the Settings header stays in place (FR-601).
-
-Amendment 9 (Oliver, 2026-09-28): style and orientation move from Settings to the menus; each
-orientation has a home edge the ribbon goes to when it is chosen (FR-409).
-
-Amendment 10 (Oliver, 2026-09-28): the default place is flush against the home edge (FR-403).
-
-Amendment 11 (Oliver, 2026-09-28): the product is renamed TimeRibbon over a trademark concern and
-its window is the ribbon. Nothing carries over from the former name, which starts a new major
-version (NFR-C-1).
-
-Amendment 12 (Oliver, 2026-09-28): colour schemes, Neon among them, chosen from a Colour submenu
-(FR-611).
-
-Amendment 13 (Oliver, 2026-09-28): TimeRibbon runs on macOS (Apple Silicon, delivered as a signed
-and notarised DMG) and Linux (delivered as a Flatpak) as well as Windows. Off Windows it keeps a real
-tray icon; on Linux it runs through X11. The sign-in entry is named in each platform's words. On
-macOS the drag distance is Windows' 4 DIP and a click on the menu bar icon opens its menu; on Linux
-the tray host's activation shows or hides the ribbon. Section 1.3, section 2.3, CON-7, CON-8,
-FR-401, FR-503, FR-605, FR-607, NFR-O-1 and section 5 carry notes of it.
-
-Amendment 14 (Oliver, 2026-09-28): five more colour schemes (Amber, Ruby, Indigo, Berry, Contrast);
-Neon gains a light side, so every scheme follows the theme; Ocean is redrawn to read as the sea rather
-than as Classic; each scheme's hue is carried by the colours the ribbon itself paints (FR-611).
-
-Amendment 15 (Oliver, 2026-09-28): an update check against GitHub's releases (FR-509), which is the
-application's one network request; NFR-S-1 is restated to allow it and nothing else. Help gains
-`Check for updates` (FR-508); the settings file gains the skipped release (NFR-C-1 allows the key).
-
-Amendment 16 (Oliver, 2026-09-28): a date format chosen in Settings (FR-612): the day and month in
-words either way round; else the short weekday with the whole date in numbers, day, month or year
-first, separated by slashes. The settings file gains the choice (NFR-C-1 allows the key).
-
-Amendment 17 (Oliver, 2026-09-28): launching TimeRibbon while it runs toggles the ribbon rather
-than only showing it (FR-506), so a Stream Deck button can both show and hide it.
-
-Amendment 18 (Oliver, 2026-09-28): the ribbon can be unpinned (FR-613). Unpinned, it shrinks to a
-thin tab in the scheme's accent on its side nearer the display's edge (FR-614), opens while the
-pointer rests on the tab (FR-615) and shrinks again a second after the pointer leaves (FR-616); it
-stays on top (FR-617) and counts as shown (FR-618). NFR-U-5 exempts the tab. Section 1.3, FR-108,
-FR-502, FR-506, FR-611 and FR-701 carry notes of it; the settings file gains the pin (NFR-C-1
-allows the key). Section 11 records the four rulings behind it (OQ-6 to OQ-9).
-
-Amendment 19 (Oliver, 2026-09-29): the pin chosen and the pin in effect are told apart. An unpinned
-ribbon collapses only while flush against an edge of its display's work area that runs along its
-orientation, inner edges between displays included (FR-619); anywhere else it shows and behaves as
-pinned while the choice stays unpinned, so dragging it back onto an edge brings the tab back by
-itself. A drop within 16 DIP of such an edge snaps flush (FR-410). The last edge it stood flush
-against is remembered (FR-411); unticking `Pin ribbon` away from every edge moves the ribbon to the
-centre of that edge (FR-613). The tab covers the flush side (FR-614, reversing OQ-6). FR-616 and
-FR-617 now apply to a ribbon unpinned in effect. The settings file gains the remembered edge
-(NFR-C-1 allows the key). Section 11 records the rulings (OQ-6 reversed, OQ-10 to OQ-12).
-
-Amendment 20 (Oliver, 2026-09-29): a sun map (section 3.9, FR-901 to FR-912): a photographic world
-map lit by day and dark by night with city lights, each clock's zone city marked in red, below or
-above a horizontal ribbon and in a pull out beside a vertical one, turned on or off from both menus
-and Settings. NFR-P-5 and NFR-C-2 measure it; ASM-5 holds the imagery's licence until confirmed. The
-settings file gains the sun map and pull out choices (NFR-C-1 allows the keys). Section 11 records
-the rulings (OQ-13 to OQ-18).
-
-Amendment 21 (Oliver, 2026-09-29): the window holds only what it shows. On Windows, while the sun
-map shows, the window is cut to the ribbon and the map together, so the desktop shows through
-wherever neither is (FR-913). A clock's label on the map moves aside rather than print over another
-label or dot (FR-914). Section 11 records the rulings (OQ-19, OQ-20).
-
-Amendment 22 (Oliver, 2026-09-29): one handle for both orientations. A horizontal ribbon carries the
-pull out's handle too; its map shows only while the pull out is open, exactly as a vertical one's
-does, so every sun map opens and closes the same way (FR-902, FR-903). One remembered choice serves
-both orientations; the settings file gains no key. Section 11 records the rulings (OQ-21, OQ-22).
-
-Amendment 23 (Oliver, 2026-09-29): the handle has a lane of its own. On a friend's machine the handle
-of a horizontal ribbon covered the middle clock's name; it stood inside the ribbon on space the cells
-were using. While the sun map is on, the ribbon is deeper by a lane along the side the map adjoins;
-the handle stands in that lane, so it covers no cell in either orientation (FR-903). Section 11
-records the ruling (OQ-23).
-
-Amendment 24 (Oliver, 2026-09-29): a cell fits its text. On a friend's machine the dates were cut
-short; the cell widths were fixed numbers that happened to fit the fonts on the machines they were
-tried on. Measured on the reference machine, the widest date already needed 2 DIP more than a large
-cell gave it. Each size's widths are now the least a cell is drawn at; a cell is widened to
-its widest time and date as the page draws them (FR-620). Section 11 records the ruling (OQ-24).
-
-Amendment 25 (Oliver, 2026-09-29): Settings shows whole where the display has room. It opened at a
-fixed 760 DIP, so on a large display it still had to be scrolled; with five clocks its content
-measured 1064 DIP. It now grows to the height of its content, capped by the work area, where it
-scrolls as before (FR-621). Section 11 records the ruling (OQ-25).
-
-Amendment 26 (Oliver, 2026-09-29): the window can be see-through. Settings gains an Opacity slider
-from 20 to 100 percent that draws everything the window shows at that opacity: the clocks, the sun
-map and Settings itself. 20 percent is the least, so the ribbon can always be seen and found again
-(FR-622). The settings file gains the `opacity` key (NFR-C-1 allows it). Section 11 records the
-ruling (OQ-26).
-
-Amendment 27 (Oliver, 2026-09-29): the clocks can be resized by hand. A grip in the ribbon's corner
-draws everything in the clocks larger or smaller together, text, dials, padding and cells alike, on
-top of Large or Small; no free window resizing, so no shape the layout was not made for. The bounds
-are the application's own rather than the user's (FR-623). The settings file gains the `scale` key
-(NFR-C-1 allows it). Section 11 records the rulings (OQ-27, OQ-28).
-
-Amendment 28 (Oliver, 2026-09-29): Settings offers everything the menus choose. Style, Colour,
-Orientation, Position and Pin ribbon were on the menus alone; Settings now offers every choice the
-menus do, from the same items, so the two cannot drift apart. The menus keep them too, which widens
-Amendment 9 rather than reversing it (FR-624). Settings grows to 900 DIP wide, its choices side by
-side, while About, Licence and the update panel keep 560 (FR-625). The place search stays open in
-Settings with the Add clock picture beside its box (FR-626). Section 11 records the rulings (OQ-29
-to OQ-31).
-
-Amendment 29 (Oliver, 2026-09-29): the place search matches what is typed at the start of a word
-and lists the best matches first. It matched anywhere and sorted alphabetically, so typing `l`
-began with Adelaide and Algiers (FR-302).
-
-Amendment 30 (Oliver, 2026-10-04): the opacity is the ribbon's background alone. The clocks on it,
-the sun map and every panel, Settings among them, are drawn wholly opaque (FR-622).
-
-Amendment 31 (Oliver, 2026-10-04): a change of scale grows and shrinks the ribbon from its top-left
-corner, as a window being resized does, rather than centring it again along its length; a change of
-clocks still centres it (FR-104, FR-623).
+| No. | Date | Change |
+|---|---|---|
+| 1 | 2026-09-27 | The default orientation becomes vertical (FR-103). |
+| 2 | 2026-09-27 | Help, About and Licence (FR-508, FR-607 to FR-609); setup's licence reads itself (FR-811). |
+| 3 | 2026-09-27 | The web view's data moves inside `%APPDATA%\TimeRibbon` (FR-806). |
+| 4 | 2026-09-27 | The settings file becomes a contract with the first release (NFR-C-1). |
+| 5 | 2026-09-27 | The right-click menu gains Exit (FR-108); each setup screen opens with nothing focused (FR-809). |
+| 6 | 2026-09-27 | The ribbon runs east from Greenwich, worked out at each snapshot (FR-102); ordering by hand is withdrawn (FR-306). |
+| 7 | 2026-09-27 | A ribbon whose length changes is re-centred along it, keeping its position across (FR-104). |
+| 8 | 2026-09-28 | Position centres the ribbon on an edge (FR-408); large or small clocks (FR-610); the Settings header stays in place (FR-601). |
+| 9 | 2026-09-28 | Style and orientation move to the menus; each orientation has a home edge (FR-409). |
+| 10 | 2026-09-28 | The default place is flush against the home edge (FR-403). |
+| 11 | 2026-09-28 | The product is renamed TimeRibbon over a trademark concern, its window the ribbon; nothing carries over from the former name, which starts a new major version (NFR-C-1). |
+| 12 | 2026-09-28 | Colour schemes, chosen from a Colour submenu (FR-611). |
+| 13 | 2026-09-28 | macOS (Apple Silicon, a signed and notarised DMG) and Linux (a Flatpak, through X11) join Windows, each with a real tray icon and the sign-in entry in its own words (section 1.3, 2.3, CON-7, CON-8, FR-401, FR-503, FR-605, FR-607, NFR-O-1, section 5). |
+| 14 | 2026-09-28 | Five more schemes; Neon gains a light side; Ocean redrawn; each scheme's hue carried by the colours the ribbon paints (FR-611). |
+| 15 | 2026-09-28 | An update check against GitHub, the one network request (FR-509, NFR-S-1); Help gains Check for updates (FR-508). |
+| 16 | 2026-09-28 | A date format chosen in Settings (FR-612). |
+| 17 | 2026-09-28 | A second launch toggles the ribbon rather than only showing it (FR-506). |
+| 18 | 2026-09-28 | The ribbon can be unpinned to a tab (FR-613 to FR-618); NFR-U-5 exempts the tab; OQ-6 to OQ-9. |
+| 19 | 2026-09-29 | The pin chosen and the pin in effect told apart (FR-619); a drop near an edge snaps (FR-410); the last edge is remembered (FR-411); the tab covers the flush side (FR-614, reversing OQ-6); OQ-10 to OQ-12. |
+| 20 | 2026-09-29 | The sun map (section 3.9, FR-901 to FR-912; NFR-P-5, NFR-C-2, ASM-5); OQ-13 to OQ-18. |
+| 21 | 2026-09-29 | On Windows the window is cut to the ribbon and its map (FR-913); map labels move aside (FR-914); OQ-19, OQ-20. |
+| 22 | 2026-09-29 | One pull out handle for both orientations, one remembered choice (FR-902, FR-903); OQ-21, OQ-22. |
+| 23 | 2026-09-29 | The handle stands in a lane of its own (FR-903); OQ-23. |
+| 24 | 2026-09-29 | A cell is as wide as its widest text as the page draws it (FR-620); OQ-24. |
+| 25 | 2026-09-29 | Settings grows to its content, capped by the work area (FR-621); OQ-25. |
+| 26 | 2026-09-29 | An Opacity slider from 20 to 100 percent (FR-622); OQ-26. |
+| 27 | 2026-09-29 | A corner grip resizes the clocks from 75 to 200 percent (FR-623); OQ-27, OQ-28. |
+| 28 | 2026-09-29 | Settings offers every menu choice (FR-624), opens 900 DIP wide (FR-625) and keeps the place search open (FR-626); OQ-29 to OQ-31. |
+| 29 | 2026-09-29 | The place search matches the start of a word, best matches first (FR-302). |
+| 30 | 2026-10-04 | The opacity applies to the ribbon's background alone; the clocks, the sun map and every panel stay opaque (FR-622). |
+| 31 | 2026-10-04 | A change of scale grows and shrinks the ribbon from its top-left corner; a change of clocks still re-centres it (FR-104, FR-623). |
+| 32 | 2026-10-04 | The document's wording is consolidated (Oliver: "Make the docs concise"). Each requirement now states what holds after its amendments and cites them by number; the measurements behind section 2.3 are summarised. No requirement, acceptance or verifying test was removed or changed in meaning. |
 
 Source: the initial product specification of 2026-09-27, written under the product's former name,
-plus Oliver's rulings of 2026-09-27: the stack is Go with Wails; orientation is a setting offering
-both horizontal and vertical, both in the first release; a setup program ships with the first
-release; this document is baselined before any code.
+plus Oliver's rulings of 2026-09-27: Go with Wails; both orientations in the first release; a setup
+program with the first release; this document baselined before any code.
 
 ---
 
@@ -153,12 +51,9 @@ release; this document is baselined before any code.
 
 ### 1.1 Purpose
 
-TimeRibbon is a small Windows desktop application showing a ribbon of clocks, one per chosen place in
-the world. It answers one question at a glance: what time and what day is it where my friends are?
-
-It shows places, never people. It is not a calendar, a meeting planner or a productivity tool.
-
-Amendment 13 (Oliver, 2026-09-28): it runs on macOS and Linux as well as Windows.
+TimeRibbon is a small desktop application for Windows, macOS and Linux (Amendment 13) showing a ribbon
+of clocks, one per chosen place. It answers at a glance: what time and day is it where my friends
+are? It shows places, never people. It is not a calendar, meeting planner or productivity tool.
 
 ### 1.2 Intended audience
 
@@ -166,81 +61,66 @@ Oliver Ernster as author and decision owner; contributors to the open source pro
 
 ### 1.3 Scope
 
-**In scope:**
-
-- A frameless ribbon of clocks, vertical by default, horizontal as a choice; either can be centred
-  on an edge of its display.
-- Each clock showing its place, its local time, its local weekday and date plus a zone
-  abbreviation or UTC offset, all derived from real time zone rules.
-- Adding, editing and removing clocks, with a searchable list of places; the ribbon keeps them in
-  time order.
-- Digital and analogue presentation, in large or small clocks; 12-hour and 24-hour time.
-- Dragging the whole ribbon anywhere, including onto another monitor; restoring its monitor and
-  position at the next launch; recovering it onto a visible display when its place has gone.
-- A notification-area (tray) icon with a menu; optional Always on Top; optional Start with Windows.
-- An unpinned ribbon that waits as a thin tab on the edge it stands against and opens while the
-  pointer rests on it (FR-613 to FR-619); a drop near an edge snaps flush (FR-410).
-- An optional world map beside the ribbon, lit by day and dark by night with city lights, each
-  clock's place marked (FR-901 to FR-914).
-- Light, dark and system themes, in ten colour schemes (FR-611).
-- A check for a newer release on GitHub, the application's one network request (FR-509).
-- Local persistence in one human-readable file.
-- A setup program that installs, updates, repairs and removes the application for one user
-  (section 5).
+**In scope:** a frameless ribbon of clocks, vertical by default, centred on an edge when asked; each
+clock's place, local time, weekday, date and zone mark from real time zone rules; adding, editing and
+removing clocks through a place search, ordered by time; digital or analogue, large or small,
+12-hour or 24-hour; dragging onto any monitor, restoring and recovering its place; a tray icon with a
+menu, Always on top, start at sign-in; an unpinned ribbon waiting as a tab (FR-613 to FR-619, FR-410);
+a sun map (FR-901 to FR-914); light, dark and system themes in ten schemes (FR-611); an update check,
+the one network request (FR-509); local persistence in one readable file; a setup program for one
+user on Windows (section 5).
 
 **Out of scope:**
 
 | Item | Why |
 |---|---|
-| People, contacts or friend names | The spec: clocks represent places, not people |
-| Calendars, meetings, reminders, alarms or time conversion tools | The spec's section 1 and closing paragraph |
-| A second hand or seconds display | The spec's section 7: seconds are not central |
-| Per-clock 12/24-hour format | The spec's section 7: a global preference until use shows otherwise |
-| Wrapping clocks onto several rows or columns | The spec's section 19; overflow scrolls instead (FR-106) |
-| Relative wording such as "tomorrow" or "+1 day" | The spec's section 14 prefers the local weekday and date |
-| Any platform but Windows | The spec's section 20. Withdrawn by Amendment 13: macOS and Linux are in scope |
-| Languages other than English | Not asked for; weekday and month names are English |
-| Network time synchronisation | Windows owns the clock; TimeRibbon reads it (NFR-S-2) |
-| Downloading time zone rule updates | Rules are built into the binary; macOS and Linux read the system's zone files first (CON-5, NFR-S-3) |
+| People, contacts or friends' names | Clocks represent places |
+| Calendars, meetings, reminders, alarms, time conversion | The spec's section 1 |
+| Seconds | The spec's section 7 |
+| A 12/24-hour format per clock | The spec's section 7: one preference |
+| Wrapping clocks onto several rows | The spec's section 19; overflow scrolls (FR-106) |
+| Relative wording such as "tomorrow" | The spec's section 14 prefers the local weekday and date |
+| Languages other than English | Not asked for |
+| Network time synchronisation | The system owns the clock (NFR-S-2) |
+| Downloading time zone rule updates | Rules are built in; macOS and Linux read their own first (CON-5, NFR-S-3) |
 | Fixed UTC offsets as clocks | The spec's section 4 forbids them |
-| Opening an unpinned ribbon by touch | A touch screen reports no resting pointer; pinned, the default, serves it. Claude's proposal, Amendment 18 |
-| Moving a clock's mark to its real town | Amendment 20 (OQ-17): the mark is the zone's city; a label naming another town is not looked up |
-| Zooming, panning or another projection of the sun map | Amendment 20: one whole-world map at the ribbon's length |
-| Live satellite or cloud imagery, weather, the moon | Amendment 20: nothing is fetched (FR-911, NFR-S-1) |
+| Opening an unpinned ribbon by touch | Touch reports no resting pointer; pinned, the default, serves it (Amendment 18) |
+| Marking a clock's real town on the map | The mark is the zone's city (OQ-17) |
+| Zooming, panning or reprojecting the map | One whole-world map (Amendment 20) |
+| Live imagery, weather, the moon | Nothing is fetched (FR-911, NFR-S-1) |
+
+Only Windows was in scope at baseline (the spec's section 20); Amendment 13 withdrew that.
 
 ### 1.4 Definitions
 
-| Term | Meaning, fixed for this document |
+| Term | Meaning |
 |---|---|
-| **Clock** | One configured entry: a zone plus a label, at a position in the order. |
-| **Zone** | An IANA time zone identifier such as `America/New_York`, resolved as CON-5 describes. |
-| **Label** | The place name a clock is shown by, such as `New York`. |
-| **Default label** | The label derived from a zone id: its last segment with underscores read as spaces. `America/Argentina/Buenos_Aires` gives `Buenos Aires`. |
-| **Ribbon** | The application's frameless window holding the clocks in order. |
+| **Clock** | One entry: a zone plus a label, at a position in the order. |
+| **Zone** | An IANA time zone identifier such as `America/New_York`, resolved as CON-5 says. |
+| **Label** | The name a clock is shown by. |
+| **Default label** | A zone id's last segment, underscores as spaces: `America/Argentina/Buenos_Aires` gives `Buenos Aires`. |
+| **Ribbon** | The frameless window holding the clocks. |
 | **Cell** | The part of the ribbon showing one clock. |
-| **Orientation** | Horizontal (cells left to right) or vertical (cells top to bottom). |
-| **Style** | Digital or analogue: how every cell presents its time. |
-| **Format** | 12-hour or 24-hour: how every digital time and every textual time is written. |
-| **Sun map** | The world map lit by day and dark by night shown with the ribbon (section 3.9). |
+| **Orientation** | Horizontal (cells left to right) or vertical (top to bottom). |
+| **Style** | Digital or analogue. |
+| **Format** | 12-hour or 24-hour. |
+| **Sun map** | The world map lit by day and dark by night (section 3.9). |
 | **Pull out** | The sun map beside the ribbon, opened and closed by its handle (FR-903). |
-| **Zone mark** | The text beside a label naming the zone's current abbreviation or UTC offset (FR-203). |
-| **Local date** | The weekday, day and month at the clock's zone for the current instant. |
-| **Work area** | A monitor's rectangle minus the taskbar and docked toolbars, as Windows reports it. |
-| **Placement** | The monitor the ribbon is on plus the ribbon's position relative to that monitor's work area. |
-| **Invalid clock** | A stored clock entry that cannot be used: its zone is not recognised or its fields cannot be read. |
-| **Settings file** | `%APPDATA%\TimeRibbon\settings.json`. |
-| **Pinned** | The ribbon always shows in full while shown; the default. Unpinned, it collapses (FR-613). |
+| **Zone mark** | The zone's current abbreviation or UTC offset beside a label (FR-203). |
+| **Local date** | The weekday, day and month in the clock's zone now. |
+| **Work area** | A monitor's rectangle minus the taskbar, dock and docked toolbars, as the desktop reports it. |
+| **Placement** | The monitor the ribbon is on plus its position relative to that monitor's work area. |
+| **Invalid clock** | A stored clock whose zone is not recognised or whose fields cannot be read. |
+| **Settings file** | `settings.json` in the settings folder of CON-8. |
+| **Pinned** | Always shown in full while shown; the default. Unpinned, it collapses (FR-613). |
 | **Tab** | The 8 DIP accent band an unpinned ribbon shrinks to (FR-614). |
-| **Collapsed** | Unpinned and showing only its tab; **expanded** is unpinned and showing in full. |
-| **DIP** | Device-independent pixel: one pixel at 100 percent Windows scaling. |
+| **Collapsed** | Unpinned and showing only its tab; **expanded** is unpinned and in full. |
+| **DIP** | Device-independent pixel: one pixel at 100 percent scaling. |
 
 ### 1.5 References
 
-- The initial product specification of 2026-09-27, written under the product's former name.
-- `ARCHITECTURE.md`: the layering invariants and the tests that enforce them.
-- IANA tz database, as embedded by Go's `time/tzdata` package.
-- ISO/IEC/IEEE 29148 for requirement quality; EARS for requirement syntax.
-- WCAG 2.2, success criterion 1.4.3 (contrast minimum) and 1.4.1 (use of colour).
+The initial product specification of 2026-09-27; `ARCHITECTURE.md`; the IANA tz database as Go's
+`time/tzdata` embeds it; ISO/IEC/IEEE 29148 and EARS; WCAG 2.2 criteria 1.4.1 and 1.4.3.
 
 ---
 
@@ -248,1441 +128,863 @@ Oliver Ernster as author and decision owner; contributors to the open source pro
 
 ### 2.1 Product perspective
 
-A new, standalone application. It reads the Windows clock and nothing else from outside itself,
-apart from the latest release it asks GitHub for (FR-509, Amendment 15).
+A standalone application reading the system clock and nothing else from outside itself, apart from
+the latest release it asks GitHub for (FR-509).
 
 ```mermaid
 graph LR
-  WC[Windows clock] --> CS[Clock service]
-  TZ["tz database<br/>built into the binary"] --> CS
+  WC[System clock] --> CS[Clock service]
+  TZ["tz database<br/>built in"] --> CS
   ST[Settings store] --> CS
   CS --> UI["Ribbon<br/>Wails front end"]
   UI --> ST
-  WI["Windows integration<br/>tray, monitors, placement, Run key"] --> UI
+  WI["Desktop integration<br/>tray, monitors, placement, sign-in"] --> UI
   WI --> ST
-  GH["GitHub latest release<br/>update check, FR-509"] --> UI
+  GH["GitHub latest release<br/>FR-509"] --> UI
 ```
 
-The clock service takes an instant and the configured clocks and answers, for each clock, the text
-and hand angles to show. Everything about Windows sits below the integration line.
+The clock service takes an instant and the clocks and answers each clock's text and hand angles.
 
 ### 2.2 User classes
 
-| Class | Description | May do | May not do |
-|---|---|---|---|
-| **User** | Talks with friends in other time zones and wants their time and day at a glance | Everything the application offers | Nothing is withheld; there is one class |
+One class, the **user**, who talks with people in other time zones and may do everything the
+application offers.
 
 ### 2.3 Operating environment
 
-Windows 10 or 11, 64-bit, with the WebView2 runtime present (it ships with Windows 11). Go 1.26 with
-Wails v2 hosting a React and TypeScript front end; no CGO. Its one network use at runtime is the
-update check (FR-509, Amendment 15).
+Windows 10 or 11, 64-bit, with WebView2; macOS 12 or later on Apple Silicon (the oldest the Go
+toolchain supports); Linux desktops running Flatpaks on the GNOME 50 runtime with WebKitGTK 4.1, through
+X11 (XWayland on Wayland). Go 1.26 with Wails v2 and a React and TypeScript front end; cgo only on macOS
+and Linux. The one network use is the update check.
 
-Measured on 2026-09-27 against Wails v2.12.0 in the module cache:
+Measurements the design rests on, each taken on the date given:
 
-- The Wails Windows manifest declares `permonitorv2,permonitor` DPI awareness.
-- The Wails runtime offers no call that creates a second window; there is one window (CON-6).
-- `ScreenGetAll` reports each screen's size plus primary and current flags only: no origin, no
-  device name, no work area (CON-7).
-- `WindowSetPosition` places the window relative to the work area of the monitor it is currently on,
-  while `WindowGetPosition` answers absolute virtual-desktop coordinates (CON-7).
+- **Wails v2.12.0 (2026-09-27, 2026-09-28):** one window, no call for a second (CON-6); `ScreenGetAll`
+  gives each screen's size and flags but no origin, device name or work area; `WindowSetPosition` is
+  relative to the current monitor's work area while `WindowGetPosition` is absolute (CON-7), on every
+  platform. On macOS Wails makes the application regular as it finishes launching.
+- **The tab on Windows (2026-09-28):** a frameless Wails window keeps `WS_CAPTION`, `WS_SYSMENU` and
+  `WS_MINIMIZEBOX`, holding it at least 42 px wide; as an overlapped window it is held 39 px tall
+  (`SM_CYMINTRACK`). As a popup it took 8 px as asked, so the tab is a popup; the unpinned ribbon
+  keeps that style. A never-activated topmost window's page saw every arrival and departure of the
+  pointer (28 passes, within 2.1 ms of a 1 ms poll); growing it with `SWP_NOACTIVATE` never took focus.
+- **The tab on macOS 26.6.2 (2026-09-28):** the window took 8 by 300 pt. The page is blind while the
+  application is inactive (no pointer event over six arrivals and departures), so a poll of
+  `NSEvent mouseLocation` drives the tab: it opened on all 8 rests and collapsed after all 8
+  departures, never activating the application.
+- **The tab on Ubuntu 26.04 under X11 (2026-09-28):** neither the page nor `XQueryPointer` sees the
+  pointer leave onto a Wayland window; GTK's crossing events saw every arrival and departure and drove
+  the tab correctly. A move must wait for a new size to land.
+- **The opening flicker on Windows (2026-09-29):** screen capture at 8 to 17 ms a frame showed, before
+  the clocks, Wails' frame with a close button, the tab's band stretched over the window and white.
+  Keeping the tab's frame, telling the page before growing and painting the window the page's colour
+  removed all three in three runs of three.
+- **NVIDIA on Linux (2026-10-02):** on Bazzite (KDE) with an RTX 3080 Ti on NVIDIA's driver the window
+  showed only the page's background; `WEBKIT_DISABLE_DMABUF_RENDERER=1` made it draw. The application
+  turns that renderer off unless the environment already sets it.
 
-Measured on 2026-09-28 with a throwaway Wails v2.12.0 probe on Windows 11 at 100 percent, for the
-tab of FR-614 (ASM-4):
-
-- A frameless Wails window keeps `WS_CAPTION`, `WS_SYSMENU` and `WS_MINIMIZEBOX` (style
-  `0x4ca0000`), which hold it at least 42 px wide: an 8 px `SetWindowPos` gave 42, the surplus
-  hanging off the display's edge. Neither removing `WS_THICKFRAME` nor setting Wails' `MinWidth` to 1
-  changed that. With those three styles removed, the same call gave 8 px and the page read an
-  `innerWidth` of 8. That settles the width alone: the window is still overlapped, which Windows
-  holds at least 39 px tall (`SM_CYMINTRACK`), so a horizontal tab stood 39 tall (Oliver, measured
-  the same day on the built app: asked for 8, 20 or 38 it took 39). As a popup (`WS_POPUP` added) it
-  took 8, 20 and 38 as asked. The tab is a popup while collapsed; since 2026-09-29 (below) the full
-  ribbon keeps that style while unpinned and Wails' style returns only for a pinned ribbon or a panel.
-- The page of a window never activated, placed topmost with `SWP_NOACTIVATE`, saw every arrival and
-  departure of the pointer at 8 px: `mouseenter` and `mouseleave` on the document element matched a
-  1 ms Go poll of the cursor against the window's rectangle on all 28 passes (a slow approach, a
-  30 ms flick, a fast pass along the edge, a single jump 400 px away, a push against the display's
-  edge, a window grown under the pointer), never more than 2.1 ms apart.
-- Growing the window under the pointer with `SWP_NOACTIVATE` left the foreground window unchanged
-  throughout; the page never had focus.
-- A process launched from the shell is handed the foreground when its window is created, although
-  the window starts hidden.
-
-Measured on 2026-09-28 with the same probe on macOS 26.6.2 (Apple Silicon), the pointer moved by
-Oliver's hand, as an accessory application at the status window level, with BBEdit in front:
-
-- The window took 8 by 300 pt as asked; its `minSize` is zero and no style needed removing.
-- The page is blind while the application is not active: over six arrivals and six departures the
-  poll of `NSEvent mouseLocation` saw, the page reported no `mouseenter`, no `mouseleave` and not
-  one `mousemove`. Its events came only after the application had been activated; once, while
-  active, the page missed a departure the poll saw. A tab driven by the page opened only
-  intermittently, whether hovered or clicked (Oliver's observation, borne out by the log).
-- Driven instead by that poll, the prototype of FR-615 and FR-616 opened on all 8 rests, each 0.3 s
-  after the pointer arrived; stayed shut when the pointer crossed the tab in 0.18 s; collapsed 1 s
-  after each of 8 departures. Growing and shrinking the window with `setFrame` never activated the
-  application or made the window key; BBEdit stayed in front throughout. The pointer returning
-  within the second was not exercised.
-
-Measured on 2026-09-28 with the same probe on Ubuntu 26.04 (GNOME on Wayland, scale 2), GTK forced
-onto X11 as TimeRibbon runs, the pointer moved by Oliver's hand, a Wayland text editor in front:
-
-- The window took 8 by 300 as asked, kept above others and off the taskbar.
-- Neither the page nor a poll can see the pointer leave. The page reported one `mouseenter` per
-  run and never a `mouseleave`. `XQueryPointer` answers in device pixels (twice GTK's units at
-  scale 2). Once the pointer is over a Wayland window, it keeps answering the last place it was
-  over an X11 one: for 11 s over the editor and the dock it read the tab's own edge.
-- GTK's crossing events on the top-level window (`enter-notify-event`, `leave-notify-event`) saw
-  every arrival and departure, leaving onto Wayland windows included. Driven by them, the
-  prototype opened on all 8 rests, each 0.3 s after arrival; stayed shut for passes of 27 and 77 ms;
-  collapsed 1 s after each of 8 departures. Each grow raised a false departure followed within 7 ms
-  by an arrival, which the timers absorbed. The window never became active.
-- As TimeRibbon's `awaitSize` already records, the move must wait for a new size to land: moved
-  at once after shrinking, the tab kept the open window's left edge, 192 px in from the display's.
-
-Measured on 2026-09-29 on Windows 11 at 100 percent, with a dev build opening a vertical tab while
-the screen under the window was copied as fast as it could be (a frame every 8 to 17 ms), after
-Oliver saw the ribbon flicker as it opened. Three things showed before the clocks, each
-15 to 60 ms, in three runs of three:
-
-- Giving Wails' frame back as the ribbon opened had Windows paint a grey box or a faded copy of the
-  last ribbon with a red close button in its corner (every run). Keeping the tab's frame on the full
-  ribbon removed it in three runs of three.
-- The window grew before the page knew, so the tab's band showed stretched over the whole window
-  (or at one side of an empty window) until the page redrew (every run). Telling the page
-  first and growing once it had drawn removed it.
-- While the page caught up with the new size the window showed white, Wails' default background;
-  given the page's own background, the frame showed that colour instead.
-
-With all three in place, three runs showed the tab, at most one frame of the ribbon's first 8 px in
-the tab, then the full ribbon; once a frame of the last ribbon drawn before collapsing (older clock
-hands) and once a frame of plain background. No caption, band or white.
-
-Amendment 13 (Oliver, 2026-09-28): also macOS 12 or later on Apple Silicon (the oldest macOS the Go
-toolchain supports, read by `builddmg.sh`) and Linux desktops running Flatpaks, on the GNOME 50
-runtime with WebKitGTK 4.1, drawing through X11 (XWayland on a Wayland desktop). Both build with
-cgo against their toolkit. Measured against Wails v2.12.0 on 2026-09-28: on macOS its window keeps
-its title, `WindowSetPosition` counts from the current screen's visible frame and the application
-is made regular as it finishes launching; on Linux `SetPosition` is monitor-relative while
-`GetPosition` is absolute.
-
-Measured on 2026-10-02 by a friend running the released Flatpak on Bazzite (KDE) with an NVIDIA
-GeForce RTX 3080 Ti on NVIDIA's own driver: the window showed only the page's background, `#111418`,
-although the page had run (it reported that colour and Go had sized the window as a panel). With
-`WEBKIT_DISABLE_DMABUF_RENDERER=1` the page drew; with `WEBKIT_DISABLE_COMPOSITING_MODE=1` in its
-place it stayed blank. The same build drew with neither on Oliver's Framework 13 under Ubuntu. The
-application therefore turns the DMABUF renderer off before the web view starts, unless the
-environment already holds a value for it (ARCHITECTURE.md, The desktop on Linux and macOS).
-
-**The reference machine** for performance requirements is the development machine, read on
-2026-09-29 at the first measured build: an AMD Ryzen 9 9900X with 62 GB of memory, an NVIDIA
-GeForce RTX 4060, Windows 11 Pro build 26200 and WebView2 154.0.4258.37, at 100 percent scaling.
+**The reference machine** for performance (2026-09-29): AMD Ryzen 9 9900X, 62 GB, NVIDIA GeForce RTX
+4060, Windows 11 Pro build 26200, WebView2 154.0.4258.37, 100 percent scaling.
 
 ### 2.4 Constraints
 
 | ID | Constraint |
 |---|---|
-| CON-1 | The layering invariant `UI to Application to Domain from Infrastructure` holds and is enforced by `tests/structural`. |
-| CON-2 | Every Go source file and every TypeScript and CSS file under `frontend/src` stays at or below 400 lines; one landing between 381 and 400 lines is reduced to 350 or fewer. Build and packaging scripts are not counted. |
-| CON-3 | The coverage floor over `internal/domain` and `internal/application` stays at 100 percent. |
-| CON-4 | `VERSION` is the single source of truth for the version. No version literal elsewhere. |
-| CON-5 | Zones resolve through Go's `time.LoadLocation` with the `time/tzdata` package embedded. Windows has no zone files, so there the embedded rules are the ones read (unless the `ZONEINFO` variable names others) and no rule depends on files present on the machine; on macOS and Linux `LoadLocation` reads the system's zone files first and uses the embedded rules only for a zone missing there (Go's `time` source, read 2026-09-28). Measured 2026-09-27 with `ZONEINFO` pointed at a missing path: `America/New_York` answered EST in January and EDT in July; `Not/AZone` answered an error. No DST rule is written by hand. |
-| CON-6 | The ribbon, its context menu and the Settings surface share one window, since Wails v2 offers one. Settings is shown by resizing that window to a settings layout and returning it to the ribbon afterwards. Amendment 2: About and Licence (FR-607, FR-608) are shown the same way, as panels of that one window. The update panel of FR-509 is another such panel. |
-| CON-7 | Monitor enumeration, work areas, monitor identity and window placement go through Win32 (`EnumDisplayMonitors`, `GetMonitorInfoW`, `SetWindowPos`) in infrastructure, never through Wails' position calls. Amendment 13: through GDK and GTK on Linux and AppKit (`NSScreen`, `NSWindow`) on macOS, in DIP. |
-| CON-8 | Everything written stays per user: the settings file under `%APPDATA%` and the Start with Windows value under `HKCU`. Windows never asks for administrator rights. Amendment 13: on macOS the settings under `~/Library/Application Support` and the sign-in agent under `~/Library/LaunchAgents`; on Linux the settings in the Flatpak's own configuration folder and the sign-in entry under `~/.config/autostart`. |
+| CON-1 | The layering `UI to Application to Domain from Infrastructure` holds, enforced by `tests/structural`. |
+| CON-2 | Every Go source file and every TypeScript and CSS file under `frontend/src` stays at or below 400 lines; one between 381 and 400 is reduced to 350 or fewer. Build and packaging scripts are not counted. |
+| CON-3 | Coverage over `internal/domain` and `internal/application` stays at 100 percent. |
+| CON-4 | `VERSION` is the single source of the version; no version literal elsewhere. |
+| CON-5 | Zones resolve through `time.LoadLocation` with `time/tzdata` embedded. On Windows the embedded rules are read (unless `ZONEINFO` names others); macOS and Linux read the system's zone files first. Measured 2026-09-27 with `ZONEINFO` pointed nowhere: `America/New_York` answered EST in January and EDT in July; `Not/AZone` an error. No DST rule is written by hand. |
+| CON-6 | The ribbon, its menus' panels and Settings share one window, since Wails v2 offers one; About, Licence (Amendment 2) and the update panel are panels of it too. |
+| CON-7 | Monitors, work areas, monitor identity and placement go through the desktop's own calls in infrastructure: Win32 (`EnumDisplayMonitors`, `GetMonitorInfoW`, `SetWindowPos`), GDK and GTK on Linux, AppKit on macOS (Amendment 13); never Wails' position calls. |
+| CON-8 | Everything written is per user and nothing asks for administrator rights: on Windows the settings under `%APPDATA%\TimeRibbon` and the sign-in value under `HKCU`; on macOS `~/Library/Application Support/TimeRibbon` and `~/Library/LaunchAgents`; on Linux the Flatpak's own configuration folder and `~/.config/autostart` (Amendment 13). |
 
 ### 2.5 Assumptions
 
-| ID | Assumption | Owner | Confirm by |
-|---|---|---|---|
-| ASM-1 | The Windows clock is correct; TimeRibbon shows what it implies. | Oliver | Baselining |
-| ASM-2 | Up to 12 clocks covers real use; beyond that the ribbon scrolls rather than grows (FR-106). The number sizes tests, not a limit. | Oliver | Baselining |
-| ASM-3 | English weekday and month names suffice. | Oliver | Baselining |
-| ASM-5 | Amendment 20: NASA's Blue Marble (day) and Black Marble (night lights) images may ship inside a GPL application with a credit and no fee; they can also be reduced to the size NFR-C-2 allows while staying readable. FR-905, FR-911 and FR-912 depend on it. | Claude | Confirmed 2026-09-29. NASA's guidelines (https://www.nasa.gov/nasa-brand-center/images-and-media/) state that NASA images "generally are not subject to copyright in the United States", ask that NASA be acknowledged as the source and forbid conveying NASA's endorsement; the NASA insignia is excluded. The Blue Marble: Next Generation page (https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/) asks that republished images credit "NASA Earth Observatory"; produced by Reto Stöckli. Day image: `world.topo.bathy.200407.3x5400x2700.jpg` (https://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73751/, 2,308,798 bytes). Night image: Black Marble 2016 colour at 0.1 degrees, `BlackMarble_2016_01deg.jpg` (https://science.nasa.gov/earth/earth-observatory/earth-at-night/maps, 779,638 bytes), NASA Earth Observatory. Both are reduced for NFR-C-2 |
-| ASM-4 | The pointer arriving on and leaving the ribbon's window can be seen on Windows, macOS and Linux under X11, for a window as thin as the tab. FR-615 and FR-616 depend on it. Confirmed on Windows 2026-09-28 by the page's own events; on macOS the same day by the pointer's position read in Go, the page being blind while inactive; on Linux under X11 the same day by GTK's crossing events alone (section 2.3). Each platform needs its own source. | Claude | Confirmed 2026-09-28 |
+| ID | Assumption | Status |
+|---|---|---|
+| ASM-1 | The system clock is correct; TimeRibbon shows what it implies. | Confirmed at baseline |
+| ASM-2 | Up to 12 clocks covers real use; beyond that the ribbon scrolls (FR-106). The number sizes tests, not a limit. | Confirmed at baseline |
+| ASM-3 | English weekday and month names suffice. | Confirmed at baseline |
+| ASM-4 | The pointer arriving on and leaving a window as thin as the tab can be seen on every platform, each by its own source (section 2.3). FR-615 and FR-616 depend on it. | Confirmed 2026-09-28 |
+| ASM-5 | NASA's Blue Marble (day) and Black Marble (night) may ship inside a GPL application with a credit, reduced to the size NFR-C-2 allows (FR-905, FR-911, FR-912). | Confirmed 2026-09-29. NASA's guidelines (https://www.nasa.gov/nasa-brand-center/images-and-media/) say its images are generally not under US copyright, ask for NASA to be acknowledged and forbid implying endorsement. Blue Marble: Next Generation (https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/) asks for "NASA Earth Observatory" credit; produced by Reto Stöckli. Day: `world.topo.bathy.200407.3x5400x2700.jpg` (https://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73751/). Night: `BlackMarble_2016_01deg.jpg` (https://science.nasa.gov/earth/earth-observatory/earth-at-night/maps) |
 
 ---
 
 ## 3. Requirements
 
-Every requirement below names the test that verifies it. A `Verified by:` line marked planned names
-a test not yet written; one that says no test yet names none.
+Every requirement names the test that verifies it; "by hand" means checked by a person in a real
+build.
 
 ### 3.1 The ribbon
 
-**FR-101 Frameless ribbon**
-Priority: Must.
-The ribbon shall be a window with no title bar, no system border and no taskbar button.
-Rationale: the spec's sections 2 and 8; the tray is its presence (FR-501).
-Verified by: inspection of the running build (a check by hand in a real build).
+**FR-101 Frameless ribbon** (Must). The ribbon shall be a window with no title bar, no system border
+and no taskbar or Dock button. Verified by: by hand.
 
-**FR-102 Cells in configured order**
-Priority: Must.
-The ribbon shall show one cell per clock in ascending order of position, left to right when
-horizontal and top to bottom when vertical.
-Acceptance: Given clocks Sydney at position 0 and New York at position 1, when the ribbon is shown
-horizontally, then Sydney's cell is left of New York's.
-Amendment 6 (Oliver, 2026-09-27): the cells run east from Greenwich, the reference: first the
-places level with or ahead of UTC by ascending offset, then the places behind UTC by ascending
-offset, since going east from Greenwich reaches them last. Offsets are those at the moment shown,
-daylight saving included, so the order is worked out at each snapshot. Clocks keeping the same
-time keep their stored order; a clock that cannot be shown goes last. Acceptance: given New York,
-Melbourne, Tokyo, Berlin and London added in that order, the ribbon shows London, Berlin, Tokyo,
-Melbourne, New York.
-Verified by: `TestTheRibbonRunsEastFromGreenwich`, `TestSnapshotFollowsClockOrderWithEachZonesDate` (application); `ribbon.test.tsx`.
+**FR-102 Cells in time order** (Must; Amendment 6). The ribbon shall show one cell per clock, left to
+right or top to bottom, running east from Greenwich: places level with or ahead of UTC by ascending
+offset, then places behind UTC by ascending offset. Offsets are those at the snapshot's instant, so
+daylight saving can move a clock; clocks keeping the same time keep their stored order; a clock that
+cannot be shown goes last.
+Acceptance: given New York, Melbourne, Tokyo, Berlin and London added in that order, the ribbon shows
+London, Berlin, Tokyo, Melbourne, New York.
+Verified by: `TestTheRibbonRunsEastFromGreenwich`, `TestSnapshotFollowsClockOrderWithEachZonesDate`
+(application); `ribbon.test.tsx`.
 
-**FR-103 Orientation setting**
-Priority: Must (OQ-5, Oliver, 2026-09-27).
-The ribbon shall lay its cells out in the orientation held in settings; vertical when none is held.
-Rationale: Oliver, 2026-09-27: both orientations, as a setting.
-Amendment 1 (Oliver, 2026-09-27, after the first build): the default changed from horizontal to
-vertical.
-Amendment 9 (Oliver, 2026-09-28): the orientation is chosen from the `Orientation` submenu of both
-menus rather than in Settings (FR-108, FR-502, FR-601).
-Amendment 28 (Oliver, 2026-09-29): Settings offers it as well, from the menus' own items (FR-624).
+**FR-103 Orientation** (Must; OQ-5; Amendments 1, 9, 28). The ribbon shall lay its cells out in the
+orientation held in settings, vertical when none is held, chosen from the Orientation submenu of both
+menus and from Settings.
 Verified by: `TestDefaultsAreDigitalTwentyFourHourVerticalAndNotOnTop` (domain); `ribbon.test.tsx`.
 
-**FR-104 Changing orientation keeps the ribbon on screen**
-Priority: Must.
-When the orientation changes, the application shall keep the ribbon's top-left corner where it was,
-then apply the recovery of FR-405 so the whole ribbon lies inside its monitor's work area.
-Amendment 7 (Oliver, 2026-09-27): when the ribbon's length changes (a clock added or removed, a
-notice raised or dismissed, the style or orientation changed), the application shall centre it
-along its length on its monitor's work area, keeping its position across; it shall store that place.
-Nothing else re-centres it: a drag is kept until the length next changes. Acceptance: given a
-vertical ribbon dragged near the top of its display, when a clock is added, then it is centred top
-to bottom with its left edge where it was; it opens there next time.
-Amendment 9 (Oliver, 2026-09-28): a change of orientation no longer keeps the top-left corner; the
-ribbon goes to that orientation's home edge instead (FR-409). A change of length for any other reason
-is re-centred as above.
-Amendment 31 (Oliver, 2026-10-04): except a change of scale, which keeps the top-left corner (FR-623).
-Verified by: `TestARibbonWhoseLengthChangesIsRecentredAndKept`, `TestAHorizontalRibbonIsRecentredLeftToRight`, `TestNothingButAChangeOfLengthRecentresTheRibbon`, `TestARecentringThatCannotBeSavedMakesRoomForItsNotice`, `TestAChangeOfScaleKeepsTheCorner`,
-`TestAChangeOfClocksAfterAScaleStillRecentres` (application).
+**FR-104 Re-centred when its length changes** (Must; Amendments 7, 9, 31). When the ribbon's length
+changes (a clock added or removed, a notice raised or dismissed, the style changed), the application
+shall centre it along its length on its monitor's work area, keeping its position across; it shall
+store that place. A change of orientation goes to the home edge instead (FR-409); a change of scale keeps the
+top-left corner (FR-623). Nothing else re-centres it.
+Acceptance: given a vertical ribbon dragged near the top of its display, when a clock is added, then
+it is centred top to bottom with its left edge where it was; it opens there next time.
+Verified by: `TestARibbonWhoseLengthChangesIsRecentredAndKept`, `TestAHorizontalRibbonIsRecentredLeftToRight`,
+`TestNothingButAChangeOfLengthRecentresTheRibbon`, `TestARecentringThatCannotBeSavedMakesRoomForItsNotice`,
+`TestAChangeOfScaleKeepsTheCorner`, `TestAChangeOfClocksAfterAScaleStillRecentres` (application).
 
-**FR-105 Ribbon sized to its clocks**
-Priority: Must.
-The ribbon's length along its orientation shall equal the sum of its cells' lengths plus its padding,
-while that sum fits the work area of its monitor.
-Verified by: `TestRibbonLengthFollowsClockCountAndNeverExceedsWorkArea` (domain, placement).
+**FR-105 Sized to its clocks** (Must). The ribbon's length shall be the sum of its cells plus padding
+while that fits its monitor's work area.
+Verified by: `TestRibbonLengthFollowsClockCountAndNeverExceedsWorkArea` (domain).
 
-**FR-106 Overflow scrolls**
-Priority: Must.
-If the ribbon's cells need more length than the monitor's work area offers along the orientation,
-then the application shall size the ribbon to that work area and scroll the cells along the
-orientation, never clipping a cell out of reach and never wrapping to a second row or column.
-Acceptance: Given a work area 1920 DIP wide and 12 horizontal cells needing 2400 DIP, then the ribbon
-is 1920 DIP long and the last cell is reachable by scrolling.
-Verified by: `TestRibbonLengthFollowsClockCountAndNeverExceedsWorkArea` (domain); `ribbon.test.tsx` for the scroll.
+**FR-106 Overflow scrolls** (Must). Cells needing more length than the work area shall scroll along
+the orientation, never clipped out of reach and never wrapped.
+Acceptance: a work area 1920 DIP wide and 12 horizontal cells needing 2400 DIP give a ribbon 1920 DIP
+long whose last cell is reachable by scrolling.
+Verified by: `TestRibbonLengthFollowsClockCountAndNeverExceedsWorkArea` (domain); `ribbon.test.tsx`.
 
-**FR-107 Empty ribbon**
-Priority: Must.
-While no clock is configured, the ribbon shall show one cell reading `No clocks yet` with an `Add clock`
-control opening the place search of FR-302.
+**FR-107 Empty ribbon** (Must). With no clock, the ribbon shall show one cell reading `No clocks yet`
+with an `Add clock` control opening the place search.
 Verified by: `ribbon.test.tsx`.
 
-**FR-108 Context menu**
-Priority: Should.
-When the ribbon is right-clicked, the application shall offer `Add clock`, `Settings`, `Always on top`
-(showing its state) and `Hide ribbon`.
-Amendment 2 (Oliver, 2026-09-27): a `Help` submenu (FR-508) sits after `Always on top`.
-Amendment 5 (Oliver, 2026-09-27): `Exit` follows `Hide ribbon` and ends the application as the tray's
-does (FR-502).
-Amendment 8 (Oliver, 2026-09-28): a `Position` submenu (FR-408) sits after `Settings`.
-Amendment 9 (Oliver, 2026-09-28): `Style` and `Orientation` submenus sit between `Settings` and
-`Position`, as in the tray menu (FR-502).
-Amendment 12 (Oliver, 2026-09-28): a `Colour` submenu (FR-611) sits after `Style`.
-Amendment 18 (Oliver, 2026-09-28): `Pin ribbon` (FR-613) follows `Always on top`.
+**FR-108 Context menu** (Should; Amendments 2, 5, 8, 9, 12, 18). Right-clicking the ribbon shall offer
+`Add clock`, `Settings`, `Style`, `Colour`, `Orientation`, `Position`, `Always on top` (ticked by
+state), `Pin ribbon`, `Sun map`, `Help`, `Hide ribbon` and `Exit`, which ends the application as the
+tray's does.
 Verified by: `TestContextMenuOffersTheRibbonsActions`,
 `TestBothMenusOfferStyleAndOrientationWithTheCurrentTicked` (application).
 
 ### 3.2 Time and date
 
-**FR-201 Local time per clock**
-Priority: Must.
-The clock service shall compute each clock's local time by converting the current instant to that
-clock's zone through the tz database of CON-5.
-Acceptance: Given the instant 2026-09-27T01:37:00Z, then `America/New_York` shows 21:37 and
-`Australia/Sydney` shows 11:37.
+**FR-201 Local time** (Must). Each clock's time shall be the current instant converted to its zone
+through the tz database of CON-5.
+Acceptance: at 2026-09-27T01:37:00Z, `America/New_York` shows 21:37 and `Australia/Sydney` 11:37.
 Verified by: `TestLocalTimeInDistantZones` (domain).
 
-**FR-202 Local date per clock**
-Priority: Must.
-Each cell shall show the weekday, day and month in its own zone, written `Sunday, 27 September`,
-never the user's own date.
-Acceptance: Given the instant 2026-09-27T20:37:00Z, then New York reads `Sunday, 27 September` while
-Sydney reads `Monday, 28 September`.
-Note: the spec's section 3 pairs New York 21:37 with Sydney 06:37; no single instant gives that pair,
-since the two are 14 hours apart in late September (measured 2026-09-27). This example uses a pair
-that occurs: New York 16:37, Sydney 06:37.
+**FR-202 Local date** (Must). Each cell shall show the weekday, day and month in its own zone, never
+the user's own date.
+Acceptance: at 2026-09-27T20:37:00Z, New York reads `Sunday, 27 September` while Sydney reads
+`Monday, 28 September`. (The spec's own pairing of 21:37 with 06:37 occurs at no instant.)
 Verified by: `TestLocalDateCrossesMidnightByZone` (domain).
 
-**FR-203 Zone mark**
-Priority: Must.
-Each cell shall show a zone mark: the zone's current abbreviation where the tz database gives one of
-letters; otherwise `UTC` followed by the signed offset in hours, with minutes only when non-zero.
-Acceptance, from values measured on 2026-09-27: New York in July reads `EDT`; São Paulo reads
-`UTC-3`; Kathmandu reads `UTC+5:45`.
+**FR-203 Zone mark** (Must). Each cell shall show the zone's current abbreviation where the tz
+database gives one of letters, else `UTC` with the signed offset in hours, minutes only when non-zero.
+Acceptance (measured 2026-09-27): New York in July `EDT`; São Paulo `UTC-3`; Kathmandu `UTC+5:45`.
 Verified by: `TestZoneMarkPrefersLettersElseOffset` (domain).
 
-**FR-204 Daylight saving follows the rules**
-Priority: Must.
-The clock service shall take every offset and abbreviation from the tz database at the instant
-being shown, holding no offset of its own.
-Acceptance: Given `America/New_York`, the instant 2026-03-08T06:59:00Z reads `01:59 EST` and
-2026-03-08T07:00:00Z reads `03:00 EDT`.
+**FR-204 Daylight saving** (Must). Every offset and abbreviation shall come from the tz database at
+the instant shown.
+Acceptance: `America/New_York` reads `01:59 EST` at 2026-03-08T06:59:00Z and `03:00 EDT` a minute later.
 Verified by: `TestDaylightSavingTransitionIsFollowed` (domain).
 
-**FR-205 Year boundary**
-Priority: Must.
-Each cell shall show its own zone's date across a year boundary.
-Acceptance: Given the instant 2026-12-31T12:00:00Z, then `Pacific/Kiritimati` reads
-`Friday, 1 January` while `America/Los_Angeles` reads `Thursday, 31 December`.
+**FR-205 Year boundary** (Must). Each cell shall show its own zone's date across a year boundary.
+Acceptance: at 2026-12-31T12:00:00Z, `Pacific/Kiritimati` reads `Friday, 1 January` and
+`America/Los_Angeles` `Thursday, 31 December`.
 Verified by: `TestYearBoundaryDiffersByZone` (domain).
 
-**FR-206 Time format**
-Priority: Must.
-Where the format is 24-hour, a time shall be written with two-digit hours (`06:37`, `21:37`); where
-it is 12-hour, with unpadded hours plus `AM` or `PM` (`6:37 AM`, `9:37 PM`, `12:00 AM` at midnight,
-`12:00 PM` at noon).
+**FR-206 Time format** (Must). 24-hour times have two-digit hours (`06:37`); 12-hour times unpadded
+hours with `AM` or `PM` (`6:37 AM`, `12:00 AM` at midnight, `12:00 PM` at noon).
 Verified by: `TestTwelveAndTwentyFourHourFormats` (domain).
 
-**FR-207 Injected instant**
-Priority: Must.
-The clock service shall take the instant as an argument; no domain or application code shall read
-the wall clock.
+**FR-207 Injected instant** (Must). No domain or application code shall read the wall clock.
 Verified by: `TestDomainIsPure` (structural), proved by a planted `time.Now()`.
 
-**FR-208 Minute-aligned updates**
-Priority: Must.
-While the ribbon is shown, the application shall refresh every cell at each minute boundary of the
-Windows clock, scheduling each refresh from the current time rather than from the last refresh.
+**FR-208 Minute-aligned updates** (Must). While shown, every cell shall refresh at each minute
+boundary, each refresh scheduled from the current time.
 Verified by: `TestNextRefreshIsTheNextMinuteBoundary` (domain); NFR-P-2.
 
-**FR-209 Clock change and resume**
-Priority: Must.
-When Windows reports a system time change, a time zone change or a resume from sleep, the
-application shall refresh every cell and reschedule the next minute boundary.
-Verified by: a check by hand in a real build (a person changes the clock and sleeps the machine).
+**FR-209 Clock change and resume** (Must). When the system's time or zone changes or it resumes from
+sleep, every cell shall refresh and the next boundary be rescheduled.
+Verified by: by hand.
 
 ### 3.3 Clock configuration
 
-**FR-301 Add a clock**
-Priority: Must.
-When the user chooses a place from the place search, the application shall append a clock for its
-zone with the default label and persist it.
+**FR-301 Add a clock** (Must). Choosing a place shall append a clock for its zone with the default
+label and persist it.
 Verified by: `TestAddingAClockAppendsItWithTheDefaultLabel` (application).
 
-**FR-302 Place search**
-Priority: Must.
-The place search shall list every zone of the tz database's `zone.tab`, built into the binary, by
-default label, country and zone id, filtering as the user types by case-insensitive substring over
-the default label, the zone id and the country name.
-Acceptance: typing `york` offers `New York (America/New_York)`; typing `kolkata` offers `Kolkata`.
-Note: a city without a zone of its own (Manchester, Brighton) is not searchable; the user picks its
-zone and types the label (FR-303). Ruled on OQ-1 by Oliver, 2026-09-27.
-Amendment 29 (Oliver, 2026-09-29): what is typed must begin a word of the label, the country or the
-zone id, still ignoring case; a match inside a word no longer counts. The list is ordered best match
-first: labels beginning with what is typed, then labels with a later word beginning with it, then
-countries and zone ids; by label within each. Typing `l` offers La Paz, Lagos, Lima and London
-before anything else; it never offers Adelaide or Algiers.
+**FR-302 Place search** (Must; OQ-1; Amendment 29). The search shall list every zone of the built-in
+`zone.tab` by default label, country and zone id, matching case-insensitively what is typed at the
+start of a word of any of them. Labels beginning with it come first, then labels with a later word
+beginning with it, then countries and zone ids, by label within each. A city with no zone of its own
+is not searchable; its zone is picked and the label typed (FR-303).
+Acceptance: `york` offers `New York (America/New_York)`; `l` offers La Paz, Lagos, Lima and London
+first and never Adelaide or Algiers.
 Verified by: `TestPlaceSearchMatchesLabelZoneOrCountry` (application).
 
-**FR-303 Edit a clock's label**
-Priority: Must.
-When the user edits a clock's label, the application shall store the new label; if the label is
-empty after trimming spaces, then it shall store the default label instead.
+**FR-303 Edit a label** (Must). An edited label is stored; one empty after trimming stores the
+default label.
 Verified by: `TestEmptyLabelFallsBackToDefault` (domain).
 
-**FR-304 Edit a clock's zone**
-Priority: Must.
-When the user chooses a different place for an existing clock, the application shall replace its
-zone, keep its position and replace its label only if the label was the old zone's default label.
+**FR-304 Edit a zone** (Must). A new place replaces the zone, keeps the position and replaces the
+label only if it was the old zone's default.
 Verified by: `TestChangingZoneKeepsACustomLabel` (domain).
 
-**FR-305 Remove a clock**
-Priority: Must.
-When the user confirms removal of a clock named in a confirmation prompt, the application shall
-remove it and close the gap in the order.
-Verified by: `TestRemovingAClockClosesTheGap` (domain); `settings.test.tsx` for the
-prompt.
+**FR-305 Remove a clock** (Must). After a confirmation naming it, the clock is removed and the gap
+closed.
+Verified by: `TestRemovingAClockClosesTheGap` (domain); `settings.test.tsx`.
 
-**FR-306 Reorder clocks**
-Priority: Must.
-The Clocks list in Settings shall reorder clocks by dragging a row and by `Move up` / `Move down`
-controls reachable from the keyboard; the new order shall be persisted.
-Rationale: dragging on the ribbon itself moves the window (FR-401), so reordering lives where a drag
-cannot be mistaken for a move; the spec's section 10.
-Withdrawn by Amendment 6 (Oliver, 2026-09-27): the order follows the time (FR-102), so there is
-nothing to order by hand. The number is kept so references to it still resolve.
+**FR-306 Reorder clocks.** Withdrawn by Amendment 6: the order follows the time.
 
-**FR-307 Label length**
-Priority: Should.
-A label shall hold at most 32 characters; a cell too narrow for its label shall end it with an
-ellipsis and show the whole label as a tooltip.
-Rationale: 32 is Claude's proposal, sized to keep a cell compact.
+**FR-307 Label length** (Should). A label holds at most 32 characters; a cell too narrow ends it with
+an ellipsis and shows it whole as a tooltip.
 Verified by: `TestLabelIsCappedAt32Characters` (domain); no test yet for the ellipsis and tooltip.
 
-**FR-308 Duplicate zones permitted**
-Priority: Could.
-The application shall accept a clock whose zone another clock already uses.
-Rationale: two labels for one zone (`London`, `Brighton`) are a legitimate choice.
+**FR-308 Duplicate zones** (Could). A zone may be used by more than one clock (`London`, `Brighton`).
 Verified by: `TestTheSameZoneMayBeAddedTwice` (application).
 
 ### 3.4 Dragging and placement
 
-**FR-401 Whole-ribbon drag**
-Priority: Must.
-When the user presses the primary button on any part of the ribbon that is not a control and moves
-further than the Windows drag threshold (`SM_CXDRAG`, `SM_CYDRAG`), the application shall move the
-whole ribbon with the pointer, onto any monitor.
-Amendment 13 (Oliver, 2026-09-28): on Linux the threshold is GTK's `gtk-dnd-drag-threshold`; macOS
-publishes none, so it is Windows' 4 DIP.
-Verified by: a check by hand in a real build; `TestTheDragThresholdIsTheDesktopsOwn` (infrastructure, desktop,
-Linux and macOS).
+**FR-401 Whole-ribbon drag** (Must; Amendment 13). A primary press on any part of the ribbon that is
+not a control, moved past the desktop's drag threshold (`SM_CXDRAG`/`SM_CYDRAG` on Windows,
+`gtk-dnd-drag-threshold` on Linux, Windows' 4 DIP on macOS), shall move the whole ribbon, onto any
+monitor.
+Verified by: by hand; `TestTheDragThresholdIsTheDesktopsOwn` (desktop, Linux and macOS).
 
-**FR-402 Controls do not drag**
-Priority: Must.
-A press on a control (a button, the scroll bar, a menu) shall not start a drag.
-Verified by: `ribbon.test.tsx` for the drag regions; a check by hand in a real build.
+**FR-402 Controls do not drag** (Must). A press on a control (a button, the scroll bar, a menu, the
+grip, the handle) starts no drag.
+Verified by: `ribbon.test.tsx`; by hand.
 
-**FR-403 Default placement**
-Priority: Must.
-While no placement is stored, the application shall place the ribbon on the primary monitor with its
-right edge 16 DIP inside the work area's right edge, centred vertically in the work area.
-Rationale: the spec's section 8; 16 DIP is Claude's proposal.
-Amendment 10 (Oliver, 2026-09-28): the ribbon sits flush, with no margin, against its orientation's
-home edge (FR-409): the right edge, centred vertically, for a vertical ribbon; the top edge, centred
-horizontally, for a horizontal one. The same holds wherever FR-405 or FR-406 fall back to this place.
+**FR-403 Default placement** (Must; Amendment 10). With no placement stored, the ribbon shall stand
+flush against its orientation's home edge of the primary work area, centred along it (FR-409); so
+wherever FR-405 or FR-406 fall back.
 Verified by: `TestDefaultPlacementIsRightEdgeCentred` (domain);
 `TestLaunchWithNothingStoredGoesToTheDefaultPlace` (application).
 
-**FR-404 Placement persisted**
-Priority: Must.
-When a drag ends, the application shall persist the placement: the monitor's device name, its work
-area, its DPI and the ribbon's offset from that work area's top-left corner.
+**FR-404 Placement persisted** (Must). When a drag ends, the placement shall be stored: the monitor's
+device name, its work area, its DPI and the offset from the work area's top-left corner.
 Verified by: `TestPlacementIsStoredRelativeToItsMonitor` (application).
 
-**FR-405 Placement restored or recovered**
-Priority: Must.
-At launch, the application shall restore the ribbon to the stored monitor, scaling the stored offset
-by the ratio of the monitor's current DPI to its stored DPI. If the stored monitor is not present,
-then it shall use the primary monitor with the default placement of FR-403. If any part of the ribbon
-would lie outside the chosen monitor's work area, then it shall move the ribbon the least distance
-that brings it wholly inside.
-Acceptance: Given a ribbon stored at offset (1700, 500) on `\\.\DISPLAY2` and only `\\.\DISPLAY1`
-present, when launched, then the ribbon is at the default placement on `\\.\DISPLAY1`.
-Verified by: `TestMissingMonitorFallsBackToPrimary`,
-`TestOffscreenPlacementIsClampedIntoWorkArea` and `TestDpiChangeScalesTheOffset` (domain).
+**FR-405 Placement restored or recovered** (Must). At launch the ribbon is restored to its monitor,
+the offset scaled by any change of DPI; with that monitor gone, the default placement on the primary;
+any part outside the work area is moved the least distance inside.
+Acceptance: a ribbon stored at (1700, 500) on `\\.\DISPLAY2` with only `\\.\DISPLAY1` present opens at
+the default placement on `\\.\DISPLAY1`.
+Verified by: `TestMissingMonitorFallsBackToPrimary`, `TestOffscreenPlacementIsClampedIntoWorkArea`,
+`TestDpiChangeScalesTheOffset` (domain).
 
-**FR-406 Display changes while running**
-Priority: Must.
-When Windows reports a display configuration change while the ribbon is shown, the application shall
-apply the recovery of FR-405 to the ribbon's current position.
-Verified by: `TestDisplayChangeRecoversARibbonLeftOffscreen` (domain); a check by hand in a real build.
+**FR-406 Display changes** (Must). On a display change while shown, the recovery of FR-405 applies to
+the current position.
+Verified by: `TestDisplayChangeRecoversARibbonLeftOffscreen` (domain); by hand.
 
-**FR-407 Scaling across monitors**
-Priority: Must.
-The ribbon shall keep its size in DIP when moved between monitors with different scaling, with text
-drawn at the destination monitor's resolution.
-Note: on Windows the window is sized by the scale the page is drawn at, which the page reports as its
-`devicePixelRatio` once it has loaded and again whenever that changes; the display's DPI sets the
-scale only until the first report. Windows' text size enlarges the page without changing the DPI, so
-above 100 percent the DPI alone left the page cut off. A reported scale that is not a positive finite
-number is refused. On macOS the window is sized in points, so the ratio is left to AppKit. On Linux
-GTK sizes the window in its own units, device pixels over its whole window scale, while the page's
-ratio also carries the font DPI the desktop sets (KDE hands an X11 program a fractional scale that
-way alone), so the window takes the page's ratio over GTK's window scale.
-Verified by: a check by hand in a real build; `TestTheRibbonIsSizedByTheScaleThePageIsDrawnAt`,
+**FR-407 Scaling across monitors** (Must). The ribbon keeps its size in DIP across monitors, its text
+drawn at the destination's resolution. The window is sized by the scale the page is drawn at, which
+the page reports as its `devicePixelRatio` and again on every change; the display's DPI stands in only
+until then. A ratio that is not a positive finite number is refused. Windows' text size enlarges
+the page without changing the DPI; AppKit sizes in points; on Linux the window takes the page's ratio
+over GTK's window scale, since KDE hands an X11 program a fractional scale as font DPI alone.
+Verified by: by hand; `TestTheRibbonIsSizedByTheScaleThePageIsDrawnAt`,
 `TestTheReportedScaleHoldsOnADisplayAtAnotherDPI`, `TestAPanelIsSizedByTheScaleThePageIsDrawnAt`,
 `TestAScaledRibbonFitsTheRoomTheDisplayOffersAtThatScale`, `TestAnUnusableScaleIsRefused`
 (application); `TestThePagesRatioIsTakenWithTheToolkitsScale` (facade);
-`TestTheWindowTakesThePagesRatioOverGTKsScale`, `TestGTKsWindowScaleIsRead` (infrastructure,
-desktop, Linux); `pixelRatio.test.ts`.
+`TestTheWindowTakesThePagesRatioOverGTKsScale`, `TestGTKsWindowScaleIsRead` (desktop, Linux);
+`pixelRatio.test.ts`.
 
-**FR-408 Centre on an edge**
-Priority: Must (Amendment 8, Oliver, 2026-09-28).
-The tray menu and the ribbon's right-click menu shall each hold a `Position` submenu offering the two
-edges the ribbon runs along: `Centre on left edge` and `Centre on right edge` while the orientation is
-vertical; `Centre on top edge` and `Centre on bottom edge` while it is horizontal. When one is chosen,
-the application shall put the ribbon flush against that edge of the work area of the monitor it is
-on, centred along the edge, then show it and store that placement (FR-404). While a panel is open the
-placement is stored and the ribbon goes there when the panel closes. Flush, with no margin (Oliver,
-2026-09-28), as the first-run place of FR-403 is.
-Acceptance: given a vertical ribbon 196 DIP long on a work area 1032 DIP tall at 100 percent, when
-`Centre on left edge` is chosen, then its left edge is the work area's left edge and its top is 418
-DIP down; it opens there next time.
+**FR-408 Centre on an edge** (Must; Amendment 8). Both menus shall hold a `Position` submenu offering
+the two edges the ribbon runs along (`Centre on left edge`, `Centre on right edge` when vertical; top
+and bottom when horizontal). Choosing one puts the ribbon flush against that edge of its monitor's
+work area, centred along it, shown and stored (FR-404); while a panel is open it goes there when the
+panel closes. A ribbon kept against its edge while it grows or shrinks across has that place stored
+too.
+Acceptance: a vertical ribbon 196 DIP long on a work area 1032 DIP tall, sent to the left edge, stands
+at the work area's left edge 418 DIP down; it opens there next time.
 Verified by: `TestAgainstEdgeIsFlushAndCentredAlongTheEdge` (domain);
 `TestToEdgePutsAVerticalRibbonFlushAndKeepsIt`, `TestToEdgeUsesTheDisplayTheRibbonIsOn`,
 `TestToEdgeThatCannotBeSavedMakesRoomForItsNotice`, `TestPositionOffersTheEdgesAlongTheOrientation`,
 `TestAPlaceKeptAgainstTheEdgeIsSaved` (application); `TestAPositionItemPutsTheRibbonAgainstItsEdge`
-(facade); a check by hand in a real build.
-Note (2026-09-29): a ribbon kept against its edge while it shrinks or grows across its breadth, as
-turning the sun map off does to a vertical one, has that place stored too; only a change of length
-was, so the next launch put it 16 pixels off the edge, where an unpinned ribbon never collapses.
+(facade); by hand.
 
-**FR-409 An orientation's home edge**
-Priority: Must (Amendment 9, Oliver, 2026-09-28).
-When the orientation is chosen, the application shall put the ribbon against that orientation's home
-edge as FR-408 does: the top edge for horizontal, the right edge for vertical. A choice whose save
-failed has still taken, so it moves the ribbon; a choice that is refused leaves the ribbon fitted where
-it stands.
-Acceptance: given a vertical ribbon anywhere on its display, when `Horizontal` is chosen, then the
-ribbon lies flush against the top of that display's work area, centred left to right.
-Verified by: `TestEachOrientationHasAHomeEdge` (domain, settings); `TestChoosingAnOrientationGoesToItsHomeEdge`,
-`TestStyleAndOrientationItemsChooseAndRedraw` (facade), each proved by planting the right edge as the
-left; a check by hand in a real build.
+**FR-409 An orientation's home edge** (Must; Amendment 9). Choosing an orientation puts the ribbon
+against its home edge as FR-408 does: top for horizontal, right for vertical. A choice whose save
+failed still moves it; a refused choice leaves it fitted where it stands.
+Acceptance: a vertical ribbon anywhere, when Horizontal is chosen, lies flush against the top of its
+display's work area, centred.
+Verified by: `TestEachOrientationHasAHomeEdge` (domain); `TestChoosingAnOrientationGoesToItsHomeEdge`,
+`TestStyleAndOrientationItemsChooseAndRedraw` (facade), each proved by planting the wrong edge; by hand.
 
-**FR-410 A drop near an edge snaps flush**
-Priority: Should (Amendment 19, Oliver, 2026-09-29).
-When a drag ends (FR-401) with the ribbon's side within 16 DIP of an edge of the work area of the
-display it overlaps most (on either side of that edge) where that edge runs along the orientation
-(left or right for a vertical ribbon, top or bottom for a horizontal one), the application shall
-move the ribbon flush against that edge, inside that work area, keeping its position along the edge,
-then store that placement (FR-404). Every display's own work area counts, so an edge shared with a
-neighbouring display counts as much as an outer one; nearest wins where two edges qualify. This
-holds whether the ribbon is pinned or not.
-Rationale: Oliver, 2026-09-29: a drag by hand rarely lands on the pixel, while an unpinned ribbon
-collapses only when flush (FR-619). 16 DIP is Claude's proposal, agreed. Inner edges (Oliver, with a
-picture of four displays, one above the middle of three): each display's top, bottom, left and right.
-Acceptance: given a vertical ribbon on a display whose work area ends at 1920 DIP, when a drag ends
-with the ribbon's right side at 1910, then its right side is at 1920 and its top has not moved; when
-one ends with the right side at 1900, then the ribbon stays where it was dropped. Given two displays
-side by side, the left one's work area ending at 1920, when a drag ends with a vertical ribbon's
-right side at 1930 and most of it on the left display, then its right side is at 1920.
+**FR-410 A drop near an edge snaps flush** (Should; Amendment 19; OQ-11, OQ-12). When a drag ends
+with the ribbon's side within 16 DIP, either side, of an edge running along its orientation of the
+work area it overlaps most, the ribbon moves flush against it inside that work area, keeping its
+position along it; the placement is stored. Every display's own edges count, inner ones
+included; the nearer wins. Pinned or not.
+Acceptance: a vertical ribbon dropped with its right side at 1910 on a work area ending at 1920 moves
+to 1920 with its top unmoved; at 1900 it stays; at 1930 with most of it on the left of two displays it
+moves to 1920.
 Verified by: `TestADropNearAnEdgeSnapsFlush`, `TestTheNearerEdgeWinsWhenBothAreInReach`,
-`TestTheEdgesAlongEachOrientation` (domain, placement); `TestADropNearAnEdgeSnapsFlushAndIsStored`,
-`TestAVerticalRibbonNeverSnapsToTheTop` (application); a check by hand in a real build.
+`TestTheEdgesAlongEachOrientation` (domain); `TestADropNearAnEdgeSnapsFlushAndIsStored`,
+`TestAVerticalRibbonNeverSnapsToTheTop` (application); by hand.
 
-**FR-411 The last edge is remembered**
-Priority: Should (Amendment 19, Oliver, 2026-09-29).
-Whenever the ribbon is placed flush against an edge that runs along its orientation, however it got
-there (a snapped drop, `Position`, a change of orientation, recovery at launch or on a display
-change), the application shall remember that edge and the display it belongs to in the settings
-file. Placed anywhere else, it keeps the edge it last remembered.
-Rationale: Oliver, 2026-09-29: unticking `Pin ribbon` away from every edge returns the ribbon to the
-edge last used, not the nearest (FR-613).
-Acceptance: given a vertical ribbon flush against the left edge of `\\.\DISPLAY2`, when it is
-dragged to the middle of `\\.\DISPLAY1`, then the settings file still names the left edge of
-`\\.\DISPLAY2`.
-Verified by: `TestAnUnknownRememberedEdgeIsForgotten` (domain, settings);
-`TestTheLastEdgeIsRemembered`, `TestRearrangingClampsAndSavesNothing` (application);
-`TestSettingsRoundTrip`, `TestAnUnreadableLastEdgeIsNone` (infrastructure, store).
+**FR-411 The last edge is remembered** (Should; Amendment 19). Whenever the ribbon is placed flush
+against an edge along its orientation, however it got there, the settings file shall remember that
+edge and its display; placed anywhere else it keeps the last one.
+Acceptance: a vertical ribbon flush against the left edge of `\\.\DISPLAY2`, dragged to the middle of
+`\\.\DISPLAY1`, still has the left edge of `\\.\DISPLAY2` remembered.
+Verified by: `TestAnUnknownRememberedEdgeIsForgotten` (domain); `TestTheLastEdgeIsRemembered`,
+`TestRearrangingClampsAndSavesNothing` (application); `TestSettingsRoundTrip`,
+`TestAnUnreadableLastEdgeIsNone` (store).
 
 ### 3.5 Tray and window behaviour
 
-**FR-501 Tray icon**
-Priority: Must.
-While the application runs, it shall show a notification-area icon with the tooltip `TimeRibbon`.
-Verified by: a check by hand in a real build.
+**FR-501 Tray icon** (Must). While running, a notification-area, menu bar or tray icon with the
+tooltip `TimeRibbon` shall show.
+Verified by: by hand.
 
-**FR-502 Tray menu**
-Priority: Must.
-When the tray icon is right-clicked, the application shall offer `Show ribbon` or `Hide ribbon`
-(whichever applies), `Add clock`, `Settings`, `Always on top` (showing its state) and `Exit`.
-Amendment 2 (Oliver, 2026-09-27): a `Help` submenu (FR-508) sits after `Always on top`.
-Amendment 8 (Oliver, 2026-09-28): a `Position` submenu (FR-408) sits after `Settings`.
-Amendment 9 (Oliver, 2026-09-28): `Style` (`Digital`, `Analogue`) and `Orientation` (`Horizontal`,
-`Vertical`) submenus sit between `Settings` and `Position`, each ticking the current choice; choosing
-an item applies it at once as FR-602 does.
-Amendment 12 (Oliver, 2026-09-28): a `Colour` submenu (FR-611) sits after `Style`.
-Amendment 18 (Oliver, 2026-09-28): `Pin ribbon` (FR-613) follows `Always on top`; a collapsed ribbon
-counts as shown (FR-618).
+**FR-502 Tray menu** (Must; Amendments 2, 8, 9, 12, 18). The tray menu shall offer `Show ribbon` or
+`Hide ribbon` (whichever applies; a collapsed ribbon counts as shown, FR-618), `Add clock`,
+`Settings`, `Style`, `Colour`, `Orientation`, `Position`, `Always on top`, `Pin ribbon`, `Sun map`,
+`Help` and `Exit`. Submenus tick the current choice; an item applies at once (FR-602).
 Verified by: `TestTrayMenuNamesTheOppositeOfTheVisibility`,
-`TestBothMenusOfferStyleAndOrientationWithTheCurrentTicked` (application); a check by hand in a real build.
+`TestBothMenusOfferStyleAndOrientationWithTheCurrentTicked` (application); by hand.
 
-**FR-503 Tray click**
-Priority: Should.
-When the tray icon is left-clicked, the application shall toggle the ribbon's visibility.
-Amendment 13 (Oliver, 2026-09-28): on Linux the tray host's activation toggles it (a double click on
-Ubuntu, where a single click opens the menu); on macOS a click opens the menu, as every menu bar icon
-does. There the menu's `Show ribbon` or `Hide ribbon` toggles it.
-Verified by: a check by hand in a real build.
+**FR-503 Tray click** (Should; Amendment 13). A left click on the Windows icon toggles the ribbon; on
+Linux the tray host's activation does (a double click on Ubuntu); on macOS a click opens the menu.
+Verified by: by hand.
 
-**FR-504 Hide is not exit**
-Priority: Must.
-Hiding the ribbon shall leave the application running with its tray icon; only `Exit` ends it.
-Verified by: a check by hand in a real build.
+**FR-504 Hide is not exit** (Must). Hiding leaves the application running; only Exit ends it.
+Verified by: by hand.
 
-**FR-505 Always on Top**
-Priority: Must.
-Where Always on Top is on, the ribbon shall stay above windows that are not themselves topmost; the
-setting shall be off by default and persisted.
-Verified by: `TestDefaultsAreDigitalTwentyFourHourVerticalAndNotOnTop` (domain); `TestChangingASettingPersistsIt` (application); a check by hand in a real build.
+**FR-505 Always on Top** (Must). When on, the ribbon stays above windows not themselves topmost; off by
+default and persisted.
+Verified by: `TestDefaultsAreDigitalTwentyFourHourVerticalAndNotOnTop` (domain);
+`TestChangingASettingPersistsIt` (application); by hand.
 
-**FR-506 One instance**
-Priority: Must.
-If TimeRibbon is launched while it is already running for the same user, then the new process shall
-exit and the running application shall toggle the ribbon as a left click on the Windows tray icon
-does: hide it while it is shown, else show it.
-Amendment 17 (Oliver, 2026-09-28): the second launch toggles rather than only showing, so one
-Stream Deck button (its Open action pointed at TimeRibbon) both shows and hides the ribbon.
-Rationale: a friend asked for one press to show or hide the clocks. Consequence accepted: a ribbon
-shown but covered by other windows counts as shown, so launching TimeRibbon to find it hides it; a
-second launch shows it again.
-Amendment 18 (Oliver, 2026-09-28): a collapsed ribbon counts as shown, so a launch hides its tab
-(FR-618).
-Acceptance: given TimeRibbon running with the ribbon shown, when it is launched again, then the
-second process exits and the ribbon is hidden; when it is launched once more, then the ribbon is
-shown. Given a launch before the running copy has finished starting, then nothing is toggled.
-Verified by: `TestASecondLaunchTogglesTheRibbon` (facade); a check by hand in a real build.
+**FR-506 One instance** (Must; Amendments 17, 18). A launch while TimeRibbon runs for the same user
+shall exit and toggle the running ribbon: hide it while shown (collapsed included), else show it.
+Nothing is toggled before the running copy has finished starting. A ribbon covered by other windows
+counts as shown.
+Acceptance: launching again hides a shown ribbon; launching once more shows it.
+Verified by: `TestASecondLaunchTogglesTheRibbon` (facade); by hand.
 
-**FR-507 Alt+F4 hides**
-Priority: Must.
-When `Alt+F4` is pressed while the ribbon has focus, the application shall hide the ribbon as
-`Hide ribbon` does and keep running.
-Rationale: ruled on OQ-4 by Oliver, 2026-09-27; `Exit` stays in the tray alone.
-Verified by: `TestCloseRequestHidesRatherThanQuits` (application); a check by hand in a real build.
+**FR-507 Alt+F4 hides** (Must; OQ-4). Alt+F4 on the ribbon hides it and the application keeps running.
+Verified by: `TestCloseRequestHidesRatherThanQuits` (application); by hand.
 
-**FR-508 Help submenu**
-Priority: Must (Amendment 2, Oliver, 2026-09-27).
-The tray menu and the ribbon's right-click menu shall each hold a `Help` submenu offering `About`
-(FR-607) and `Licence` (FR-608). Choosing either shall show the ribbon's window as that panel.
-Amendment 15 (Oliver, 2026-09-28): `Check for updates` (FR-509) follows `Licence`.
+**FR-508 Help submenu** (Must; Amendments 2, 15). Both menus shall hold `Help` with `About`,
+`Licence` and `Check for updates`; About and Licence show the window as that panel.
 Verified by: `TestBothMenusOfferHelpWithAboutLicenceAndUpdates` (application);
-`TestASubmenuIsNumberedAfterEveryItemBeforeIt` (infrastructure, desktop); a check by hand in a real build.
+`TestASubmenuIsNumberedAfterEveryItemBeforeIt` (desktop); by hand.
 
-**FR-509 Update check**
-Priority: Should (Amendment 15, Oliver, 2026-09-28).
-The application shall ask GitHub's latest-release endpoint for the repository's latest published
-release (never a draft or a prerelease) 3 seconds after it starts, then once every 24 hours while it
-runs, with a 5 second timeout and no retry. When that release is newer than the running version and
-is not the one the user skipped, the ribbon shall be shown as the update panel, naming both versions
-and offering `Download`, `Skip this version` and `Later`. Otherwise an automatic check shall show
-nothing. `Check for updates` in Help (FR-508) shall run the same check while ignoring the skipped release;
-it shall always show its outcome: the offer, "You are running the latest version." or "The update check
-could not reach GitHub. Please try again later." `Download` shall open this platform's release
-asset (`.exe` on Windows, `.dmg` on macOS, `.flatpak` on Linux), else the release page, in the
-default browser. `Skip this version` shall keep that version in the settings file as
-`skippedUpdate`. A version that is not dotted integers, as a prerelease tag, is never newer.
-Acceptance: given 1.2.0 running and v1.3.0 published, when the automatic check runs, then the
-ribbon shows the update panel; after `Skip this version`, the next automatic check shows nothing,
-while `Check for updates` offers v1.3.0 again. Given GitHub out of reach, the automatic check shows
-nothing and `Check for updates` says it could not reach GitHub.
+**FR-509 Update check** (Should; Amendment 15). The application shall ask GitHub's latest-release
+endpoint for the latest published release (never a draft or prerelease) 3 seconds after starting,
+then every 24 hours, with a 5 second timeout and no retry. A release newer than the running version
+and not skipped shows the update panel naming both versions with `Download`, `Skip this version` and
+`Later`; otherwise an automatic check shows nothing. `Check for updates` ignores the skip and always
+answers: the offer, "You are running the latest version." or "The update check could not reach
+GitHub. Please try again later." Download opens this platform's asset (`.exe`, `.dmg`, `.flatpak`),
+else the release page, in the browser. Skip keeps the version as `skippedUpdate`. A version that is not
+dotted integers is never newer.
+Acceptance: with 1.2.0 running and v1.3.0 published the automatic check shows the panel; after Skip it
+shows nothing while Check for updates offers v1.3.0 again; with GitHub out of reach only Check for
+updates speaks, saying so.
 Verified by: `TestIsNewerVersionComparesDottedIntegers`, `TestEachSystemDownloadsItsOwnAsset`,
 `TestANewerReleaseIsOffered`, `TestAnUnreachableSourceOffersNothing`,
 `TestTheRunningVersionIsNotOffered`, `TestASkippedReleaseIsOfferedOnlyWhenAskedFor`,
 `TestSkippingKeepsTheVersion` (application); `TestTheLatestReleaseIsReadWithOnlyWholeAssets`,
-`TestEveryUnusableAnswerIsAnError`, `TestTheProductionSourceAsksThisRepositoryAndGivesUp`
-(infrastructure, update); `TestAnAutomaticCheckSpeaksOnlyOfANewRelease`,
-`TestAManualCheckAlwaysAnswers`, `TestTheWatchChecksAfterTheStartThenAtEachIntervalUntilTheEnd`,
-`TestDownloadOpensWhatWasOffered`, `TestSkipKeepsTheOfferedVersion` (facade); `TestSettingsRoundTrip`
-(infrastructure, store); `help.test.tsx`; the real request and browser by hand in a real build.
+`TestEveryUnusableAnswerIsAnError`, `TestTheProductionSourceAsksThisRepositoryAndGivesUp` (update);
+`TestAnAutomaticCheckSpeaksOnlyOfANewRelease`, `TestAManualCheckAlwaysAnswers`,
+`TestTheWatchChecksAfterTheStartThenAtEachIntervalUntilTheEnd`, `TestDownloadOpensWhatWasOffered`,
+`TestSkipKeepsTheOfferedVersion` (facade); `TestSettingsRoundTrip` (store); `help.test.tsx`; the real
+request and browser by hand.
 
 ### 3.6 Settings and startup
 
-**FR-601 Settings content**
-Priority: Must.
-Settings shall offer: style (digital, analogue); format (12-hour, 24-hour); orientation
-(horizontal, vertical); theme (system, light, dark); Always on Top; Start with Windows; the Clocks
-list of FR-303 to FR-305, in the ribbon's order; at its foot, a donate button that hands the
-donation page to the desktop's browser. Nothing else.
-Amendment 8 (Oliver, 2026-09-28): size (large, small; FR-610) follows style. The title and `Close`
-stay at the top of the window while the rest of the panel scrolls beneath them, as the foot stays
-at the bottom.
-Amendment 9 (Oliver, 2026-09-28): style and orientation leave Settings for the menus (FR-108,
-FR-502), so Settings offers size, format and theme.
-Later amendments add to that list: the date format (FR-612, Amendment 16), `Sun map` (FR-901,
-Amendment 20) and Opacity (FR-622, Amendment 26).
-Amendment 28 (Oliver, 2026-09-29): every choice of the menus returns as well (FR-624); the panel is
-wider (FR-625) and the place search stays open (FR-626).
-Verified by: `settings.test.tsx`; the header by hand in a real build; the donate button by hand in a real build.
+**FR-601 Settings content** (Must; Amendments 8, 9, 16, 20, 26, 28). Settings shall offer size, time
+format, date format, theme, opacity, start at sign-in, every menu choice (FR-624), the clocks in the
+ribbon's order with the place search (FR-303 to FR-305, FR-626) and at its foot a donate button
+handing the donation page to the browser. The title and Close stay at the top and the foot at the
+bottom while the rest scrolls.
+Verified by: `settings.test.tsx`; the header and donate button by hand.
 
-**FR-602 Settings apply at once**
-Priority: Must.
-When a setting changes, the application shall apply it to the ribbon and persist it without a Save
-step.
+**FR-602 Settings apply at once** (Must). A changed setting applies and persists with no Save step.
 Verified by: `TestChangingASettingPersistsIt` (application).
 
-**FR-603 Analogue style**
-Priority: Must.
-Where the style is analogue, each cell shall show a dial with hour and minute hands for the local
-time plus the label, zone mark and local date as text.
+**FR-603 Analogue style** (Must). Each analogue cell shows a dial with hour and minute hands plus the
+label, zone mark and date as text.
 Verified by: `TestHandAnglesForLocalTime` (domain); no front-end test yet draws the dial.
 
-**FR-604 Digital style**
-Priority: Must.
-Where the style is digital, the time shall be the largest text in each cell.
+**FR-604 Digital style** (Must). In a digital cell the time is the largest text.
 Verified by: no test yet.
 
-**FR-605 Start with Windows**
-Priority: Should.
-When Start with Windows is turned on, the application shall write the value `TimeRibbon` under
-`HKCU\Software\Microsoft\Windows\CurrentVersion\Run` holding its own quoted path; when turned off, it
-shall delete that value. It shall be off by default and never written without the user turning it on.
-The value carries no arguments: a sign-in start shows the ribbon at once, as a normal launch does
-(ruled on OQ-2 by Oliver, 2026-09-27). Setup's box of FR-805 writes this same value.
-Amendment 13 (Oliver, 2026-09-28): Settings names the entry in the platform's words: `Start with
-Windows`, `Open at Login` on macOS, `Start when I sign in` on Linux. On macOS it is a launchd agent
-named for the app id in `~/Library/LaunchAgents`; on Linux an XDG autostart entry named for the app
-id, in the real `~/.config/autostart` under a Flatpak with `flatpak run` as its command. Each is
-removed when turned off.
-Verified by: `TestStartWithWindowsWritesAndRemovesOneValue` (infrastructure);
-`TestOpenAtLoginWritesAndRemovesOneAgent` (macOS), `TestStartAtSignInWritesAndRemovesOneEntry`
-(Linux).
+**FR-605 Start at sign-in** (Should; OQ-2; Amendment 13). Turned on, it writes one entry starting
+TimeRibbon at sign-in; turned off, it removes it; off by default. On Windows the value `TimeRibbon`
+under `HKCU\Software\Microsoft\Windows\CurrentVersion\Run` holds the quoted path and no arguments, so a
+sign-in start shows the ribbon; setup's box writes the same value (FR-805). On macOS a launchd agent in
+`~/Library/LaunchAgents`; on Linux an XDG autostart entry, in the real `~/.config/autostart` under a
+Flatpak with `flatpak run` as its command. Each is named in the platform's words: `Start with
+Windows`, `Open at Login`, `Start when I sign in`.
+Verified by: `TestStartWithWindowsWritesAndRemovesOneValue`; `TestOpenAtLoginWritesAndRemovesOneAgent`
+(macOS); `TestStartAtSignInWritesAndRemovesOneEntry` (Linux).
 
-**FR-606 Theme**
-Priority: Should.
-Where the theme is system, the ribbon shall follow the Windows app theme as it changes; light and dark
-shall hold regardless of Windows.
-Verified by: a check by hand in a real build; no front-end test yet.
+**FR-606 Theme** (Should). System follows the system's app theme as it changes; light and dark hold
+regardless.
+Verified by: by hand; no front-end test yet.
 
-**FR-607 About**
-Priority: Must (Amendment 2, Oliver, 2026-09-27).
-The About panel shall show, in this order: the application icon; the product name with the version
-this build carries; `by Oliver Ernster`; `© Oliver Ernster`; then a credit for every component the
-application ships, each naming the component, its licence and what it does here. Close and Escape
-return the window to the ribbon.
-Amendment 13 (Oliver, 2026-09-28): the credits are those of the platform's own build.
-Verified by: `help.test.tsx`; `TestEveryLinkedModuleIsCredited`,
-`TestAModuleIsCreditedOncePerPlatform` (structural); `TestEachPlatformCreditsWhatItShips` (product).
+**FR-607 About** (Must; Amendments 2, 13). About shows, in order, the icon, the name with this build's
+version, `by Oliver Ernster`, `© Oliver Ernster`, then a credit for every component this platform's
+build ships, naming its licence and what it does. Close and Escape return to the ribbon.
+Verified by: `help.test.tsx`; `TestEveryLinkedModuleIsCredited`, `TestAModuleIsCreditedOncePerPlatform`
+(structural); `TestEachPlatformCreditsWhatItShips` (product).
 
-**FR-608 Licence**
-Priority: Must (Amendment 2, Oliver, 2026-09-27).
-The Licence panel shall show the whole of the `LICENSE` file the application was built with, as
-embedded in the binary. Close and Escape return the window to the ribbon.
+**FR-608 Licence** (Must; Amendment 2). Licence shows the whole embedded `LICENSE`. Close and Escape
+return to the ribbon.
 Verified by: `help.test.tsx`; `TestTheLicencePanelIsSizedForTheLicencesWidestLine` (structural).
 
-**FR-609 Help content reads itself**
-Priority: Must (Amendment 2, Oliver, 2026-09-27).
-While the About or Licence panel holds more than fits, its body shall read itself in the house
-auto-scroll cycle: still for 5 s on opening; down 1 DIP every 80 ms; still for 5 s at the end;
-back to the top at 15 DIP every 40 ms; still for 2 s; repeat. A wheel, a press, a touch, a key or
-focus arriving in the body shall suspend the cycle for 2.5 s of stillness, after which it resumes
-from where the reader left it. Focus arriving while the opening 5 s still run shall not shorten
-them. While a dialog marked modal stands above the body, the cycle shall stand frozen in place. The
-cycle is one script, shared with the setup program (FR-811).
+**FR-609 Help reads itself** (Must; Amendment 2). While About or Licence overflows, its body reads
+itself: still for 5 s; down 1 DIP every 80 ms; still 5 s at the end; back up at 15 DIP every 40 ms;
+still 2 s; repeat. A wheel, press, touch, key or focus suspends it for 2.5 s, after which it resumes
+where the reader left it; focus does not shorten the opening 5 s; under a modal dialog it stands
+frozen. One script serves setup too (FR-811).
 Verified by: `autoScroll.test.ts`; `help.test.tsx`.
 
-**FR-610 Clock size**
-Priority: Must (Amendment 8, Oliver, 2026-09-28).
-The ribbon shall draw every clock cell at the size held in settings, large or small, in either style;
-large when none is held, so a settings file written before the size existed keeps the clocks it
-had. Small cells are 146 by 72 DIP digital and 146 by 116 DIP analogue against large's 176 by 92 and
-176 by 176, with their text and dial reduced to fit; the empty ribbon's prompt is the same at either
-size. Those widths are the least a clock cell is drawn at; FR-620 widens it to fit its text
-(Amendment 24). A ribbon lying flush against an edge of its display stays against that edge when
-the size changes, as it does when its cells change for any other reason (Oliver, 2026-09-28).
-Rationale: small screens such as a 13 inch laptop, where large analogue cells leave room for few
-clocks.
-Acceptance: given two analogue clocks in a vertical ribbon at 100 percent with 6 DIP padding, when the
-size is small, then the ribbon is 158 DIP wide and 244 DIP long.
-Verified by: `TestUnknownChoicesAreNormalisedToDefaults` (domain);
-`TestKeptFlushHoldsTheFarEdgeNotTheCorner` (domain); `TestTheSmallSizeFitsTheRibbonToSmallCells`,
-`TestShrinkingKeepsTheRibbonAgainstItsEdge` (application); `TestA1Point0SettingsFileIsReadWhole`,
-`TestSettingsRoundTrip` (infrastructure, store); `ribbon.test.tsx`, `settings.test.tsx`; the fit of
-the text by hand in a real build.
+**FR-610 Clock size** (Must; Amendments 8, 24). Every cell is drawn large or small as held, large
+when none is held. Small cells are 146 by 72 DIP digital and 146 by 116 analogue against large's 176 by
+92 and 176 by 176, text and dial reduced; the empty prompt is the same at either size. These widths are
+floors that FR-620 widens. A ribbon flush against an edge stays there when the size changes.
+Acceptance: two small analogue clocks in a vertical ribbon at 100 percent with 6 DIP padding make it
+158 DIP wide and 244 long.
+Verified by: `TestUnknownChoicesAreNormalisedToDefaults`, `TestKeptFlushHoldsTheFarEdgeNotTheCorner`
+(domain); `TestTheSmallSizeFitsTheRibbonToSmallCells`, `TestShrinkingKeepsTheRibbonAgainstItsEdge`
+(application); `TestA1Point0SettingsFileIsReadWhole`, `TestSettingsRoundTrip` (store);
+`ribbon.test.tsx`, `settings.test.tsx`; the fit of the text by hand.
 
-**FR-611 Colour schemes**
-Priority: Should (Amendment 12, Oliver, 2026-09-28).
-The ribbon shall draw every clock in the colour scheme held in settings: `Classic` (the look it
-had before schemes), `Neon`, `Ocean`, `Sunset`, `Forest`, `Amber`, `Ruby`, `Indigo`, `Berry` or
-`Contrast`; Classic when none is held. Both menus shall hold a `Colour` submenu offering every scheme
-with the current one ticked; choosing one applies it at once as FR-602 does. Every scheme has a light
-and a dark side, chosen by the theme as Classic's are (FR-606); Neon's digits and hands glow on its
-dark side. A scheme's hue shall be carried by the colours the ribbon paints (its surface, cells,
-dividers and text), never by the accent alone, which only Settings shows. Text, muted text and
-problem text meet 4.5:1 against the cell and the surface on every side (NFR-U-1).
-Amendment 18 (Oliver, 2026-09-28): the tab of an unpinned ribbon is painted in the accent (FR-614),
-so the accent shows there as well as in Settings.
-Acceptance: given the theme Light, when `Neon` is chosen, then the cells are white with deep cyan
-digits and labels and magenta zone marks; given the theme Dark, then they are near black with
-glowing cyan digits. When `Ocean` is chosen, then the cells are pale aqua in Light and deep teal in Dark.
+**FR-611 Colour schemes** (Should; Amendments 12, 14, 18). Every clock is drawn in the scheme held:
+`Classic` (the default), `Neon`, `Ocean`, `Sunset`, `Forest`, `Amber`, `Ruby`, `Indigo`, `Berry` or
+`Contrast`, from a Colour submenu in both menus ticking the current one. Each has a light and a dark
+side chosen by the theme; Neon glows on its dark side. A scheme's hue is carried by the colours the
+ribbon paints, not the accent alone, which shows in Settings and the tab. Text meets 4.5:1 (NFR-U-1).
+Acceptance: Neon in Light gives white cells with deep cyan digits and magenta zone marks, in Dark near
+black cells with glowing cyan digits; Ocean is pale aqua in Light and deep teal in Dark.
 Verified by: `TestUnknownChoicesAreNormalisedToDefaults` (domain);
 `TestBothMenusOfferEveryColourWithTheCurrentTicked` (application);
 `TestStyleAndOrientationItemsChooseAndRedraw` (facade); `TestSettingsRoundTrip`,
-`TestA1Point0SettingsFileIsReadWhole` (infrastructure, store);
-`TestEveryOfferedSchemeHasItsOwnCompleteBlock` (structural); the colours on screen by hand in a real build.
-The contrast was measured over `frontend/src/colours.css` on 2026-09-28, the weakest pairing 5.8:1.
-Distinctness was measured the same day as the mean CIEDE2000 difference over the colours the ribbon
-paints: every pair of schemes differs by at least 10 on each side.
+`TestA1Point0SettingsFileIsReadWhole` (store); `TestEveryOfferedSchemeHasItsOwnCompleteBlock`
+(structural); the colours by hand. Measured 2026-09-28: the weakest contrast 5.8:1; every pair of
+schemes at least 10 apart (mean CIEDE2000) on each side.
 
-**FR-612 Date format**
-Priority: Should (Amendment 16, Oliver, 2026-09-28).
-Settings shall offer a `Date format` choice, every cell writing its local date in the format held in
-settings: `28 September` (the weekday, day and month in words, as before; the default when none is
-held), `September 28` (the same with the month first), `DD/MM/YYYY`, `MM/DD/YYYY` or `YYYY/MM/DD`
-(the short weekday, then the whole date in numbers with two-digit day and month). Choosing one applies
-it at once as FR-602 does.
-Acceptance: given the instant 2026-12-31T12:00:00Z, when `DD/MM/YYYY` is chosen, then
-`Pacific/Kiritimati` reads `Fri 01/01/2027` while `America/Los_Angeles` reads `Thu 31/12/2026`; when
-`September 28` is chosen, then they read `Friday, January 1` and `Thursday, December 31`.
+**FR-612 Date format** (Should; Amendment 16). Settings offers `28 September` (the default),
+`September 28`, `DD/MM/YYYY`, `MM/DD/YYYY` or `YYYY/MM/DD`, the numeric ones after the short weekday,
+applied at once.
+Acceptance: at 2026-12-31T12:00:00Z with `DD/MM/YYYY`, `Pacific/Kiritimati` reads `Fri 01/01/2027` and
+`America/Los_Angeles` `Thu 31/12/2026`; with `September 28`, `Friday, January 1` and
+`Thursday, December 31`.
 Verified by: `TestEachDateFormatWritesTheLocalDate`, `TestUnknownChoicesAreNormalisedToDefaults`
 (domain); `TestSnapshotWritesDatesInTheChosenFormat`, `TestChangingASettingPersistsIt`,
-`TestAValueASettingDoesNotOfferIsRefused` (application); `TestSettingsRoundTrip` (infrastructure,
-store); `settings.test.tsx`; each format fitting its cell by hand in a real build.
+`TestAValueASettingDoesNotOfferIsRefused` (application); `TestSettingsRoundTrip` (store);
+`settings.test.tsx`; each format's fit by hand.
 
-**FR-613 Pin ribbon**
-Priority: Should (Amendment 18, Oliver, 2026-09-28).
-The tray menu and the ribbon's right-click menu shall each hold a `Pin ribbon` item directly after
-`Always on top`, ticked while the ribbon is pinned; choosing it flips the pin, applied at once as
-FR-602 does. The ribbon is pinned while the settings file holds no pin, so a file written before the
-pin existed keeps the ribbon it had.
-Rationale: a friend asked for the clocks to stay out of the way until wanted, as the flyout of the
-Windows taskbar clock does. Pinned by default keeps today's ribbon for everyone else.
-Acceptance: given a settings file written before the pin existed, when TimeRibbon starts, then
-`Pin ribbon` is ticked and the
-ribbon shows in full; when `Pin ribbon` is chosen, then it is unticked, the settings file holds
-`"pinned": false` and the ribbon collapses once the pointer is off it (FR-616).
-Amendment 19 (Oliver, 2026-09-29): the tick shows the pin chosen, never the pin in effect (FR-619).
-When `Pin ribbon` is unticked while the ribbon is flush against no edge that runs along its
-orientation, the application shall also move it flush against the edge it last stood against
-(FR-411), centred along it as FR-408 does; it shall store that placement. If no edge is remembered
-(or the remembered one does not run along the current orientation) then it shall use the orientation's
-home edge (FR-409); if the remembered display is not present, then the same edge of the display the
-ribbon is on. That display is always one that is present: a ribbon whose display has gone is already
-recovered onto another at launch (FR-405) and while running (FR-406), so no choice of edge can leave
-it off screen. Unticking while flush moves nothing; ticking moves nothing.
-Acceptance (Amendment 19): given a pinned vertical ribbon in the middle of `\\.\DISPLAY1` whose
-remembered edge is the left edge of `\\.\DISPLAY1`, when `Pin ribbon` is chosen, then the ribbon is
-flush against that left edge, centred top to bottom; it collapses once the pointer is off it.
-Given no remembered edge, then it goes to the right edge instead. Given the remembered display
-unplugged, then it goes to the left edge of `\\.\DISPLAY1`.
+**FR-613 Pin ribbon** (Should; Amendments 18, 19; OQ-10). Both menus hold `Pin ribbon` after `Always
+on top`, ticked while the pin is chosen (never the pin in effect, FR-619); choosing it flips it at once.
+Pinned while the file holds no pin. Unticking it while flush against no edge along the orientation
+moves the ribbon flush against the edge last stood against (FR-411), centred, stored; with none
+remembered (or not along this orientation) the home edge (FR-409); with the remembered display gone,
+the same edge of the ribbon's display. Neither unticking while flush nor ticking moves anything.
+Acceptance: a pre-pin settings file starts pinned; choosing `Pin ribbon` stores `"pinned": false`. A
+pinned vertical ribbon mid-display whose remembered edge is the left of `\\.\DISPLAY1` goes there,
+centred, when unpinned; with nothing remembered, to the right edge; with the remembered display
+unplugged, to the left edge of `\\.\DISPLAY1`.
 Verified by: `TestDefaultsAreDigitalTwentyFourHourVerticalAndNotOnTop` (domain);
-`TestBothMenusOfferPinAfterAlwaysOnTop` (application); `TestPinningAndUnpinning` (facade);
-`TestA1Point0SettingsFileIsReadWhole` (a file without a pin is pinned), `TestSettingsRoundTrip`
-(infrastructure, store);
-`TestUnpinningAwayFromAnEdgeGoesToTheLastEdge`, `TestUnpinningGoesToTheRememberedDisplay`
-(application); `TestUnpinningAwayFromAnEdgeMovesItToTheLastEdge`,
-`TestUnpinningOnAnEdgeMovesNothingAndRecentringKeepsThePin` (facade); a check by hand in a real build.
+`TestBothMenusOfferPinAfterAlwaysOnTop`, `TestUnpinningAwayFromAnEdgeGoesToTheLastEdge`,
+`TestUnpinningGoesToTheRememberedDisplay` (application); `TestPinningAndUnpinning`,
+`TestUnpinningAwayFromAnEdgeMovesItToTheLastEdge`,
+`TestUnpinningOnAnEdgeMovesNothingAndRecentringKeepsThePin` (facade);
+`TestA1Point0SettingsFileIsReadWhole`, `TestSettingsRoundTrip` (store); by hand.
 
-**FR-614 The tab**
-Priority: Should (Amendment 18, Oliver, 2026-09-28).
-While the ribbon is collapsed, the application shall show in the ribbon's place only its tab: a
-band 8 DIP deep along the ribbon's whole length, painted in the colour scheme's accent (FR-611),
-covering the side of the ribbon that is flush against its edge (FR-619).
-Rationale: Oliver, 2026-09-28: a thin tab about 8 DIP deep in the accent. Collapsing moves nothing:
-the stored placement (FR-404) is the expanded ribbon's. Amendment 19 (Oliver, 2026-09-29, reversing
-OQ-6): only a flush ribbon collapses, so the tab always lies on an edge; the tab of a ribbon standing
-away from every edge, on its side nearer one, left a band stranded in the middle of the screen.
-Acceptance: given a vertical ribbon 196 DIP long flush against the right edge of its work area,
-when it collapses, then only an 8 by 196 DIP band in the accent shows, flush against that right
-edge. Given a horizontal ribbon flush against the bottom edge of the upper of two stacked displays,
-when it collapses, then the band lies along that bottom edge.
-Verified by: `TestTheTabCoversTheFlushSide` (domain, placement); `TestCollapsingKeepsThePlacement`,
-`TestARibbonAgainstNoEdgeHasNoTab` (application); `ribbon.test.tsx` for the accent; a check by hand in a real build.
+**FR-614 The tab** (Should; Amendments 18, 19; OQ-6). While collapsed, only the tab shows: an 8 DIP
+band along the ribbon's whole length in the scheme's accent, covering the side flush against its edge.
+Collapsing moves nothing; the stored placement stays the expanded ribbon's.
+Acceptance: a vertical ribbon 196 DIP long flush right collapses to an 8 by 196 band flush against that
+edge; a horizontal one flush against the bottom of the upper of two stacked displays collapses along
+that edge.
+Verified by: `TestTheTabCoversTheFlushSide` (domain); `TestCollapsingKeepsThePlacement`,
+`TestARibbonAgainstNoEdgeHasNoTab` (application); `ribbon.test.tsx`; by hand.
 
-**FR-615 The ribbon opens on a resting pointer**
-Priority: Should (Amendment 18, Oliver, 2026-09-28).
-While the ribbon is collapsed, when the pointer has stayed on the tab for 0.3 s, the application
-shall expand the ribbon to its stored placement without taking keyboard focus from the window that
-holds it. If the pointer leaves the tab before 0.3 s have passed, then the application shall leave
-the ribbon collapsed, counting afresh from the pointer's next arrival.
-Rationale: Oliver, 2026-09-28: expand after a rest of 0.3 s, so a pointer crossing the tab on its
-way elsewhere does not open it. The focus clause keeps typing in another window unbroken.
-Acceptance: given a collapsed ribbon, when the pointer rests on the tab for 0.3 s, then the ribbon
-shows in full at its stored placement while the focused window keeps focus; when the
-pointer crosses the tab in 0.1 s, then the ribbon stays collapsed.
-Verified by: `TestTheRibbonOpensAfterTheRest`, `TestAPassingPointerDoesNotOpenIt` (domain, hover,
-with the instant injected); `TestTheTabOpensAfterTheRestAndCollapsesOnceAway`,
-`TestAnOpeningRibbonIsDrawnWithItsMap`, `TestTheMapsPartsReachThePageInItsOwnUnits` (facade);
-`surface.test.tsx`; focus by hand in a real build.
-Note (2026-09-29): the page draws an opening ribbon while the window is still its tab. With the sun
-map on it scaled the ribbon by the window's width, drawing it 8 pixels wide in a window then grown
-to 175; it was also told of no map. The grown window showed blank clocks or a blank map.
+**FR-615 Opens on a resting pointer** (Should; Amendment 18). When the pointer has rested on the tab
+for 0.3 s, the ribbon expands at its placement without taking keyboard focus; a pointer leaving sooner
+leaves it collapsed, counting afresh. The page draws the opening ribbon, map included, at its full size
+while the window is still the tab.
+Acceptance: a 0.3 s rest opens it while the focused window keeps focus; a 0.1 s crossing does not.
+Verified by: `TestTheRibbonOpensAfterTheRest`, `TestAPassingPointerDoesNotOpenIt` (hover);
+`TestTheTabOpensAfterTheRestAndCollapsesOnceAway`, `TestAnOpeningRibbonIsDrawnWithItsMap`,
+`TestTheMapsPartsReachThePageInItsOwnUnits` (facade); `surface.test.tsx`; focus by hand.
 
-**FR-616 The ribbon collapses after the pointer leaves**
-Priority: Should (Amendment 18, Oliver, 2026-09-28).
-While the ribbon is unpinned in effect (FR-619) and expanded, with no drag under way (FR-401), none of its menus open
-and no panel shown, when the pointer has been off the ribbon for 1 s, the application shall collapse
-it to its tab. If the pointer returns within that second, then the application shall keep the
-ribbon expanded, counting afresh from the pointer's next departure.
-Rationale: Oliver, 2026-09-28: collapse 1 s after the pointer leaves. Settings, Help and the update
-panel never collapse (Claude's proposal, keeping today's panels whole).
-Acceptance: given an expanded unpinned ribbon, when the pointer leaves it and stays away 1 s, then
-only the tab shows; when the pointer leaves and returns after 0.5 s, then it stays expanded; while
-its right-click menu is open, it stays expanded whatever the pointer does.
+**FR-616 Collapses after the pointer leaves** (Should; Amendment 18). While unpinned in effect and
+expanded, with no drag, menu or panel open, the ribbon collapses once the pointer has been off it for
+1 s; a return within the second keeps it open, counting afresh.
+Acceptance: away 1 s, only the tab shows; back after 0.5 s it stays open; with its menu open it stays
+open.
 Verified by: `TestTheRibbonCollapsesASecondAfterThePointerLeaves`, `TestAReturningPointerKeepsItOpen`,
-`TestNothingCollapsesWhileHeld`, `TestAPanelHoldsTheRibbonOpen` (domain, hover);
-`TestTheTabOpensAfterTheRestAndCollapsesOnceAway`, `TestAPanelAndTheMenuHoldTheRibbonOpen`
-(facade); a check by hand in a real build.
+`TestNothingCollapsesWhileHeld`, `TestAPanelHoldsTheRibbonOpen` (hover);
+`TestTheTabOpensAfterTheRestAndCollapsesOnceAway`, `TestAPanelAndTheMenuHoldTheRibbonOpen` (facade);
+by hand.
 
-**FR-617 An unpinned ribbon stays on top**
-Priority: Should (Amendment 18, Oliver, 2026-09-28).
-While the ribbon is unpinned in effect (FR-619), the application shall keep the ribbon and its tab
-above windows that are not themselves topmost, whatever Always on top holds. Amendment 19 (Oliver,
-2026-09-29): a ribbon pinned in effect because it stands away from every edge follows Always on
-top, as a pinned one does.
-Rationale: OQ-8. A tab covered by a maximised window could not be reached again; the flyout this
-copies stays on top. Always on top keeps its stored value, taking effect again once the ribbon is
-pinned (FR-505).
-Acceptance: given Always on top off and an unpinned ribbon, when a window is maximised on its
-display, then the tab shows above that window; when `Pin ribbon` is chosen, then the ribbon is no
-longer kept above other windows while `Always on top` stays unticked.
-Verified by: `TestAnUnpinnedRibbonIsAlwaysOnTop` (domain, settings); `TestPinningAndUnpinning`
-(facade); a check by hand in a real build.
+**FR-617 Unpinned stays on top** (Should; Amendments 18, 19; OQ-8). While unpinned in effect the
+ribbon and tab stay above windows not themselves topmost, whatever Always on top holds, which keeps its
+stored value; pinned in effect, Always on top applies.
+Acceptance: with Always on top off, a maximised window does not cover the tab; once pinned the ribbon
+is no longer kept on top.
+Verified by: `TestAnUnpinnedRibbonIsAlwaysOnTop` (domain); `TestPinningAndUnpinning` (facade); by hand.
 
-**FR-618 A collapsed ribbon counts as shown**
-Priority: Should (Amendment 18, Oliver, 2026-09-28).
-While the ribbon is collapsed, the application shall treat it as shown for the tray menu (FR-502),
-the tray click (FR-503) and a second launch (FR-506), so each of them hides it, tab included.
-Rationale: OQ-9. One meaning for every toggle; a Stream Deck button hides the tab and brings it back.
-Acceptance: given a collapsed ribbon, when TimeRibbon is launched again, then neither ribbon nor tab
-shows and the tray menu offers `Show ribbon`; when it is launched once more, then the tab shows and
-the ribbon stays collapsed until the pointer rests on the tab.
+**FR-618 Collapsed counts as shown** (Should; Amendment 18; OQ-9). The tray menu, tray click and a
+second launch treat a collapsed ribbon as shown, so each hides it, tab included.
+Acceptance: a launch hides a collapsed ribbon and the tray offers `Show ribbon`; another brings the
+tab back.
 Verified by: `TestASecondLaunchHidesACollapsedRibbon`, `TestTheTrayMenuTreatsACollapsedRibbonAsShown`
-(facade, which decides what counts as shown for the tray menu); a check by hand in a real build.
+(facade); by hand.
 
-**FR-619 The pin in effect**
-Priority: Should (Amendment 19, Oliver, 2026-09-29).
-The ribbon shall be unpinned in effect while `Pin ribbon` is unticked and the ribbon is flush against
-an edge that runs along its orientation (left or right for vertical, top or bottom for horizontal)
-of the work area of the display it lies on, that display's edges shared with a neighbour included.
-Otherwise it is pinned in effect: shown in full, never collapsing, following Always on top, while
-the choice in the settings file and the menus' tick stay as they were. After every placement,
-whatever made it (a drag, `Position`, a change of orientation or of length, recovery at launch or on
-a display change), the application shall read the pin in effect afresh; a ribbon that has become
-unpinned in effect collapses once the pointer has been off it for 1 s (FR-616).
-Rationale: Oliver, 2026-09-29: dragging the ribbon away from an edge pins it; the unpinned choice is
-remembered so that locking it back to a side unpins it again; a re-centring keeps it. Pinned in
-effect is how the ribbon is shown, never a change to what was chosen.
-Acceptance: given an unpinned vertical ribbon flush against the right edge, when it is dragged to
-the middle of the display and the pointer leaves it, then it stays in full, `Pin ribbon` stays
-unticked and the settings file still holds `"pinned": false`; when it is then dragged to within
-16 DIP of the left edge and the pointer leaves it, then it snaps flush (FR-410) and collapses to a
-tab on that edge 1 s later. Given an unpinned vertical ribbon standing away from every edge at
-launch, then it shows in full. Given an unpinned ribbon flush against an edge, when `Centre on left
-edge` is chosen, then it stays unpinned and collapses on that edge once the pointer is off it.
-Verified by: `TestFlushnessGivesThePinInEffect`, `TestAnUnpinnedRibbonIsAlwaysOnTop` (domain,
-settings); `TestOnlyAnEdgeAlongTheOrientationIsFlush`, `TestAnInnerEdgeCounts` (domain, placement);
+**FR-619 The pin in effect** (Should; Amendment 19; OQ-6, OQ-11). The ribbon is unpinned in effect
+while `Pin ribbon` is unticked and it is flush against an edge along its orientation of its display's
+work area, inner edges included; otherwise it is pinned in effect (in full, never collapsing, following
+Always on top) while the choice stays as it was. The pin in effect is read afresh after every
+placement, whatever made it.
+Acceptance: an unpinned vertical ribbon dragged from the right edge to mid-display stays in full with
+`"pinned": false` kept; dropped within 16 DIP of the left edge it snaps flush and collapses 1 s after
+the pointer leaves. One standing away from every edge at launch shows in full. One flush against an
+edge sent to `Centre on left edge` stays unpinned and collapses there once the pointer is off it.
+Verified by: `TestFlushnessGivesThePinInEffect`, `TestAnUnpinnedRibbonIsAlwaysOnTop` (settings);
+`TestOnlyAnEdgeAlongTheOrientationIsFlush`, `TestAnInnerEdgeCounts` (placement);
 `TestAnUnpinnedRibbonOffAnEdgeShowsInFull`, `TestDraggingBackOntoAnEdgeCollapsesAgain`,
-`TestUnpinningOnAnEdgeMovesNothingAndRecentringKeepsThePin` (facade); a check by hand in a real build.
+`TestUnpinningOnAnEdgeMovesNothingAndRecentringKeepsThePin` (facade); by hand.
 
-**FR-620 A cell fits its text**
-Priority: Must (Amendment 24, Oliver, 2026-09-29).
-Every clock cell shall be at least as wide as the widest time and the widest date its chosen size,
-style, time format and date format can show, measured in the font the page really draws with, its
-padding and the divider between cells included; no narrower than FR-610's width for its size. The
-widest are taken over every minute of the day and every day of a 28 year span, within which every
-weekday falls on every day of every month. An analogue cell shows no time, so only its date counts.
-After any of those four choices changes, the page measures again and the ribbon is fitted to the
-result.
-Rationale: a fixed width fits only the fonts it was tried with; on a friend's machine the dates
-were cut short, while on the reference machine `Wednesday, 30 September` needed 178 DIP of a large
-cell's 176 (OQ-24).
-Acceptance: given large digital clocks in the day-month format drawn in Segoe UI Variable Text,
-then each cell is 178 DIP wide and shows `Wednesday, 30 September` whole; given a font wider than
-that, then the cells widen with it and no date is cut short; given a measurement taken under a size
-or format that is no longer chosen, then it widens nothing.
+**FR-620 A cell fits its text** (Must; Amendment 24; OQ-24). Every cell is at least as wide as the
+widest time and date its size, style and formats can show in the font the page draws with, padding and
+divider included; it is no narrower than FR-610's width. The widest are taken over every minute of a day
+and every day of a 28 year span; an analogue cell counts only its date. After any of those choices
+changes, the page measures again.
+Acceptance: large digital clocks in the day-month format in Segoe UI Variable Text are 178 DIP wide,
+showing `Wednesday, 30 September` whole; a measurement taken under other choices widens nothing.
 Verified by: `TestSamplesHoldEveryTimeOnce`, `TestSamplesHoldEveryPairingOfWeekdayDayAndMonth`
-(domain, clock); `TestTheTextSamplesFollowTheFormats`, `TestAMeasuredWidthWidensTheCells`,
+(clock); `TestTheTextSamplesFollowTheFormats`, `TestAMeasuredWidthWidensTheCells`,
 `TestAMeasurementCountsOnlyForItsOwnChoices` (application); `TestTheMeasurementRoundTrip` (facade);
-`measure.test.ts`; a check by hand in a real build.
+`measure.test.ts`; by hand.
 
-**FR-621 Settings fits its content**
-Priority: Should (Amendment 25, Oliver, 2026-09-29).
-While Settings is open, its window shall be as tall as its whole content, measured as the page lays
-it out, re-centred on its display; never taller than that display's work area, where the content
-scrolls beneath the title and Close as before. Whenever the content's height changes (a clock added
-or removed, a search answered, a notice shown), the window follows it. Its width stays the panel's
-own; About and Licence keep the panel's size.
-Rationale: a fixed height made Settings scroll on displays with room to spare (OQ-25).
-Acceptance: given five clocks on a display whose work area is 1400 DIP tall, when Settings opens,
-then it is 1064 DIP tall and does not scroll; when a clock is removed, then it grows shorter; given
-a work area shorter than the content, then Settings fills its height and scrolls.
+**FR-621 Settings fits its content** (Should; Amendment 25; OQ-25). While Settings is open its window
+is as tall as its content laid out at the panel's width, re-centred, never taller than the work area,
+where it scrolls beneath the title and Close; it follows every change of content height. The page
+measures only once the window has become the panel.
+Acceptance: five clocks on a work area 1400 DIP tall give a Settings 1064 DIP tall that does not
+scroll; removing a clock shortens it; a shorter work area caps it and it scrolls.
 Verified by: `TestFitPanelMakesTheOpenPanelAsTallAsItsContent`,
 `TestFitPanelLeavesTheRibbonAloneAndRefusesANegativeHeight`, `TestFitPanelAnswersWhatStoppedIt`
-(facade); `TestSettingsOpenCentredOnTheRibbonsDisplay`, which also holds the cap to the work area
-(application);
-`panelFit.test.tsx`; a check by hand in a real build.
+(facade); `TestSettingsOpenCentredOnTheRibbonsDisplay` (application); `panelFit.test.tsx`; by hand.
 
-**FR-622 Opacity**
-Priority: Should (Amendment 26, Oliver, 2026-09-29).
-Settings shall offer an Opacity slider in steps of 5 percent from 20 to 100 percent. Everything the
-window shows (the ribbon, the sun map and every panel) shall be drawn at the chosen opacity, the
-desktop showing through the rest; at 100 percent the window looks exactly as it did before the
-choice existed. The window follows the slider while it moves; the choice is saved in the settings
-file once the slider is let go, 100 percent when the file holds none. A value outside 20 to 100
-percent is refused by the setting and brought within it when read from a hand-edited file.
-Rationale: Oliver, 2026-09-29: let the ribbon sit over other work without hiding it; 20 percent
-the least, since a window with nothing to see cannot be found to be put back (OQ-26).
-Amendment 30 (Oliver, 2026-10-04): only the ribbon's backgrounds take the chosen opacity: the ribbon
-itself, each dial's face and the unpinned tab. The clocks' times, dates, hands and ticks stay wholly
-opaque, as does the sun map. Every panel the window becomes (Settings among them) is drawn wholly
-opaque whatever the choice, so the window no longer follows the slider while it moves; the slider
-shows its value instead. Rationale: Settings must stay readable while its opacity is chosen; the
-clocks stay solid so only what is behind them fades.
-Acceptance: given a first run, then the window is wholly opaque; when the slider is dragged to 40
-percent and let go, then the Settings panel is still wholly opaque, the settings file holds
-`"opacity": 40` and a restart keeps it; when Settings is closed, then the clocks' text is wholly
-opaque while the desktop shows through the ribbon behind it; given a settings file holding
-`"opacity": 5`, then the ribbon's background is drawn at 20 percent.
+**FR-622 Opacity** (Should; Amendments 26, 30; OQ-26). Settings offers an Opacity slider in steps of
+5 from 20 to 100 percent. Only the ribbon's backgrounds take it (the ribbon, each dial's face, the
+tab); times, dates, hands, ticks, the sun map and every panel stay wholly opaque, so the desktop shows
+through behind the clocks. The slider shows its value and is saved once let go; 100 percent when the
+file holds none; a value outside the bounds is refused by the setting and brought within them when read from a
+file.
+20 percent is the least, so the ribbon can always be found.
+Acceptance: dragged to 40 and let go, Settings stays wholly opaque, the file holds `"opacity": 40` and
+a restart keeps it; closed, the clocks are solid while the desktop shows through behind them; a file
+holding 5 draws the background at 20.
 Verified by: `TestOpacityIsHeldWithinItsBounds` (domain); `TestOpacityIsChosenSavedAndShown`
-(application); `TestSettingsRoundTrip` (infrastructure, store); `TestThePagesBackgroundReachesTheWindow`,
-`TestTheWindowIsPaintedClearBelowFullOpacity` (facade); `opacity.test.tsx`, `panelOpacity.test.tsx`,
-`background.test.ts`; a check by hand in a real build.
+(application); `TestSettingsRoundTrip` (store); `TestThePagesBackgroundReachesTheWindow`,
+`TestTheWindowIsPaintedClearBelowFullOpacity` (facade); `opacity.test.tsx`,
+`panelOpacity.test.tsx`, `background.test.ts`; by hand.
 
-**FR-623 Resizing the clocks**
-Priority: Should (Amendment 27, Oliver, 2026-09-29).
-The ribbon shall carry a grip in its corner. Dragging it across the ribbon (outward to grow, back
-to shrink) shall draw everything in the clocks at a scale from 75 to 200 percent of the chosen
-size, text, dials, padding, cells and the pull out's handle alike, with the window following while
-the grip moves; the scale is saved in the settings file once the grip is let go, 100 percent when
-the file holds none. Double-clicking the grip returns the clocks to 100 percent. The scale applies
-on top of Large or Small, whichever is chosen; choosing the other keeps it. A ribbon whose length
-changes with the scale is centred along it again (FR-104). The scroll bar keeps its own thickness.
-The grip is a control, so pressing it starts no drag of the window (FR-402).
-Rationale: Oliver, 2026-09-29: "make my clocks this big", not "solve your layout"; a scale keeps
-every clock's shape (OQ-27). 75 percent draws a small clock's 11 px text at about 8 px, the least
-that stays readable; at 200 percent the thickest ribbon is 408 DIP across, which a 720 line display
-still holds (OQ-28).
-Amendment 31 (Oliver, 2026-10-04): a change of scale no longer re-centres the ribbon. As a window
-being resized does, the ribbon grows and shrinks from its top-left corner, so the corner holding the
-grip follows the pointer; this holds while the grip is dragged, when it is let go and on a
-double-click. A change of clocks still re-centres it (FR-104). Rationale: re-centring on every step
-of the drag slid the clocks along the ribbon and ran the grip away from the pointer.
-Acceptance: given five large digital clocks at 100 percent, when the grip is dragged until the
-scale reads 150 percent and let go, then each cell is 1.5 times its width at 100 percent (FR-620)
-by 138 DIP, 264 by 138 where that width is the size's own 176, with its text whole; the
-settings file holds `"scale": 150` and a restart keeps it; when Small is then chosen, then the small
-cells are drawn at 150 percent; when the grip is double-clicked, then the clocks are drawn at their
-own size again.
-Verified by: `TestScaleIsHeldWithinItsBounds` (domain); `TestAScaledRibbonGrowsInBothDirections`,
+**FR-623 Resizing the clocks** (Should; Amendments 27, 31; OQ-27, OQ-28). A grip in the ribbon's
+corner, dragged outward or back, draws everything in the clocks (text, dials, padding, cells, the
+handle) at 75 to 200 percent of the chosen size, the window following while it moves; the scale is
+saved once let go, 100 percent when none is held; a double-click returns to 100. It applies on top of
+Large or Small and survives a change between them; the scroll bar keeps its own thickness. As a
+resized window does, the ribbon grows and shrinks from its top-left corner, so the grip follows the
+pointer, while dragging, on release and on a double-click; a change of clocks still re-centres it
+(FR-104). 75 percent draws a small clock's 11 px text at about 8 px, the least readable; at 200 the
+thickest ribbon is 408 DIP across, which a 720 line display holds.
+Acceptance: five large digital clocks dragged to 150 percent give cells 1.5 times their FR-620 width
+by 138 DIP (264 by 138 at the size's own 176), text whole; the file holds `"scale": 150`; Small then
+draws at 150; a double-click restores their own size.
+Note (2026-10-04): on Windows the drag follows the cursor read from the desktop, since the page's
+pointer events jumped backwards while the window resized; the sun map holds still until the grip is
+let go, so the window's corner does not move.
+Verified by: `TestScaleIsHeldWithinItsBounds`, `TestScaleAfterFollowsTheFarSide` (settings);
+`TestTheMapIsHeldWhileTheRibbonIsResized` (placement); `TestAScaledRibbonGrowsInBothDirections`,
 `TestAPreviewIsDrawnButNotKept`, `TestAChangeOfScaleKeepsTheCorner`,
-`TestAChangeOfClocksAfterAScaleStillRecentres`, `TestTheScrollBarIsNotScaled`
-(application); `TestSettingsRoundTrip` (infrastructure, store); `TestAChangeOfScaleTellsThePageToDrawAgain`,
-`TestEveryChangeFitsTheRibbonAndAnswersTheServicesError` (facade); `scaleGrip.test.tsx`; a check by hand in a real build.
+`TestAChangeOfClocksAfterAScaleStillRecentres`, `TestTheScrollBarIsNotScaled`,
+`TestTheSunMapIsHeldWhileTheGripIsDragged` (application); `TestSettingsRoundTrip` (store);
+`TestAChangeOfScaleTellsThePageToDrawAgain`, `TestEveryChangeFitsTheRibbonAndAnswersTheServicesError`,
+`TestTheGripFollowsTheDesktopsPointerOverThePages`,
+`TestTheGripFollowsThePagesPointerWhereTheDesktopCannotReadIt`, `TestAPressThatMovesNothingKeepsNothing`
+(facade); `TestTheCursorIsWhereWindowsSaysItIs` (desktop, Windows); `scaleGrip.test.tsx`; by hand.
 
-**FR-624 Settings offers every menu choice**
-Priority: Should (Amendment 28, Oliver, 2026-09-29).
-Settings shall offer every choice either menu offers (Style, Colour, Orientation, Position, Always
-on top, Pin ribbon and Sun map), drawn from the menus' own items with their words and ticks; a group
-of ticked items as one choice among them, Position's moves as buttons, a ticked item on its own as a
-tick box. Choosing one in Settings shall do exactly what the menu item does. The menus keep every
-one. What the menus hold besides is commands (show or hide, Add clock, Settings, Help, Exit), which
-Settings does not repeat.
-Rationale: Oliver, 2026-09-29: "make sure all settings on the menu are in the settings dialog",
-"don't exclude anything" (OQ-29).
-Acceptance: given Classic chosen, when Settings opens, then its Colour group lists every scheme with
-Classic chosen; when Neon is chosen there, then the ribbon is Neon and both menus tick Neon; when
-Centre on bottom edge is pressed, then the ribbon goes to the bottom edge as the menu item sends it.
+**FR-624 Settings offers every menu choice** (Should; Amendment 28; OQ-29). Settings offers Style,
+Colour, Orientation, Position, Always on top, Pin ribbon and Sun map from the menus' own items, words
+and ticks; a ticked group as one choice, Position's moves as buttons, a lone ticked item as a tick box.
+Each does exactly what the menu item does; the menus keep them all. Commands (show or hide, Add clock,
+Settings, Help, Exit) stay on the menus.
+Acceptance: Neon chosen in Settings makes the ribbon Neon and both menus tick it; Centre on bottom edge
+sends the ribbon there.
 Verified by: `TestEveryMenuChoiceIsOfferedBySettings`, `TestSettingsChoicesAreTheMenusOwnItems`
 (application); `TestTheSnapshotCarriesTheMenusChoices`, `TestChooseCarriesOutOnlyTheChoicesSettingsOffers`
-(facade); `settings.test.tsx`; a check by hand in a real build.
+(facade); `settings.test.tsx`; by hand.
 
-**FR-625 Settings is wide**
-Priority: Should (Amendment 28, Oliver, 2026-09-29).
-Settings shall open 900 DIP wide, its choice groups side by side in as many columns as that width
-holds, never wider than its display's work area, where the columns fold to fit. Fitting its height
-keeps that width (FR-621). About, Licence and the update panel stay 560 DIP wide.
-Rationale: Oliver, 2026-09-29: a tall narrow panel wastes the display's width; text panels read
-better narrow (OQ-30).
-Acceptance: given a 1920 by 1080 display at 100 percent, when Settings opens, then it is 900 DIP
-wide with three columns of choices; when About opens, then it is 560 DIP wide.
-Verified by: `TestSettingsOpensAndFitsAtItsOwnWidth` (facade); a check by hand in a real build.
+**FR-625 Settings is wide** (Should; Amendment 28; OQ-30). Settings opens 900 DIP wide with its groups
+in as many columns as fit, folding where the work area is narrower; fitting its height keeps that
+width. About, Licence and the update panel stay 560 DIP wide.
+Acceptance: on 1920 by 1080 at 100 percent Settings is 900 wide with three columns; About is 560.
+Verified by: `TestSettingsOpensAndFitsAtItsOwnWidth` (facade); by hand.
 
-**FR-626 The place search stays open**
-Priority: Should (Amendment 28, Oliver, 2026-09-29).
-Settings shall show the place search at all times beneath the clocks, with the Add clock picture
-beside its box. Places are listed once something is typed. Pressing the picture adds the highlighted
-place; with nothing typed it puts the cursor in the box instead. Enter and a click on a place add it
-too; the box empties after each. Escape with something typed empties the box; with nothing typed it
-closes Settings. Change place opens the search for that clock with a Cancel, as before (FR-304).
-Rationale: Oliver, 2026-09-29: the picture belongs beside the search it adds from (OQ-31).
-Acceptance: given Settings open, when "Oslo" is typed and the picture pressed, then a clock for
-Oslo is added and the box is empty; when the picture is pressed with nothing typed, then nothing is
-added and the cursor is in the box.
-Verified by: `settings.test.tsx`; a check by hand in a real build.
+**FR-626 The place search stays open** (Should; Amendment 28; OQ-31). Settings shows the search
+beneath the clocks with the Add clock picture beside its box; places list once something is typed.
+The picture, Enter or a click adds the highlighted place and empties the box; with nothing typed the
+picture focuses the box. Escape empties a typed box, else closes Settings. Change place opens the
+search for that clock with Cancel.
+Acceptance: "Oslo" then the picture adds Oslo and empties the box; the picture with nothing typed adds
+nothing and focuses the box.
+Verified by: `settings.test.tsx`; by hand.
 
 ### 3.7 Persistence and recovery
 
-**FR-701 Settings file**
-Priority: Must.
-The application shall keep its settings in the settings file as indented JSON holding the file's
-format `version`, style, size, colour, format, orientation, theme, Always on Top, placement, clocks
-plus `skippedUpdate`, the release the user skipped (FR-509), `dateFormat` (FR-612) and `pinned`
-(FR-613, Amendment 18); each clock
-holding a stable id, its zone id, its label and its position. Derived values (offset, abbreviation,
-time, date) shall not be stored.
-Later amendments add keys, each allowed by NFR-C-1: `lastEdge` (FR-411, Amendment 19), `sunMap` and
-`pullOut` (FR-901, FR-903, Amendment 20), `opacity` (FR-622, Amendment 26) and `scale` (FR-623,
-Amendment 27).
-Verified by: `TestSettingsRoundTrip` and `TestNoDerivedValueIsStored` (infrastructure).
+**FR-701 Settings file** (Must). Settings are kept as indented JSON: the format `version`, style,
+size, colour, format, orientation, theme, Always on top, placement, `skippedUpdate`, `dateFormat`,
+`pinned`, `lastEdge`, `sunMap`, `pullOut`, `opacity`, `scale` and the clocks (a stable id, zone id,
+label and position each). Derived values are never stored.
+Verified by: `TestSettingsRoundTrip`, `TestNoDerivedValueIsStored` (store).
 
-**FR-702 Atomic writes**
-Priority: Must.
-The application shall write the settings file to a temporary file in the same folder and replace the
-old file with it, so a crash mid-write leaves the previous file intact.
-Verified by: `TestWriteReplacesAtomically` (infrastructure).
+**FR-702 Atomic writes** (Must). The file is written to a temporary file in the same folder and swapped
+in, so a crash mid-write leaves the old one intact.
+Verified by: `TestWriteReplacesAtomically` (store).
 
-**FR-703 First run**
-Priority: Must.
-If the settings file does not exist, then the application shall start with default settings and no
-clocks, write nothing until something changes and report no problem.
-Verified by: `TestAbsentFileMeansDefaults` (infrastructure).
+**FR-703 First run** (Must). With no file, defaults and no clocks; nothing written until something
+changes; no problem reported.
+Verified by: `TestAbsentFileMeansDefaults` (store).
 
-**FR-704 Unreadable file**
-Priority: Must.
-If the settings file exists but is not valid JSON, then the application shall rename it to
-`settings.unreadable.json`, start with default settings and show on the ribbon `Settings could not be
-read; the old file was kept as settings.unreadable.json`.
-Verified by: `TestUnreadableFileIsKeptAsideAndReported` (infrastructure).
+**FR-704 Unreadable file** (Must). A file that is not valid JSON is renamed to
+`settings.unreadable.json`, defaults are used and the ribbon shows `Settings could not be read; the
+old file was kept as settings.unreadable.json`.
+Verified by: `TestUnreadableFileIsKeptAsideAndReported` (store).
 
-**FR-705 One bad clock**
-Priority: Must.
-If one clock entry cannot be read or names a zone the tz database does not recognise, then the
-application shall load every other clock, keep the bad entry in the file unchanged and show it as an
-invalid clock.
-Acceptance: Given three clocks where the second names `Not/AZone`, then the first and third show
-their times and the second reads `Unknown time zone: Not/AZone`.
+**FR-705 One bad clock** (Must). A clock that cannot be read or names an unknown zone leaves the others
+loaded, stays in the file unchanged and shows as invalid.
+Acceptance: three clocks, the second `Not/AZone`: the first and third show times, the second reads
+`Unknown time zone: Not/AZone`.
 Verified by: `TestOneBadClockLeavesTheOthersWorking` (application).
 
-**FR-706 Invalid clock shown for repair**
-Priority: Must.
-An invalid clock shall keep its place in the order, show its stored label (else its stored zone
-text) with the words `Unknown time zone` and offer `Edit` and `Remove` in Settings. The application
-shall never substitute another zone.
+**FR-706 Invalid clock shown for repair** (Must). An invalid clock keeps its place, shows its label
+(else its zone text) with `Unknown time zone` and offers Edit and Remove in Settings; no other zone is
+ever substituted.
 Verified by: `ribbon.test.tsx`; `TestInvalidClockIsNeverGivenAnotherZone` (application).
 
-**FR-707 Write failure**
-Priority: Must.
-If the settings file cannot be written, then the application shall keep running with the change in
-effect and show `Settings could not be saved:` followed by the reason, until a later write succeeds.
+**FR-707 Write failure** (Must). A failed write keeps the change in effect and shows `Settings could
+not be saved:` with the reason until a later write succeeds.
 Verified by: `TestWriteFailureIsReportedAndCleared` (application).
 
 ### 3.8 Non-functional
 
 | ID | Requirement | Method |
 |---|---|---|
-| NFR-P-1 | From launch to the ribbon showing current times shall take at most 1.5 s on the reference machine. | Timed from the log's first line to the first snapshot, median of 5 launches |
-| NFR-P-2 | While running normally, each cell shall show the new minute within 1 s after the Windows clock reaches it. | Log timestamps against the refresh, over 10 boundaries |
-| NFR-P-3 | After a resume or a system time change, every cell shall be correct within 2 s. | By hand in a real build |
-| NFR-P-4 | While the ribbon is shown, its page shall schedule no periodic timer more frequent than once per minute. The self-reading cycle of a Help panel (FR-609) runs only while that panel is shown. Off Windows, where no broadcast reports a time change or a resume, the Go side compares the wall clock with the monotonic clock every 2 s to see one (FR-209). | `timers.test.ts` for the page's timer calls; inspection for the Go side's 2 s clock check |
-| NFR-U-1 | Label, time, date and zone mark text shall meet a contrast ratio of at least 4.5:1 against the cell in both themes. | `TestTextMeetsTheContrastFloorOnEverySchemeAndTheme` (structural), over every scheme on both the cell and the surface |
-| NFR-U-2 | No state shall be told by colour alone; an invalid clock carries words (FR-706). | Inspection |
-| NFR-U-3 | Every control in Settings and the place search shall be reachable and operable from the keyboard, with a visible focus indicator on the focused control. | `settings.test.tsx`; a check by hand in a real build |
-| NFR-U-4 | Every icon-only control shall carry an accessible name and a tooltip. | `a11y.test.tsx` |
-| NFR-U-5 | Interactive targets shall be at least 24 by 24 DIP. Amendment 18 (Oliver, 2026-09-28, OQ-7): the tab of FR-614 is exempt at 8 DIP; it is rested on rather than pressed, while against a display's edge the pointer stops on it. | Inspection; WCAG 2.2 criterion 2.5.8 |
-| NFR-S-1 | The application shall make no network request other than the update check of FR-509: one unauthenticated request to GitHub's latest-release endpoint, sending nothing about the user or their clocks. Amendment 15 (Oliver, 2026-09-28): before it, no network request at all. | `TestOnlyTheUpdateCheckImportsANetworkPackage`, `TestTheNetworkExemptionNamesTheUpdatePackage` (structural) |
-| NFR-S-2 | The application shall not change the Windows clock or time zone. | Inspection |
-| NFR-S-3 | Non-claim: time zone rules are those of the tz database embedded at build time wherever the system offers none, which on Windows is always (CON-5). There a rule change made by a government after the build is shown only after a new release. The README states this. | Inspection of the README |
-| NFR-M-1 | The coverage floor of CON-3, the size limit of CON-2 and the layering of CON-1 are enforced by `test.ps1`, which `build.ps1` runs first with no switch to skip it. | `build.ps1` |
-| NFR-M-2 | Go code passes gofmt, go vet and staticcheck; the front end passes eslint, `tsc --noEmit` and Vitest. | `test.ps1` |
-| NFR-C-1 | From the first release, every later release of that major version shall read every settings file the first release writes to the same settings: no key it writes is renamed, dropped or given another meaning; no stored word changes. A later release may add keys; the first release keeps a key it does not know and writes it back. Amendment 4 (Oliver, 2026-09-27). Amendment 11 (Oliver, 2026-09-28): the next major version still reads that shape to the same settings; the file now lives in the renamed folder and nothing is read from the former one. | `TestA1Point0SettingsFileIsReadWhole` over the frozen fixture `internal/infrastructure/store/testdata/settings-1.0.0.json` |
-| NFR-P-5 | Amendment 20: drawing the sun map (FR-905) at 960 by 480 DIP shall take at most 100 ms on the reference machine. | Timed around the draw in the page, median of 10 minute refreshes, written to the log. Measured 2026-09-29 on the reference machine with forced redraws in place of minute refreshes: a temporary probe repeated the draw (both pictures scaled, blended, put) at 960 by 480 ten times with the sun moved each time, on three launches of a dev build; medians 13.3, 12.6 and 13.3 ms, slowest 18.7 ms. The probe was removed |
-| NFR-C-2 | Amendment 20: the built-in map images (FR-911) shall add at most 4 MB to the application's executable. | The images' own size: the page's build copies them byte for byte into `frontend/dist`, which the executable embeds. Measured 2026-09-30: `sun-day.jpg` 318,480 bytes and `sun-night.jpg` 151,835, 470,315 in all |
-| NFR-O-1 | The application shall write a log to `%APPDATA%\TimeRibbon\TimeRibbon.log` recording launch, placement recovery decisions, settings failures and invalid clocks; standard error is pointed at it before anything can fail. Amendment 13: on macOS and Linux, `TimeRibbon.log` in the settings folder of CON-8. | `TestLogReceivesStandardError` (infrastructure) |
+| NFR-P-1 | Launch to current times in at most 1.5 s on the reference machine. | Log's first line to first snapshot, median of 5 launches |
+| NFR-P-2 | Each cell shows a new minute within 1 s of the system clock reaching it. | Log timestamps over 10 boundaries |
+| NFR-P-3 | After a resume or time change every cell is correct within 2 s. | By hand |
+| NFR-P-4 | The ribbon's page schedules no periodic timer more often than once a minute; a Help panel's cycle (FR-609) runs only while shown. Off Windows, Go compares the wall and monotonic clocks every 2 s (FR-209). | `timers.test.ts`; inspection for the Go check |
+| NFR-P-5 | Drawing the sun map at 960 by 480 DIP takes at most 100 ms on the reference machine (Amendment 20). | Measured 2026-09-29 by a temporary probe over three launches: medians 13.3, 12.6 and 13.3 ms, slowest 18.7 ms |
+| NFR-U-1 | Label, time, date and zone mark meet 4.5:1 against the cell in both themes. | `TestTextMeetsTheContrastFloorOnEverySchemeAndTheme` (structural), every scheme, cell and surface |
+| NFR-U-2 | No state is told by colour alone; an invalid clock carries words. | Inspection |
+| NFR-U-3 | Every control in Settings and the search is reachable and operable from the keyboard with a visible focus indicator. | `settings.test.tsx`; by hand |
+| NFR-U-4 | Every icon-only control carries an accessible name and a tooltip. | `a11y.test.tsx` |
+| NFR-U-5 | Targets are at least 24 by 24 DIP; the 8 DIP tab is exempt, rested on rather than pressed (Amendment 18, OQ-7). | Inspection; WCAG 2.2 criterion 2.5.8 |
+| NFR-S-1 | No network request but the update check: one unauthenticated request to GitHub's latest-release endpoint, sending nothing about the user (Amendment 15). | `TestOnlyTheUpdateCheckImportsANetworkPackage`, `TestTheNetworkExemptionNamesTheUpdatePackage` (structural) |
+| NFR-S-2 | The system clock and time zone are never changed. | Inspection |
+| NFR-S-3 | Non-claim: where the system offers no rules (always on Windows), the built-in ones apply, so a government's change after a build shows only after a new release; the README says so. | Inspection of the README |
+| NFR-M-1 | The coverage floor (CON-3), size limit (CON-2) and layering (CON-1) are enforced by `test.ps1`, which `build.ps1` runs first with no switch to skip it. | `build.ps1` |
+| NFR-M-2 | Go passes gofmt, go vet and staticcheck; the front end eslint, `tsc --noEmit` and Vitest. | `test.ps1` |
+| NFR-C-1 | Every later release reads every settings file the first release writes to the same settings, the next major version included: no key renamed, dropped or redefined, no stored word changed; keys may be added; an unknown key is written back (Amendments 4, 11). The renamed product reads only its own folder. | `TestA1Point0SettingsFileIsReadWhole` over `internal/infrastructure/store/testdata/settings-1.0.0.json` |
+| NFR-C-2 | The built-in map images add at most 4 MB to the executable (Amendment 20). | Measured 2026-09-30: `sun-day.jpg` 318,480 bytes and `sun-night.jpg` 151,835, copied byte for byte into `frontend/dist` |
+| NFR-O-1 | A log, `TimeRibbon.log` in the settings folder, records launch, placement recovery, settings failures and invalid clocks; standard error points at it before anything can fail (Amendment 13). | `TestLogReceivesStandardError` |
 
 ### 3.9 The sun map
 
-Amendment 20 (Oliver, 2026-09-29). A friend (Eid) asked for a live world map lit where it is day and
-dark where it is night, city lights on the night side, the clocks' places marked, after the Solar
-World Clock, which shows its clocks in a row above such a map. Glossary: the **sun map** is that map;
-the **pull out** is the sun map beside a vertical ribbon (beside either orientation since Amendment
-22); the **handle** opens and closes it; the
-**subsolar point** is where the sun stands overhead; **solar altitude** is the sun's height above
-the horizon at a place, in degrees.
+Amendment 20. A friend asked for a world map lit where it is day, city lights where it is night, the
+clocks' places marked, after the Solar World Clock. The **handle** opens and closes the pull out; the
+**subsolar point** is where the sun stands overhead; **solar altitude** is the sun's height above the
+horizon at a place, in degrees.
 
-**FR-901 Sun map on or off**
-Priority: Should.
-The tray menu, the ribbon's right-click menu and Settings shall each hold a `Sun map` choice, ticked
-while the sun map is on; choosing it turns the sun map on or off at once as FR-602 does. The sun map
-is off while the settings file holds no choice for it.
-Rationale: off by default keeps today's ribbon for everyone who has not asked for the map.
-Acceptance: given a settings file written before the sun map existed, when TimeRibbon starts, then
-no map shows and `Sun map` is unticked; when it is chosen, then the map shows (FR-902 or FR-903) and the settings file
-holds `"sunMap": true`.
-Verified by: `TestA1Point0SettingsFileIsReadWhole`, `TestSettingsRoundTrip` (infrastructure, store);
-`TestBothMenusOfferSunMap` (application); a check by hand in a real build.
+**FR-901 Sun map on or off** (Should). Both menus and Settings hold a `Sun map` choice, ticked while
+on, applied at once; off while the file holds none.
+Acceptance: a pre-map file shows no map and an unticked choice; choosing it shows the map and stores
+`"sunMap": true`.
+Verified by: `TestA1Point0SettingsFileIsReadWhole`, `TestSettingsRoundTrip` (store);
+`TestBothMenusOfferSunMap` (application); by hand.
 
-**FR-902 The map beside a horizontal ribbon**
-Priority: Should.
-While the sun map is on, the pull out is open (FR-903), the ribbon is horizontal and shown in full,
-the application shall show the sun map adjoining the ribbon's long side that faces away from the
-edge the ribbon stands against: below a ribbon against the top edge, above one against the bottom
-edge. Against no edge, the map shall adjoin the side facing the more room in the work area; below at
-an equal distance.
-Rationale: Oliver, 2026-09-29: clocks in a row above the map, as the reference shows; above a ribbon
-at the bottom edge, where below has no room (OQ-13). Amendment 22: it waits for the pull out, as a
-vertical ribbon's map does (OQ-21).
-Acceptance: given a horizontal ribbon flush against the top edge with the sun map on and the pull
-out open, then the map's top edge meets the ribbon's bottom edge along the ribbon's length; dragged
-flush against the bottom edge, then the map's bottom edge meets the ribbon's top edge.
-Verified by: `TestTheMapAdjoinsTheSideAwayFromTheEdge` (domain, placement);
-`TestAHorizontalRibbonsMapGoesBelowIt` (application); a check by hand in a real build.
+**FR-902 The map beside a horizontal ribbon** (Should; OQ-13; Amendment 22, OQ-21). While on, with
+the pull out open and a horizontal ribbon in full, the map adjoins the long side facing away from the
+ribbon's edge: below at the top, above at the bottom; against no edge, the side with more room, below
+when equal.
+Acceptance: flush against the top, the map's top meets the ribbon's bottom along its length; flush
+against the bottom, the map's bottom meets its top.
+Verified by: `TestTheMapAdjoinsTheSideAwayFromTheEdge` (placement);
+`TestAHorizontalRibbonsMapGoesBelowIt` (application); by hand.
 
-**FR-903 The pull out**
-Priority: Should.
-While the sun map is on and the ribbon is shown in full, the ribbon shall show a handle half way
-along its long side facing away from the edge it stands against (against no edge, the side facing
-the more room), with an arrow pointing the way the map will move. The handle shall stand in a lane
-of its own along that side, the ribbon being made deeper by the lane, so it covers no part of any
-cell. When the handle is chosen, the
-application shall show the sun map adjoining that side if it was hidden; else hide it. The
-application shall remember whether the pull out is open in the settings file, one choice for both
-orientations.
-Rationale: Oliver, 2026-09-29: adjacent to a vertical ribbon as a pull out, opened by a handle
-(OQ-14); Amendment 22, a horizontal ribbon the same, so every sun map opens and closes one way
-(OQ-21), with one remembered choice (OQ-22); Amendment 23, the handle in a lane of its own, since
-standing on the cells it covered a clock's name (OQ-23). The handle is a control, so a press on it
-starts no drag (FR-402).
-Acceptance: given a vertical ribbon flush against the right edge with the sun map on and the pull
-out closed, when the handle is clicked, then the map shows adjoining the ribbon's left side; when it
-is clicked again, then the map hides; after a restart, the pull out is as it was left. Given a
-horizontal ribbon flush against the top edge with the sun map on and the pull out closed, then a
-handle with a downward arrow shows half way along its bottom side and no map shows; when the handle
-is clicked, then the map shows below the ribbon and the arrow points up. Given either orientation
-with the sun map on, then the ribbon is deeper than with it off by the lane alone; the handle
-overlaps no cell's text.
+**FR-903 The pull out** (Should; OQ-14; Amendments 22, 23; OQ-21 to OQ-23). While on and in full, the
+ribbon shows a handle half way along its long side facing away from its edge (against no edge, the side
+with more room), its arrow pointing the way the map will move, in a lane of its own by which the ribbon
+is deeper, so it covers no cell. Choosing it shows or hides the map; the file remembers it, one choice
+for both orientations. The handle is a control (FR-402).
+Acceptance: a vertical ribbon flush right with the pull out closed shows the map on its left when the
+handle is clicked, hides it on a second click and keeps it after a restart; a horizontal one flush top
+shows a downward arrow and no map until clicked; with the map on, either ribbon is deeper by the lane
+alone and the handle overlaps no text.
 Verified by: `TestAVerticalRibbonsMapWaitsForThePullOut`, `TestAHorizontalRibbonsMapWaitsForThePullOut`,
-`TestTheHandlesLaneDeepensTheRibbon` (application);
-`TestTheSunMapItemAndTheHandleFlipTheirChoices` (facade); `surface.test.tsx`; a check by hand in a real build.
+`TestTheHandlesLaneDeepensTheRibbon` (application); `TestTheSunMapItemAndTheHandleFlipTheirChoices`
+(facade); `surface.test.tsx`; by hand.
 
-**FR-904 The map's size**
-Priority: Should.
-The application shall size the sun map at twice as long as it is deep, as long as the ribbon along
-the ribbon's length and centred on it, never shorter than 480 by 240 DIP. If the work area has less
-room across the ribbon than that depth, then the application shall scale the map down, keeping its
-shape, to the room there is. If that room is less than 120 DIP, then the application shall not show
-the map.
-Rationale: Oliver, 2026-09-29: the map matches the ribbon (OQ-15). 480 by 240 and the 120 DIP floor
-are Claude's proposals, sized so a two-clock ribbon still gets a readable map.
-Acceptance: given a horizontal ribbon 1200 DIP long flush against the top of a work area 1032 DIP
-tall, then the map is 1200 by 600 DIP; given one 336 DIP long, then the map is 480 by 240 DIP centred
-on it; given a vertical ribbon 1032 DIP long with 700 DIP of room beside it, then the map is 700 by
-350 DIP.
+**FR-904 The map's size** (Should; OQ-15). The map is twice as long as deep, as long as the ribbon and
+centred on it, at least 480 by 240 DIP; with less room across, scaled down to fit, keeping its shape;
+under 120 DIP of room, not shown.
+Acceptance: a horizontal ribbon 1200 long flush top on a 1032 tall work area gets 1200 by 600; one 336
+long gets 480 by 240 centred; a vertical one 1032 long with 700 of room gets 700 by 350.
 Verified by: `TestTheMapMatchesTheRibbon`, `TestTheMapScalesToTheRoom`, `TestTooLittleRoomShowsNoMap`
-(domain, placement).
+(placement).
 
-**FR-905 Day and night**
-Priority: Should.
-The application shall draw each point of the sun map from the day image where the solar altitude
-there is above 0 degrees, from the night image with its city lights where it is below minus 12
-degrees, blending the two in proportion between, at the instant of the snapshot (FR-208).
-Rationale: Oliver, 2026-09-29: photographic, with city lights (OQ-16). Minus 12 degrees is nautical
-dusk, Claude's proposal: city lights come on as the sky darkens rather than at the line itself.
-Acceptance: at 12:00 UTC on 2026-03-20 (an equinox), the point at latitude 0, longitude 0 is drawn
-from the day image; the point at latitude 0, longitude 180 from the night image; a point where the
-solar altitude is minus 6 degrees is drawn half from each.
-Verified by: `sunLight.test.ts` for the altitude and the blend.
+**FR-905 Day and night** (Should; OQ-16). Each point comes from the day image where the solar altitude
+is above 0 degrees, the night image below minus 12 (nautical dusk), blended in proportion between, at
+the snapshot's instant.
+Acceptance: at 12:00 UTC on 2026-03-20, latitude 0 longitude 0 is day, longitude 180 night, a point at
+minus 6 degrees half each.
+Verified by: `sunLight.test.ts`.
 
-**FR-906 The sun's position**
-Priority: Should.
-The domain shall compute the subsolar point for any instant to within 0.2 degrees of latitude and of
-longitude of the NOAA Solar Calculator's.
-Rationale: 0.2 degrees is under a pixel at 960 DIP across 360 degrees of longitude.
-Acceptance: for each of eight instants spread over a year, stored with NOAA's values beside them,
-the computed subsolar point is within 0.2 degrees of NOAA's.
-Verified by: `TestTheSubsolarPointMatchesNOAA` (domain, sun) over those instants in `testdata`.
+**FR-906 The sun's position** (Should). The domain computes the subsolar point within 0.2 degrees of
+NOAA's Solar Calculator (under a pixel at 960 DIP across 360 degrees).
+Acceptance: eight instants over a year, stored with NOAA's values, each within 0.2 degrees.
+Verified by: `TestTheSubsolarPointMatchesNOAA` (sun).
 
-**FR-907 The map follows the time**
-Priority: Should.
-When the ribbon takes a new snapshot (FR-208, FR-209), the application shall redraw the sun map for
-that snapshot's instant.
-Rationale: the line between day and night moves a quarter of a degree a minute; a redraw each minute
-keeps it within a pixel, with no timer of its own (NFR-P-4).
-Acceptance: given the sun map shown at 12:00, when the snapshot of 12:01 arrives, then the map is
-drawn for 12:01.
-Verified by: `TestTheSnapshotCarriesTheSubsolarPoint` (application); the redraw by hand in a real build.
+**FR-907 The map follows the time** (Should). Each new snapshot redraws the map for its instant, with
+no timer of its own (NFR-P-4).
+Acceptance: the 12:01 snapshot draws the map for 12:01.
+Verified by: `TestTheSnapshotCarriesTheSubsolarPoint` (application); the redraw by hand.
 
-**FR-908 The clocks' places**
-Priority: Should.
-For each clock whose zone has a place in the tz database's zone table, the application shall mark
-that place on the sun map with a red dot beside the clock's label. If a clock's zone has no place
-there (as `UTC` or `Etc/GMT+5`), then the application shall mark nothing for that clock.
-Rationale: Oliver, 2026-09-29: the zone's own city, in red (OQ-17). A Europe/London clock labelled
-Brighton is marked at London. The label carries the words, so the mark is not told by colour alone
-(NFR-U-2).
-Acceptance: given clocks for `Europe/London` labelled `Mum` and `UTC`, then one red dot shows near
-51.5 N 0.1 W with `Mum` beside it and nothing shows for `UTC`.
-Verified by: `TestEveryPlaceHasItsZonesCoordinate` (infrastructure, zones),
-`TestAZoneWithNoPlaceHasNoMark` (application); `surface.test.tsx`.
+**FR-908 The clocks' places** (Should; OQ-17). Each clock whose zone has a place in `zone.tab` is marked
+there with a red dot beside its label; a zone with none (`UTC`, `Etc/GMT+5`) is not marked.
+Acceptance: `Europe/London` labelled `Mum` and `UTC` give one dot near 51.5 N 0.1 W labelled `Mum`.
+Verified by: `TestEveryPlaceHasItsZonesCoordinate` (zones); `TestAZoneWithNoPlaceHasNoMark`
+(application); `surface.test.tsx`.
 
-**FR-909 The map goes with the ribbon**
-Priority: Should.
-The application shall move the sun map with the ribbon, keeping them adjoined; a drag started on the
-map shall move both as FR-401 does. The ribbon's own edge alone decides whether it is flush (FR-619).
-Verified by: `TestTheWindowHoldsTheRibbonAndItsMap`, `TestADragOfTheMapMovesTheRibbonToo` (facade);
-a check by hand in a real build.
+**FR-909 The map goes with the ribbon** (Should). The map moves with the ribbon, adjoined; a drag on the
+map moves both. The ribbon's own edge alone decides flushness (FR-619).
+Verified by: `TestTheWindowHoldsTheRibbonAndItsMap`, `TestADragOfTheMapMovesTheRibbonToo` (facade); by
+hand.
 
-**FR-910 When the map is not shown**
-Priority: Should.
-While the ribbon is collapsed to its tab, hidden or showing a panel, the application shall not show
-the sun map; it returns with the full ribbon. While the pointer is on the sun map, an unpinned ribbon
-counts the pointer as on the ribbon (FR-616).
-Rationale: Oliver, 2026-09-29: the map hides with the tab (OQ-18).
-Acceptance: given an unpinned ribbon with the sun map shown, when it collapses, then neither shows
-but the tab; while the pointer rests on the map, the ribbon stays open.
+**FR-910 When the map is not shown** (Should; OQ-18). Collapsed, hidden or showing a panel, no map;
+it returns with the full ribbon. A pointer on the map counts as on the ribbon (FR-616).
 Verified by: `TestTheMapHidesWithTheTab`, `TestAnOpeningRibbonIsDrawnWithItsMap` (facade);
-`surface.test.tsx`; a check by hand in a real build.
+`surface.test.tsx`; by hand.
 
-**FR-911 The imagery is built in**
-Priority: Should.
-The application shall carry the day and night images inside itself and fetch nothing to draw the
-map; NFR-S-1 holds unchanged. If an image cannot be read, then the application shall show the map's
-place as a notice naming the image rather than a blank or partial map.
-Rationale: offline, like everything else TimeRibbon does; the one network request stays the update
-check. Source and licence: ASM-5.
-Verified by: `TestOnlyTheUpdateCheckImportsANetworkPackage` (structural); the notice by inspection
-of `SunMap.tsx`, since jsdom loads no images.
+**FR-911 The imagery is built in** (Should). Both images are carried inside and nothing is fetched
+(NFR-S-1); an unreadable image shows a notice naming it rather than a blank or partial map.
+Verified by: `TestOnlyTheUpdateCheckImportsANetworkPackage` (structural); the notice by inspection of
+`SunMap.tsx`.
 
-**FR-912 The imagery is credited**
-Priority: Should.
-About shall credit the source of each map image with its licence, as it does the code TimeRibbon
-uses (FR-607).
+**FR-912 The imagery is credited** (Should). About credits each image's source and licence (ASM-5).
 Verified by: `TestEveryPlatformCreditsTheMapPictures` (product).
 
-**FR-913 The window is the ribbon and its map**
-Priority: Should (Amendment 21, Oliver, 2026-09-29).
-On Windows, while the sun map shows, the application shall limit its window to the ribbon and the
-map together, so that wherever the window's rectangle holds neither, the desktop shows and a click
-reaches what lies behind. Whenever the window changes size or the map stops showing, the application
-shall fit that limit again; without the map the window is its whole rectangle. On macOS and Linux
-the window stays a rectangle.
-Rationale: Oliver, 2026-09-29: the rectangle round a pull out (as round a map longer than a short
-ribbon) covered the desktop with dark bands (OQ-19). Measured the same day: `SetWindowRgn` on the
-dev build's window left the desktop showing where it was cut away; the cut held after a repaint.
-Acceptance: given a vertical ribbon 708 DIP long flush against the right edge with the pull out open
-and its map 708 by 354 DIP, then the desktop shows above and below the map and a click there reaches
-the window behind; when the pull out closes, then the window is the ribbon alone.
-Note (2026-09-29): a pointer resting where the window is cut away is off the ribbon, so an unpinned
-one collapses there (FR-616). Read against the window's rectangle, it counted as on; a vertical
-ribbon with its map out never collapsed.
-Verified by: `TestTheShapeIsTheRibbonAndItsMap` (domain, placement); `TestTheShapeFollowsEveryRefit`
-(facade); `TestThePointerIsReadAgainstTheWindowsShape` (infrastructure, desktop); a check by hand in a real build.
+**FR-913 The window is the ribbon and its map** (Should; Amendment 21; OQ-19). On Windows, while the
+map shows, the window is limited to the ribbon and map together, so the desktop shows and takes clicks
+elsewhere; refitted on every change of size; without the map, its whole rectangle. A pointer where the
+window is cut away is off the ribbon. On macOS and Linux it stays a rectangle.
+Acceptance: a vertical ribbon 708 DIP long flush right with a 708 by 354 map shows the desktop above
+and below the map, clickable; closing the pull out leaves the ribbon alone.
+Verified by: `TestTheShapeIsTheRibbonAndItsMap` (placement); `TestTheShapeFollowsEveryRefit` (facade);
+`TestThePointerIsReadAgainstTheWindowsShape` (desktop); by hand.
 
-**FR-914 Labels stand clear**
-Priority: Should (Amendment 21, Oliver, 2026-09-29).
-The application shall place each clock's label on the sun map, in clock order, at the first of these
-spots beside its dot that lies wholly inside the map and overlaps no dot and no label already
-placed: right, left, below, above. If none does, then the application shall place it to the right.
-Rationale: Oliver, 2026-09-29: move the later label rather than hide either (OQ-20); London and
-Berlin are 9 degrees apart and their labels printed over each other. The order of the spots is
-Claude's proposal: right is where every label stands today.
-Acceptance: given clocks for London and Berlin in that order on a map 708 DIP wide, then London's
-label stands left of its dot, clear of Berlin's dot; Berlin's stands right of its own; neither
-touches the other.
-Verified by: `labels.test.ts`; a check by hand in a real build.
+**FR-914 Labels stand clear** (Should; Amendment 21; OQ-20). Each label, in clock order, takes the
+first spot beside its dot (right, left, below, above) wholly inside the map and clear of every dot and
+earlier label; else the right.
+Acceptance: London then Berlin on a 708 DIP map: London's label left of its dot, Berlin's right,
+neither touching.
+Verified by: `labels.test.ts`; by hand.
 
 ---
 
 ## 4. Documents
 
-README.md, ARCHITECTURE.md, TESTING.md and DEVELOPMENT.md, ported in shape from BridgeTalk, are
-written with the first build and kept true by the docs pass. NOTES.md holds the release notes;
-TECH_DEBT.md holds the known technical debt; DECISIONS-TRADEOFFS.md records the decisions the
-product rests on, with what each one gains and what it costs.
+README.md, ARCHITECTURE.md, TESTING.md and DEVELOPMENT.md, ported in shape from BridgeTalk, are kept
+true by the docs pass; NOTES.md holds the release notes, TECH_DEBT.md the known debt and
+DECISIONS-TRADEOFFS.md the decisions with their costs.
 
 ---
 
 ## 5. Delivery and the setup program
 
-`build.ps1` reads `VERSION` into the binary, runs `test.ps1` first with no switch to skip it, builds
-the application with `wails build`, then builds the setup program embedding it. A setup program ships
-with the first release (ruled on OQ-3 by Oliver, 2026-09-27). It is a second Wails application in the
-same module, `installer/`, whose install policy lives in `internal/infrastructure/setup`; ported in
-shape from BridgeTalk's.
+`build.ps1` reads `VERSION`, runs `test.ps1` first with no switch to skip it, builds the application
+with `wails build`, then the setup program embedding it (OQ-3): a second Wails application in
+`installer/` whose policy lives in `internal/infrastructure/setup`, ported in shape from BridgeTalk's.
+Setup and FR-801 to FR-811 are Windows only (Amendment 13). macOS ships as a DMG signed with a
+Developer ID and notarised (`builddmg.sh`); Linux as a Flatpak for the user (`build_flatpak.sh`),
+granted X11 with IPC, the GPU, the tray host's and single-instance lock's bus names, the autostart
+folder and the network for FR-509.
 
-Amendment 13 (Oliver, 2026-09-28): the setup program and FR-801 to FR-811 are Windows only. macOS is
-delivered by `builddmg.sh` as a DMG signed with a Developer ID and notarised, the application
-dragged to Applications; Linux by `build_flatpak.sh` as a Flatpak installed for the user, granted
-X11 with IPC and the GPU, the tray host's and the single-instance lock's bus names, the autostart
-folder plus the network for the update check (FR-509).
+**FR-801 The screen the machine calls for** (Must). With `-uninstall` setup opens on Uninstall;
+otherwise Install where nothing is installed, Installed (Repair, Reinstall, Uninstall) over the same
+version, Update or Go back over another, the changing button leading. Versions compare by major, minor
+then patch as numbers, ignoring anything after a hyphen; a missing or non-numeric field is zero.
+Verified by: `TestCompareOrdersVersions` (setup); by hand.
 
-**FR-801 Setup opens on the screen the machine calls for**
-Priority: Must.
-When setup starts with `-uninstall`, it shall open on the Uninstall screen. Otherwise it shall open on
-Install where nothing is installed; on Installed, offering Repair, Reinstall and Uninstall, where the
-same version is installed; on Update or Go back where another version is installed, with the button
-making the change leading. Versions compare by major, minor then patch as numbers, ignoring anything
-after a hyphen; a missing or non-numeric field counts as zero.
-Verified by: `TestCompareOrdersVersions` (infrastructure, setup); a check by hand in a real build.
+**FR-802 Every install writes the same way** (Must). Install, Update, Go back and Reinstall write the
+files into `%LOCALAPPDATA%\Programs\TimeRibbon`, copy setup there as `uninstall.exe`, record the
+application in the Apps list with Modify and Repair, then apply FR-805's boxes.
+Verified by: `TestExtractZipWritesEveryEntry`, `TestTheUninstallEntryNamesTheRealPath` (setup); by hand.
 
-**FR-802 Every install writes the same way**
-Priority: Must.
-When Install, Update, Go back or Reinstall is confirmed, setup shall write the application's files into
-`%LOCALAPPDATA%\Programs\TimeRibbon`, place a copy of itself there as `uninstall.exe`, record the
-application in the Apps list with Modify and Repair offered, then apply the boxes of FR-805.
-Verified by: `TestExtractZipWritesEveryEntry` and `TestTheUninstallEntryNamesTheRealPath`
-(infrastructure, setup); a check by hand in a real build.
+**FR-803 A payload entry leaving the folder is refused** (Must). Setup stops, reports `unsafe path in
+payload` with the entry and writes nothing further.
+Verified by: `TestExtractZipRejectsAPathThatEscapes` (setup).
 
-**FR-803 A payload entry leaving the install folder is refused**
-Priority: Must.
-If an entry in the payload names a path outside the install folder, then setup shall stop, report
-`unsafe path in payload` with the entry's name and write nothing further.
-Verified by: `TestExtractZipRejectsAPathThatEscapes` (infrastructure, setup).
+**FR-804 Repair keeps the options** (Must). Repair rewrites the files, keeping both shortcuts and Start
+with Windows exactly as they are.
+Verified by: `TestTheBoxesReflectWhatIsOnTheMachine` (setup).
 
-**FR-804 Repair keeps the options as they stand**
-Priority: Must.
-When Repair is pressed, setup shall write the files again as FR-802 does, keeping the Start Menu
-shortcut, the Desktop shortcut and the Start with Windows value exactly as they are on the machine.
-Verified by: `TestTheBoxesReflectWhatIsOnTheMachine` (infrastructure, setup).
+**FR-805 Install options** (Must). Install offers `Add to the Start Menu` (ticked), `Add a Desktop
+shortcut`, `Start with Windows` (both unticked) and `Start TimeRibbon when setup closes` (ticked);
+Start with Windows writes FR-605's value.
+Verified by: `TestStartWithWindowsIsTheSameValueSettingsWrites`.
 
-**FR-805 Install options**
-Priority: Must.
-The Install screen shall offer three boxes: `Add to the Start Menu` (ticked), `Add a Desktop shortcut`
-(unticked) and `Start with Windows` (unticked), plus `Start TimeRibbon when setup closes` (ticked).
-`Start with Windows` shall write the one value FR-605 writes, so the two cannot disagree.
-Verified by: `TestStartWithWindowsIsTheSameValueSettingsWrites` (infrastructure).
+**FR-806 Uninstall keeps the settings unless told** (Must; Amendment 3). Uninstall removes the
+shortcuts, Start with Windows and the Apps list entry, then deletes the install folder once setup has
+closed; with `Also forget my settings` ticked (not by default) it also deletes `%APPDATA%\TimeRibbon`,
+which holds everything the application writes there, web view data included.
+Verified by: `TestForgettingRemovesOnlyTheSettingsFolder` (setup); by hand.
 
-**FR-806 Uninstall removes the application and keeps the user's settings unless told**
-Priority: Must.
-When Uninstall is confirmed, setup shall remove the shortcuts, the Start with Windows value and the
-Apps list entry, then delete the install folder once setup has closed. Where `Also forget my settings`
-is ticked, which it is not by default, setup shall also delete `%APPDATA%\TimeRibbon`.
-Amendment 3 (Oliver, 2026-09-27): everything the application writes under `%APPDATA%`, the web
-view's data included, lies inside `%APPDATA%\TimeRibbon`, so forgetting leaves nothing behind.
-Verified by: `TestForgettingRemovesOnlyTheSettingsFolder` (infrastructure, setup); a check by hand in a real build.
+**FR-807 A running copy is closed first** (Must). Setup says TimeRibbon is running and offers to close
+it; still running after 5 seconds, it asks for it to be closed by hand.
+Verified by: by hand.
 
-**FR-807 A running copy is closed before setup writes**
-Priority: Must.
-If TimeRibbon is running when setup is asked to write or to uninstall, then setup shall say so and offer
-to close it. If it is still running 5 seconds after being asked to close, then setup shall say it could
-not be closed and ask for it to be closed by hand.
-Verified by: a check by hand in a real build.
-
-**FR-808 A failure says why**
-Priority: Must.
-If a step fails, then setup shall show `Something went wrong` with the reason and a Close button.
+**FR-808 A failure says why** (Must). A failed step shows `Something went wrong` with the reason and
+Close.
 Verified by: `setupScreens.test.ts`.
 
-**FR-809 Setup answers the keyboard**
-Priority: Must.
-Setup shall move focus forward on Tab and Right, back on Shift+Tab and Left, wrapping at both ends and
-passing over disabled or hidden controls; Enter on a focused box shall toggle it as Space does; each
-screen shall open with nothing focused (Amendment 5), the first Tab or Right entering at the first control and the
-first Shift+Tab or Left at the last.
+**FR-809 Setup answers the keyboard** (Must; Amendment 5). Tab and Right move forward, Shift+Tab and
+Left back, wrapping and skipping disabled or hidden controls; Enter toggles a focused box as Space
+does; each screen opens with nothing focused, the first Tab or Right entering at the first control and
+Shift+Tab or Left at the last.
 Verified by: `setupRing.test.ts`, `setupScreens.test.ts`.
 
-**FR-810 Per user, no elevation**
-Priority: Must.
-Setup shall write only under `%LOCALAPPDATA%`, `%APPDATA%` (the Start Menu and the settings folder),
-the user's Desktop and `HKCU`, so Windows never asks for administrator rights (CON-8).
-Verified by: inspection of `internal/infrastructure/setup`; a check by hand in a real build.
+**FR-810 Per user, no elevation** (Must). Setup writes only under `%LOCALAPPDATA%`, `%APPDATA%`, the
+user's Desktop and `HKCU` (CON-8).
+Verified by: inspection of `internal/infrastructure/setup`; by hand.
 
-**FR-811 Setup's licence reads itself**
-Priority: Must (Amendment 2, Oliver, 2026-09-27).
-While setup's Licence screen is shown and holds more than fits, it shall read itself in the cycle
-of FR-609, from the same script, starting afresh each time the screen opens.
+**FR-811 Setup's licence reads itself** (Must; Amendment 2). Setup's overflowing Licence reads itself
+in the cycle of FR-609, from the same script, afresh each time it opens.
 Verified by: `setupScreens.test.ts`.
 
 ---
 
 ## 6. Architecture sketch
 
-The packages as built; ARCHITECTURE.md holds the layering and the tests that enforce it. The sketch
-proposed before the first build had one `internal/infrastructure/windows` package, which was built as
+The packages as built, their layering and the tests that hold it are in ARCHITECTURE.md, Layers. The
+sketch drawn before the first build had one `internal/infrastructure/windows` package, built as
 `desktop`, `monitors` and `startup`.
-
-| Layer | Package | Holds |
-|---|---|---|
-| Domain | `internal/domain/clock` | Clock, zone mark rule, time and date formatting, hand angles; takes an instant |
-| Domain | `internal/domain/placement` | Monitors as rectangles, default placement, edges, DPI scaling, recovery by clamping |
-| Domain | `internal/domain/settings` | Settings value, defaults, clock operations |
-| Domain | `internal/domain/hover` | When an unpinned ribbon opens from its tab and collapses back; takes an instant |
-| Domain | `internal/domain/sun` | The subsolar point for an instant (FR-906) |
-| Application | `internal/application` | Use cases: snapshot (in time order), add, edit, remove, change setting, place, recover, menus, update check; ports for store, monitors, startup entry, zone catalogue, release source |
-| Infrastructure | `internal/infrastructure/store` | JSON settings file, atomic write, tolerant clock decoding |
-| Infrastructure | `internal/infrastructure/zones` | Zone resolution through `time.LoadLocation` with `time/tzdata` built in (CON-5); the place catalogue |
-| Infrastructure | `internal/infrastructure/desktop` | The ribbon's window, drag, tray, native menus, time change and resume |
-| Infrastructure | `internal/infrastructure/monitors` | Each display's device name, work area and DPI |
-| Infrastructure | `internal/infrastructure/startup` | The one entry that starts TimeRibbon at sign-in |
-| Infrastructure | `internal/infrastructure/update` | The latest release, asked of GitHub (FR-509) |
-| Infrastructure | `internal/infrastructure/appdata`, `runlog`, `system` | The settings folder, the log, the wall clock and clock ids |
-| Infrastructure | `internal/infrastructure/setup` | The setup program's install policy (section 5) |
-| Infrastructure | `internal/infrastructure/cocoamain`, `gtkmain`, `iconscale` | The macOS and Linux main threads; the Linux tray's icon sizes |
-| Product | `internal/product` | Name, version, credits, the sign-in entry's words |
-| Facade | the root package `main` | The composition root and the methods the page calls |
-| UI | `frontend/` | The ribbon, the cells in both styles, Settings, the place search, Help |
 
 ---
 
@@ -1691,50 +993,43 @@ proposed before the first build had one `internal/infrastructure/windows` packag
 | Situation | Answered by |
 |---|---|
 | First run with no data | FR-703, FR-107 |
-| Largest plausible input | FR-106 (scrolling), FR-307 (label length) |
+| Largest plausible input | FR-106, FR-307 |
 | Interrupted write | FR-702 |
 | Settings file damaged | FR-704, FR-705 |
 | Disk not writable | FR-707 |
 | Second launch | FR-506 |
 | Time moving backwards or the zone changing | FR-209 |
-| Monitor removed or scaling changed | FR-405, FR-406, FR-407 |
-| Upgrade from a previous version | The settings file carries a `version` field from the first release; an unknown later field is kept on write |
+| Monitor removed or scaling changed | FR-405 to FR-407 |
+| Upgrade from a previous version | The file's `version` field; unknown fields kept (NFR-C-1) |
 | No permission | CON-8: nothing needs elevation |
-| GitHub out of reach | FR-509: an automatic check says nothing; `Check for updates` says it could not reach GitHub |
-| Unpinned ribbon dragged, moved to an edge, re-oriented, resized or its display changed | FR-619: the pin in effect is read afresh after every placement, whatever set it; a drag holds the ribbon open (FR-616); a drop near an edge snaps flush (FR-410) |
-| Unpinned ribbon standing away from every edge | FR-619: shown in full as though pinned, the choice kept; unticking `Pin ribbon` there moves it to the last edge (FR-613, FR-411) |
-| Ribbon against an edge shared by two displays | FR-410, FR-619: each display's own work area counts, inner edges included |
-| Sun map with too little room beside the ribbon | FR-904: scaled down to fit; under 120 DIP of room it is not shown |
-| A clock whose zone has no place | FR-908: no mark; the clock itself is unchanged |
-| A map image that cannot be read | FR-911: a notice in the map's place |
-| Sun map while collapsed, hidden or showing a panel | FR-910: not shown |
-| Sun map with no network | FR-911: nothing is fetched |
-| Sun map with the time changed or after a resume | FR-907: redrawn with the new snapshot |
-| Sun map shorter or longer than the ribbon | FR-913: on Windows the window is cut to the two; elsewhere it stays a rectangle |
-| Two clocks in nearby cities | FR-914: the later label moves aside; with no clear spot it stands right |
-| Sun map from the keyboard | `Sun map` is in both menus (FR-901); the pull out's handle is reached by the pointer only, as the ribbon's cells are |
-| Unpinned ribbon covered by other windows | FR-617 |
-| A panel or a menu open while unpinned | FR-616: neither collapses |
-| Unpinned ribbon hidden, then shown | FR-618: hidden takes the tab too; shown brings back the tab |
-| A notice raised while collapsed | Claude's proposal: it is read when the ribbon next opens; the tab carries no words, so it tells nothing by colour (NFR-U-2) |
-| Keyboard only | `Pin ribbon` is in both menus (FR-613); a collapsed ribbon opens only to the pointer, while its menus reach every action |
-| Touch only | Out of scope (section 1.3); pinned, the default, serves it |
-| Pointer tracking on macOS and Linux | ASM-4, measured before design |
+| GitHub out of reach | FR-509 |
+| Unpinned ribbon moved, re-oriented, resized or its display changed | FR-619, FR-616, FR-410 |
+| Unpinned ribbon away from every edge | FR-619; unticking moves it to the last edge (FR-613, FR-411) |
+| An edge shared by two displays | FR-410, FR-619 |
+| Too little room for the map | FR-904 |
+| A zone with no place | FR-908 |
+| A map image that cannot be read | FR-911 |
+| Map while collapsed, hidden or a panel shows | FR-910 |
+| Map with no network | FR-911 |
+| Map after a time change or resume | FR-907 |
+| Map shorter or longer than the ribbon | FR-913 |
+| Two nearby cities | FR-914 |
+| The map from the keyboard | `Sun map` is in both menus (FR-901); the handle, like the cells, is for the pointer |
+| Unpinned ribbon covered by windows | FR-617 |
+| A panel or menu open while unpinned | FR-616 |
+| Unpinned ribbon hidden then shown | FR-618 |
+| A notice raised while collapsed | Read when the ribbon next opens; the tab carries no words, so nothing is told by colour (NFR-U-2) |
+| Keyboard only | `Pin ribbon` is in both menus; a collapsed ribbon opens only to the pointer, while its menus reach every action |
+| Touch only | Out of scope (section 1.3) |
+| Pointer tracking on macOS and Linux | ASM-4 |
 
 ---
 
 ## 8. Build order
 
-Built inside out: domain, then application, then infrastructure, then the user interface. Every
-action that changes what the application does (add, edit, remove, change a setting, place,
-recover, snapshot) is executable from a Go test with no window open before the front end is built.
-
-1. Domain: clock formatting and zone marks against fixed instants; placement recovery.
-2. Application: the use cases over faked ports.
-3. Infrastructure: the settings store, the zone catalogue, the Windows integration.
-4. User interface: the ribbon in digital style, then dragging and placement, then Settings, the tray,
-   the analogue style and the vertical orientation.
-5. Hardening against checks by hand on real hardware; then artwork and polish.
+Inside out: domain, application, infrastructure, then the user interface, so every action is
+executable from a Go test with no window before the front end exists. Then hardening against checks by
+hand on real hardware, then artwork and polish.
 
 ---
 
@@ -1746,13 +1041,11 @@ recover, snapshot) is executable from a Go test with no window open before the f
 | **Should** | FR-108, FR-307, FR-410, FR-411, FR-503, FR-509, FR-605, FR-606, FR-611 to FR-619, FR-621 to FR-626, FR-901 to FR-914, NFR-P-5, NFR-C-2 |
 | **Could** | FR-308 |
 | **Withdrawn** | FR-306 (Amendment 6) |
-| **Won't this time** | Everything in the out-of-scope table of section 1.3 |
+| **Won't this time** | The out-of-scope table of section 1.3 |
 
 ---
 
 ## 10. Traceability
-
-The spec's first-useful-release criteria, mapped:
 
 | Spec criterion | Requirements |
 |---|---|
@@ -1761,62 +1054,57 @@ The spec's first-useful-release criteria, mapped:
 | 3 Current local times together | FR-102, FR-201 |
 | 4 Correct local weekday and date | FR-202, FR-205 |
 | 5 DST automatic | FR-204, CON-5 |
-| 6 Compact horizontal frameless ribbon | FR-101, FR-105 |
+| 6 Compact frameless ribbon | FR-101, FR-105 |
 | 7 Drag anywhere | FR-401, FR-402 |
 | 8 Onto another monitor | FR-401, FR-407 |
 | 9 Restart restores clocks, order, display, position | FR-404, FR-405, FR-701 |
-| 10 Add, edit, remove, reorder | FR-301, FR-303 to FR-305; reordering withdrawn (FR-306), FR-102 orders by time |
+| 10 Add, edit, remove, reorder | FR-301, FR-303 to FR-305; reordering withdrawn (FR-306) for FR-102 |
 | 11 Digital or analogue | FR-603, FR-604 |
 | 12 12-hour or 24-hour | FR-206 |
 | 13 Optional Always on Top | FR-505 |
 | 14 Tray control | FR-501 to FR-504 |
 | 15 Survive monitor changes | FR-405, FR-406 |
 
-No requirement is considered met until its test exists and has been seen to fail without the
-implementation; where no test can hold it, its `Verified by:` line says it is checked by hand in a real build.
+No requirement is met until its test exists and has been seen to fail without the implementation;
+where no test can hold it, its `Verified by:` line says it is checked by hand.
 
 ---
 
 ## 11. Open questions
 
-There are no open questions. The five raised while drafting were ruled by Oliver on 2026-09-27;
-the four raised by Amendment 18 on 2026-09-28; the three raised by Amendment 19 on 2026-09-29, when
-OQ-6 was also reversed; the six raised by Amendment 20 the same day; the two raised by
-Amendment 21 the same day; the two raised by Amendment 22 the same day; the one raised by
-Amendment 23 the same day; the one raised by Amendment 24 the same day; the one raised by
-Amendment 25 the same day; the one raised by Amendment 26 the same day; the two raised by
-Amendment 27 the same day; the three raised by Amendment 28 the same day:
+None is open. OQ-1 to OQ-5 were ruled on 2026-09-27, OQ-6 to OQ-9 on 2026-09-28 and OQ-10 to OQ-31 on
+2026-09-29, when OQ-6 was also reversed.
 
-| ID | Question | Ruling | Now held by |
+| ID | Question | Ruling | Held by |
 |---|---|---|---|
-| OQ-1 | Should the place search find cities with no zone of their own? | No: zone and country names only; any label can be typed | FR-302 |
-| OQ-2 | Does a sign-in start show the ribbon or wait in the tray? | Show it at once | FR-605 |
+| OQ-1 | Should the search find cities with no zone of their own? | No; any label can be typed | FR-302 |
+| OQ-2 | Does a sign-in start show the ribbon or wait in the tray? | Show it | FR-605 |
 | OQ-3 | Does a setup program ship with the first release? | Yes | Section 5 |
-| OQ-4 | What does `Alt+F4` on the ribbon do? | Hide the ribbon | FR-507 |
-| OQ-5 | Is the vertical orientation in the first useful release? | Yes | FR-103, FR-104 |
-| OQ-6 | Where does the tab of a ribbon standing away from every edge go? | Nowhere: such a ribbon never collapses; it shows in full, pinned in effect, keeping the choice (Amendment 19, reversing the ruling of 2026-09-28) | FR-614, FR-619 |
-| OQ-7 | The 8 DIP tab or the 24 DIP minimum target: which gives? | The tab is exempt | NFR-U-5 |
-| OQ-8 | Can a window cover an unpinned ribbon's tab? | No: unpinned stays on top | FR-617 |
-| OQ-9 | Does a collapsed ribbon count as shown to the toggles? | Yes | FR-618 |
-| OQ-10 | Unticking `Pin ribbon` away from every edge: where does the ribbon go? | Centred on the edge last used; else the home edge; the same edge here should its display be gone | FR-613, FR-411 |
-| OQ-11 | Which edges count as an edge? | Those along the orientation, of each display's own work area, inner edges between displays included | FR-410, FR-619 |
-| OQ-12 | How close must a drop land to count as against an edge? | Within 16 DIP, either side; it then snaps flush | FR-410 |
-| OQ-13 | Where does a horizontal ribbon's map go? | On the side away from its edge: below at the top, above at the bottom | FR-902 |
-| OQ-14 | How does a vertical ribbon show its map? | A pull out beside it, opened and closed by a handle, remembered | FR-903 |
+| OQ-4 | What does Alt+F4 on the ribbon do? | Hide it | FR-507 |
+| OQ-5 | Is vertical in the first release? | Yes | FR-103, FR-104 |
+| OQ-6 | Where does the tab of a ribbon away from every edge go? | Nowhere: it never collapses, shown in full and pinned in effect (Amendment 19, reversing 2026-09-28) | FR-614, FR-619 |
+| OQ-7 | The 8 DIP tab or the 24 DIP minimum target? | The tab is exempt | NFR-U-5 |
+| OQ-8 | Can a window cover an unpinned tab? | No: unpinned stays on top | FR-617 |
+| OQ-9 | Does a collapsed ribbon count as shown? | Yes | FR-618 |
+| OQ-10 | Unticking Pin ribbon away from every edge: where to? | The last edge; else the home edge; the same edge here if its display is gone | FR-613, FR-411 |
+| OQ-11 | Which edges count? | Those along the orientation, of each display's own work area, inner ones included | FR-410, FR-619 |
+| OQ-12 | How close must a drop land? | Within 16 DIP either side; it snaps flush | FR-410 |
+| OQ-13 | Where does a horizontal ribbon's map go? | Away from its edge | FR-902 |
+| OQ-14 | How does a vertical ribbon show its map? | A remembered pull out with a handle | FR-903 |
 | OQ-15 | How big is the map? | As long as the ribbon, twice as long as deep, at least 480 by 240 DIP | FR-904 |
-| OQ-16 | What does the map look like? | Photographic, with city lights at night | FR-905, ASM-5 |
+| OQ-16 | What does the map look like? | Photographic, city lights at night | FR-905, ASM-5 |
 | OQ-17 | Where is a clock's place marked? | At its zone's city, in red with its label | FR-908 |
-| OQ-18 | What does the map do while the ribbon is its tab? | Hides with it | FR-910 |
-| OQ-19 | What covers the desktop beside a map shorter or longer than the ribbon? | Nothing: on Windows the window is cut to ribbon and map | FR-913 |
-| OQ-20 | What happens when two labels on the map collide? | The later one moves aside; every label stays | FR-914 |
-| OQ-21 | Does a horizontal ribbon get the handle too? | Yes: its map is a pull out like a vertical one's, for consistency | FR-902, FR-903 |
-| OQ-22 | Is the pull out remembered per orientation? | No: one choice for both | FR-903 |
-| OQ-23 | Where does the handle stand so it covers no clock? | In a lane of its own; the ribbon grows deeper by it while the sun map is on | FR-903 |
-| OQ-24 | What decides how wide a cell is? | Its widest time and date as the page draws them, never less than the size's own width | FR-610, FR-620 |
-| OQ-25 | How tall is Settings? | As tall as its content, capped by the display's work area | FR-621 |
-| OQ-26 | How faint may the window be drawn? | 20 percent at least, so it can always be seen and found | FR-622 |
-| OQ-27 | How are the clocks resized by hand? | A grip in the ribbon's corner scales everything in them together, on top of Large or Small | FR-623 |
-| OQ-28 | Who sets the bounds of that scale? | The application: 75 to 200 percent, readable at the least and held by a 720 line display at the most | FR-623 |
-| OQ-29 | Which of the menus' items does Settings offer? | Every choice, Position's moves included; the commands stay on the menus alone | FR-624 |
-| OQ-30 | How wide is Settings? Do the other panels follow? | 900 DIP, capped by the work area; the others stay 560 | FR-625 |
+| OQ-18 | What does the map do while the ribbon is a tab? | Hides with it | FR-910 |
+| OQ-19 | What covers the desktop beside a map of another length? | Nothing: on Windows the window is cut to ribbon and map | FR-913 |
+| OQ-20 | What happens when two labels collide? | The later moves aside; every label stays | FR-914 |
+| OQ-21 | Does a horizontal ribbon get the handle too? | Yes, for consistency | FR-902, FR-903 |
+| OQ-22 | Is the pull out remembered per orientation? | No: one choice | FR-903 |
+| OQ-23 | Where does the handle stand? | In a lane of its own | FR-903 |
+| OQ-24 | What decides a cell's width? | Its widest time and date as drawn, never under the size's width | FR-610, FR-620 |
+| OQ-25 | How tall is Settings? | As tall as its content, capped by the work area | FR-621 |
+| OQ-26 | How faint may it be drawn? | 20 percent at least | FR-622 |
+| OQ-27 | How are the clocks resized by hand? | A corner grip scales everything together | FR-623 |
+| OQ-28 | Who sets the scale's bounds? | The application: 75 to 200 percent | FR-623 |
+| OQ-29 | Which menu items does Settings offer? | Every choice; commands stay on the menus | FR-624 |
+| OQ-30 | How wide is Settings? | 900 DIP, capped; the others 560 | FR-625 |
 | OQ-31 | Where does the Add clock picture go? | Beside the place search, which stays open | FR-626 |

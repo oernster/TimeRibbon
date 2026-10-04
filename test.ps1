@@ -84,9 +84,9 @@ try {
 # shortfall is: error returns that only a failing disk, registry or display driver can produce. In
 # the root package it is the composition root and the calls that reach Wails and Win32 themselves.
 $measured = [ordered]@{
-    '.'                                  = 86
+    '.'                                  = 87
     './internal/infrastructure/appdata'  = 100
-    './internal/infrastructure/desktop'  = 37
+    './internal/infrastructure/desktop'  = 38
     './internal/infrastructure/iconscale' = 100
     './internal/infrastructure/runlog'   = 76
     './internal/infrastructure/monitors' = 82

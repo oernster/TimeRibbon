@@ -62,7 +62,7 @@ type ribbonService interface {
 	DismissNotices()
 	SetScrollbar(dip int) error
 	SetOpacity(percent int) error
-	PreviewScale(percent int) error
+	PreviewScale(percent float64) error
 	SetScale(percent int) error
 	TextSamples() (times, dates []string)
 	SetMeasured(measured application.Measured) error
@@ -111,6 +111,9 @@ type App struct {
 	watchPointer func(on bool)
 	// toolkitScale answers the toolkit's own window scale, which the page's ratio is divided by.
 	toolkitScale func() int
+	// cursor answers the desktop's own reading of the pointer, which the grip's drag prefers.
+	cursor func() (placement.Point, bool)
+	grip   gripDrag
 	// launch is what the launched ribbon's first showing waits for (launch_show.go).
 	launch launchShow
 
@@ -157,6 +160,7 @@ func newApp(service ribbonService, desk *desktop.Desktop, log io.Writer, panels 
 	built.tabFrame = func(tab bool) error { return desktop.SetTabFrame(built.ribbon, tab) }
 	built.watchPointer = func(on bool) { desk.TrackPointer(built.ribbon, on) }
 	built.toolkitScale = desktop.ToolkitScale
+	built.cursor = desktop.Cursor
 	// The window opens as the full ribbon; it is collapsed only once it has been arranged.
 	built.unpin.shownOpen = true
 	return built

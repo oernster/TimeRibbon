@@ -34,6 +34,9 @@ export function App() {
   const [view, setView] = useState<View>('ribbon')
   const [adding, setAdding] = useState(false)
   const [update, setUpdate] = useState<UpdateStatus | null>(null)
+  // opened is true once Go has made the window the panel shown, so Settings measures its content at
+  // the panel's own size rather than the ribbon's (FR-621).
+  const [opened, setOpened] = useState(false)
 
   const load = useCallback(() => {
     void api.snapshot(setProblem).then((next) => {
@@ -48,8 +51,9 @@ export function App() {
     setAdding(at === addClock)
     setUpdate((outcome as UpdateStatus | undefined) ?? null)
     const panel = panelFor[String(at)] ?? 'settings'
+    setOpened(false)
     setView(panel)
-    void api.openPanel(panel, setProblem)
+    void api.openPanel(panel, setProblem).then(() => setOpened(true))
   }, [])
 
   const closePanel = useCallback(() => {
@@ -115,7 +119,7 @@ export function App() {
     return <div className="problem">{problem}</div>
   }
   if (view === 'settings') {
-    return <Settings snapshot={snapshot} startAdding={adding} reload={load} onClose={closePanel} />
+    return <Settings snapshot={snapshot} startAdding={adding} reload={load} onClose={closePanel} ready={opened} />
   }
   if (view === 'about') {
     return <About onClose={closePanel} />

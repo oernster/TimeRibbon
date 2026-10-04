@@ -2,6 +2,7 @@ package application
 
 import (
 	"fmt"
+	"math"
 	"slices"
 
 	"github.com/oernster/timeribbon/internal/domain/placement"
@@ -215,7 +216,7 @@ func (s *Service) arrange(
 			arranged.Map = rect
 		}
 	}
-	s.remember(lastPlaced{known: true, device: placed.Monitor.Device, at: arranged.At, size: size})
+	s.remember(lastPlaced{known: true, device: placed.Monitor.Device, at: arranged.At, size: size, sunMap: arranged.Map})
 	return arranged, placed.Monitor, recentred, nil
 }
 
@@ -274,8 +275,9 @@ type content struct {
 	pixelsPerDIP float64
 	// layout is the cells' layout, widened to the measured text where it applies (FR-620).
 	layout Layout
-	// scale is the percent the ribbon is drawn at on top of its size (FR-623).
-	scale int
+	// scale is the percent the ribbon is drawn at on top of its size (FR-623); fractional while the
+	// grip is dragged.
+	scale float64
 }
 
 func (s *Service) ribbonContent() content {
@@ -317,7 +319,7 @@ func (s *Service) ribbonSize(content content, monitor placement.Monitor) (placem
 		room = monitor.Work.Height()
 	}
 	perDIP := sizingScale(content.pixelsPerDIP, monitor)
-	scaled := perDIP * float64(content.scale) / settings.WholeScale
+	scaled := perDIP * content.scale / settings.WholeScale
 	available := placement.DIPOf(room, scaled)
 	fitted := placement.Fit(content.cells, along, layout.Padding, available)
 	thickness := across + 2*layout.Padding
@@ -329,7 +331,7 @@ func (s *Service) ribbonSize(content content, monitor placement.Monitor) (placem
 	if fitted.Scrolls {
 		breadth += placement.PixelsOf(content.scrollbar, perDIP)
 	}
-	lengthDIP := fitted.Length * content.scale / settings.WholeScale
+	lengthDIP := int(math.Round(float64(fitted.Length) * content.scale / settings.WholeScale))
 	if current.Orientation == settings.Vertical {
 		return placement.Size{Width: breadth, Height: length}, fitted.Scrolls, lengthDIP
 	}

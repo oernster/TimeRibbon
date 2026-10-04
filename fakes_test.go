@@ -44,6 +44,10 @@ type scriptedService struct {
 	// checked, when set, hears each check as it is made, for a check made on a goroutine.
 	checked chan bool
 
+	// previewed and kept are the scales PreviewScale and SetScale were handed, in order.
+	previewed []float64
+	kept      []int
+
 	calls   []string
 	at      []placement.Point
 	centred placement.Size
@@ -138,9 +142,15 @@ func (s *scriptedService) DismissNotices() { s.record("DismissNotices") }
 
 func (s *scriptedService) SetScrollbar(int) error { return s.change("SetScrollbar") }
 
-func (s *scriptedService) PreviewScale(int) error { return s.change("PreviewScale") }
+func (s *scriptedService) PreviewScale(percent float64) error {
+	s.previewed = append(s.previewed, percent)
+	return s.change("PreviewScale")
+}
 
-func (s *scriptedService) SetScale(int) error { return s.change("SetScale") }
+func (s *scriptedService) SetScale(percent int) error {
+	s.kept = append(s.kept, percent)
+	return s.change("SetScale")
+}
 
 func (s *scriptedService) SetOpacity(percent int) error {
 	err := s.change("SetOpacity")
@@ -313,6 +323,7 @@ func newTestApp(t *testing.T) (*App, *scriptedService, *window, *bytes.Buffer) {
 	app := newApp(service, nil, log, panelSizes{settings: testSettingsPanel, other: testPanel})
 	app.ctx = context.Background()
 	app.ribbon = testRibbon
+	app.cursor = func() (placement.Point, bool) { return placement.Point{}, false }
 	app.emit = func(event string, data ...any) { seen.events = append(seen.events, emitted{event, data}) }
 	app.showWindow = func() { seen.shown++ }
 	app.hideWindow = func() { seen.hidden++ }

@@ -6,8 +6,8 @@ import { usePanelFit } from './panelFit'
 // jsdom lays nothing out, so a panel measured with room for its content is this tall per child.
 const perChild = 100
 
-function Panel({ refused }: { refused: () => void }) {
-  const panel = usePanelFit<HTMLDivElement>(refused)
+function Panel({ refused, ready = true }: { refused: () => void; ready?: boolean }) {
+  const panel = usePanelFit<HTMLDivElement>(refused, ready)
   return (
     <div ref={panel} data-testid="panel" style={{ height: '50px' }}>
       <p>one</p>
@@ -38,5 +38,33 @@ describe('usePanelFit (FR-621)', () => {
     await Promise.resolve()
     expect(bridge.FitPanel).toHaveBeenCalledTimes(2)
     expect(refused).not.toHaveBeenCalled()
+  })
+
+  it('measures nothing until Go has made the window the panel, then measures it', () => {
+    const bridge = installBridge()
+    const { rerender } = render(<Panel refused={vi.fn()} ready={false} />)
+    expect(bridge.FitPanel).not.toHaveBeenCalled()
+    rerender(<Panel refused={vi.fn()} ready />)
+    expect(bridge.FitPanel).toHaveBeenLastCalledWith(2 * perChild)
+  })
+
+  it('measures again when the panel itself is resized, since narrower content stacks taller', () => {
+    const bridge = installBridge()
+    const heard: Array<() => void> = []
+    vi.stubGlobal('ResizeObserver', class {
+      constructor(private readonly callback: () => void) {}
+      observe() { heard.push(this.callback) }
+      disconnect() {}
+    })
+    try {
+      render(<Panel refused={vi.fn()} />)
+      expect(bridge.FitPanel).toHaveBeenLastCalledWith(2 * perChild)
+      const narrower = 3 * perChild
+      vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({ height: narrower } as DOMRect)
+      heard.forEach((callback) => callback())
+      expect(bridge.FitPanel).toHaveBeenLastCalledWith(narrower)
+    } finally {
+      vi.unstubAllGlobals()
+    }
   })
 })

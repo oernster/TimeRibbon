@@ -49,7 +49,7 @@ type Snapshot struct {
 	MinOpacity int
 	// Scale is the percent the ribbon is drawn at on top of its size, a preview's while its grip is
 	// dragged; MinScale and MaxScale bound it (FR-623).
-	Scale              int
+	Scale              float64
 	MinScale, MaxScale int
 	Layout             Layout
 	// Now is the instant the snapshot was taken at.

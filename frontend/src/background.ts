@@ -3,8 +3,14 @@ export type Rgb = [number, number, number]
 
 const opaque = 1
 
-/** The element everything is drawn in; it carries the page's background (FR-622). */
+/** The element everything is drawn in. */
 export const rootId = 'root'
+
+/**
+ * The hidden element painted in the surface's own colour (index.html, app.css). #root's background
+ * is that colour mixed with the chosen opacity, which is no colour to paint a window in (FR-622).
+ */
+export const swatchId = 'surface-swatch'
 
 const computed = /^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)$/
 
@@ -26,7 +32,7 @@ export function rgbOf(css: string): Rgb | null {
 export function backgroundReporter(report: (...rgb: Rgb) => void, view: Window = window) {
   let last = ''
   const check = () => {
-    const painted = view.document.getElementById(rootId) ?? view.document.body
+    const painted = view.document.getElementById(swatchId) ?? view.document.body
     const css = view.getComputedStyle(painted).backgroundColor
     const rgb = rgbOf(css)
     if (rgb == null || css === last) {

@@ -17,6 +17,8 @@ interface Props {
   startAdding: boolean
   reload: () => void
   onClose: () => void
+  /** ready is true once Go has made the window this panel, so its content can be measured. */
+  ready?: boolean
 }
 
 interface Choice {
@@ -96,11 +98,11 @@ function MenuToggle({ choice, choose }: ChoiceProps) {
  * Settings is the clocks plus every choice, the menus' included (FR-601, FR-624). Every change
  * applies and is kept at once, with no Save step (FR-602). Escape closes it.
  */
-export function Settings({ snapshot, startAdding, reload, onClose }: Props) {
+export function Settings({ snapshot, startAdding, reload, onClose, ready = true }: Props) {
   const [rezoning, setRezoning] = useState<Cell | null>(null)
   const [problem, setProblem] = useState('')
   const [startWithWindows, setStartWithWindows] = useState<boolean | null>(null)
-  const panel = usePanelFit<HTMLElement>(setProblem)
+  const panel = usePanelFit<HTMLElement>(setProblem, ready)
 
   useEffect(() => {
     void api.startWithWindows(setProblem).then(setStartWithWindows)

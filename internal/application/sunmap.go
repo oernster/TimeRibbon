@@ -77,5 +77,8 @@ func (s *Service) mapBeside(current settings.Settings, at placement.Point, size 
 	minimum := placement.PixelsOf(placement.MapMinimumWidth, perDIP)
 	floor := placement.PixelsOf(placement.MapFloor, perDIP)
 	rect, shown := placement.MapBeside(ribbon, monitor.Work, side, minimum, floor)
+	if held := s.heldOf(); held.known && shown {
+		rect = placement.MapHeld(ribbon, side, held.sunMap, held.ribbon)
+	}
 	return side, rect, shown
 }

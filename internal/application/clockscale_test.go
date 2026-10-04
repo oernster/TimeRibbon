@@ -49,16 +49,16 @@ func TestAPreviewIsDrawnButNotKept(t *testing.T) {
 		t.Fatal(err)
 	}
 	if got := r.service.Snapshot(); got.Scale != settings.MaxScale || got.MinScale != settings.MinScale || got.MaxScale != settings.MaxScale {
-		t.Errorf("previewing shows %d within %d to %d", got.Scale, got.MinScale, got.MaxScale)
+		t.Errorf("previewing shows %v within %d to %d", got.Scale, got.MinScale, got.MaxScale)
 	}
 	if len(r.store.saved) != saves {
 		t.Error("a preview was saved")
 	}
 	if err := r.service.SetScale(settings.MinScale); err != nil || r.service.Snapshot().Scale != settings.MinScale {
-		t.Errorf("keeping a scale left %d (%v)", r.service.Snapshot().Scale, err)
+		t.Errorf("keeping a scale left %v (%v)", r.service.Snapshot().Scale, err)
 	}
 	for _, outside := range []int{settings.MinScale - 1, settings.MaxScale + 1} {
-		if err := r.service.PreviewScale(outside); !errors.Is(err, ErrUnknownChoice) {
+		if err := r.service.PreviewScale(float64(outside)); !errors.Is(err, ErrUnknownChoice) {
 			t.Errorf("previewing %d answered %v", outside, err)
 		}
 		if err := r.service.SetScale(outside); !errors.Is(err, ErrUnknownChoice) || r.service.Snapshot().Scale != settings.MinScale {
@@ -93,6 +93,39 @@ func TestAChangeOfScaleKeepsTheCorner(t *testing.T) {
 		if got.At != dragged {
 			t.Errorf("step %d: rearranged to %+v, want the corner kept at %+v", index, got.At, dragged)
 		}
+	}
+}
+
+// FR-623: while the grip is dragged the sun map keeps the size it had when the drag began, still
+// adjoining the ribbon, so the window's corner holds still; once the scale is kept it is sized again.
+func TestTheSunMapIsHeldWhileTheGripIsDragged(t *testing.T) {
+	t.Parallel()
+	initial := clocks(6)
+	initial.Orientation, initial.SunMap, initial.PullOut = settings.Vertical, true, true
+	r := newRig(t, initial)
+	before, err := r.service.Launch()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := r.service.PreviewScale(settings.WholeScale + settings.WholeScale/2); err != nil {
+		t.Fatal(err)
+	}
+	during, err := r.service.Rearrange(before.At)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if during.Map.Width() != before.Map.Width() || during.Map.Height() != before.Map.Height() || during.Map.Right != during.At.X {
+		t.Errorf("during the drag the map is %+v beside a ribbon at %+v; want %+v's size adjoining it", during.Map, during.At, before.Map)
+	}
+	if err := r.service.SetScale(settings.WholeScale + settings.WholeScale/2); err != nil {
+		t.Fatal(err)
+	}
+	kept, err := r.service.Rearrange(during.At)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if kept.Map.Width() == before.Map.Width() {
+		t.Errorf("once kept the map is still %d wide; want it sized for the new scale", kept.Map.Width())
 	}
 }
 

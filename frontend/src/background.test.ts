@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { backgroundReporter, rgbOf, rootId } from './background'
+import { backgroundReporter, rgbOf, rootId, swatchId } from './background'
 
 describe('rgbOf', () => {
   it('reads an opaque computed colour', () => {
@@ -33,18 +33,23 @@ describe('backgroundReporter', () => {
     reporter.stop()
   })
 
-  it('reads the element everything is drawn in, since the page behind it is clear (FR-622)', () => {
+  it('reads the surface swatch, never the faded background everything is drawn on (FR-622)', () => {
     const report = vi.fn()
     const root = document.createElement('div')
     root.id = rootId
-    root.style.backgroundColor = 'rgb(1, 2, 3)'
+    root.style.backgroundColor = 'rgba(1, 2, 3, 0.4)'
+    const swatch = document.createElement('div')
+    swatch.id = swatchId
+    swatch.hidden = true
+    swatch.style.backgroundColor = 'rgb(1, 2, 3)'
     document.body.style.backgroundColor = 'transparent'
-    document.body.appendChild(root)
+    document.body.append(swatch, root)
     try {
       backgroundReporter(report).check()
       expect(report.mock.calls).toEqual([[1, 2, 3]])
     } finally {
       root.remove()
+      swatch.remove()
     }
   })
 })

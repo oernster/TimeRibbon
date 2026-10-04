@@ -44,7 +44,7 @@ export function OpacitySlider({ snapshot, refused, then }: Props) {
           onKeyUp={keep}
           onBlur={keep}
         />
-        {shown}%
+        <span className="opacity-value">{shown}%</span>
       </label>
     </fieldset>
   )

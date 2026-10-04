@@ -48,6 +48,8 @@ func launch(app *App, dir string) error {
 		// through; the window's own paint follows the chosen opacity (FR-622, opacity.go).
 		Windows: &windows.Options{
 			WebviewIsTransparent: true,
+			WindowIsTranslucent:  true,
+			BackdropType:         windows.None,
 			WindowClassName:      product.RibbonClass,
 			WebviewUserDataPath:  webViewData,
 			Theme:                windows.SystemDefault,

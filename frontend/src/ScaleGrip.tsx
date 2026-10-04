@@ -5,28 +5,9 @@ import { percentOfWhole } from './opacity'
 /** The grip's words, one home: what dragging and double-clicking it do (NFR-U-4). */
 export const scaleGripTip = 'Drag to resize the clocks; double-click for their own size'
 
-/** Where a drag of the grip began: the pointer, the scale then and the ribbon's thickness then. */
-interface Start {
-  x: number
-  y: number
-  scale: number
-  thickness: number
-}
-
 interface Props {
   snapshot: Snapshot
   refused: Refused
-}
-
-/**
- * scaleAfter answers the scale a drag has reached: the scale it began at, grown or shrunk as the
- * ribbon's thickness would be by moving its far side with the pointer, held within the bounds.
- * Only movement across the ribbon counts, outward (right or down) growing it.
- */
-export function scaleAfter(start: Start, x: number, y: number, vertical: boolean, bounds: { min: number; max: number }): number {
-  const moved = vertical ? x - start.x : y - start.y
-  const scale = Math.round((start.scale * (start.thickness + moved)) / start.thickness)
-  return Math.min(Math.max(scale, bounds.min), bounds.max)
 }
 
 /**
@@ -34,24 +15,30 @@ export function scaleAfter(start: Start, x: number, y: number, vertical: boolean
  * everything in them together, with the window following as it moves; the scale is kept once it is
  * let go. Double-clicking it draws them at their own size again. It is a control, so pressing it
  * starts no window drag (FR-402).
+ *
+ * Go works out the scale: it reads the pointer from the desktop where it can, since the page's own
+ * reading was measured jumping backwards while the window was resized under it; the page's reading
+ * is sent along for where the desktop cannot give one.
  */
 export function ScaleGrip({ snapshot, refused }: Props) {
-  const start = useRef<Start | null>(null)
-  const reached = useRef<number | null>(null)
+  const dragging = useRef(false)
   const sending = useRef(false)
+  const waiting = useRef(false)
+  const pointer = useRef({ x: 0, y: 0 })
   const vertical = snapshot.orientation === 'vertical'
-  const bounds = { min: snapshot.minScale, max: snapshot.maxScale }
 
-  // One preview at a time: while one is on its way, only the newest scale waits to follow it.
-  const preview = (scale: number) => {
+  // One move on its way at a time; the newest pointer follows it.
+  const send = () => {
     if (sending.current) {
+      waiting.current = true
       return
     }
     sending.current = true
-    void api.previewScale(scale, refused).then(() => {
+    void api.dragScale(pointer.current.x, pointer.current.y, refused).then(() => {
       sending.current = false
-      if (reached.current != null && reached.current !== scale && start.current != null) {
-        preview(reached.current)
+      if (waiting.current && dragging.current) {
+        waiting.current = false
+        send()
       }
     })
   }
@@ -63,27 +50,23 @@ export function ScaleGrip({ snapshot, refused }: Props) {
     event.currentTarget.setPointerCapture?.(event.pointerId)
     const ribbon = event.currentTarget.parentElement?.getBoundingClientRect()
     const thickness = (vertical ? ribbon?.width : ribbon?.height) ?? 0
-    start.current = thickness > 0 ? { x: event.screenX, y: event.screenY, scale: snapshot.scale, thickness } : null
-    reached.current = null
+    pointer.current = { x: event.screenX, y: event.screenY }
+    dragging.current = true
+    waiting.current = false
+    void api.beginScale(thickness, event.screenX, event.screenY, refused)
   }
 
   const move = (event: PointerEvent<HTMLDivElement>) => {
-    if (start.current == null) {
-      return
-    }
-    const scale = scaleAfter(start.current, event.screenX, event.screenY, vertical, bounds)
-    if (scale !== (reached.current ?? start.current.scale)) {
-      reached.current = scale
-      preview(scale)
+    if (dragging.current) {
+      pointer.current = { x: event.screenX, y: event.screenY }
+      send()
     }
   }
 
-  const up = () => {
-    const kept = reached.current
-    start.current = null
-    reached.current = null
-    if (kept != null) {
-      void api.setScale(kept, refused)
+  const up = (event: PointerEvent<HTMLDivElement>) => {
+    if (dragging.current) {
+      dragging.current = false
+      void api.endScale(event.screenX, event.screenY, refused)
     }
   }
 

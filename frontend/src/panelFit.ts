@@ -19,13 +19,19 @@ export function naturalHeight(panel: HTMLElement): number {
 /**
  * usePanelFit answers a ref for a panel that scrolls its own content. Whenever the height the panel
  * needs to show all of it changes, Go is told; it makes the window that tall where the display has
- * room (FR-621). Anything inside may change it: a clock added, a search answered.
+ * room (FR-621). Anything inside may change it: a clock added, a search answered; so may the panel's
+ * own width, since narrower content stacks taller.
+ *
+ * Nothing is measured until ready: the window becomes the panel only once Go has opened it. A
+ * measure taken before then was of the ribbon's narrower window (measured 2026-10-04: 1377 DIP at
+ * 750 wide against 1332 at the panel's 900), which then stood until something inside changed. It
+ * also reached Go ahead of the opening, which put the window back to its opening height after it.
  */
-export function usePanelFit<T extends HTMLElement>(refused: Refused) {
+export function usePanelFit<T extends HTMLElement>(refused: Refused, ready = true) {
   const panel = useRef<T>(null)
   useEffect(() => {
     const element = panel.current
-    if (element == null) {
+    if (element == null || !ready) {
       return
     }
     let reported = 0
@@ -40,7 +46,12 @@ export function usePanelFit<T extends HTMLElement>(refused: Refused) {
     void document.fonts?.ready.then(fit)
     const watcher = new MutationObserver(fit)
     watcher.observe(element, { childList: true, subtree: true, characterData: true, attributeFilter: reshaping })
-    return () => watcher.disconnect()
-  }, [refused])
+    const resized = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(fit)
+    resized?.observe(element)
+    return () => {
+      watcher.disconnect()
+      resized?.disconnect()
+    }
+  }, [refused, ready])
   return panel
 }

@@ -75,9 +75,12 @@ type Service struct {
 	// measured is the cell width the page last measured its widest time and date to need, with the
 	// choices it was measured for; the zero value, before it says, widens nothing (FR-620).
 	measured Measured
-	// previewScale is the scale the ribbon is drawn at while its grip is dragged, kept nowhere; zero
-	// while no drag is under way (FR-623).
-	previewScale int
+	// previewScale is the scale the ribbon is drawn at while its grip is dragged, kept nowhere and
+	// not rounded; zero while no drag is under way (FR-623).
+	previewScale float64
+	// held is the ribbon and its sun map as they stood when a drag of the grip began, so the map is
+	// held there while the drag lasts (FR-623).
+	held heldMap
 	// pixelsPerDIP is the scale the page is really drawn at, in window pixels to each DIP, as the
 	// page reported it; zero until it says, when the display's DPI stands in for it.
 	pixelsPerDIP float64
@@ -96,6 +99,16 @@ type lastPlaced struct {
 	device string
 	at     placement.Point
 	size   placement.Size
+	// sunMap is the sun map's rectangle then; the zero rectangle while none was shown.
+	sunMap placement.Rect
+}
+
+// heldMap is the ribbon and its sun map when a drag of the grip began; known is false while no
+// drag is under way or no map was shown when it began.
+type heldMap struct {
+	known  bool
+	ribbon placement.Rect
+	sunMap placement.Rect
 }
 
 // ribbonLength is the ribbon's length in DIP along its orientation; known is false until the ribbon
@@ -105,7 +118,7 @@ type ribbonLength struct {
 	known    bool
 	vertical bool
 	length   int
-	scale    int
+	scale    float64
 }
 
 // SetScrollbar records the thickness in DIP of the scroll bar the page draws, which a scrolling

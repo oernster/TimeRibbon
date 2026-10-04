@@ -67,7 +67,7 @@ type snapshotDTO struct {
 	AlwaysOnTop   bool      `json:"alwaysOnTop"`
 	Opacity       int       `json:"opacity"`
 	MinOpacity    int       `json:"minOpacity"`
-	Scale         int       `json:"scale"`
+	Scale         float64   `json:"scale"`
 	MinScale      int       `json:"minScale"`
 	MaxScale      int       `json:"maxScale"`
 	Layout        layoutDTO `json:"layout"`

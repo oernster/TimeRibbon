@@ -206,3 +206,13 @@
   flex-basis: 100%;
   margin: 0 0 6px;
 }
+
+/* The opacity's value is as wide as its widest, 100%, in figures of one width, so moving the slider
+   never reflows its group; when it did, Settings jumped 45 DIP taller and back as it was fitted to
+   the new height (FR-621, FR-622, measured 2026-10-04). */
+.opacity-value {
+  display: inline-block;
+  min-width: 5ch;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}

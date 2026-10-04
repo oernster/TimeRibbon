@@ -27,6 +27,13 @@ body {
   background: var(--surface-shown);
 }
 
+/* The surface's own colour, never faded, for background.ts to hand to Go: #root's background is
+   mixed with the opacity, which is no colour the window can be painted in (FR-622). Hidden, so it
+   is never drawn. */
+#surface-swatch {
+  background: var(--surface);
+}
+
 /* The ribbon's corner grip (FR-623): a small triangle in the corner of the ribbon, faint until the
    pointer is on it. It is not drawn at the ribbon's scale, so it is the same size to grab at any. */
 .scale-grip {

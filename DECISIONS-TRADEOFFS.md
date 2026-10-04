@@ -318,11 +318,12 @@ ribbon there, as does a stored display that has gone.
 
 ### Re-centred only when its length changes
 
-When a clock, a notice or a change of style, size or scale changes the
-ribbon's length, it is centred along that length on its display with its
-position across kept. A ribbon against the right or bottom edge stays flush
-there when it grows or shrinks across. Otherwise only a drag, Position or a
-change of orientation moves it.
+When a clock, a notice or a change of style or size changes the ribbon's
+length, it is centred along that length on its display with its position
+across kept. A change of scale does not re-centre it (see the grip, below). A
+ribbon against the right or bottom edge stays flush there when it grows or
+shrinks across. Otherwise only a drag, Position or a change of orientation
+moves it.
 
 - **Rather than:** growing from its corner, which would pull a ribbon off the
   right or bottom edge.
@@ -570,8 +571,10 @@ and shrinks from its top-left corner, so the grip stays under the pointer.
 - **Rather than:** free window resizing; bounds set by the user; centring the
   ribbon again on every step of the drag, which slid the clocks along it.
 - **Gains:** no shape the layout was not made for; the least size stays
-  readable and the largest still fits a small display.
-- **Costs:** none recorded.
+  readable and the largest still fits a small display; the clocks hold still
+  under the pointer while they are resized.
+- **Costs:** a ribbon centred on an edge is no longer centred once resized,
+  until Position or the next change of clocks centres it again.
 
 ### One home for every colour, contrast held by test
 

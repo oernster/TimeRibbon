@@ -287,8 +287,9 @@ width reported) refits the ribbon where it stands; a
 change of orientation sends it to that orientation's home edge instead (FR-409, below). Where the
 refit changes the ribbon's length, it is centred along that length on its display with its
 position across kept (`placement.CentredAlong`); `recentredKept` in `arrange.go` stores
-that place (FR-104). The service remembers the length it last arranged to tell a change; the first
-arrangement of a run never counts as one. A length that changed while a panel was open is centred
+that place (FR-104). The service remembers the length it last arranged, with the scale it was
+drawn at, to tell a change; the first arrangement of a run never counts as one, nor does a length
+changed by the scale, which keeps the top-left corner (FR-623, [above](#one-window)). A length that changed while a panel was open is centred
 as the panel closes. Should the save fail, its notice is one more cell, so the ribbon is arranged once
 more to fit it and that arrangement is not saved again. Apart from Position and a change of
 orientation, nothing else re-centres the ribbon, so a drag holds until the length next changes. Sizes

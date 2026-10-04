@@ -77,9 +77,11 @@ in a small frameless ribbon you can put anywhere on any monitor.
   or bottom for a horizontal one. Choosing horizontal sends it to the top edge; choosing vertical
   sends it to the right.
 - **Re-centres when its length changes.** Adding or removing a clock, a notice appearing or going
-  and a change of style, size or scale all change the ribbon's length. When that happens the ribbon
+  and a change of style or size all change the ribbon's length. When that happens the ribbon
   centres itself along its length on its display, keeping its position across; it opens there next
-  time. Otherwise only a drag, Position or a change of orientation moves it.
+  time. A change of scale is the exception: the ribbon grows and shrinks from its top-left corner,
+  as a window being resized does, so the grip stays under the pointer. Otherwise only a drag,
+  Position or a change of orientation moves it.
 - **Fits its clocks, then scrolls.** The ribbon is as long as its clocks until it reaches the edge
   of the display, then its clocks scroll rather than shrink or wrap. A plain mouse wheel moves a
   horizontal ribbon along. Each clock is as wide as the widest time and date its size, style and
@@ -95,8 +97,9 @@ in a small frameless ribbon you can put anywhere on any monitor.
   theme can follow the system's. Settings opens wide with its choices side by side; it is as tall as
   its content, up to the size of the display, where it scrolls instead. The Opacity slider draws
   the ribbon's background from 20 to 100 percent opaque while the clocks on it stay solid, so the
-  ribbon can sit over other work without hiding it; Settings itself is always opaque. The grip in the ribbon's corner resizes the clocks by hand, from 75 to 200 percent of
-  either size, everything in them together; a double-click on it returns them to their own size.
+  ribbon can sit over other work without hiding it; Settings itself is always opaque. The grip in
+  the ribbon's corner resizes the clocks by hand, from 75 to 200 percent of either size,
+  everything in them together; a double-click on it returns them to their own size.
 - **Keeps your clocks in one readable file,** `settings.json`, written whole or not at all (where
   it lives is in [Your settings](#your-settings)). A damaged file is kept aside under another name
   and never overwritten, nor is a copy kept aside earlier; a notice on the ribbon says so. A file

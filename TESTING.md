@@ -64,13 +64,13 @@ and what stops it. An unexplained shortfall cannot be told from an oversight.
 | `tools/genplaces` | 58.6% | 58% | `test.ps1` |
 | `internal/infrastructure/appdata` | 100% | 100% | `test.ps1` |
 | `internal/infrastructure/runlog` | 76.5% | 76% | `test.ps1` |
-| the root package (the Wails facade) | 86.2% | 86% | `test.ps1` |
+| the root package (the Wails facade) | 86.7% | 86% | `test.ps1` |
 | `internal/infrastructure/desktop` | 37.6% | 37% | `test.ps1` |
 | `internal/product` | 100% | none | not gated |
 | `installer` | 0%, no tests | none | not gated |
 
 Every figure is the Windows build's, which is what `test.ps1` measures. The Windows build compiles
-384 Go test functions, counted from the test files `go list` selects for it; each runs once with no
+385 Go test functions, counted from the test files `go list` selects for it; each runs once with no
 subtests, plus one `TestMain` in `internal/infrastructure/setup`. Thirty-one of them are the
 structural tests in `tests/structural`, which read the source rather than run it and are the same
 on every platform; [ARCHITECTURE.md](ARCHITECTURE.md) lists each against the rule it holds. One
@@ -79,18 +79,18 @@ test in `store` holds a promise rather than a rule of structure:
 see ARCHITECTURE.md, The settings file. Three hold NFR-U-1: `contrast_test.go` reads every scheme's
 colours from `theme.css` and `colours.css` and requires 4.5:1 for each text colour on the cell and
 the surface in both themes. It is a Go test because Vitest hands a CSS import back empty. The macOS
-build compiles 358 and the Linux build 362 ([On macOS and Linux](#on-macos-and-linux)).
+build compiles 359 and the Linux build 363 ([On macOS and Linux](#on-macos-and-linux)).
 
 ### The front end
 
-130 tests across 18 files, under Vitest with jsdom: the ribbon, Settings, About, Licence and the
+131 tests across 19 files, under Vitest with jsdom: the ribbon, Settings, About, Licence and the
 update panel; every icon-only control on each of them carrying an accessible name and a tooltip
-(`a11y.test.tsx`, NFR-U-4); the sun map's surface and handle, its day and night blend and where its labels stand
-(FR-914); the page's background colour; the self-reading cycle; the watch on the page's
-`devicePixelRatio`; the measuring of a cell's widest time and date (`measure.test.ts`, FR-620);
-Settings growing to its content (`panelFit.test.tsx`, FR-621); the opacity slider
-and every panel staying opaque (`opacity.test.tsx`, `panelOpacity.test.tsx`, FR-622); the corner grip (`scaleGrip.test.tsx`, FR-623); every timer the
-ribbon's page schedules, each matched to a reasoned allow-list with only the Help panel's
+(`a11y.test.tsx`, NFR-U-4); the sun map's surface and handle, its day and night blend and where
+its labels stand (FR-914); the page's background colour; the self-reading cycle; the watch on the
+page's `devicePixelRatio`; the measuring of a cell's widest time and date (`measure.test.ts`,
+FR-620); Settings growing to its content (`panelFit.test.tsx`, FR-621); the opacity slider and
+every panel staying opaque (`opacity.test.tsx`, `panelOpacity.test.tsx`, FR-622); the corner grip
+(`scaleGrip.test.tsx`, FR-623); every timer the ribbon's page schedules, each matched to a reasoned allow-list with only the Help panel's
 self-reading cycle periodic (`timers.test.ts`, NFR-P-4); then the setup page's screens, keyboard
 ring and unreachable-program cases. The text contrast of every scheme is a Go structural test,
 listed above. The front end has no coverage figure:
@@ -138,7 +138,7 @@ GitHub is asked only by the running application, which is checked by hand.
 - **`internal/infrastructure/runlog` (76.5%).** Opening the log and pointing standard error at it are
   tested, as is the folder refusing to be made; the log file refusing to open, the start line failing
   to write and `SetStdHandle` refusing only fail inside the system.
-- **The root package (86.2%).** The facade's tests are `facade_test.go`, `window_life_test.go`,
+- **The root package (86.7%).** The facade's tests are `facade_test.go`, `window_life_test.go`,
   `unpinned_test.go`, `sunmap_test.go`, `background_test.go`, `effect_test.go`, `updates_test.go`,
   `quit_signal_test.go`, `measure_test.go`, `panel_fit_test.go`, `clockscale_test.go`,
   `choices_test.go`, `pixelratio_test.go` and `launch_show_test.go`, over the scripted service in
@@ -203,7 +203,7 @@ The macOS and Linux halves of infrastructure compile only for their own platform
 face the desktop (`cocoamain`, `gtkmain`, `monitors`, `desktop`) also need cgo against AppKit or
 GTK. `test.ps1` reaches none of them. They are checked on a machine of their own
 platform, set up as [DEVELOPMENT.md](DEVELOPMENT.md) says, from a checkout with the page built. The
-macOS build compiles 358 Go test functions and the Linux build 362: the shared ones, the structural
+macOS build compiles 359 Go test functions and the Linux build 363: the shared ones, the structural
 tests and its own.
 
 | What | macOS | Linux |

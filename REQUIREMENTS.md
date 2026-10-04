@@ -135,6 +135,13 @@ Amendment 29 (Oliver, 2026-09-29): the place search matches what is typed at the
 and lists the best matches first. It matched anywhere and sorted alphabetically, so typing `l`
 began with Adelaide and Algiers (FR-302).
 
+Amendment 30 (Oliver, 2026-10-04): the opacity is the ribbon's background alone. The clocks on it,
+the sun map and every panel, Settings among them, are drawn wholly opaque (FR-622).
+
+Amendment 31 (Oliver, 2026-10-04): a change of scale grows and shrinks the ribbon from its top-left
+corner, as a window being resized does, rather than centring it again along its length; a change of
+clocks still centres it (FR-104, FR-623).
+
 Source: the initial product specification of 2026-09-27, written under the product's former name,
 plus Oliver's rulings of 2026-09-27: the stack is Go with Wails; orientation is a setting offering
 both horizontal and vertical, both in the first release; a setup program ships with the first
@@ -448,7 +455,9 @@ to bottom with its left edge where it was; it opens there next time.
 Amendment 9 (Oliver, 2026-09-28): a change of orientation no longer keeps the top-left corner; the
 ribbon goes to that orientation's home edge instead (FR-409). A change of length for any other reason
 is re-centred as above.
-Verified by: `TestARibbonWhoseLengthChangesIsRecentredAndKept`, `TestAHorizontalRibbonIsRecentredLeftToRight`, `TestNothingButAChangeOfLengthRecentresTheRibbon`, `TestARecentringThatCannotBeSavedMakesRoomForItsNotice` (application).
+Amendment 31 (Oliver, 2026-10-04): except a change of scale, which keeps the top-left corner (FR-623).
+Verified by: `TestARibbonWhoseLengthChangesIsRecentredAndKept`, `TestAHorizontalRibbonIsRecentredLeftToRight`, `TestNothingButAChangeOfLengthRecentresTheRibbon`, `TestARecentringThatCannotBeSavedMakesRoomForItsNotice`, `TestAChangeOfScaleKeepsTheCorner`,
+`TestAChangeOfClocksAfterAScaleStillRecentres` (application).
 
 **FR-105 Ribbon sized to its clocks**
 Priority: Must.
@@ -1178,18 +1187,20 @@ Verified by: `TestFitPanelMakesTheOpenPanelAsTallAsItsContent`,
 
 **FR-622 Opacity**
 Priority: Should (Amendment 26, Oliver, 2026-09-29).
-Settings shall offer an Opacity slider in steps of 5 percent from 20 to 100 percent. The ribbon's
-backgrounds (the ribbon itself, each dial's face and the unpinned tab) shall be drawn at the chosen
-opacity, the desktop showing through them; the clocks' times, dates, hands and ticks stay wholly
-opaque. Every panel the window becomes (Settings among them) is drawn wholly opaque whatever the
-choice. At 100 percent the window looks exactly as it did before the choice existed. The slider
-shows its value while it moves; the choice is saved in the settings file once the slider is let go,
-100 percent when the file holds none. A value outside 20 to 100 percent is refused by the setting
-and brought within it when read from a hand-edited file.
+Settings shall offer an Opacity slider in steps of 5 percent from 20 to 100 percent. Everything the
+window shows (the ribbon, the sun map and every panel) shall be drawn at the chosen opacity, the
+desktop showing through the rest; at 100 percent the window looks exactly as it did before the
+choice existed. The window follows the slider while it moves; the choice is saved in the settings
+file once the slider is let go, 100 percent when the file holds none. A value outside 20 to 100
+percent is refused by the setting and brought within it when read from a hand-edited file.
 Rationale: Oliver, 2026-09-29: let the ribbon sit over other work without hiding it; 20 percent
-the least, since a window with nothing to see cannot be found to be put back (OQ-26). Oliver,
-2026-10-04: the Settings panel must stay readable; the clocks themselves stay solid so only
-what is behind them fades.
+the least, since a window with nothing to see cannot be found to be put back (OQ-26).
+Amendment 30 (Oliver, 2026-10-04): only the ribbon's backgrounds take the chosen opacity: the ribbon
+itself, each dial's face and the unpinned tab. The clocks' times, dates, hands and ticks stay wholly
+opaque, as does the sun map. Every panel the window becomes (Settings among them) is drawn wholly
+opaque whatever the choice, so the window no longer follows the slider while it moves; the slider
+shows its value instead. Rationale: Settings must stay readable while its opacity is chosen; the
+clocks stay solid so only what is behind them fades.
 Acceptance: given a first run, then the window is wholly opaque; when the slider is dragged to 40
 percent and let go, then the Settings panel is still wholly opaque, the settings file holds
 `"opacity": 40` and a restart keeps it; when Settings is closed, then the clocks' text is wholly
@@ -1207,15 +1218,18 @@ to shrink) shall draw everything in the clocks at a scale from 75 to 200 percent
 size, text, dials, padding, cells and the pull out's handle alike, with the window following while
 the grip moves; the scale is saved in the settings file once the grip is let go, 100 percent when
 the file holds none. Double-clicking the grip returns the clocks to 100 percent. The scale applies
-on top of Large or Small, whichever is chosen; choosing the other keeps it. As a window being
-resized does, the ribbon grows and shrinks from its top-left corner, so the corner holding the grip
-follows the pointer; a change of scale never centres it along its length again, though a change of
-clocks still does (FR-104). The scroll bar keeps its own thickness.
+on top of Large or Small, whichever is chosen; choosing the other keeps it. A ribbon whose length
+changes with the scale is centred along it again (FR-104). The scroll bar keeps its own thickness.
 The grip is a control, so pressing it starts no drag of the window (FR-402).
 Rationale: Oliver, 2026-09-29: "make my clocks this big", not "solve your layout"; a scale keeps
 every clock's shape (OQ-27). 75 percent draws a small clock's 11 px text at about 8 px, the least
 that stays readable; at 200 percent the thickest ribbon is 408 DIP across, which a 720 line display
 still holds (OQ-28).
+Amendment 31 (Oliver, 2026-10-04): a change of scale no longer re-centres the ribbon. As a window
+being resized does, the ribbon grows and shrinks from its top-left corner, so the corner holding the
+grip follows the pointer; this holds while the grip is dragged, when it is let go and on a
+double-click. A change of clocks still re-centres it (FR-104). Rationale: re-centring on every step
+of the drag slid the clocks along the ribbon and ran the grip away from the pointer.
 Acceptance: given five large digital clocks at 100 percent, when the grip is dragged until the
 scale reads 150 percent and let go, then each cell is 1.5 times its width at 100 percent (FR-620)
 by 138 DIP, 264 by 138 where that width is the size's own 176, with its text whole; the

@@ -40,6 +40,7 @@ where they apply.
 | 30 | 2026-10-04 | The opacity applies to the ribbon's background alone; the clocks, the sun map and every panel stay opaque (FR-622). |
 | 31 | 2026-10-04 | A change of scale grows and shrinks the ribbon from its top-left corner; a change of clocks still re-centres it (FR-104, FR-623). |
 | 32 | 2026-10-04 | The document's wording is consolidated (Oliver: "Make the docs concise"). Each requirement now states what holds after its amendments and cites them by number; the measurements behind section 2.3 are summarised. No requirement, acceptance or verifying test was removed or changed in meaning. |
+| 33 | 2026-10-04 | On macOS and Linux the spare area of the window beside a ribbon shorter than its map answers a right-click and a drag as the ribbon does (FR-913); Oliver found it answering neither. |
 
 Source: the initial product specification of 2026-09-27, written under the product's former name,
 plus Oliver's rulings of 2026-09-27: Go with Wails; both orientations in the first release; a setup
@@ -707,8 +708,9 @@ thickest ribbon is 408 DIP across, which a 720 line display holds.
 Acceptance: five large digital clocks dragged to 150 percent give cells 1.5 times their FR-620 width
 by 138 DIP (264 by 138 at the size's own 176), text whole; the file holds `"scale": 150`; Small then
 draws at 150; a double-click restores their own size.
-Note (2026-10-04): on Windows the drag follows the cursor read from the desktop, since the page's
-pointer events jumped backwards while the window resized; the sun map holds still until the grip is
+Note (2026-10-04): the drag follows the cursor read from the desktop on every platform, since the
+page's pointer events jumped backwards on Windows while the window resized (smooth on macOS and
+Linux by hand the same day); the sun map holds still until the grip is
 let go, so the window's corner does not move.
 Verified by: `TestScaleIsHeldWithinItsBounds`, `TestScaleAfterFollowsTheFarSide` (settings);
 `TestTheMapIsHeldWhileTheRibbonIsResized` (placement); `TestAScaledRibbonGrowsInBothDirections`,
@@ -718,7 +720,8 @@ Verified by: `TestScaleIsHeldWithinItsBounds`, `TestScaleAfterFollowsTheFarSide`
 `TestAChangeOfScaleTellsThePageToDrawAgain`, `TestEveryChangeFitsTheRibbonAndAnswersTheServicesError`,
 `TestTheGripFollowsTheDesktopsPointerOverThePages`,
 `TestTheGripFollowsThePagesPointerWhereTheDesktopCannotReadIt`, `TestAPressThatMovesNothingKeepsNothing`
-(facade); `TestTheCursorIsWhereWindowsSaysItIs` (desktop, Windows); `scaleGrip.test.tsx`; by hand.
+(facade); `TestTheCursorIsWhereWindowsSaysItIs` (desktop, Windows); `TestThePointerIsReadWhereTheRibbonIsPlaced`
+(desktop, macOS and Linux); `scaleGrip.test.tsx`; by hand.
 
 **FR-624 Settings offers every menu choice** (Should; Amendment 28; OQ-29). Settings offers Style,
 Colour, Orientation, Position, Always on top, Pin ribbon and Sun map from the menus' own items, words
@@ -893,11 +896,12 @@ Verified by: `TestEveryPlatformCreditsTheMapPictures` (product).
 **FR-913 The window is the ribbon and its map** (Should; Amendment 21; OQ-19). On Windows, while the
 map shows, the window is limited to the ribbon and map together, so the desktop shows and takes clicks
 elsewhere; refitted on every change of size; without the map, its whole rectangle. A pointer where the
-window is cut away is off the ribbon. On macOS and Linux it stays a rectangle.
+window is cut away is off the ribbon. On macOS and Linux it stays a rectangle, whose area holding
+neither answers a right-click and a drag as the ribbon does (Amendment 33).
 Acceptance: a vertical ribbon 708 DIP long flush right with a 708 by 354 map shows the desktop above
 and below the map, clickable; closing the pull out leaves the ribbon alone.
 Verified by: `TestTheShapeIsTheRibbonAndItsMap` (placement); `TestTheShapeFollowsEveryRefit` (facade);
-`TestThePointerIsReadAgainstTheWindowsShape` (desktop); by hand.
+`TestThePointerIsReadAgainstTheWindowsShape` (desktop); `surface.test.tsx` for the spare area; by hand.
 
 **FR-914 Labels stand clear** (Should; Amendment 21; OQ-20). Each label, in clock order, takes the
 first spot beside its dot (right, left, below, above) wholly inside the map and clear of every dot and

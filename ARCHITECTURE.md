@@ -155,9 +155,10 @@ paint a window in.
 scroll bar after, since zoom leaves the engine's bar its own thickness. The page draws the ribbon
 under CSS `zoom`. The grip sends `BeginScale`, `DragScale` and `EndScale`; Go turns the pointer's
 travel into a scale through `settings.ScaleAfter`, fractional while dragging (`PreviewScale`, never
-saved) and rounded when kept (`SetScale`). On Windows Go reads the cursor itself (`desktop.Cursor`),
-because the page's pointer events jumped backwards while the window resized under them; elsewhere it
-takes the page's reading (TECH_DEBT.md item 2). Each step refits the window and tells the page to
+saved) and rounded when kept (`SetScale`). Go reads the cursor from the desktop (`desktop.Cursor`:
+`GetCursorPos`, `NSEvent mouseLocation`, GDK's seat pointer) in the units the ribbon is placed in,
+because the page's pointer events jumped backwards on Windows while the window resized under them;
+where the desktop cannot answer, it takes the page's reading. Each step refits the window and tells the page to
 redraw. A change of scale keeps the top-left corner: `lengthChanged` counts only a change of length at
 the same scale, so clocks re-centre the ribbon (FR-104) and scale does not. While dragging, the sun
 map is held at its size and its place from the ribbon's corner (`MapHeld`), so the window's corner
@@ -179,7 +180,9 @@ neither the page nor the X server sees it leave.
 
 **The sun map** shares the window: placements are decided for the ribbon alone, `windowOf` adds the
 map and `ribbonFromWindow` reads a dragged window back. On Windows the window is cut to the two
-(`placement.Shape`, `desktop.Shape` over `SetWindowRgn`, FR-913) before every placing. The page lays
+(`placement.Shape`, `desktop.Shape` over `SetWindowRgn`, FR-913) before every placing. On macOS and
+Linux it stays a rectangle; the surface showing beside a ribbon shorter than its map answers a
+right-click and a drag as the ribbon does (Amendment 33). The page lays
 them out (`Surface.tsx`) at boxes Go sends in the page's units, blends day and night by solar altitude
 (`sunLight.ts`) and stands labels clear (`labels.ts`, FR-914).
 
@@ -413,7 +416,7 @@ The architectural ones; the full set with their costs is in
 | One window for the ribbon and every panel | Wails v2 offers one | A second window per panel |
 | Native popup menus | A page-drawn menu would be clipped by the small window | A menu drawn in the page |
 | The page measures cells, scroll bar and scale | Only the page knows its font, its engine's bar and the ratio it is drawn at | Widths and thicknesses written into Go |
-| The grip's cursor read from the desktop on Windows | The page's pointer events jumped backwards while the window resized under them | The page's `screenX`, `screenY` |
+| The grip's cursor read from the desktop | The page's pointer events jumped backwards while the window resized under them | The page's `screenX`, `screenY` |
 | The web view's data inside the settings folder | Wails' default sat beside it, out of reach of forgetting the settings | Deleting Wails' folder by name |
 | Linux on X11; DMABUF and acceleration off | Wayland forbids choosing a position; NVIDIA's own driver drew blank | Wayland; per-driver detection |
 | A StatusNotifierItem of TimeRibbon's own | `fyne.io/systray` could not rebuild its menu as it opens and kept global state (v1.12.2) | `fyne.io/systray` |

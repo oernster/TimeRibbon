@@ -54,6 +54,25 @@ describe('Surface (FR-902, FR-903, FR-910)', () => {
     expect(bridge.ShowContextMenu).toHaveBeenCalledOnce()
   })
 
+  it('answers a right-click and a drag beside a ribbon shorter than its map as the ribbon does, once', () => {
+    const shown = sunMap({
+      side: 'bottom', shown: true, pullOut: true, ribbon: { x: 72, y: 0, width: 336, height: 106 }, map: { x: 0, y: 106, width: 480, height: 240 },
+    })
+    const bridge = installBridge()
+    window.WailsInvoke = vi.fn()
+    render(<Surface snapshot={snapshot({ sunMap: shown })} onAddClock={vi.fn()} refused={vi.fn()} />)
+    const surface = document.querySelector('.surface') as HTMLElement
+    fireEvent.contextMenu(surface)
+    expect(bridge.ShowContextMenu).toHaveBeenCalledOnce()
+    // A right-click on the ribbon reaches the surface too; it still shows one menu, not two.
+    fireEvent.contextMenu(document.querySelector('.ribbon') as HTMLElement)
+    expect(bridge.ShowContextMenu).toHaveBeenCalledTimes(2)
+    fireEvent.pointerDown(surface, { button: 0, screenX: 100, screenY: 100 })
+    fireEvent.pointerMove(surface, { buttons: 1, screenX: 140, screenY: 100 })
+    expect(window.WailsInvoke).toHaveBeenCalledOnce()
+    expect(window.WailsInvoke).toHaveBeenCalledWith('drag')
+  })
+
   it('measures each label, then stands London clear of the Berlin dot (FR-914)', () => {
     installBridge()
     // jsdom lays nothing out, so every label is given the size a 12px name takes on screen.

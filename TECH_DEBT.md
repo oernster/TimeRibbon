@@ -20,18 +20,6 @@ Cost of leaving it: low. The test still proves the ribbon returns to where it wa
 larger window. Resolving it means giving the panel sizes a home the desktop tests can read, such as
 `internal/product`. Blocked on a Linux or macOS machine to run it.
 
-## 2. The grip's drag reads the page's pointer on macOS and Linux
-
-On Windows the corner grip's drag reads the cursor from the desktop (`desktop.Cursor`), because the
-page's pointer events were measured jumping backwards while the window was resized under them
-(FR-623). `desktop.Cursor` answers that it cannot read the pointer on macOS and Linux, so there the
-drag still follows the page's reading.
-
-Cost of leaving it: unknown until measured. Whether the page's pointer jumps there too has not been
-observed. Resolving it means reading the pointer through AppKit (`NSEvent mouseLocation`) and GDK in
-`desktop`, in the units `pointerAt` divides by. Blocked on a macOS and a Linux machine to measure and
-test it.
-
 ## Looks like debt, not worth touching
 
 **The drag sends Wails an internal message.** `startDrag` calls `window.WailsInvoke('drag')`, the

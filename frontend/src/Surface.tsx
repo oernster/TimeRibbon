@@ -1,5 +1,6 @@
-import type { CSSProperties } from 'react'
+import type { CSSProperties, MouseEvent, PointerEvent } from 'react'
 import { api, type Box, type Refused, type Snapshot } from './api'
+import { showsTheMenu, useDrag } from './drag'
 import { percentOfWhole } from './opacity'
 import { Ribbon } from './Ribbon'
 import { SunMap } from './SunMap'
@@ -54,6 +55,7 @@ function handleAt(side: string, ribbon: Placed): { left: number; top: number } {
  * (FR-902, FR-903). Go places the two, in the page's units.
  */
 export function Surface({ snapshot, onAddClock, refused }: Props) {
+  const drag = useDrag(snapshot.dragThreshold)
   const map = snapshot.sunMap
   if (snapshot.collapsed || map.side === '') {
     return <Ribbon snapshot={snapshot} onAddClock={onAddClock} refused={refused} />
@@ -67,8 +69,26 @@ export function Surface({ snapshot, onAddClock, refused }: Props) {
   // The handle stands in the lane, which is drawn at the ribbon's scale (FR-623).
   const drawnAt = snapshot.scale / percentOfWhole
   const lane = { '--handle-width': `${snapshot.layout.handleLane * drawnAt}px`, '--scale': drawnAt } as CSSProperties
+  // On macOS and Linux the window stays a rectangle (FR-913), so beside a ribbon shorter than its map
+  // the surface itself shows, painted as the ribbon is; it answers a right-click and a drag as the
+  // ribbon does. A press on the ribbon or the map reaches here too, which they already answer, so
+  // only one on the surface itself counts.
+  const menu = showsTheMenu(refused)
+  const own = {
+    ...drag,
+    onPointerDown: (event: PointerEvent<HTMLElement>) => {
+      if (event.target === event.currentTarget) {
+        drag.onPointerDown(event)
+      }
+    },
+    onContextMenu: (event: MouseEvent<HTMLElement>) => {
+      if (event.target === event.currentTarget) {
+        menu(event)
+      }
+    },
+  }
   return (
-    <div className="surface" style={lane}>
+    <div className="surface" style={lane} {...own}>
       <div className="surface-part" style={ribbon}>
         <Ribbon snapshot={snapshot} onAddClock={onAddClock} refused={refused} />
       </div>

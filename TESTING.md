@@ -59,11 +59,11 @@ one `TestMain` in `internal/infrastructure/setup`. Thirty-one are the structural
 the source and are the same on every platform; [ARCHITECTURE.md](ARCHITECTURE.md) lists each against
 its rule. `TestA1Point0SettingsFileIsReadWhole` in `store` holds the settings file's promise
 (NFR-C-1); `contrast_test.go` holds NFR-U-1 in Go because Vitest hands a CSS import back empty. The
-macOS build compiles 365 and the Linux build 369 ([On macOS and Linux](#on-macos-and-linux)).
+macOS build compiles 366 and the Linux build 370 ([On macOS and Linux](#on-macos-and-linux)).
 
 ### The front end
 
-133 tests in 19 files under Vitest with jsdom: the ribbon, Settings, About, Licence and the update
+134 tests in 19 files under Vitest with jsdom: the ribbon, Settings, About, Licence and the update
 panel; an accessible name and tooltip on every icon-only control (`a11y.test.tsx`, NFR-U-4); the sun
 map, its blend and its labels (FR-914); the page's background colour; the self-reading cycle; the
 `devicePixelRatio` watch; measuring a cell's widest text (FR-620); Settings fitting its content
@@ -137,8 +137,8 @@ that platform, set up as [DEVELOPMENT.md](DEVELOPMENT.md) says, with the page bu
 | What | macOS | Linux |
 |---|---|---|
 | Tags | `desktop,production` | `desktop,production,webkit2_41` |
-| Go test functions | 365, plus 3 `TestMain` | 369, plus 3 `TestMain` |
-| Tests that need cgo | `cocoamain` 3, `monitors` 3, `desktop` 16 | `gtkmain` 5, `monitors` 2, `desktop` 19 |
+| Go test functions | 366, plus 3 `TestMain` | 370, plus 3 `TestMain` |
+| Tests that need cgo | `cocoamain` 3, `monitors` 3, `desktop` 17 | `gtkmain` 5, `monitors` 2, `desktop` 20 |
 | Needs | a signed-in desktop | a signed-in desktop with a display and a tray host |
 
 With the platform's tags in `TAGS`, run each and read its exit code:

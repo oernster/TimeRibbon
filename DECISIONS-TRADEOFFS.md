@@ -285,7 +285,8 @@ for both orientations.
 
 - **Rather than:** a rectangle covering the desktop beside the map.
 - **Gains:** nothing is hidden that the ribbon does not draw.
-- **Costs:** on macOS and Linux the window stays a rectangle.
+- **Costs:** on macOS and Linux the window stays a rectangle, its spare area painted as the ribbon
+  and answering the ribbon's right-click and drag.
 
 ### Labels move aside
 
@@ -324,14 +325,14 @@ the map and every panel stay solid. It is saved once let go.
 
 A corner grip draws everything in the clocks smaller or larger together, on top of Large or Small,
 from 75 to 200 percent; a double-click restores them. As a window does, it grows from its top-left
-corner, with the sun map held still until let go. On Windows the pointer is read from the desktop.
+corner, with the sun map held still until let go. The pointer is read from the desktop.
 
 - **Rather than:** free resizing; bounds set by the user; re-centring on every step, which slid the
   clocks along; the page's pointer events, which jumped backwards while the window resized.
 - **Gains:** no shape the layout was not made for; the clocks hold still and follow the pointer
   smoothly.
 - **Costs:** a ribbon centred on an edge is off-centre once resized, until Position or the next
-  change of clocks; macOS and Linux still follow the page's pointer.
+  change of clocks; one pointer reading per platform to keep.
 
 ### One home for every colour, contrast held by test
 

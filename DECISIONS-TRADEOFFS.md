@@ -549,12 +549,14 @@ panels stay narrow, for their text.
 
 ### See-through, never invisible
 
-An opacity slider draws the whole window anywhere from faint to fully opaque,
-never fully transparent. It previews while it moves and is saved once let go.
+An opacity slider draws the ribbon's background anywhere from faint to fully
+opaque, never fully transparent; the clocks on it stay solid and Settings is
+always opaque. It is saved once let go.
 
-- **Rather than:** allowing it to fade out entirely.
+- **Rather than:** allowing it to fade out entirely; fading the whole window,
+  clocks and Settings with it.
 - **Gains:** the ribbon can sit over other work, while it can always be seen
-  and found again.
+  and found again; the times stay readable at any opacity.
 - **Costs:** the web view is drawn transparent, so the window's own paint has
   to be cleared below full opacity.
 
@@ -562,9 +564,11 @@ never fully transparent. It previews while it moves and is saved once let go.
 
 A grip in the ribbon's corner draws everything in the clocks smaller or larger
 together, on top of Large or Small; a double-click returns them to their own
-size. The window cannot be resized freely.
+size. The window cannot be resized freely. As a resized window does, it grows
+and shrinks from its top-left corner, so the grip stays under the pointer.
 
-- **Rather than:** free window resizing; bounds set by the user.
+- **Rather than:** free window resizing; bounds set by the user; centring the
+  ribbon again on every step of the drag, which slid the clocks along it.
 - **Gains:** no shape the layout was not made for; the least size stays
   readable and the largest still fits a small display.
 - **Costs:** none recorded.

@@ -1178,22 +1178,27 @@ Verified by: `TestFitPanelMakesTheOpenPanelAsTallAsItsContent`,
 
 **FR-622 Opacity**
 Priority: Should (Amendment 26, Oliver, 2026-09-29).
-Settings shall offer an Opacity slider in steps of 5 percent from 20 to 100 percent. Everything the
-window shows (the ribbon, the sun map and every panel) shall be drawn at the chosen opacity, the
-desktop showing through the rest; at 100 percent the window looks exactly as it did before the
-choice existed. The window follows the slider while it moves; the choice is saved in the settings
-file once the slider is let go, 100 percent when the file holds none. A value outside 20 to 100
-percent is refused by the setting and brought within it when read from a hand-edited file.
+Settings shall offer an Opacity slider in steps of 5 percent from 20 to 100 percent. The ribbon's
+backgrounds (the ribbon itself, each dial's face and the unpinned tab) shall be drawn at the chosen
+opacity, the desktop showing through them; the clocks' times, dates, hands and ticks stay wholly
+opaque. Every panel the window becomes (Settings among them) is drawn wholly opaque whatever the
+choice. At 100 percent the window looks exactly as it did before the choice existed. The slider
+shows its value while it moves; the choice is saved in the settings file once the slider is let go,
+100 percent when the file holds none. A value outside 20 to 100 percent is refused by the setting
+and brought within it when read from a hand-edited file.
 Rationale: Oliver, 2026-09-29: let the ribbon sit over other work without hiding it; 20 percent
-the least, since a window with nothing to see cannot be found to be put back (OQ-26).
+the least, since a window with nothing to see cannot be found to be put back (OQ-26). Oliver,
+2026-10-04: the Settings panel must stay readable; the clocks themselves stay solid so only
+what is behind them fades.
 Acceptance: given a first run, then the window is wholly opaque; when the slider is dragged to 40
-percent and let go, then the clocks and the desktop behind them both show, the settings file holds
-`"opacity": 40` and a restart keeps it; given a settings file holding `"opacity": 5`, then the window
-is drawn at 20 percent.
+percent and let go, then the Settings panel is still wholly opaque, the settings file holds
+`"opacity": 40` and a restart keeps it; when Settings is closed, then the clocks' text is wholly
+opaque while the desktop shows through the ribbon behind it; given a settings file holding
+`"opacity": 5`, then the ribbon's background is drawn at 20 percent.
 Verified by: `TestOpacityIsHeldWithinItsBounds` (domain); `TestOpacityIsChosenSavedAndShown`
 (application); `TestSettingsRoundTrip` (infrastructure, store); `TestThePagesBackgroundReachesTheWindow`,
-`TestTheWindowIsPaintedClearBelowFullOpacity` (facade); `opacity.test.tsx`, `background.test.ts`;
-a check by hand in a real build.
+`TestTheWindowIsPaintedClearBelowFullOpacity` (facade); `opacity.test.tsx`, `panelOpacity.test.tsx`,
+`background.test.ts`; a check by hand in a real build.
 
 **FR-623 Resizing the clocks**
 Priority: Should (Amendment 27, Oliver, 2026-09-29).
@@ -1202,8 +1207,10 @@ to shrink) shall draw everything in the clocks at a scale from 75 to 200 percent
 size, text, dials, padding, cells and the pull out's handle alike, with the window following while
 the grip moves; the scale is saved in the settings file once the grip is let go, 100 percent when
 the file holds none. Double-clicking the grip returns the clocks to 100 percent. The scale applies
-on top of Large or Small, whichever is chosen; choosing the other keeps it. A ribbon whose length
-changes with the scale is centred along it again (FR-104). The scroll bar keeps its own thickness.
+on top of Large or Small, whichever is chosen; choosing the other keeps it. As a window being
+resized does, the ribbon grows and shrinks from its top-left corner, so the corner holding the grip
+follows the pointer; a change of scale never centres it along its length again, though a change of
+clocks still does (FR-104). The scroll bar keeps its own thickness.
 The grip is a control, so pressing it starts no drag of the window (FR-402).
 Rationale: Oliver, 2026-09-29: "make my clocks this big", not "solve your layout"; a scale keeps
 every clock's shape (OQ-27). 75 percent draws a small clock's 11 px text at about 8 px, the least
@@ -1216,7 +1223,8 @@ settings file holds `"scale": 150` and a restart keeps it; when Small is then ch
 cells are drawn at 150 percent; when the grip is double-clicked, then the clocks are drawn at their
 own size again.
 Verified by: `TestScaleIsHeldWithinItsBounds` (domain); `TestAScaledRibbonGrowsInBothDirections`,
-`TestAPreviewIsDrawnButNotKept`, `TestAChangeOfScaleRecentresTheRibbon`, `TestTheScrollBarIsNotScaled`
+`TestAPreviewIsDrawnButNotKept`, `TestAChangeOfScaleKeepsTheCorner`,
+`TestAChangeOfClocksAfterAScaleStillRecentres`, `TestTheScrollBarIsNotScaled`
 (application); `TestSettingsRoundTrip` (infrastructure, store); `TestAChangeOfScaleTellsThePageToDrawAgain`,
 `TestEveryChangeFitsTheRibbonAndAnswersTheServicesError` (facade); `scaleGrip.test.tsx`; a check by hand in a real build.
 

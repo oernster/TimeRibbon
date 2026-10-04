@@ -42,7 +42,8 @@ func (s *Service) Launch() (Arrangement, error) {
 
 // Rearrange arranges a ribbon now at at after its content or the displays changed: the same
 // top-left corner, moved the least distance that keeps it wholly inside the work area it overlaps
-// most (FR-406); re-centred along its length on that work area where its length changed (FR-104).
+// most (FR-406); re-centred along its length on that work area where its clocks changed that length
+// (FR-104), though not where its scale did (FR-623).
 // A re-centring is saved, as is a move on the display its place was saved on; a move onto another
 // display is not, so a monitor that comes back finds its placement kept.
 func (s *Service) Rearrange(at placement.Point) (Arrangement, error) {
@@ -199,7 +200,7 @@ func (s *Service) arrange(
 		placed = place(size, monitors, current)
 	}
 	vertical := current.Orientation == settings.Vertical
-	recentred := s.lengthChanged(ribbonLength{known: true, vertical: vertical, length: length})
+	recentred := s.lengthChanged(ribbonLength{known: true, vertical: vertical, length: length, scale: content.scale})
 	if recentred {
 		placed.At = placement.CentredAlong(placed.At, size, placed.Monitor.Work, vertical)
 	}
@@ -252,11 +253,13 @@ func (s *Service) remember(now lastPlaced) {
 }
 
 // lengthChanged records now as the ribbon's length, answering whether it differs from the length
-// recorded last; never the first time, when there was none.
+// recorded last; never the first time, when there was none. A length changed with the scale does
+// not count: the ribbon grows or shrinks from its corner then, as a window being resized does, so
+// the grip stays under the pointer (FR-623).
 func (s *Service) lengthChanged(now ribbonLength) bool {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
-	changed := s.arranged.known && s.arranged != now
+	changed := s.arranged.known && s.arranged != now && s.arranged.scale == now.scale
 	s.arranged = now
 	return changed
 }
@@ -296,7 +299,7 @@ func (s *Service) ribbonContent() content {
 // All but the scroll bar are drawn at the chosen scale, so each DIP of them takes scale percent of
 // the pixels it otherwise would; the bar is the web engine's own and keeps its thickness (FR-623).
 // It answers the length along the orientation in DIP too, scaled, which a move between scalings
-// keeps and a change of scale re-centres by.
+// keeps; a change of clocks re-centres by it, a change of scale does not.
 func (s *Service) ribbonSize(content content, monitor placement.Monitor) (placement.Size, bool, int) {
 	current := content.settings
 	layout := content.layout

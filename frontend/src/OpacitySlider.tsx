@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { api, type Refused, type Snapshot } from './api'
-import { percentOfWhole, showOpacity } from './opacity'
+import { percentOfWhole } from './opacity'
 
 /** The slider moves in whole steps of this many percent. */
 const step = 5
@@ -12,9 +12,9 @@ interface Props {
 }
 
 /**
- * OpacitySlider chooses how opaque the whole window is drawn, from the least the setting allows to
- * wholly opaque (FR-622). The window follows the slider while it moves; the choice is kept once it
- * is let go, so a drag is one change rather than one for every step it passes.
+ * OpacitySlider chooses how opaque the ribbon is drawn, from the least the setting allows to wholly
+ * opaque (FR-622). The panel it sits in stays opaque, so the slider shows the value as it moves; the
+ * choice is kept once it is let go, so a drag is one change rather than one for every step it passes.
  */
 export function OpacitySlider({ snapshot, refused, then }: Props) {
   const [moving, setMoving] = useState<number | null>(null)
@@ -39,11 +39,7 @@ export function OpacitySlider({ snapshot, refused, then }: Props) {
           step={step}
           value={shown}
           aria-valuetext={`${shown} percent`}
-          onChange={(event) => {
-            const percent = Number(event.target.value)
-            setMoving(percent)
-            showOpacity(percent)
-          }}
+          onChange={(event) => setMoving(Number(event.target.value))}
           onPointerUp={keep}
           onKeyUp={keep}
           onBlur={keep}

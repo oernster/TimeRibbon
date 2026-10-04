@@ -99,11 +99,13 @@ type lastPlaced struct {
 }
 
 // ribbonLength is the ribbon's length in DIP along its orientation; known is false until the ribbon
-// has been arranged once, when there is nothing yet for a length to differ from.
+// has been arranged once, when there is nothing yet for a length to differ from. scale is the percent
+// it was drawn at, so a length changed by the scale can be told from one changed by its content.
 type ribbonLength struct {
 	known    bool
 	vertical bool
 	length   int
+	scale    int
 }
 
 // SetScrollbar records the thickness in DIP of the scroll bar the page draws, which a scrolling

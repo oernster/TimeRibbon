@@ -9,9 +9,10 @@ body,
   user-select: none;
 }
 
-/* Everything the window shows is drawn inside #root, at the opacity chosen (FR-622); the page behind
-   it is clear, so below full opacity the desktop shows through. App sets --window-opacity from the
-   snapshot and Settings previews it while its slider moves. */
+/* Everything the window shows is drawn inside #root. Only its backgrounds are drawn at the opacity
+   chosen (FR-622): the ribbon, a dial's face and the tab; the clocks' times, dates and hands stay
+   wholly opaque. The page behind is clear, so below full opacity the desktop shows through. App sets
+   --window-opacity from the snapshot while the window is the ribbon; to 1 while it is a panel. */
 html,
 body {
   background: transparent;
@@ -19,8 +20,11 @@ body {
 
 #root {
   position: relative;
-  background: var(--surface);
-  opacity: var(--window-opacity, 1);
+  --fade: calc(var(--window-opacity, 1) * 100%);
+  --surface-shown: color-mix(in srgb, var(--surface) var(--fade), transparent);
+  --dial-face-shown: color-mix(in srgb, var(--dial-face) var(--fade), transparent);
+  --accent-shown: color-mix(in srgb, var(--accent) var(--fade), transparent);
+  background: var(--surface-shown);
 }
 
 /* The ribbon's corner grip (FR-623): a small triangle in the corner of the ribbon, faint until the
@@ -88,7 +92,7 @@ button:focus-visible {
 /* An unpinned ribbon's tab: the whole window in the scheme's accent (FR-614). */
 .tab {
   height: 100%;
-  background: var(--accent);
+  background: var(--accent-shown);
 }
 
 .ribbon {

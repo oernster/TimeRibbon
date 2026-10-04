@@ -3,7 +3,7 @@ import { api, on, type Snapshot, type UpdateStatus } from './api'
 import { backgroundReporter } from './background'
 import { About, Licence, Update } from './Help'
 import { useMeasuredCells } from './measure'
-import { showOpacity } from './opacity'
+import { percentOfWhole, showOpacity } from './opacity'
 import { watchPixelRatio } from './pixelRatio'
 import { scrollbarThickness } from './scrollbar'
 import { Settings } from './Settings'
@@ -104,11 +104,12 @@ export function App() {
     }
     // The colour scheme (FR-611); colours.css keys its schemes off it, Classic being theme.css's own.
     root.dataset.colour = snapshot?.colour ?? 'classic'
+    // The chosen opacity is the ribbon's; a panel the window becomes is always drawn opaque (FR-622).
     if (snapshot != null) {
-      showOpacity(snapshot.opacity)
+      showOpacity(view === 'ribbon' ? snapshot.opacity : percentOfWhole)
     }
     background.current?.check()
-  }, [snapshot])
+  }, [snapshot, view])
 
   if (snapshot == null) {
     return <div className="problem">{problem}</div>

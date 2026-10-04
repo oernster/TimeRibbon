@@ -20,13 +20,14 @@ describe('opacity (FR-622)', () => {
     expect(screen.getByText('70%')).toBeTruthy()
   })
 
-  it('follows the slider while it moves and keeps the choice once, when it is let go', async () => {
+  it('shows the value while it moves, leaves the panel opaque and keeps the choice once, when let go', async () => {
     const bridge = installBridge()
     const then = vi.fn()
     render(<OpacitySlider snapshot={snapshot()} refused={vi.fn()} then={then} />)
     const slider = screen.getByRole('slider')
     fireEvent.change(slider, { target: { value: '55' } })
-    expect(document.documentElement.style.getPropertyValue(opacityProperty)).toBe('0.55')
+    expect(screen.getByText('55%')).toBeTruthy()
+    expect(document.documentElement.style.getPropertyValue(opacityProperty)).toBe('')
     expect(bridge.SetOpacity).not.toHaveBeenCalled()
     fireEvent.pointerUp(slider)
     await waitFor(() => expect(then).toHaveBeenCalledOnce())

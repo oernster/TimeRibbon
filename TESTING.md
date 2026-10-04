@@ -89,7 +89,7 @@ update panel; every icon-only control on each of them carrying an accessible nam
 (FR-914); the page's background colour; the self-reading cycle; the watch on the page's
 `devicePixelRatio`; the measuring of a cell's widest time and date (`measure.test.ts`, FR-620);
 Settings growing to its content (`panelFit.test.tsx`, FR-621); the opacity slider
-(`opacity.test.tsx`, FR-622); the corner grip (`scaleGrip.test.tsx`, FR-623); every timer the
+and every panel staying opaque (`opacity.test.tsx`, `panelOpacity.test.tsx`, FR-622); the corner grip (`scaleGrip.test.tsx`, FR-623); every timer the
 ribbon's page schedules, each matched to a reasoned allow-list with only the Help panel's
 self-reading cycle periodic (`timers.test.ts`, NFR-P-4); then the setup page's screens, keyboard
 ring and unreachable-program cases. The text contrast of every scheme is a Go structural test,

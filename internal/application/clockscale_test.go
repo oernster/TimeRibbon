@@ -67,16 +67,50 @@ func TestAPreviewIsDrawnButNotKept(t *testing.T) {
 	}
 }
 
-// FR-623, FR-104: a change of scale changes the ribbon's length, so it is centred along it again,
-// its side kept, as a change of clocks centres it.
-func TestAChangeOfScaleRecentresTheRibbon(t *testing.T) {
+// FR-623: a change of scale grows or shrinks the ribbon from its top-left corner, as a window being
+// resized does, so the corner the grip is in follows the pointer; previewed or kept, it is never
+// centred along its length again.
+func TestAChangeOfScaleKeepsTheCorner(t *testing.T) {
 	t.Parallel()
-	dragged := placement.Point{X: 1700, Y: 40}
+	dragged := placement.Point{X: 1500, Y: 40}
+	r := newRig(t, draggedTo(2, settings.Vertical, dragged))
+	if _, err := r.service.Launch(); err != nil {
+		t.Fatal(err)
+	}
+	steps := []func() error{
+		func() error { return r.service.PreviewScale(settings.WholeScale + settings.WholeScale/4) },
+		func() error { return r.service.PreviewScale(settings.WholeScale + settings.WholeScale/2) },
+		func() error { return r.service.SetScale(doubled) },
+	}
+	for index, step := range steps {
+		if err := step(); err != nil {
+			t.Fatal(err)
+		}
+		got, err := r.service.Rearrange(dragged)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got.At != dragged {
+			t.Errorf("step %d: rearranged to %+v, want the corner kept at %+v", index, got.At, dragged)
+		}
+	}
+}
+
+// FR-104: a change of clocks at the same scale still centres the ribbon along its new length.
+func TestAChangeOfClocksAfterAScaleStillRecentres(t *testing.T) {
+	t.Parallel()
+	dragged := placement.Point{X: 1500, Y: 40}
 	r := newRig(t, draggedTo(2, settings.Vertical, dragged))
 	if _, err := r.service.Launch(); err != nil {
 		t.Fatal(err)
 	}
 	if err := r.service.SetScale(doubled); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := r.service.Rearrange(dragged); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := r.service.AddClock("Asia/Kolkata"); err != nil {
 		t.Fatal(err)
 	}
 	got, err := r.service.Rearrange(dragged)

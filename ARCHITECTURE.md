@@ -223,11 +223,13 @@ down its own scroller.
 
 **Opacity (FR-622).** The web view is transparent on Windows and macOS and the window translucent on
 Linux (`launch.go`); the desktop showing through is checked by hand in a real build. Everything is
-drawn inside `#root`, which carries the page's background at the chosen opacity; `html` and `body`
-are clear. The window's own paint shows behind any part of the page drawn less than opaque, so
-`opacity.go` paints it in the page's colour only at full opacity (a window catching up with a new
-size then shows that colour rather than white) and clear below it. The Settings slider previews by
-setting `--window-opacity` while it moves and saves once it is let go.
+drawn inside `#root`; `html` and `body` are clear. Only the backgrounds take the chosen opacity:
+`app.css` mixes `--window-opacity` into the surface, the dial's face and the tab's accent with
+`color-mix`, so the clocks drawn on them stay wholly opaque. `App` sets `--window-opacity` only while
+the window is the ribbon and to 1 while it is a panel, so Settings is always opaque; the slider
+saves once it is let go. The window's own paint shows behind any part of the page drawn less than
+opaque, so `opacity.go` paints it in the page's colour only at full opacity (a window catching up
+with a new size then shows that colour rather than white) and clear below it.
 
 **Scale (FR-623).** A size's layout stays in unscaled DIP everywhere Go keeps it, the measured cell
 widths included. `ribbonSize` alone applies the scale, by giving each unscaled DIP scale percent of
@@ -237,7 +239,10 @@ ribbon at its unscaled sizes under CSS `zoom`, which multiplies every length ins
 ribbon's own 100 percent box still fills the window; `Surface` sizes the pull out's handle by the
 same scale. The corner grip (`ScaleGrip.tsx`) sends `PreviewScale` while it moves, held in memory
 and never saved, then `SetScale` once let go; each refits the window and tells the page to draw
-again, since the page cannot reload in the middle of a drag.
+again, since the page cannot reload in the middle of a drag. The refit keeps the window's top-left
+corner, as a resized window does: `lengthChanged` remembers the scale beside the length and counts
+only a change of length at the same scale, so a change of clocks re-centres the ribbon (FR-104) and
+a change of scale does not.
 
 The window opens hidden. `startup` finds it, takes it off the taskbar, fences its moves and places
 it, all before the page is shown, so it never appears blank or in the wrong place. On Windows it is

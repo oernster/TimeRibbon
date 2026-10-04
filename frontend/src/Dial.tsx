@@ -33,7 +33,7 @@ function Hand({ angle, length, width }: { angle: number; length: number; width: 
 export function Dial({ hourAngle, minuteAngle }: Props) {
   return (
     <svg className="dial" viewBox="0 0 100 100" aria-hidden="true">
-      <circle cx={centre} cy={centre} r={faceRadius} fill="var(--dial-face)" stroke="var(--divider)" strokeWidth={2} />
+      <circle cx={centre} cy={centre} r={faceRadius} fill="var(--dial-face-shown)" stroke="var(--divider)" strokeWidth={2} />
       {Array.from({ length: hours }, (_, hour) => (
         <line
           key={hour}

@@ -154,8 +154,9 @@ bash build_flatpak.sh
 
 It writes the desktop entry, metainfo and manifest (gitignored), stops a copy left running, builds the
 page, icons and executable (`-tags desktop,production,webkit2_41`) in the sandbox, installs the
-result for the current user and exports `timeribbon.flatpak`. `cleanup_flatpak.sh` uninstalls it,
-removes its sign-in entry and build outputs and leaves the settings alone.
+result for the current user and exports `timeribbon.flatpak`. `cleanup_flatpak.sh` wipes it
+entirely: the app, all its data in `~/.var/app/uk.codecrafter.TimeRibbon` (settings, stored place, log),
+its sign-in entry and the build outputs, so the next build's first launch is a true first run.
 
 ## Generated files
 

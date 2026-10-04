@@ -49,6 +49,7 @@ func (a *App) TogglePullOut() error {
 // from. A failed cut is written to the log and the window is placed all the same, as a rectangle.
 func (a *App) placeShaped(at placement.Point, size placement.Size, parts []placement.Rect) error {
 	a.report("cutting the window to the ribbon and its map", a.shape(parts))
+	a.lastPlaced.note(at)
 	return a.place(at, size)
 }
 

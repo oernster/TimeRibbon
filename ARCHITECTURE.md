@@ -169,7 +169,11 @@ grows left or up (`KeptFlush`).
 its moves and places it first. On Windows it is found by its class and `HideFromTaskbar` swaps
 Wails' application-window style for a tool window's. A launched ribbon is shown once the page has
 reported its scale and widest text, else after `sizeWait` (a second): shown earlier it grew in view
-and at a fractional KDE scale often stayed cut off (8 of 16 launches, 2026-10-02).
+and at a fractional KDE scale often stayed cut off (8 of 16 launches, 2026-10-02). Once shown,
+`keepLaunchedPlace` compares where the window stands with where it was last put (`lastPlaced`,
+recorded by every placement) and places it again if they differ: GNOME may place a newly shown
+window by its own rule; its move, left to settle, was stored as the user's drag (measured
+2026-10-04). Placed again at once, that move cancels as a placement rather than a drag.
 
 **The unpinned ribbon.** The facade owns `hover`'s timer (`unpinned.go`). Opening tells the page first
 and grows the window once the page reports `RibbonDrawn` (else after `drawWait`); the open ribbon keeps

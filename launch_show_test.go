@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"strings"
 	"testing"
 )
 
@@ -47,6 +48,48 @@ func TestARibbonThePageNeverSizesIsShownByTheFallbackOnce(t *testing.T) {
 	}
 	if seen.shown != 1 {
 		t.Errorf("a late report showed the ribbon again: %d times", seen.shown)
+	}
+}
+
+// showLaunchedRibbon places the ribbon as a launch does, then has the page make it ready and size
+// it, which shows it.
+func showLaunchedRibbon(t *testing.T, app *App) {
+	t.Helper()
+	if err := app.placeLaunched(); err != nil {
+		t.Fatal(err)
+	}
+	app.domReady(context.Background())
+	if err := app.SetPixelRatio(1); err != nil {
+		t.Fatal(err)
+	}
+	if err := app.SetMeasured(testMeasured); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// FR-403, FR-405: a desktop that shows the launched window somewhere else (GNOME, measured
+// 2026-10-04) has it put back where it was placed, once, said in the log; one that shows it where it
+// was placed is left alone. The page's reports refit the window before it is shown, so the two are
+// told apart by the one placement the first makes more.
+func TestALaunchedRibbonShownElsewhereIsPlacedAgain(t *testing.T) {
+	inPlace, _, seenInPlace, logInPlace := newTestApp(t)
+	at, _, _ := windowOf(testArrange)
+	seenInPlace.ribbonAt = at
+	showLaunchedRibbon(t, inPlace)
+	if strings.Contains(logInPlace.String(), "placing it again") {
+		t.Errorf("a window shown where it was placed was placed again:\n%s", logInPlace)
+	}
+
+	elsewhere, _, seen, log := newTestApp(t)
+	showLaunchedRibbon(t, elsewhere)
+	if len(seen.placed) != len(seenInPlace.placed)+1 {
+		t.Fatalf("placed %d times, want one more than the %d of a window shown in place", len(seen.placed), len(seenInPlace.placed))
+	}
+	if last := seen.placed[len(seen.placed)-1].At; last != at {
+		t.Errorf("placed again at %+v, want where the launch put it, %+v", last, at)
+	}
+	if !strings.Contains(log.String(), "placing it again") {
+		t.Errorf("the log does not say the window was placed again:\n%s", log)
 	}
 }
 

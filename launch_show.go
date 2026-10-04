@@ -2,8 +2,11 @@ package main
 
 import (
 	"fmt"
+	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/oernster/timeribbon/internal/domain/placement"
 )
 
 // sizeWait is how long a launched ribbon whose page is ready waits for the page's reports that size
@@ -60,9 +63,51 @@ func (a *App) showLaunched() bool {
 	}
 	if a.launch.shown.CompareAndSwap(false, true) {
 		a.show()
-		if at, err := a.position(); err == nil {
-			fmt.Fprintf(a.log, "launch: shown, the window stands at %v (NFR-O-1)\n", at)
-		}
+		a.keepLaunchedPlace()
 	}
 	return true
+}
+
+// keepLaunchedPlace puts the window back where it was placed when the desktop showed it somewhere
+// else (FR-403, FR-405). GNOME may place a newly shown window by its own rule, ignoring where it was
+// put while hidden: measured 2026-10-04 on Ubuntu, placed at 1252,358 and shown at 248,72, whose
+// settling was then stored as the user's drag. Placed again at once, before that move settles, the
+// move is not taken for one.
+func (a *App) keepLaunchedPlace() {
+	at, err := a.position()
+	if err != nil {
+		a.report("reading where the ribbon was shown", err)
+		return
+	}
+	fmt.Fprintf(a.log, "launch: shown, the window stands at %v (NFR-O-1)\n", at)
+	want, known := a.lastPlaced.read()
+	if !known || at == want {
+		return
+	}
+	fmt.Fprintf(a.log, "launch: the desktop showed the window at %v, not %v; placing it again\n", at, want)
+	a.unpin.guard.Lock()
+	full := a.unpin.full
+	a.unpin.guard.Unlock()
+	a.report("placing the ribbon again", a.arrangeWindow(full))
+}
+
+// placedWindow is where the window's top-left corner was last put.
+type placedWindow struct {
+	guard sync.Mutex
+	at    placement.Point
+	known bool
+}
+
+// note records at as where the window was last put.
+func (p *placedWindow) note(at placement.Point) {
+	p.guard.Lock()
+	defer p.guard.Unlock()
+	p.at, p.known = at, true
+}
+
+// read answers where the window was last put; false before it has been.
+func (p *placedWindow) read() (placement.Point, bool) {
+	p.guard.Lock()
+	defer p.guard.Unlock()
+	return p.at, p.known
 }

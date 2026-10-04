@@ -53,13 +53,13 @@ figure with the fraction dropped, so it fails once cover is lost.
 | `internal/product` | 100% | not gated |
 | `installer` | 0%, no tests | not gated |
 
-Every figure is the Windows build's, which `test.ps1` measures. That build compiles 392 Go test
+Every figure is the Windows build's, which `test.ps1` measures. That build compiles 393 Go test
 functions, counted from the test files `go list` selects, each running once with no subtests, plus
 one `TestMain` in `internal/infrastructure/setup`. Thirty-one are the structural tests, which read
 the source and are the same on every platform; [ARCHITECTURE.md](ARCHITECTURE.md) lists each against
 its rule. `TestA1Point0SettingsFileIsReadWhole` in `store` holds the settings file's promise
 (NFR-C-1); `contrast_test.go` holds NFR-U-1 in Go because Vitest hands a CSS import back empty. The
-macOS build compiles 366 and the Linux build 370 ([On macOS and Linux](#on-macos-and-linux)).
+macOS build compiles 367 and the Linux build 371 ([On macOS and Linux](#on-macos-and-linux)).
 
 ### The front end
 
@@ -137,7 +137,7 @@ that platform, set up as [DEVELOPMENT.md](DEVELOPMENT.md) says, with the page bu
 | What | macOS | Linux |
 |---|---|---|
 | Tags | `desktop,production` | `desktop,production,webkit2_41` |
-| Go test functions | 366, plus 3 `TestMain` | 370, plus 3 `TestMain` |
+| Go test functions | 367, plus 3 `TestMain` | 371, plus 3 `TestMain` |
 | Tests that need cgo | `cocoamain` 3, `monitors` 3, `desktop` 17 | `gtkmain` 5, `monitors` 2, `desktop` 20 |
 | Needs | a signed-in desktop | a signed-in desktop with a display and a tray host |
 

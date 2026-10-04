@@ -363,8 +363,13 @@ Verified by: `ribbon.test.tsx`; by hand.
 **FR-403 Default placement** (Must; Amendment 10). With no placement stored, the ribbon shall stand
 flush against its orientation's home edge of the primary work area, centred along it (FR-409); so
 wherever FR-405 or FR-406 fall back.
+Note (2026-10-04): on Ubuntu GNOME a first launch from the app launcher was sometimes shown at the
+top-left, the desktop's own choice, which was then stored as a drag. A window shown anywhere but
+where it was placed is now placed again at once (measured the same day after `cleanup_flatpak.sh`
+and `build_flatpak.sh`: shown at 80,0, placed again at 1252,358, nothing stored).
 Verified by: `TestDefaultPlacementIsRightEdgeCentred` (domain);
-`TestLaunchWithNothingStoredGoesToTheDefaultPlace` (application).
+`TestLaunchWithNothingStoredGoesToTheDefaultPlace` (application);
+`TestALaunchedRibbonShownElsewhereIsPlacedAgain` (facade); by hand on GNOME.
 
 **FR-404 Placement persisted** (Must). When a drag ends, the placement shall be stored: the monitor's
 device name, its work area, its DPI and the offset from the work area's top-left corner.

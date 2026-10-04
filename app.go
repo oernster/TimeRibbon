@@ -114,8 +114,10 @@ type App struct {
 	// cursor answers the desktop's own reading of the pointer, which the grip's drag prefers.
 	cursor func() (placement.Point, bool)
 	grip   gripDrag
-	// launch is what the launched ribbon's first showing waits for (launch_show.go).
-	launch launchShow
+	// launch is what the launched ribbon's first showing waits for (launch_show.go); lastPlaced is
+	// where the window was last put, to tell when the desktop showed it somewhere else.
+	launch     launchShow
+	lastPlaced placedWindow
 
 	ctx       context.Context
 	ribbon    desktop.Window

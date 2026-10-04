@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"sync/atomic"
 	"time"
 )
@@ -59,6 +60,9 @@ func (a *App) showLaunched() bool {
 	}
 	if a.launch.shown.CompareAndSwap(false, true) {
 		a.show()
+		if at, err := a.position(); err == nil {
+			fmt.Fprintf(a.log, "launch: shown, the window stands at %v (NFR-O-1)\n", at)
+		}
 	}
 	return true
 }

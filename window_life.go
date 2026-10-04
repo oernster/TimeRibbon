@@ -201,6 +201,7 @@ func (a *App) moved() {
 		a.report("reading where the ribbon was left", err)
 		return
 	}
+	fmt.Fprintf(a.log, "moved: the desktop reports the window at %v (NFR-O-1)\n", window)
 	arranged, err := a.service.Moved(a.ribbonFromWindow(window))
 	a.report("recording where the ribbon was left", err)
 	if err != nil {
@@ -238,6 +239,7 @@ func (a *App) placeLaunched() error {
 	if err != nil {
 		return err
 	}
+	fmt.Fprintf(a.log, "launch: placing the ribbon at %v, %v, edge %q (NFR-O-1)\n", arranged.At, arranged.Size, arranged.Edge)
 	a.scrolls.Store(arranged.Scrolls)
 	return a.arrangeWindow(arranged)
 }

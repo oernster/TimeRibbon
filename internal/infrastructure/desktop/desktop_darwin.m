@@ -73,6 +73,22 @@ int ribbon_pointer_inside(void *ribbon)
     return NSMouseInRect([NSEvent mouseLocation], [(__bridge NSWindow *)ribbon frame], NO);
 }
 
+// ribbon_cursor answers where the pointer is, in points counted down from the menu-bar display's
+// top-left corner, as ribbon_frame counts. The corner grip's drag reads it (FR-623).
+void ribbon_cursor(int *x, int *y)
+{
+    NSPoint at = [NSEvent mouseLocation];
+    *x = (int)lround(at.x);
+    *y = (int)lround(primary_height() - at.y);
+}
+
+// test_warp moves the pointer to x, y in Quartz's global points, which count down from the
+// menu-bar display's top-left corner as TimeRibbon does.
+void test_warp(int x, int y)
+{
+    CGWarpMouseCursorPosition(CGPointMake(x, y));
+}
+
 // The observers desktop_watch registers, held so they live as long as the process.
 static NSMutableArray *observers;
 

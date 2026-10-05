@@ -85,7 +85,7 @@ try {
 # composition root. ribbonkit's packages are held by the kit's own gate.
 $measured = [ordered]@{
     '.'                                  = 66
-    './internal/infrastructure/store'    = 94
+    './internal/infrastructure/store'    = 100
     './internal/infrastructure/zones'    = 100
     './tools/genplaces'                  = 58
     './tools/identity'                   = 75

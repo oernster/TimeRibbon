@@ -15,6 +15,7 @@ import (
 
 	"github.com/oernster/ribbonkit/domain/ribbon"
 	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/internal/product"
 )
 
 // contractFixture is a settings file as 1.0.0 writes it.
@@ -28,13 +29,13 @@ func TestA1Point0SettingsFileIsReadWhole(t *testing.T) {
 	}
 	dir := t.TempDir()
 	write(t, dir, string(raw))
-	store := New(dir)
+	store := New(dir, product.Name)
 	loaded, err := store.Load()
 	if err != nil || loaded.Notice != "" {
 		t.Fatalf("a 1.0.0 file did not load cleanly: %v %q", err, loaded.Notice)
 	}
-	if len(store.extras) != 0 {
-		t.Errorf("a 1.0.0 key is no longer read, only carried: %v", store.extras)
+	if extras := store.file.Extras(); len(extras) != 0 {
+		t.Errorf("a 1.0.0 key is no longer read, only carried: %v", extras)
 	}
 	got, want := loaded.Settings, full()
 	if got.Style != want.Style || got.Format != want.Format || got.Orientation != want.Orientation ||

@@ -39,8 +39,7 @@ figure with the fraction dropped, so it fails once cover is lost.
 |---|---|---|
 | `internal/domain/clock`, `settings`, `sun` | 100% | 100% |
 | `internal/application` | 100% | 100% |
-| `internal/infrastructure/zones` | 100% | 100% |
-| `internal/infrastructure/store` | 94.0% | 94% |
+| `internal/infrastructure/store`, `zones` | 100% | 100% |
 | `tools/versioninfo` | 86.7% | 86% |
 | `tools/payload` | 82.8% | 82% |
 | `tools/identity` | 75% | 75% |
@@ -53,12 +52,12 @@ figure with the fraction dropped, so it fails once cover is lost.
 `installer` is the setup program's composition root; its one test reads the pictures it carries,
 which runs no statement.
 
-Every figure is the Windows build's, which `test.ps1` measures. That build compiles 153 Go test
+Every figure is the Windows build's, which `test.ps1` measures. That build compiles 140 Go test
 functions, counted from the test files `go list` selects, each running once with no subtests.
 Twenty-five are the structural tests, which read the source and are the same on every platform;
 [ARCHITECTURE.md](ARCHITECTURE.md) lists each against its rule. `TestA1Point0SettingsFileIsReadWhole`
 in `store` holds the settings file's promise (NFR-C-1); `contrast_test.go` holds NFR-U-1 in Go because
-Vitest hands a CSS import back empty. The macOS and Linux builds compile 152
+Vitest hands a CSS import back empty. The macOS and Linux builds compile 136
 ([On macOS and Linux](#on-macos-and-linux)).
 
 ### The front end
@@ -93,9 +92,6 @@ Apps list** and **no test reaches the network**.
   adapter reading the ribbon's choices out of the settings; every method the page's `Bridge` calls is
   bound, with nothing of the `Control`. Not reached: the composition root (`main`, `keepLog`,
   `settingsDir`, `run`) and `preparePlatform` on Windows, which does nothing.
-- **`store` (94.0%):** the temporary file refusing to be made, written, flushed or closed (a failing
-  disk); the kept-aside check failing straight after a read; the guarded error returns in `encode`
-  and `extrasOf`. A file held open with no sharing is tested on Windows (`lock_windows_test.go`).
 - **`installer` (0%).** Only the composition root; the setup window and its policy are tested in the
   kit.
 - **The tools:** each `main` handing `run` its real arguments; folders and archives refusing to be

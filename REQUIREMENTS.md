@@ -443,8 +443,8 @@ edge and its display; placed anywhere else it keeps the last one.
 Acceptance: a vertical ribbon flush against the left edge of `\\.\DISPLAY2`, dragged to the middle of
 `\\.\DISPLAY1`, still has the left edge of `\\.\DISPLAY2` remembered.
 Verified by: `TestAnUnknownRememberedEdgeIsForgotten` (ribbon); `TestTheLastEdgeIsRemembered`,
-`TestRearrangingClampsAndSavesNothing` (arranger); `TestSettingsRoundTrip`,
-`TestAnUnreadableLastEdgeIsNone` (store).
+`TestRearrangingClampsAndSavesNothing` (arranger); `TestSettingsRoundTrip` (store);
+`TestABadChoiceLeavesItsDefault` (the kit's settingsfile).
 
 **FR-412 Ribbons never land on each other** (Must; Amendment 34). Every product built on the shared
 module (TimeRibbon, WeatherRibbon) running for the same user keeps out of the others' way:
@@ -810,7 +810,7 @@ Verified by: `TestSettingsRoundTrip`, `TestNoDerivedValueIsStored` (store).
 
 **FR-702 Atomic writes** (Must). The file is written to a temporary file in the same folder and swapped
 in, so a crash mid-write leaves the old one intact.
-Verified by: `TestWriteReplacesAtomically` (store).
+Verified by: `TestWriteReplacesAtomically` (the kit's settingsfile).
 
 **FR-703 First run** (Must). With no file, defaults and no clocks; nothing written until something
 changes; no problem reported.
@@ -819,7 +819,8 @@ Verified by: `TestAbsentFileMeansDefaults` (store).
 **FR-704 Unreadable file** (Must). A file that is not valid JSON is renamed to
 `settings.unreadable.json`, defaults are used and the ribbon shows `Settings could not be read; the
 old file was kept as settings.unreadable.json`.
-Verified by: `TestUnreadableFileIsKeptAsideAndReported` (store).
+Verified by: `TestClocksThatAreNotAListKeepTheFileAside` (store);
+`TestUnreadableFileIsKeptAsideAndReported` (the kit's settingsfile).
 
 **FR-705 One bad clock** (Must). A clock that cannot be read or names an unknown zone leaves the others
 loaded, stays in the file unchanged and shows as invalid.

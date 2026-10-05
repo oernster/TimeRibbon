@@ -179,13 +179,16 @@ change of the system clock or a resume reaches the page through the kit's deskto
 ## The settings file
 
 `settings.json` in the settings folder ([Data locations](#data-locations)) is indented JSON with a
-format version (FR-701); derived values are never stored. A save writes a temporary file in the same
-folder, flushes it and renames it over the old one (FR-702). Reading is tolerant:
+format version (FR-701); derived values are never stored. `store` says what the file holds (its keys
+in writing order and its clocks, `store/codec.go`); what every ribbon's file does alike is the kit's
+`settingsfile`, proved by its own tests. A save writes a temporary file in the same folder, flushes it
+and renames it over the old one (FR-702). Reading is tolerant:
 
 - No file means the defaults and no notice (FR-703).
 - A file that is there but cannot be read raises a notice and refuses every save that run.
 - A file that is not JSON is renamed to `settings.unreadable.json` with a notice (FR-704); where that
-  name is taken, to the first free of `settings.unreadable-2.json` onwards, up to `keptAsideLimit`.
+  name is taken, to the first free of `settings.unreadable-2.json` onwards, up to the kit's
+  `KeptAsideLimit`.
   Where the rename fails, saving is refused from then on.
 - A UTF-8 byte order mark is passed over.
 - A clock that cannot be read or names an unknown zone is kept as it was and shown in words as invalid
@@ -195,7 +198,7 @@ folder, flushes it and renames it over the old one (FR-702). Reading is tolerant
 **The file is a contract from the first release (NFR-C-1).** No key the first release writes is
 renamed, dropped or given another meaning; no stored word changes. Later keys (`size`, `colour`,
 `skippedUpdate`, `dateFormat`, `pinned`, `lastEdge`, `sunMap`, `pullOut`, `opacity`, `scale`,
-`pullOutSide`) are written after the first release's (`store/decode.go`); a file without them reads
+`pullOutSide`) are written after the first release's (`store/codec.go`); a file without them reads
 as the defaults. `TestA1Point0SettingsFileIsReadWhole` reads the frozen fixture
 `store/testdata/settings-1.0.0.json`, every key set away from its default; it was proved by renaming
 a key and by changing a stored word. The fixture is never regenerated.

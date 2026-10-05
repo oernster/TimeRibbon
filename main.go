@@ -138,7 +138,7 @@ func run(log io.Writer) error {
 	neighbours := openNeighbours(os.LookupEnv, log)
 	defer neighbours.Close()
 	service := application.New(application.Ports{
-		Store:      store.New(dir),
+		Store:      store.New(dir, product.Name),
 		Zones:      zoneCatalogue,
 		Clock:      system.Clock{},
 		IDs:        system.IDs{},

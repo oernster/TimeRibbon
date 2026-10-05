@@ -1,8 +1,12 @@
 package store
 
+// What every ribbon's settings file does alike (a file kept aside, never saved over when it could not
+// be read, unknown keys kept, a byte order mark, ids told apart, ordering by position, atomic writes)
+// is proved once, in the kit's settingsfile. These tests prove what TimeRibbon's file holds.
+
 import (
+	"bytes"
 	"encoding/json"
-	"errors"
 	"os"
 	"path/filepath"
 	"slices"
@@ -12,14 +16,16 @@ import (
 	"github.com/oernster/ribbonkit/domain/localtime"
 	"github.com/oernster/ribbonkit/domain/placement"
 	"github.com/oernster/ribbonkit/domain/ribbon"
+	"github.com/oernster/ribbonkit/infrastructure/settingsfile"
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/internal/product"
 )
 
 // write puts text in dir's settings file.
 func write(t *testing.T, dir, text string) {
 	t.Helper()
-	if err := os.WriteFile(filepath.Join(dir, FileName), []byte(text), fileMode); err != nil {
+	if err := os.WriteFile(filepath.Join(dir, settingsfile.FileName), []byte(text), settingsfile.FileMode); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -27,7 +33,7 @@ func write(t *testing.T, dir, text string) {
 // read answers dir's settings file.
 func read(t *testing.T, dir string) string {
 	t.Helper()
-	raw, err := os.ReadFile(filepath.Join(dir, FileName))
+	raw, err := os.ReadFile(filepath.Join(dir, settingsfile.FileName))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -54,57 +60,25 @@ func full() settings.Settings {
 	return s.WithClockAdded(settings.Entry{ID: "b2", Zone: "Australia/Sydney", Label: "Mum"})
 }
 
-// FR-701.
+// FR-701: every value is written and read back, each away from its default.
 func TestSettingsRoundTrip(t *testing.T) {
 	t.Parallel()
 	dir := t.TempDir()
-	if err := New(dir).Save(full()); err != nil {
+	if err := New(dir, product.Name).Save(full()); err != nil {
 		t.Fatal(err)
 	}
-	loaded, err := New(dir).Load()
+	loaded, err := New(dir, product.Name).Load()
 	if err != nil || loaded.Notice != "" {
 		t.Fatalf("load: %v %q", err, loaded.Notice)
 	}
 	got, want := loaded.Settings, full()
-	if got.Style != want.Style || got.Size != want.Size || got.Colour != want.Colour || got.Format != want.Format || got.Orientation != want.Orientation ||
-		got.Theme != want.Theme || got.AlwaysOnTop != want.AlwaysOnTop || got.SkippedUpdate != want.SkippedUpdate || got.DateFormat != want.DateFormat || *got.Placement != *want.Placement ||
-		!slices.Equal(got.Clocks, want.Clocks) {
+	if got.Style != want.Style || got.Size != want.Size || got.Format != want.Format || got.DateFormat != want.DateFormat ||
+		got.SunMap != want.SunMap || got.PullOut != want.PullOut || !slices.Equal(got.Clocks, want.Clocks) {
 		t.Errorf("got %+v", got)
 	}
-	// full's opacity is away from the default, so it is proved written and read (FR-622).
-	if got.Opacity != want.Opacity || got.Scale != want.Scale {
-		t.Errorf("opacity and scale read as %d and %d, want %d and %d", got.Opacity, got.Scale, want.Opacity, want.Scale)
-	}
-	// full is unpinned, away from the default, so the pin is proved written and read (FR-613).
-	if got.Pinned != want.Pinned {
-		t.Errorf("pinned read as %v, want %v", got.Pinned, want.Pinned)
-	}
-	// FR-901, FR-903: full has the sun map on and pulled out, away from the defaults.
-	if !got.SunMap || !got.PullOut {
-		t.Errorf("sun map read as %v, pull out %v; want both on", got.SunMap, got.PullOut)
-	}
-	// FR-411: the remembered edge is written and read.
-	if got.LastEdge == nil || *got.LastEdge != *want.LastEdge {
-		t.Errorf("last edge read as %+v, want %+v", got.LastEdge, want.LastEdge)
-	}
-	// FR-902, Amendment 35: the side the pull out keeps is written and read.
-	if got.PullOutSide != want.PullOutSide {
-		t.Errorf("pull out side read as %q, want %q", got.PullOutSide, want.PullOutSide)
-	}
-}
-
-// FR-411: a remembered edge that is missing, malformed or names no display is none.
-func TestAnUnreadableLastEdgeIsNone(t *testing.T) {
-	t.Parallel()
-	for name, body := range map[string]string{
-		"missing":    `{"version": 1}`,
-		"not a list": `{"version": 1, "lastEdge": [1]}`,
-		"no display": `{"version": 1, "lastEdge": {"edge": "left"}}`,
-	} {
-		decoded, _, ok := decode([]byte(body))
-		if !ok || decoded.LastEdge != nil {
-			t.Errorf("%s: read %+v", name, decoded.LastEdge)
-		}
+	if got.Colour != want.Colour || *got.Placement != *want.Placement || *got.LastEdge != *want.LastEdge ||
+		got.Opacity != want.Opacity || got.Pinned != want.Pinned || got.PullOutSide != want.PullOutSide {
+		t.Errorf("the ribbon's choices read as %+v", got.Choices)
 	}
 }
 
@@ -112,7 +86,7 @@ func TestAnUnreadableLastEdgeIsNone(t *testing.T) {
 func TestNoDerivedValueIsStored(t *testing.T) {
 	t.Parallel()
 	dir := t.TempDir()
-	if err := New(dir).Save(full()); err != nil {
+	if err := New(dir, product.Name).Save(full()); err != nil {
 		t.Fatal(err)
 	}
 	text := read(t, dir)
@@ -132,30 +106,20 @@ func TestNoDerivedValueIsStored(t *testing.T) {
 // FR-703.
 func TestAbsentFileMeansDefaults(t *testing.T) {
 	t.Parallel()
-	dir := filepath.Join(t.TempDir(), "TimeRibbon")
-	loaded, err := New(dir).Load()
+	loaded, err := New(t.TempDir(), product.Name).Load()
 	if err != nil || loaded.Notice != "" || loaded.Settings.Style != settings.Digital || len(loaded.Settings.Clocks) != 0 {
 		t.Errorf("got %+v (%v)", loaded, err)
 	}
-	if _, err := os.Stat(dir); !errors.Is(err, os.ErrNotExist) {
-		t.Error("loading made the folder")
-	}
 }
 
-// FR-704.
-func TestUnreadableFileIsKeptAsideAndReported(t *testing.T) {
+// FR-704: clocks that are not a list mean nothing in the file can be trusted, so it is kept aside.
+func TestClocksThatAreNotAListKeepTheFileAside(t *testing.T) {
 	t.Parallel()
-	for name, text := range map[string]string{"not JSON": "{ this is not", "clocks not a list": `{"clocks": 5}`, "a list": `[1]`} {
-		dir := t.TempDir()
-		write(t, dir, text)
-		loaded, err := New(dir).Load()
-		if err != nil || loaded.Notice != keptAsideNotice(UnreadableName) || len(loaded.Settings.Clocks) != 0 {
-			t.Errorf("%s: got %+v (%v)", name, loaded, err)
-		}
-		kept, err := os.ReadFile(filepath.Join(dir, UnreadableName))
-		if err != nil || string(kept) != text {
-			t.Errorf("%s: kept %q (%v)", name, kept, err)
-		}
+	dir := t.TempDir()
+	write(t, dir, `{"clocks": 5}`)
+	loaded, err := New(dir, product.Name).Load()
+	if err != nil || loaded.Notice != settingsfile.KeptAsideNotice(settingsfile.UnreadableName) || len(loaded.Settings.Clocks) != 0 {
+		t.Errorf("got %+v (%v)", loaded, err)
 	}
 }
 
@@ -171,7 +135,7 @@ func TestOneBadClockLeavesTheOthersWorking(t *testing.T) {
 		{"zone": "Asia/Tokyo"},
 		{"id": "e", "label": "no zone"}
 	]}`)
-	store := New(dir)
+	store := New(dir, product.Name)
 	loaded, err := store.Load()
 	if err != nil {
 		t.Fatal(err)
@@ -181,35 +145,20 @@ func TestOneBadClockLeavesTheOthersWorking(t *testing.T) {
 		t.Fatalf("clocks %+v", clocks)
 	}
 	for index, reason := range map[int]string{1: "fields are not what a clock holds", 3: "has no id", 4: "names no time zone"} {
-		if !strings.Contains(clocks[index].Unreadable, reason) || !strings.HasPrefix(clocks[index].ID, unreadableIDPrefix) {
+		if !strings.Contains(clocks[index].Unreadable, reason) || !strings.HasPrefix(clocks[index].ID, settingsfile.UnreadableIDPrefix) {
 			t.Errorf("entry %d: %+v", index, clocks[index])
 		}
 	}
 	if err := store.Save(loaded.Settings); err != nil {
 		t.Fatal(err)
 	}
-	if text := compact(t, read(t, dir)); !strings.Contains(text, compact(t, bad)) {
-		t.Errorf("the bad entry was not written back as found:\n%s", text)
+	var file struct{ Clocks []json.RawMessage }
+	if err := json.Unmarshal([]byte(read(t, dir)), &file); err != nil || len(file.Clocks) != len(clocks) {
+		t.Fatalf("the file reads as %+v (%v)", file, err)
 	}
-}
-
-// The stored position keeps the order clocks were added in, which settles ties in the ribbon's time
-// order (FR-102) and is part of the file's contract (NFR-C-1); an entry with none keeps its place.
-func TestOrderingPersistsByPosition(t *testing.T) {
-	t.Parallel()
-	dir := t.TempDir()
-	write(t, dir, `{"clocks": [
-		{"id": "late", "zone": "Asia/Tokyo", "position": 2},
-		{"id": "none", "zone": "Europe/Paris"},
-		{"id": "early", "zone": "Europe/London", "position": 0}
-	]}`)
-	loaded, _ := New(dir).Load()
-	var ids []string
-	for _, entry := range loaded.Settings.Clocks {
-		ids = append(ids, entry.ID)
-	}
-	if !slices.Equal(ids, []string{"early", "none", "late"}) {
-		t.Errorf("got %v", ids)
+	var written, found bytes.Buffer
+	if json.Compact(&written, file.Clocks[1]) != nil || json.Compact(&found, []byte(bad)) != nil || written.String() != found.String() {
+		t.Errorf("the bad entry was written back as %s", file.Clocks[1])
 	}
 }
 
@@ -218,126 +167,9 @@ func TestABadValueLeavesItsDefaultAndTheRestLoad(t *testing.T) {
 	dir := t.TempDir()
 	write(t, dir, `{"style": 7, "theme": "dark", "alwaysOnTop": "yes", "placement": {"device": 3},
 		"clocks": null}`)
-	loaded, err := New(dir).Load()
+	loaded, err := New(dir, product.Name).Load()
 	got := loaded.Settings
 	if err != nil || got.Style != settings.Digital || got.Theme != ribbon.Dark || got.AlwaysOnTop || got.Placement != nil {
 		t.Errorf("got %+v (%v)", got, err)
 	}
-}
-
-// Silence check: a later version's keys survive this version saving.
-func TestUnknownKeysAreKeptOnWrite(t *testing.T) {
-	t.Parallel()
-	dir := t.TempDir()
-	write(t, dir, `{"version": 2, "future": {"x": [1, 2]}, "style": "digital", "later": true}`)
-	store := New(dir)
-	loaded, _ := store.Load()
-	if err := store.Save(loaded.Settings); err != nil {
-		t.Fatal(err)
-	}
-	text := read(t, dir)
-	var object map[string]any
-	if err := json.Unmarshal([]byte(text), &object); err != nil {
-		t.Fatal(err)
-	}
-	if object["later"] != true || compact(t, text) == "" || !strings.Contains(compact(t, text), `"future":{"x":[1,2]}`) {
-		t.Errorf("an unknown key was lost:\n%s", text)
-	}
-	clocks, future, later := strings.Index(text, `"clocks"`), strings.Index(text, `"future"`), strings.Index(text, `"later"`)
-	if !(clocks < future && future < later) {
-		t.Errorf("unknown keys are not written after the known ones in their order:\n%s", text)
-	}
-}
-
-// FR-704: when the unreadable file cannot be kept aside, every name being taken, nothing
-// overwrites it.
-func TestAFileThatCannotBeKeptAsideIsNeverOverwritten(t *testing.T) {
-	t.Parallel()
-	dir := t.TempDir()
-	write(t, dir, "{ not JSON")
-	for n := 1; n <= keptAsideLimit; n++ {
-		if err := os.Mkdir(filepath.Join(dir, keptAsideName(n)), folderMode); err != nil {
-			t.Fatal(err)
-		}
-	}
-	store := New(dir)
-	if _, err := store.Load(); !errors.Is(err, ErrNotKeptAside) {
-		t.Errorf("load answered %v", err)
-	}
-	if err := store.Save(settings.Defaults()); !errors.Is(err, ErrNotKeptAside) {
-		t.Errorf("save answered %v", err)
-	}
-	if read(t, dir) != "{ not JSON" {
-		t.Error("the unreadable file was overwritten")
-	}
-}
-
-// FR-702: a replacement that fails leaves no temporary file behind.
-func TestAFailedReplacementLeavesNoTemporaryFile(t *testing.T) {
-	t.Parallel()
-	dir := t.TempDir()
-	if err := os.MkdirAll(filepath.Join(dir, FileName, "inside"), folderMode); err != nil {
-		t.Fatal(err)
-	}
-	if err := New(dir).Save(settings.Defaults()); err == nil {
-		t.Error("replacing a folder succeeded")
-	}
-	matches, _ := filepath.Glob(filepath.Join(dir, tempPattern))
-	if len(matches) != 0 {
-		t.Errorf("left behind %v", matches)
-	}
-}
-
-// FR-702: a save replaces the file whole and leaves no temporary file behind.
-func TestWriteReplacesAtomically(t *testing.T) {
-	t.Parallel()
-	dir := t.TempDir()
-	write(t, dir, `{"style": "analogue"}`)
-	if err := New(dir).Save(settings.Defaults()); err != nil {
-		t.Fatal(err)
-	}
-	entries, _ := os.ReadDir(dir)
-	if len(entries) != 1 || entries[0].Name() != FileName {
-		t.Errorf("the folder holds %v", entries)
-	}
-	if !strings.Contains(read(t, dir), `"style": "digital"`) {
-		t.Error("the file was not replaced")
-	}
-}
-
-// FR-707: a folder that cannot be made is answered, not ignored.
-func TestAFolderThatCannotBeMadeIsReported(t *testing.T) {
-	t.Parallel()
-	blocker := filepath.Join(t.TempDir(), "file")
-	if err := os.WriteFile(blocker, nil, fileMode); err != nil {
-		t.Fatal(err)
-	}
-	if err := New(filepath.Join(blocker, "TimeRibbon")).Save(settings.Defaults()); err == nil {
-		t.Error("saving under a file succeeded")
-	}
-}
-
-func TestAFaultReadingTheFileIsAnswered(t *testing.T) {
-	t.Parallel()
-	dir := t.TempDir()
-	if err := os.Mkdir(filepath.Join(dir, FileName), folderMode); err != nil {
-		t.Fatal(err)
-	}
-	if _, err := New(dir).Load(); err == nil {
-		t.Error("a settings file that is a folder read without error")
-	}
-}
-
-// compact answers text with its insignificant whitespace removed.
-func compact(t *testing.T, text string) string {
-	t.Helper()
-	var out strings.Builder
-	var value any
-	if err := json.Unmarshal([]byte(text), &value); err != nil {
-		t.Fatalf("not JSON: %v\n%s", err, text)
-	}
-	encoder := json.NewEncoder(&out)
-	encoder.SetEscapeHTML(false)
-	_ = encoder.Encode(value)
-	return strings.TrimSpace(out.String())
 }

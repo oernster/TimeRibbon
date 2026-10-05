@@ -74,8 +74,10 @@ type Ports struct {
 	Clock    Clock
 	IDs      IDs
 	Monitors arranger.Monitors
-	Startup  StartupEntry
-	Releases release.Source
+	// Neighbours are the other ribbons running for the user (FR-412); nil is a ribbon alone.
+	Neighbours arranger.Neighbours
+	Startup    StartupEntry
+	Releases   release.Source
 	// Build is not a collaborator but the facts about the running build the update check compares
 	// against, given here so the composition root states them once.
 	Build release.Build

@@ -458,7 +458,8 @@ module (TimeRibbon, WeatherRibbon) running for the same user keeps out of the ot
   ribbon, it shall stand instead at the nearest place along the edge it stands against (along its own
   length where it stands against none) at which its footprint overlaps none, still flush; touching is
   not overlapping. Of two places equally near, the one towards the top or left wins. Where that edge
-  has no such place, the opposite edge along its orientation is tried by the same rule.
+  has no such place, the opposite edge along its orientation is tried by the same rule; where neither
+  has one, the ribbon stands where it would have stood, since nowhere is better.
 - Only the ribbon being placed moves. A placed ribbon never moves because another arrives, moves or
   grows; nothing is checked while a drag lasts, only where it ends.
 - An entry whose lock is no longer held is ignored, since its ribbon has gone however it ended; it is
@@ -474,7 +475,14 @@ Acceptance, on a work area 1920 by 1032 with TimeRibbon vertical, 176 by 196, at
   against the left edge from (0, 66) to (176, 966).
 - With TimeRibbon's sun map shown from (1264, 396) to (1744, 636), WeatherRibbon, 176 by 300, dropped
   against no edge at (1400, 300) stands at (1400, 96), 204 up rather than 336 down.
-Verified by: to be written with the module's occupancy (A10); by hand with both products running.
+Verified by: `TestARibbonStandsAtTheNearestClearPlaceAlongItsEdge`, `TestTouchingIsNotOverlapping`,
+`TestNoClearPlaceIsSaid`, `TestARibbonKeepsOffAnotherPullOut`, `TestTheRibbonsOwnPullOutKeepsOffTheOther`,
+`TestEachEdgeHasAnOpposite` (placement); `TestALaunchedRibbonKeepsOffAnother`,
+`TestADroppedRibbonKeepsOffAnotherAndIsStoredThere`, `TestWithNoRoomOnItsEdgeARibbonTakesTheOpposite`,
+`TestWithNoRoomOnEitherEdgeARibbonStaysWhereItWasPut`, `TestTheRibbonsOwnPullOutKeepsOffAnother`,
+`TestARibbonIsClearedOnlyOnceTheGripIsLetGo`, `TestTheRibbonHoldsWhatItOccupies`,
+`TestNoNeighboursIsARibbonAlone` (arranger); the occupancy folder's own tests (A10c); by hand with both
+products running.
 
 ### 3.5 Tray and window behaviour
 

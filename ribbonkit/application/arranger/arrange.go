@@ -160,6 +160,7 @@ func (a *Arranger) arrange(
 	if recentred {
 		placed.At = placement.CentredAlong(placed.At, size, placed.Monitor.Work, vertical)
 	}
+	placed.At = a.clearOfOthers(current, content, placed, size)
 	arranged := Arrangement{At: placed.At, Size: size, Scrolls: scrolls, DPI: placed.Monitor.DPI}
 	if edge, flush := placement.FlushAgainst(arranged.At, size, placed.Monitor.Work, vertical); flush {
 		arranged.Edge = edge
@@ -172,6 +173,7 @@ func (a *Arranger) arrange(
 		}
 	}
 	a.remember(lastPlaced{known: true, device: placed.Monitor.Device, at: arranged.At, size: size, pullOut: arranged.PullOut})
+	a.neighbours.Hold(footprintOf(arranged.At, size, arranged.PullOut, arranged.PullOut != placement.Rect{}))
 	return arranged, placed.Monitor, recentred, nil
 }
 

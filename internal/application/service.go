@@ -66,7 +66,7 @@ type Service struct {
 // New answers a service over ports with the first-run settings; Start loads the stored ones.
 func New(ports Ports, layouts Layouts) *Service {
 	s := &Service{ports: ports, layouts: layouts, current: settings.Defaults()}
-	s.Arranger = arranger.New(host{s}, ports.Monitors)
+	s.Arranger = arranger.New(host{s}, ports.Monitors, ports.Neighbours)
 	return s
 }
 

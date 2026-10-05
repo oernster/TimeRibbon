@@ -125,18 +125,59 @@ func (h *fakeHost) saves() int {
 	return len(h.saved)
 }
 
-// rig is an arranger over fakes, with the fakes kept to inspect.
-type rig struct {
-	arranger *Arranger
-	host     *fakeHost
-	monitors *fakeMonitors
+// fakeNeighbours stands in for the other ribbons running: the rectangles they hold and every
+// footprint this ribbon held (FR-412).
+type fakeNeighbours struct {
+	mutex sync.Mutex
+	taken []placement.Rect
+	held  [][]placement.Rect
 }
 
-// newRig answers an arranger over both monitors of a ribbon holding choices and content.
+func (n *fakeNeighbours) Taken() []placement.Rect {
+	n.mutex.Lock()
+	defer n.mutex.Unlock()
+	return n.taken
+}
+
+func (n *fakeNeighbours) Hold(occupied []placement.Rect) {
+	n.mutex.Lock()
+	defer n.mutex.Unlock()
+	n.held = append(n.held, occupied)
+}
+
+// occupy sets the rectangles the other ribbons hold.
+func (n *fakeNeighbours) occupy(taken ...placement.Rect) {
+	n.mutex.Lock()
+	defer n.mutex.Unlock()
+	n.taken = taken
+}
+
+// lastHeld answers the footprint this ribbon held most recently, failing the test when none was.
+func (n *fakeNeighbours) lastHeld(t *testing.T) []placement.Rect {
+	t.Helper()
+	n.mutex.Lock()
+	defer n.mutex.Unlock()
+	if len(n.held) == 0 {
+		t.Fatal("nothing was held")
+	}
+	return n.held[len(n.held)-1]
+}
+
+// rig is an arranger over fakes, with the fakes kept to inspect.
+type rig struct {
+	arranger   *Arranger
+	host       *fakeHost
+	monitors   *fakeMonitors
+	neighbours *fakeNeighbours
+}
+
+// newRig answers an arranger over both monitors of a ribbon holding choices and content, alone until
+// its neighbours are given rectangles.
 func newRig(choices ribbon.Choices, content Content) rig {
 	host := &fakeHost{choices: choices, content: content}
 	monitors := &fakeMonitors{monitors: []placement.Monitor{primaryMonitor, secondaryMonitor}}
-	return rig{arranger: New(host, monitors), host: host, monitors: monitors}
+	neighbours := &fakeNeighbours{}
+	return rig{arranger: New(host, monitors, neighbours), host: host, monitors: monitors, neighbours: neighbours}
 }
 
 // horizontal answers the first-run choices running horizontally; the arithmetic in the tests is

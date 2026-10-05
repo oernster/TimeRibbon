@@ -124,8 +124,9 @@ repository root so the kit is linted with it; its Vitest run includes the kit's 
     `testdata`.
   - `hover`: told the pointer arrived or left and the time, it answers whether an unpinned ribbon is
     open and when to ask again (FR-615, FR-616).
-- **Application** (`internal/application`): one `Service` over seven ports (`Store`, `Zones`, `Clock`,
-  `IDs`, the kit's `arranger.Monitors`, `StartupEntry` and the kit's `release.Source` in `ports.go`).
+- **Application** (`internal/application`): one `Service` over eight ports (`Store`, `Zones`, `Clock`,
+  `IDs`, the kit's `arranger.Monitors` and `arranger.Neighbours`, `StartupEntry` and the kit's
+  `release.Source` in `ports.go`).
   It builds the snapshot, edits clocks, searches places (`SearchPlaces`, FR-302), changes settings,
   takes the page's measurements, checks for updates through `release.Check` with the release the
   user skipped and answers the menus. It embeds the kit's `arranger.Arranger`, so arranging the
@@ -135,7 +136,10 @@ repository root so the kit is linted with it; its Vitest run includes the kit's 
   together; the service answers through `host.go` (a cell per notice and per clock, the style's or
   the prompt's size, the sun map's handle lane) and saves the arranger's changes through its one save
   path, so they raise the same notice (FR-707). The arranger's lock is never held while it calls the
-  host. The snapshot orders cells east from Greenwich (`eastFromGreenwich`): places
+  host. Every placement ends in `clearOfOthers` (`neighbours.go`), which slides the ribbon off any
+  other ribbon its `Neighbours` port reports, its own pull out included, else to the opposite edge,
+  never while the grip is dragged; the result is then held for the others (FR-412). A nil port is
+  `NoNeighbours`, a ribbon alone. The snapshot orders cells east from Greenwich (`eastFromGreenwich`): places
   level with or ahead of UTC by offset, then those behind it, read at the snapshot's instant; ties keep
   their stored order and an unshowable clock goes last. A change that cannot be saved stays in effect
   with a notice (FR-707).

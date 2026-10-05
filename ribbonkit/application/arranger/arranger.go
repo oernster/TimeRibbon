@@ -78,8 +78,9 @@ type Arrangement struct {
 // Arranger arranges one ribbon. It is safe to call from several goroutines. Its own lock is never
 // held while it calls the host, which may hold a lock of its own while it calls in.
 type Arranger struct {
-	host     Host
-	monitors Monitors
+	host       Host
+	monitors   Monitors
+	neighbours Neighbours
 
 	mutex sync.Mutex
 	// scrollbar is the thickness in DIP of the scroll bar the page draws, as the page measured it;
@@ -131,9 +132,13 @@ type ribbonLength struct {
 	scale    float64
 }
 
-// New answers an arranger of host's ribbon on monitors.
-func New(host Host, monitors Monitors) *Arranger {
-	return &Arranger{host: host, monitors: monitors}
+// New answers an arranger of host's ribbon on monitors, keeping it off the ribbons neighbours knows
+// of (FR-412); nil neighbours is a ribbon alone.
+func New(host Host, monitors Monitors, neighbours Neighbours) *Arranger {
+	if neighbours == nil {
+		neighbours = NoNeighbours{}
+	}
+	return &Arranger{host: host, monitors: monitors, neighbours: neighbours}
 }
 
 // SetScrollbar records the thickness in DIP of the scroll bar the page draws, which a scrolling

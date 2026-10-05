@@ -8,7 +8,7 @@ import (
 )
 
 // SetScale chooses how large the cells are drawn on top of their size in percent, then keeps it;
-// any preview ends and the map is no longer held (FR-623). A value outside ribbon.MinScale to
+// any preview ends and the pull out is no longer held (FR-623). A value outside ribbon.MinScale to
 // ribbon.MaxScale is refused and changes nothing.
 func (a *Arranger) SetScale(percent int) error {
 	err := scaleOffered(float64(percent))
@@ -20,23 +20,23 @@ func (a *Arranger) SetScale(percent int) error {
 	}
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
-	a.previewScale, a.held = 0, heldMap{}
+	a.previewScale, a.held = 0, heldPullOut{}
 	return err
 }
 
 // PreviewScale draws the ribbon at percent without keeping it, while its grip is dragged; SetScale
 // keeps the scale the drag ends at (FR-623). The percent need not be whole, so the ribbon follows
-// the pointer pixel by pixel. The first preview of a drag holds the map where it stands. A value
-// outside the bounds is refused.
+// the pointer pixel by pixel. The first preview of a drag holds the pull out where it stands. A
+// value outside the bounds is refused.
 func (a *Arranger) PreviewScale(percent float64) error {
 	if err := scaleOffered(percent); err != nil {
 		return err
 	}
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
-	if a.previewScale == 0 && a.last.known && a.last.sunMap != (placement.Rect{}) {
+	if a.previewScale == 0 && a.last.known && a.last.pullOut != (placement.Rect{}) {
 		ribbon := placement.Rect{Left: a.last.at.X, Top: a.last.at.Y, Right: a.last.at.X + a.last.size.Width, Bottom: a.last.at.Y + a.last.size.Height}
-		a.held = heldMap{known: true, ribbon: ribbon, sunMap: a.last.sunMap}
+		a.held = heldPullOut{known: true, ribbon: ribbon, pullOut: a.last.pullOut}
 	}
 	a.previewScale = percent
 	return nil
@@ -67,8 +67,8 @@ func scaleOffered(percent float64) error {
 	return nil
 }
 
-// heldOf answers the map held while the grip is dragged, read under the mutex.
-func (a *Arranger) heldOf() heldMap {
+// heldOf answers the pull out held while the grip is dragged, read under the mutex.
+func (a *Arranger) heldOf() heldPullOut {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
 	return a.held

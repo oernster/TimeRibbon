@@ -7,35 +7,36 @@ import (
 	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
-// FR-902, FR-904: a horizontal ribbon at the top edge, its map on and pulled out, has a map below
-// it, 480 by 240 for its 336 long ribbon, centred on it; with no map, no side and no map.
-func TestAHorizontalRibbonsMapGoesBelowIt(t *testing.T) {
+// FR-902, FR-904: a horizontal ribbon at the top edge, its pull out on and open, has the pull out
+// below it, 480 by 240 for its 336 long ribbon, centred on it; with none beside it, no side and no
+// rectangle.
+func TestAHorizontalRibbonsPullOutGoesBelowIt(t *testing.T) {
 	t.Parallel()
-	got, err := newRig(horizontal(), mapPulledOut(2)).arranger.Launch()
+	got, err := newRig(horizontal(), pulledOut(2)).arranger.Launch()
 	if err != nil {
 		t.Fatal(err)
 	}
 	depth := digitalCell.Height + 2*testPadding + testLane
 	want := placement.Rect{Left: got.At.X + (336-480)/2, Top: depth, Right: got.At.X + (336-480)/2 + 480, Bottom: depth + 240}
-	if got.MapSide != placement.Bottom || got.Map != want {
-		t.Errorf("got side %s map %+v, want bottom %+v", got.MapSide, got.Map, want)
+	if got.PullOutSide != placement.Bottom || got.PullOut != want {
+		t.Errorf("got side %s pull out %+v, want bottom %+v", got.PullOutSide, got.PullOut, want)
 	}
-	if off, _ := newRig(horizontal(), cells(2)).arranger.Launch(); off.MapSide != "" || off.Map != (placement.Rect{}) {
+	if off, _ := newRig(horizontal(), cells(2)).arranger.Launch(); off.PullOutSide != "" || off.PullOut != (placement.Rect{}) {
 		t.Errorf("off: %+v", off)
 	}
 }
 
-// FR-903, Amendment 22: a horizontal ribbon at the top edge has its handle below it; its map shows
-// there only while the pull out is open.
-func TestAHorizontalRibbonsMapWaitsForThePullOut(t *testing.T) {
+// FR-903, Amendment 22: a horizontal ribbon at the top edge has its handle below it; its pull out
+// shows there only while it is open.
+func TestAHorizontalRibbonsPullOutWaitsUntilOpen(t *testing.T) {
 	t.Parallel()
-	closed := mapPulledOut(2)
+	closed := pulledOut(2)
 	closed.PullOut = false
 	got, err := newRig(horizontal(), closed).arranger.Launch()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.MapSide != placement.Bottom || got.Map != (placement.Rect{}) {
+	if got.PullOutSide != placement.Bottom || got.PullOut != (placement.Rect{}) {
 		t.Errorf("closed: %+v", got)
 	}
 }
@@ -51,7 +52,7 @@ func TestTheHandlesLaneDeepensTheRibbon(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		with, err := newRig(choices, mapPulledOut(2)).arranger.Launch()
+		with, err := newRig(choices, pulledOut(2)).arranger.Launch()
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -65,24 +66,24 @@ func TestTheHandlesLaneDeepensTheRibbon(t *testing.T) {
 	}
 }
 
-// FR-903: a vertical ribbon at the right edge has its handle on the left; its map shows there only
-// while the pull out is open.
-func TestAVerticalRibbonsMapWaitsForThePullOut(t *testing.T) {
+// FR-903: a vertical ribbon at the right edge has its handle on the left; its pull out shows there
+// only while it is open.
+func TestAVerticalRibbonsPullOutWaitsUntilOpen(t *testing.T) {
 	t.Parallel()
-	closed := mapPulledOut(2)
+	closed := pulledOut(2)
 	closed.PullOut = false
 	got, err := newRig(vertical(), closed).arranger.Launch()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.MapSide != placement.Left || got.Map != (placement.Rect{}) {
+	if got.PullOutSide != placement.Left || got.PullOut != (placement.Rect{}) {
 		t.Errorf("closed: %+v", got)
 	}
-	got, err = newRig(vertical(), mapPulledOut(2)).arranger.Launch()
+	got, err = newRig(vertical(), pulledOut(2)).arranger.Launch()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.MapSide != placement.Left || got.Map.Right != got.At.X || got.Map.Width() != 480 {
+	if got.PullOutSide != placement.Left || got.PullOut.Right != got.At.X || got.PullOut.Width() != 480 {
 		t.Errorf("open: %+v", got)
 	}
 }

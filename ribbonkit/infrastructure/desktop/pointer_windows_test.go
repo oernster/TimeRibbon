@@ -99,8 +99,8 @@ func TestThePointerIsReadAgainstTheWindow(t *testing.T) {
 }
 
 // FR-616, FR-913: the pointer is read against the window's shape, not its rectangle. A vertical
-// ribbon's map is shorter than the ribbon, so the window is cut away above and below it; measured
-// 2026-09-29, a pointer resting there counted as on the ribbon, which then never collapsed.
+// ribbon's pull out is shorter than the ribbon, so the window is cut away above and below it;
+// measured 2026-09-29, a pointer resting there counted as on the ribbon, which then never collapsed.
 func TestThePointerIsReadAgainstTheWindowsShape(t *testing.T) {
 	runtime.LockOSThread()
 	defer runtime.UnlockOSThread()

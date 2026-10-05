@@ -622,8 +622,8 @@ leaves it collapsed, counting afresh. The page draws the opening ribbon, map inc
 while the window is still the tab.
 Acceptance: a 0.3 s rest opens it while the focused window keeps focus; a 0.1 s crossing does not.
 Verified by: `TestTheRibbonOpensAfterTheRest`, `TestAPassingPointerDoesNotOpenIt` (hover);
-`TestTheTabOpensAfterTheRestAndCollapsesOnceAway`, `TestAnOpeningRibbonIsDrawnWithItsMap`,
-`TestTheMapsPartsReachThePageInItsOwnUnits` (window); `Band.test.tsx`, `PullOut.test.tsx` (ribbonkit); focus by hand.
+`TestTheTabOpensAfterTheRestAndCollapsesOnceAway`, `TestAnOpeningRibbonIsDrawnWithItsPullOut`,
+`TestThePullOutsPartsReachThePageInItsOwnUnits` (window); `Band.test.tsx`, `PullOut.test.tsx` (ribbonkit); focus by hand.
 
 **FR-616 Collapses after the pointer leaves** (Should; Amendment 18). While unpinned in effect and
 expanded, with no drag, menu or panel open, the ribbon collapses once the pointer has been off it for
@@ -715,10 +715,10 @@ page's pointer events jumped backwards on Windows while the window resized (smoo
 Linux by hand the same day); the sun map holds still until the grip is
 let go, so the window's corner does not move.
 Verified by: `TestScaleIsHeldWithinItsBounds`, `TestScaleAfterFollowsTheFarSide` (ribbon);
-`TestTheMapIsHeldWhileTheRibbonIsResized` (placement); `TestAScaledRibbonGrowsInBothDirections`,
+`TestThePullOutIsHeldWhileTheRibbonIsResized` (placement); `TestAScaledRibbonGrowsInBothDirections`,
 `TestAPreviewIsDrawnButNotKept`, `TestAChangeOfScaleKeepsTheCorner`,
 `TestAChangeOfClocksAfterAScaleStillRecentres`, `TestTheScrollBarIsNotScaled`,
-`TestTheSunMapIsHeldWhileTheGripIsDragged` (arranger); `TestTheSnapshotShowsTheScaleTheRibbonIsDrawnAt`
+`TestThePullOutIsHeldWhileTheGripIsDragged` (arranger); `TestTheSnapshotShowsTheScaleTheRibbonIsDrawnAt`
 (application); `TestSettingsRoundTrip` (store);
 `TestAChangeOfScaleTellsThePageToDrawAgain`, `TestEveryChangeFitsTheRibbonAndAnswersTheServicesError`,
 `TestTheGripFollowsTheDesktopsPointerOverThePages`,
@@ -831,8 +831,8 @@ ribbon's edge: below at the top, above at the bottom; against no edge, the side 
 when equal.
 Acceptance: flush against the top, the map's top meets the ribbon's bottom along its length; flush
 against the bottom, the map's bottom meets its top.
-Verified by: `TestTheMapAdjoinsTheSideAwayFromTheEdge` (placement);
-`TestAHorizontalRibbonsMapGoesBelowIt` (arranger); by hand.
+Verified by: `TestThePullOutAdjoinsTheSideAwayFromTheEdge` (placement);
+`TestAHorizontalRibbonsPullOutGoesBelowIt` (arranger); by hand.
 
 **FR-903 The pull out** (Should; OQ-14; Amendments 22, 23; OQ-21 to OQ-23). While on and in full, the
 ribbon shows a handle half way along its long side facing away from its edge (against no edge, the side
@@ -843,7 +843,7 @@ Acceptance: a vertical ribbon flush right with the pull out closed shows the map
 handle is clicked, hides it on a second click and keeps it after a restart; a horizontal one flush top
 shows a downward arrow and no map until clicked; with the map on, either ribbon is deeper by the lane
 alone and the handle overlaps no text.
-Verified by: `TestAVerticalRibbonsMapWaitsForThePullOut`, `TestAHorizontalRibbonsMapWaitsForThePullOut`,
+Verified by: `TestAVerticalRibbonsPullOutWaitsUntilOpen`, `TestAHorizontalRibbonsPullOutWaitsUntilOpen`,
 `TestTheHandlesLaneDeepensTheRibbon` (arranger); `TestTheServiceHandsTheArrangerItsContent`
 (application); `TestTheHandleFlipsThePullOut` (window); `TestTimeRibbonsMenuActions` (facade);
 `surface.test.tsx`; `PullOut.test.tsx` (ribbonkit); by hand.
@@ -853,7 +853,7 @@ centred on it, at least 480 by 240 DIP; with less room across, scaled down to fi
 under 120 DIP of room, not shown.
 Acceptance: a horizontal ribbon 1200 long flush top on a 1032 tall work area gets 1200 by 600; one 336
 long gets 480 by 240 centred; a vertical one 1032 long with 700 of room gets 700 by 350.
-Verified by: `TestTheMapMatchesTheRibbon`, `TestTheMapScalesToTheRoom`, `TestTooLittleRoomShowsNoMap`
+Verified by: `TestThePullOutMatchesTheRibbon`, `TestThePullOutScalesToTheRoom`, `TestTooLittleRoomShowsNoPullOut`
 (placement).
 
 **FR-905 Day and night** (Should; OQ-16). Each point comes from the day image where the solar altitude
@@ -881,12 +881,12 @@ Verified by: `TestEveryPlaceHasItsZonesCoordinate` (zones); `TestAZoneWithNoPlac
 
 **FR-909 The map goes with the ribbon** (Should). The map moves with the ribbon, adjoined; a drag on the
 map moves both. The ribbon's own edge alone decides flushness (FR-619).
-Verified by: `TestTheWindowHoldsTheRibbonAndItsMap`, `TestADragOfTheMapMovesTheRibbonToo` (window); by
+Verified by: `TestTheWindowHoldsTheRibbonAndItsPullOut`, `TestADragOfThePullOutMovesTheRibbonToo` (window); by
 hand.
 
 **FR-910 When the map is not shown** (Should; OQ-18). Collapsed, hidden or showing a panel, no map;
 it returns with the full ribbon. A pointer on the map counts as on the ribbon (FR-616).
-Verified by: `TestTheMapHidesWithTheTab`, `TestAnOpeningRibbonIsDrawnWithItsMap` (window);
+Verified by: `TestThePullOutHidesWithTheTab`, `TestAnOpeningRibbonIsDrawnWithItsPullOut` (window);
 `surface.test.tsx`; by hand.
 
 **FR-911 The imagery is built in** (Should). Both images are carried inside and nothing is fetched
@@ -904,7 +904,7 @@ window is cut away is off the ribbon. On macOS and Linux it stays a rectangle, w
 neither answers a right-click and a drag as the ribbon does (Amendment 33).
 Acceptance: a vertical ribbon 708 DIP long flush right with a 708 by 354 map shows the desktop above
 and below the map, clickable; closing the pull out leaves the ribbon alone.
-Verified by: `TestTheShapeIsTheRibbonAndItsMap` (placement); `TestTheShapeFollowsEveryRefit` (window);
+Verified by: `TestTheShapeIsTheRibbonAndItsPullOut` (placement); `TestTheShapeFollowsEveryRefit` (window);
 `TestThePointerIsReadAgainstTheWindowsShape` (desktop); `PullOut.test.tsx` (ribbonkit) for the spare area; by hand.
 
 **FR-914 Labels stand clear** (Should; Amendment 21; OQ-20). Each label, in clock order, takes the

@@ -22,12 +22,12 @@ type Shown struct {
 	Scrolls bool
 	// DragThreshold is how far the pointer moves before a press becomes a drag.
 	DragThreshold placement.Size
-	// MapSide is where the map and its handle go, empty while there is no map; MapShown is whether
-	// the map is drawn now, in Map, beside the ribbon in Ribbon (FR-901 to FR-910).
-	MapSide  placement.Edge
-	MapShown bool
-	Ribbon   Box
-	Map      Box
+	// PullOutSide is where the pull out and its handle go, empty while there is none; PullOutShown is
+	// whether it is drawn now, in PullOut, beside the ribbon in Ribbon (FR-901 to FR-910).
+	PullOutSide  placement.Edge
+	PullOutShown bool
+	Ribbon       Box
+	PullOut      Box
 }
 
 // Refitted fits the ribbon after a change of the application's own, then answers err (FR-707).
@@ -74,13 +74,13 @@ func (c *Control) TrayStarted() { c.window.trayUp.Store(true) }
 // Visible answers whether the ribbon is shown, which the tray menu offers to change.
 func (c *Control) Visible() bool { return c.window.visible.Load() }
 
-// shown answers how the window shows the ribbon now, the map's boxes in the page's units.
+// shown answers how the window shows the ribbon now, the pull out's boxes in the page's units.
 func (a *Window) shown() Shown {
-	side, ribbon, sunMap, drawn := a.mapLayout()
+	side, ribbon, pullOut, drawn := a.pullOutLayout()
 	perDIP := math.Float64frombits(a.pixelsPerDIP.Load())
 	return Shown{
 		Collapsed: a.collapsed(), Scrolls: a.scrolls.Load(), DragThreshold: a.dragThreshold(),
-		MapSide: side, MapShown: drawn, Ribbon: boxOf(ribbon, perDIP), Map: boxOf(sunMap, perDIP),
+		PullOutSide: side, PullOutShown: drawn, Ribbon: boxOf(ribbon, perDIP), PullOut: boxOf(pullOut, perDIP),
 	}
 }
 

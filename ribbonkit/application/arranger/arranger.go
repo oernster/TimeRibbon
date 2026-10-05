@@ -1,6 +1,6 @@
 // Package arranger places and sizes a ribbon on the displays: where it launches, where a drag or an
 // edge puts it, how large its cells make it at the scale it is drawn at, the tab it collapses to and
-// the map it may hold beside it. What the ribbon shows is the application's; the arranger asks for it
+// the pull out it may hold beside it. What the ribbon shows is the application's; the arranger asks for it
 // through Host, so every ribbon is arranged by the same rules.
 //
 // FR numbers are TimeRibbon's REQUIREMENTS.md, where each rule was first specified.
@@ -35,12 +35,12 @@ type Content struct {
 	Cells int
 	// Padding surrounds the cells on every side.
 	Padding int
-	// Lane is depth added across the ribbon beside its cells, such as the lane a map's handle stands
-	// in, so it covers no cell (FR-903); zero for none.
+	// Lane is depth added across the ribbon beside its cells, such as the lane a pull out's handle
+	// stands in, so it covers no cell (FR-903); zero for none.
 	Lane int
-	// Map is whether a map adjoins the ribbon, which then has a side for it (FR-901); PullOut whether
-	// that map is shown there rather than waiting behind its handle (FR-903).
-	Map, PullOut bool
+	// Beside is whether a pull out adjoins the ribbon, which then has a side for it (FR-901); PullOut
+	// whether it is shown there rather than waiting behind its handle (FR-903).
+	Beside, PullOut bool
 }
 
 // Host is the application whose ribbon is arranged.
@@ -69,10 +69,10 @@ type Arrangement struct {
 	// Edge is the edge running along the orientation the ribbon stands flush against; empty when it
 	// stands against none, which leaves it pinned in effect (FR-619).
 	Edge placement.Edge
-	// MapSide is the ribbon's side the map and its handle go on; empty while there is no map. Map is
-	// the map's rectangle; zero while no map is shown (FR-902 to FR-904).
-	MapSide placement.Edge
-	Map     placement.Rect
+	// PullOutSide is the ribbon's side the pull out and its handle go on; empty while there is no pull
+	// out. PullOut is its rectangle; zero while none is shown (FR-902 to FR-904).
+	PullOutSide placement.Edge
+	PullOut     placement.Rect
 }
 
 // Arranger arranges one ribbon. It is safe to call from several goroutines. Its own lock is never
@@ -91,9 +91,9 @@ type Arranger struct {
 	// previewScale is the scale the ribbon is drawn at while its grip is dragged, kept nowhere and
 	// not rounded; zero while no drag is under way (FR-623).
 	previewScale float64
-	// held is the ribbon and its map as they stood when a drag of the grip began, so the map is held
-	// there while the drag lasts (FR-623).
-	held heldMap
+	// held is the ribbon and its pull out as they stood when a drag of the grip began, so the pull out
+	// is held there while the drag lasts (FR-623).
+	held heldPullOut
 	// arranged is the ribbon's length when it was last arranged, so a change of length can be told
 	// from anything else that arranges it (FR-104).
 	arranged ribbonLength
@@ -109,16 +109,16 @@ type lastPlaced struct {
 	device string
 	at     placement.Point
 	size   placement.Size
-	// sunMap is the map's rectangle then; the zero rectangle while none was shown.
-	sunMap placement.Rect
+	// pullOut is the pull out's rectangle then; the zero rectangle while none was shown.
+	pullOut placement.Rect
 }
 
-// heldMap is the ribbon and its map when a drag of the grip began; known is false while no drag is
-// under way or no map was shown when it began.
-type heldMap struct {
-	known  bool
-	ribbon placement.Rect
-	sunMap placement.Rect
+// heldPullOut is the ribbon and its pull out when a drag of the grip began; known is false while no
+// drag is under way or no pull out was shown when it began.
+type heldPullOut struct {
+	known   bool
+	ribbon  placement.Rect
+	pullOut placement.Rect
 }
 
 // ribbonLength is the ribbon's length in DIP along its orientation; known is false until the ribbon

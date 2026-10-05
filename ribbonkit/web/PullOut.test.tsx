@@ -78,7 +78,7 @@ describe('PullOut (FR-902, FR-903)', () => {
     install(windowBridge())
     const width = Object.getOwnPropertyDescriptor(window, 'innerWidth')
     // The page draws an opening ribbon while the window is still the tab, 8 pixels wide; measured
-    // 2026-09-29, a vertical ribbon with the sun map on then grew to 175 pixels drawn 8 wide.
+    // 2026-09-29, a vertical ribbon with its pull out on then grew to 175 pixels drawn 8 wide.
     Object.defineProperty(window, 'innerWidth', { configurable: true, value: 8 })
     try {
       render(pullOut({ side: 'right', ribbon: { x: 0, y: 0, width: 140, height: 659.2 } }))

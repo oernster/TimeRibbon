@@ -63,7 +63,7 @@ const noWindowRegion = 0
 
 // pointerInside answers whether the pointer is on the ribbon's window now (FR-615, FR-616): inside
 // its rectangle and inside the shape it is cut to, so a pointer resting where the shape cuts the
-// window away (beside a vertical ribbon's map, measured 2026-09-29) is off it (FR-913).
+// window away (beside a vertical ribbon's pull out, measured 2026-09-29) is off it (FR-913).
 func pointerInside(ribbon Window) (bool, error) {
 	var cursor point
 	if ok, _, err := procGetCursorPos.Call(uintptr(unsafe.Pointer(&cursor))); ok == 0 {

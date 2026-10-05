@@ -1,21 +1,21 @@
 package placement
 
-// The sun map's shape and place beside the ribbon (FR-902 to FR-904). The map is a whole-world
-// picture twice as wide as it is deep.
+// The pull out's shape and place beside the ribbon (FR-902 to FR-904). The pull out is a picture
+// twice as wide as it is deep.
 
 const (
-	// MapMinimumWidth is the narrowest, in DIP, the sun map is drawn; its depth is half (FR-904).
-	MapMinimumWidth = 480
-	// MapFloor is the least room, in DIP, beside the ribbon that the sun map is shown in (FR-904).
-	MapFloor = 120
-	// mapAspect is how many times wider than deep the world map is.
-	mapAspect = 2
+	// PullOutMinimumWidth is the narrowest, in DIP, the pull out is drawn; its depth is half (FR-904).
+	PullOutMinimumWidth = 480
+	// PullOutFloor is the least room, in DIP, beside the ribbon that the pull out is shown in (FR-904).
+	PullOutFloor = 120
+	// pullOutAspect is how many times wider than deep the pull out is.
+	pullOutAspect = 2
 )
 
 // InnerSide answers the ribbon's long side facing away from the edge it stands against, where the
-// sun map and the pull out's handle go (FR-902, FR-903): below or above a horizontal ribbon, left or
-// right of a vertical one. Against no edge it is the side facing the more room in work; at an equal
-// room, below a horizontal ribbon and left of a vertical one, the side away from each home edge.
+// pull out and its handle go (FR-902, FR-903): below or above a horizontal ribbon, left or right of a
+// vertical one. Against no edge it is the side facing the more room in work; at an equal room, below
+// a horizontal ribbon and left of a vertical one, the side away from each home edge.
 func InnerSide(ribbon Rect, work Rect, vertical bool, edge Edge) Edge {
 	switch edge {
 	case Top:
@@ -39,12 +39,12 @@ func InnerSide(ribbon Rect, work Rect, vertical bool, edge Edge) Edge {
 	return Bottom
 }
 
-// MapBeside answers the sun map's rectangle adjoining side of a ribbon on work (FR-904): as wide as
-// the ribbon is long, never narrower than minimumWidth, half as deep as it is wide; scaled down,
+// PullOutBeside answers the pull out's rectangle adjoining side of a ribbon on work (FR-904): as wide
+// as the ribbon is long, never narrower than minimumWidth, half as deep as it is wide; scaled down,
 // keeping its shape, to the room beside the ribbon; centred on the ribbon along it and kept inside
-// work. It answers false where that room is less than floor, when no map is shown. minimumWidth and
-// floor are in the display's pixels.
-func MapBeside(ribbon Rect, work Rect, side Edge, minimumWidth, floor int) (Rect, bool) {
+// work. It answers false where that room is less than floor, when no pull out is shown. minimumWidth
+// and floor are in the display's pixels.
+func PullOutBeside(ribbon Rect, work Rect, side Edge, minimumWidth, floor int) (Rect, bool) {
 	vertical := side == Left || side == Right
 	room := roomBeside(ribbon, work, side)
 	if room < floor {
@@ -58,9 +58,9 @@ func MapBeside(ribbon Rect, work Rect, side Edge, minimumWidth, floor int) (Rect
 	if vertical {
 		width = min(width, room)
 	} else {
-		width = min(width, room*mapAspect)
+		width = min(width, room*pullOutAspect)
 	}
-	height := width / mapAspect
+	height := width / pullOutAspect
 	size := Size{Width: width, Height: height}
 	var at Point
 	switch side {
@@ -77,12 +77,12 @@ func MapBeside(ribbon Rect, work Rect, side Edge, minimumWidth, floor int) (Rect
 }
 
 // Shape answers the parts of a window size across that it keeps, in the window's own pixels
-// (FR-913): the ribbon and the sun map while the map shows, else the whole window.
-func Shape(size Size, ribbon, sunMap Rect, shown bool) []Rect {
+// (FR-913): the ribbon and the pull out while the pull out shows, else the whole window.
+func Shape(size Size, ribbon, pullOut Rect, shown bool) []Rect {
 	if !shown {
 		return []Rect{rectOf(Point{}, size)}
 	}
-	return []Rect{ribbon, sunMap}
+	return []Rect{ribbon, pullOut}
 }
 
 // roomBeside answers the room in work beyond the ribbon's side.

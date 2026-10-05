@@ -57,8 +57,9 @@ figure with the fraction dropped, so it fails once cover is lost.
 
 `ribbonkit/installer` is the setup program's window: its tests hold the pictures the page asks for
 and the layering of the page over them. The facade the page calls has never had tests of its own,
-before the move into the kit or since; that is the gap. TimeRibbon's `installer` is its composition
-root, whose one test reads the pictures it carries, which runs no statement.
+before the move into the kit or since; that is the gap, recorded in `TECH_DEBT.md`. TimeRibbon's
+`installer` is its composition root, whose one test reads the pictures it carries, which runs no
+statement.
 
 Every figure is the Windows build's, which `test.ps1` measures. That build compiles 425 Go test
 functions, counted from the test files `go list` selects, each running once with no subtests, plus

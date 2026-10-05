@@ -1,6 +1,6 @@
 // Package window is a ribbon's window as its page and its desktop see it: placing, collapsing to the
-// tab and opening, the corner grip, the opacity, the panels, the map beside the ribbon, the menus, the
-// update check and the window's own life. An application embeds the Window in the object it hands
+// tab and opening, the corner grip, the opacity, the panels, the pull out beside the ribbon, the menus,
+// the update check and the window's own life. An application embeds the Window in the object it hands
 // Wails, so every exported method of Window is page API; the application's own methods reach the
 // window through the Control, which is never embedded and so never bound.
 //
@@ -28,7 +28,7 @@ import (
 type Service interface {
 	// Choices answers the ribbon's choices as they stand.
 	Choices() ribbon.Choices
-	// PullOut answers whether the map is pulled out beside the ribbon (FR-903).
+	// PullOut answers whether the pull out is open beside the ribbon (FR-903).
 	PullOut() bool
 	SetPullOut(open bool) error
 	SetColour(colour ribbon.Colour) error

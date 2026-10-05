@@ -100,8 +100,8 @@ func (a *Window) showArranged(full arranger.Arrangement, open bool) error {
 	if open {
 		a.report("framing the full ribbon", a.tabFrame(!a.pinnedAt(full)))
 		at, size, _ := windowOf(full)
-		_, ribbon, sunMap, shown := a.mapLayout()
-		return a.placeShaped(at, size, placement.Shape(size, ribbon, sunMap, shown))
+		_, ribbon, pullOut, shown := a.pullOutLayout()
+		return a.placeShaped(at, size, placement.Shape(size, ribbon, pullOut, shown))
 	}
 	tab, err := a.service.Collapsed(full)
 	if err != nil {

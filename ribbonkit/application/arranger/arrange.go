@@ -165,13 +165,13 @@ func (a *Arranger) arrange(
 		arranged.Edge = edge
 		a.rememberEdge(current, placement.Against{Device: placed.Monitor.Device, Edge: edge})
 	}
-	if side, rect, shown := a.mapBeside(current, content, arranged.At, size, placed.Monitor, arranged.Edge); side != "" {
-		arranged.MapSide = side
+	if side, rect, shown := a.pullOutBeside(current, content, arranged.At, size, placed.Monitor, arranged.Edge); side != "" {
+		arranged.PullOutSide = side
 		if shown {
-			arranged.Map = rect
+			arranged.PullOut = rect
 		}
 	}
-	a.remember(lastPlaced{known: true, device: placed.Monitor.Device, at: arranged.At, size: size, sunMap: arranged.Map})
+	a.remember(lastPlaced{known: true, device: placed.Monitor.Device, at: arranged.At, size: size, pullOut: arranged.PullOut})
 	return arranged, placed.Monitor, recentred, nil
 }
 
@@ -267,12 +267,12 @@ func ribbonSize(current ribbon.Choices, content Content, sizing sizing, monitor 
 	return placement.Size{Width: length, Height: breadth}, fitted.Scrolls, lengthDIP
 }
 
-// mapBeside answers where the map goes for a ribbon arranged at at of size on monitor, flush against
-// edge (none when empty): the side it adjoins (where its handle goes too) with its rectangle; false
-// for the rectangle while no map is shown, the pull out closed included (FR-902 to FR-904). The side
-// is empty while content has no map.
-func (a *Arranger) mapBeside(current ribbon.Choices, content Content, at placement.Point, size placement.Size, monitor placement.Monitor, edge placement.Edge) (placement.Edge, placement.Rect, bool) {
-	if !content.Map {
+// pullOutBeside answers where the pull out goes for a ribbon arranged at at of size on monitor, flush
+// against edge (none when empty): the side it adjoins (where its handle goes too) with its rectangle;
+// false for the rectangle while none is shown, the pull out closed included (FR-902 to FR-904). The
+// side is empty while content has no pull out beside it.
+func (a *Arranger) pullOutBeside(current ribbon.Choices, content Content, at placement.Point, size placement.Size, monitor placement.Monitor, edge placement.Edge) (placement.Edge, placement.Rect, bool) {
+	if !content.Beside {
 		return "", placement.Rect{}, false
 	}
 	vertical := current.Orientation == ribbon.Vertical
@@ -282,11 +282,11 @@ func (a *Arranger) mapBeside(current ribbon.Choices, content Content, at placeme
 		return side, placement.Rect{}, false
 	}
 	perDIP := a.perDIP(monitor)
-	minimum := placement.PixelsOf(placement.MapMinimumWidth, perDIP)
-	floor := placement.PixelsOf(placement.MapFloor, perDIP)
-	rect, shown := placement.MapBeside(ribbon, monitor.Work, side, minimum, floor)
+	minimum := placement.PixelsOf(placement.PullOutMinimumWidth, perDIP)
+	floor := placement.PixelsOf(placement.PullOutFloor, perDIP)
+	rect, shown := placement.PullOutBeside(ribbon, monitor.Work, side, minimum, floor)
 	if held := a.heldOf(); held.known && shown {
-		rect = placement.MapHeld(ribbon, side, held.sunMap, held.ribbon)
+		rect = placement.PullOutHeld(ribbon, side, held.pullOut, held.ribbon)
 	}
 	return side, rect, shown
 }

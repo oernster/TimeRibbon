@@ -39,8 +39,8 @@ func TestTheServiceHandsTheArrangerItsContent(t *testing.T) {
 		"digital":  {clocks(2), arranger.Content{Cell: testLayout.Digital, Cells: 2, Padding: testLayout.Padding}},
 		"analogue": {analogue, arranger.Content{Cell: testLayout.Analogue, Cells: 3, Padding: testLayout.Padding}},
 		"empty":    {clocks(0), arranger.Content{Cell: testLayout.Prompt, Cells: 1, Padding: testLayout.Padding}},
-		"map":      {closed, arranger.Content{Cell: testLayout.Digital, Cells: 2, Padding: testLayout.Padding, Lane: testLayout.HandleLane, Map: true}},
-		"pull out": {open, arranger.Content{Cell: testLayout.Digital, Cells: 2, Padding: testLayout.Padding, Lane: testLayout.HandleLane, Map: true, PullOut: true}},
+		"map":      {closed, arranger.Content{Cell: testLayout.Digital, Cells: 2, Padding: testLayout.Padding, Lane: testLayout.HandleLane, Beside: true}},
+		"pull out": {open, arranger.Content{Cell: testLayout.Digital, Cells: 2, Padding: testLayout.Padding, Lane: testLayout.HandleLane, Beside: true, PullOut: true}},
 	} {
 		r := newRig(t, each.settings)
 		choices, got := host{r.service}.Ribbon()

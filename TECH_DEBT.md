@@ -20,6 +20,18 @@ Cost of leaving it: low. The test still proves the ribbon returns to where it wa
 larger window. Resolving it means giving the panel sizes a home the desktop tests can read, such as
 `internal/product`. Blocked on a Linux or macOS machine to run it.
 
+## 2. The setup program's facade has no tests
+
+`Setup` in `ribbonkit/installer/facade.go` is what the setup page calls. It holds a few decisions of
+its own: the route answered when the machine cannot be read, the refusal while the application is
+running, the line each act writes to the step log. None has a test, before the move into the kit or
+since; the package is gated at its measured 11% (TESTING.md). It reaches the machine through
+`setup.Machine` and `setup.Processes`, which are concrete types, so no test can stand in for them.
+
+Cost of leaving it: low. Every act hands straight to `ribbonkit/infrastructure/setup`, tested at 84%;
+each decision is seen whenever setup is run by hand. Resolving it means giving the facade ports
+for the machine and the processes, which its tests then fake. Not blocked.
+
 ## Looks like debt, not worth touching
 
 **The drag sends Wails an internal message.** `startDrag` calls `window.WailsInvoke('drag')`, the
@@ -44,7 +56,8 @@ self-reading cycle went the other way because the window's build can import from
 folder.
 
 **The setup program holds no install logic.** Every act goes through `ribbonkit/infrastructure/setup`,
-tested on Windows; `installer` has no tests, since every method on it acts on the machine.
+tested on Windows. TimeRibbon's `installer` is only its composition root: it carries the payload and
+the pictures, then hands them to `ribbonkit/installer`.
 
 **The browser opens through the desktop, not Wails.** Wails' `BrowserOpenURL` reports no error, so a
 machine with no browser left the donation button silent. `desktop.OpenInBrowser` reports the

@@ -32,7 +32,7 @@ func (h host) Ribbon() (ribbon.Choices, arranger.Content) {
 		Cell:    cell,
 		Cells:   len(s.notices()) + max(len(current.Clocks), 1),
 		Padding: layout.Padding,
-		Map:     current.SunMap,
+		Beside:  current.SunMap,
 		PullOut: current.PullOut,
 	}
 	if current.SunMap {

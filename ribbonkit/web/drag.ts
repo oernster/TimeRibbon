@@ -9,8 +9,8 @@ export interface Distance {
 
 /**
  * showsTheMenu answers the right-click handler that shows the ribbon's own menu (FR-108). The ribbon
- * and the map beside it share it, so a right-click on the map offers the same menu (Oliver,
- * 2026-09-29).
+ * and the pull out beside it share it, so a right-click on the pull out offers the same menu
+ * (Oliver, 2026-09-29).
  */
 export function showsTheMenu(calls: Pick<WindowCalls, 'showContextMenu'>, refused: Refused) {
   return (event: MouseEvent<HTMLElement>) => {
@@ -24,8 +24,8 @@ const controls = 'button, input, select, a, [data-control]'
 
 /**
  * useDrag answers the pointer handlers that move the whole window once a press on anything but a
- * control has moved past threshold (FR-401, FR-402). The ribbon and the map share them, so a drag
- * started on the map moves both (FR-909).
+ * control has moved past threshold (FR-401, FR-402). The ribbon and the pull out share them, so a
+ * drag started on the pull out moves both (FR-909).
  */
 export function useDrag(threshold: Distance) {
   const pressed = useRef<{ x: number; y: number } | null>(null)

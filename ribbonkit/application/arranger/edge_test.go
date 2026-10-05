@@ -205,14 +205,14 @@ func TestShrinkingKeepsTheRibbonAgainstItsEdge(t *testing.T) {
 }
 
 // FR-408, FR-610: a ribbon kept against its edge while it shrinks across its breadth, as taking its
-// map away shrinks a vertical one, keeps that place across a restart. Measured 2026-09-29: only a
-// change of length was saved, so the next launch put the narrower ribbon 16 pixels off the right
+// pull out away shrinks a vertical one, keeps that place across a restart. Measured 2026-09-29: only
+// a change of length was saved, so the next launch put the narrower ribbon 16 pixels off the right
 // edge, where an unpinned ribbon never collapses (FR-619).
 func TestAPlaceKeptAgainstTheEdgeIsSaved(t *testing.T) {
 	t.Parallel()
-	withMap := cells(2)
-	withMap.Lane, withMap.Map = testLane, true
-	r := newRig(draggedTo(ribbon.Vertical, placement.Point{X: 700, Y: 40}), withMap)
+	withPullOut := cells(2)
+	withPullOut.Lane, withPullOut.Beside = testLane, true
+	r := newRig(draggedTo(ribbon.Vertical, placement.Point{X: 700, Y: 40}), withPullOut)
 	if _, err := r.arranger.Launch(); err != nil {
 		t.Fatal(err)
 	}
@@ -223,7 +223,7 @@ func TestAPlaceKeptAgainstTheEdgeIsSaved(t *testing.T) {
 	r.host.edit(func(c *Content) { *c = cells(2) })
 	narrower, err := r.arranger.Rearrange(flush.At)
 	if err != nil || narrower.Size.Height != flush.Size.Height || narrower.Size.Width >= flush.Size.Width {
-		t.Fatalf("taking the map away gave %+v from %+v (%v); want it narrower and as long", narrower, flush, err)
+		t.Fatalf("taking the pull out away gave %+v from %+v (%v); want it narrower and as long", narrower, flush, err)
 	}
 	got, err := newRig(r.host.last(t), cells(2)).arranger.Launch()
 	if err != nil {

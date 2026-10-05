@@ -11,10 +11,10 @@ import (
 // doubled is a scale that draws everything twice as large, so every length is exact.
 const doubled = 2 * ribbon.WholeScale
 
-// mapPulledOut answers n cells with their map on and pulled out.
-func mapPulledOut(n int) Content {
+// pulledOut answers n cells with a pull out beside them, open.
+func pulledOut(n int) Content {
 	content := cells(n)
-	content.Lane, content.Map, content.PullOut = testLane, true, true
+	content.Lane, content.Beside, content.PullOut = testLane, true, true
 	return content
 }
 
@@ -104,11 +104,11 @@ func TestAChangeOfScaleKeepsTheCorner(t *testing.T) {
 	}
 }
 
-// FR-623: while the grip is dragged the map keeps the size it had when the drag began, still
+// FR-623: while the grip is dragged the pull out keeps the size it had when the drag began, still
 // adjoining the ribbon, so the window's corner holds still; once the scale is kept it is sized again.
-func TestTheSunMapIsHeldWhileTheGripIsDragged(t *testing.T) {
+func TestThePullOutIsHeldWhileTheGripIsDragged(t *testing.T) {
 	t.Parallel()
-	r := newRig(vertical(), mapPulledOut(6))
+	r := newRig(vertical(), pulledOut(6))
 	before, err := r.arranger.Launch()
 	if err != nil {
 		t.Fatal(err)
@@ -120,8 +120,8 @@ func TestTheSunMapIsHeldWhileTheGripIsDragged(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if during.Map.Width() != before.Map.Width() || during.Map.Height() != before.Map.Height() || during.Map.Right != during.At.X {
-		t.Errorf("during the drag the map is %+v beside a ribbon at %+v; want %+v's size adjoining it", during.Map, during.At, before.Map)
+	if during.PullOut.Width() != before.PullOut.Width() || during.PullOut.Height() != before.PullOut.Height() || during.PullOut.Right != during.At.X {
+		t.Errorf("during the drag the pull out is %+v beside a ribbon at %+v; want %+v's size adjoining it", during.PullOut, during.At, before.PullOut)
 	}
 	if err := r.arranger.SetScale(ribbon.WholeScale + ribbon.WholeScale/2); err != nil {
 		t.Fatal(err)
@@ -130,8 +130,8 @@ func TestTheSunMapIsHeldWhileTheGripIsDragged(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if kept.Map.Width() == before.Map.Width() {
-		t.Errorf("once kept the map is still %d wide; want it sized for the new scale", kept.Map.Width())
+	if kept.PullOut.Width() == before.PullOut.Width() {
+		t.Errorf("once kept the pull out is still %d wide; want it sized for the new scale", kept.PullOut.Width())
 	}
 }
 

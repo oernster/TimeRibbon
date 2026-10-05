@@ -108,8 +108,9 @@ repository root so the kit is linted with it; its Vitest run includes the kit's 
     DPI, the least move into a work area (`Clamp`, `Recover`), the ribbon's length (`Fit`), centring
     along a work area (`CentredAlong`) or against an edge (`AgainstEdge`), the tab (`Tab`, FR-614),
     the edge a ribbon stands flush against (`FlushAgainst`) and the snap of a drop within `SnapReach`
-    (`Snapped`, FR-410). `sunmap.go` puts the map on the side away from the ribbon's edge
-    (`InnerSide`, `MapBeside`); `MapHeld` keeps it still while the grip is dragged (FR-623).
+    (`Snapped`, FR-410). `pullout.go` puts the pull out, the sun map here, on the side away from the
+    ribbon's edge (`InnerSide`, `PullOutBeside`); `PullOutHeld` keeps it still while the grip is
+    dragged (FR-623).
   - `ribbon` (the kit's): the ribbon's own choices as one value, `Choices`: colour, orientation and
     its home edge (FR-409), theme, Always on top, the pin and the pin in effect (`PinnedInEffect`,
     FR-619), the stay-on-top rule (`OnTop`, FR-617), the skipped release, the placement, the last
@@ -164,7 +165,7 @@ sizes (`layouts`) and panel sizes (`panels`) live there. No service is held in a
 
 The facade Wails binds is `App` in `app.go`, in two halves. The window is the kit's: `ribbonkit/ui/window`
 holds everything about the ribbon itself (its life and the desktop's events in `window_life.go`,
-placing, the tab and the map in `unpinned.go` and `map.go`, the grip, opacity, panels, menu choices,
+placing, the tab and the pull out in `unpinned.go` and `pullout.go`, the grip, opacity, panels, menu choices,
 the update check, the first showing, Help and the Wails options in `run.go`). It asks the application
 through its own `window.Service` port and the desktop through `shell.Desktop`; each call into Wails and
 the desktop is a field, so its tests stand in for both. `App` embeds the `*window.Window`, so every
@@ -227,7 +228,7 @@ because the page's pointer events jumped backwards on Windows while the window r
 where the desktop cannot answer, it takes the page's reading. Each step refits the window and tells the page to
 redraw. A change of scale keeps the top-left corner: `lengthChanged` counts only a change of length at
 the same scale, so clocks re-centre the ribbon (FR-104) and scale does not. While dragging, the sun
-map is held at its size and its place from the ribbon's corner (`MapHeld`), so the window's corner
+map is held at its size and its place from the ribbon's corner (`PullOutHeld`), so the window's corner
 stays still; it is resized once on release. A ribbon flush against the right or bottom edge still
 grows left or up (`KeptFlush`).
 

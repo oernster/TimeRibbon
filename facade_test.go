@@ -67,8 +67,8 @@ func TestTheSnapshotCarriesEveryCellAndTheWindowsReading(t *testing.T) {
 	service.choices = []menus.Item{{Action: menus.Pin, Label: "Pin ribbon", Checkable: true}}
 	control.shown = window.Shown{
 		Collapsed: true, Scrolls: true, DragThreshold: placement.Size{Width: 4, Height: 4},
-		MapSide: placement.Left, MapShown: true,
-		Ribbon: window.Box{X: 1, Y: 2, Width: 3, Height: 4}, Map: window.Box{Width: 480, Height: 240},
+		PullOutSide: placement.Left, PullOutShown: true,
+		Ribbon: window.Box{X: 1, Y: 2, Width: 3, Height: 4}, PullOut: window.Box{Width: 480, Height: 240},
 	}
 	got := app.Snapshot()
 	if len(got.Cells) != 1 || got.Cells[0].ID != "id-1" || got.Cells[0].Time != "20:37" {

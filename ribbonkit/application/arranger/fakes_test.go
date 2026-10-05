@@ -20,7 +20,7 @@ var (
 	smallCell    = placement.Size{Width: 120, Height: 60}
 )
 
-// The padding round the cells and the depth of a map handle's lane, in DIP.
+// The padding round the cells and the depth of a pull out handle's lane, in DIP.
 const (
 	testPadding = 8
 	testLane    = 12

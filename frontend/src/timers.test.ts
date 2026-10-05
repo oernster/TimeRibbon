@@ -2,7 +2,8 @@
 // the self-reading cycle of a Help panel runs only while that panel is shown (NFR-P-4, FR-609).
 //
 // The page is every module main.tsx reaches, followed through the source's own imports; that takes
-// in auto-scroll.js, which lives beside the setup page and is imported from there. The setup
+// in ribbonkit's half of the page (reached through the package's own exports) plus auto-scroll.js,
+// which lives beside the setup page and is imported from there. The setup
 // program's other scripts are not the ribbon's page: the ribbon never loads them, so the walk never
 // reaches them. Test support (the fake bridge, the setup page's test layout, Vitest's setup file) is
 // never shipped, so it is named below and held out of the page. Packages (React) and the runtime
@@ -13,14 +14,24 @@
 // reason it cannot wake the page more often than once a minute.
 
 import { describe, expect, it } from 'vitest'
+import kit from '../../ribbonkit/package.json'
 
 // The sources are read as text the way setupPage.ts reads the setup page, so the test sees exactly
 // the files the build bundles.
-const sources = import.meta.glob<string>(['./**/*.{ts,tsx}', '../../installer/frontend/dist/*.js'], {
-  query: '?raw',
-  import: 'default',
-  eager: true,
-})
+const sources = import.meta.glob<string>(
+  ['./**/*.{ts,tsx}', '../../ribbonkit/web/**/*.{ts,tsx}', '../../installer/frontend/dist/*.js'],
+  {
+    query: '?raw',
+    import: 'default',
+    eager: true,
+  },
+)
+
+/** KIT_ROOT is the kit package's folder as the glob keys it; its exports are relative to it. */
+const KIT_ROOT = '../../ribbonkit'
+
+/** KIT_SOURCE is the kit's half of the page, which is shipped source exactly as frontend/src is. */
+const KIT_SOURCE = `${KIT_ROOT}/web/`
 
 /** ENTRY is the module index.html loads. */
 const ENTRY = 'main.tsx'
@@ -33,6 +44,7 @@ const TEST_SUPPORT: Record<string, string> = {
   'fakeBridge.ts': 'stands in for Go in the suites',
   'setupPage.ts': 'lays out the setup page for its suites',
   'test-setup.ts': "Vitest's setup file",
+  [`${KIT_SOURCE}testing/index.ts`]: "the kit's stand-in bridge for the suites",
 }
 
 const TIMER_APIS = ['setInterval', 'setTimeout', 'requestAnimationFrame'] as const
@@ -74,13 +86,13 @@ const ALLOWED: AllowedSite[] = [
     reason: "one shot to Go's next minute boundary (clock.NextRefresh), armed again only by the snapshot it loads (FR-208)",
   },
   {
-    file: 'Ribbon.tsx',
+    file: `${KIT_SOURCE}Band.tsx`,
     api: 'requestAnimationFrame',
     delay: FRAME,
     reason: 'first of two frames telling Go an opened ribbon has been painted; runs once per opening (FR-615)',
   },
   {
-    file: 'Ribbon.tsx',
+    file: `${KIT_SOURCE}Band.tsx`,
     api: 'requestAnimationFrame',
     delay: FRAME,
     reason: 'second of the two frames, scheduled once from the first; it re-arms nothing (FR-615)',
@@ -115,6 +127,19 @@ const IMPORT_FORMS = [
   /import\(\s*['"]([^'"]+)['"]\s*\)/g,
 ]
 
+/** kitExport answers the path the kit package's exports give specifier; null for any other package. */
+function kitExport(specifier: string): string | null {
+  if (specifier !== kit.name && !specifier.startsWith(`${kit.name}/`)) {
+    return null
+  }
+  const entry = `.${specifier.slice(kit.name.length)}`
+  const target = (kit.exports as Record<string, string>)[entry]
+  if (target === undefined) {
+    throw new Error(`${specifier} is not among ribbonkit's exports`)
+  }
+  return normalise(`${KIT_ROOT}/${target}`)
+}
+
 /** importsOf answers the page modules file imports, failing loudly on a script it cannot find. */
 function importsOf(file: string): string[] {
   const text = modules.get(file) ?? ''
@@ -123,10 +148,11 @@ function importsOf(file: string): string[] {
   for (const form of IMPORT_FORMS) {
     for (const match of text.matchAll(form)) {
       const specifier = match[1]
-      if (!specifier.startsWith('.')) {
+      const exported = kitExport(specifier)
+      if (exported == null && !specifier.startsWith('.')) {
         continue
       }
-      const bare = normalise(`${folder}/${specifier}`)
+      const bare = exported ?? normalise(`${folder}/${specifier}`)
       const extension = bare.slice(bare.lastIndexOf('.'))
       const written = bare.lastIndexOf('.') > bare.lastIndexOf('/') && !SCRIPT_EXTENSIONS.includes(extension)
       if (written || specifier.includes('?')) {
@@ -203,10 +229,12 @@ describe('the ribbon page timers (NFR-P-4)', () => {
   const reached = page()
 
   it('reads every shipped source file and no test support, so nothing escapes the scan', () => {
-    const shipped = [...modules.keys()].filter((file) => !file.startsWith('..') && !isTest(file) && !(file in TEST_SUPPORT))
+    const ours = (file: string) => !file.startsWith('..') || file.startsWith(KIT_SOURCE)
+    const shipped = [...modules.keys()].filter((file) => ours(file) && !isTest(file) && !(file in TEST_SUPPORT))
     expect(shipped.filter((file) => !reached.has(file)), 'source the ribbon never imports; list it in TEST_SUPPORT or remove it').toEqual([])
     expect(Object.keys(TEST_SUPPORT).filter((file) => reached.has(file)), 'test support the page imports').toEqual([])
     expect(reached.has(HELP_CYCLE)).toBe(true)
+    expect([...reached].some((file) => file.startsWith(KIT_SOURCE)), "ribbonkit's half of the page").toBe(true)
   })
 
   it('schedules a periodic timer only in the Help self-reading cycle (FR-609)', () => {

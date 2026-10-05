@@ -1,6 +1,7 @@
 // A stand-in for the window's half of the Go facade in tests: every call is recorded, every answer
 // is canned. An application's own stand-in spreads it and adds its own methods.
 
+import { act } from '@testing-library/react'
 import { vi } from 'vitest'
 import { connect, windowCalls, type WindowBridge } from '../bridge'
 import type { About } from '../wire'
@@ -51,6 +52,18 @@ export function install<B extends object>(bridge: B): B {
   window.go = { main: { App: bridge } }
   window.WailsInvoke = vi.fn()
   return bridge
+}
+
+/** installEvents puts a runtime on window whose handlers the answered call fires by name. */
+export function installEvents() {
+  const handlers = new Map<string, (...data: unknown[]) => void>()
+  window.runtime = {
+    EventsOn: vi.fn((name: string, callback: (...data: unknown[]) => void) => {
+      handlers.set(name, callback)
+      return () => handlers.delete(name)
+    }),
+  }
+  return (name: string, ...data: unknown[]) => act(() => handlers.get(name)?.(...data))
 }
 
 /** sampleCalls are the window's calls over whatever bridge is installed, for the kit's own tests. */

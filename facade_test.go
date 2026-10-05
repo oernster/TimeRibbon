@@ -80,7 +80,7 @@ func TestTheSnapshotCarriesEveryCellAndTheWindowsReading(t *testing.T) {
 	if !got.Collapsed || !got.Scrolls || got.DragThreshold != (sizeDTO{Width: 4, Height: 4}) {
 		t.Errorf("collapsed %v, scrolls %v, threshold %v; want the window's", got.Collapsed, got.Scrolls, got.DragThreshold)
 	}
-	wantRibbon := boxDTO{X: 1, Y: 2, Width: 3, Height: 4}
+	wantRibbon := window.Box{X: 1, Y: 2, Width: 3, Height: 4}
 	if got.SunMap.Side != "left" || !got.SunMap.Shown || got.SunMap.Ribbon != wantRibbon || got.SunMap.Map.Width != 480 {
 		t.Errorf("sun map %+v, want the window's layout", got.SunMap)
 	}

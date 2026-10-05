@@ -85,7 +85,7 @@ func (a *App) Snapshot() snapshotDTO {
 	shown := snapshotOf(a.service.Snapshot(), seen.Scrolls, seen.DragThreshold)
 	shown.Collapsed = seen.Collapsed
 	shown.SunMap.Side, shown.SunMap.Shown = string(seen.MapSide), seen.MapShown
-	shown.SunMap.Ribbon, shown.SunMap.Map = boxDTO(seen.Ribbon), boxDTO(seen.Map)
+	shown.SunMap.Ribbon, shown.SunMap.Map = seen.Ribbon, seen.Map
 	shown.Choices = choicesOf(a.service.SettingsChoices())
 	return shown
 }

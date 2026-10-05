@@ -30,14 +30,6 @@ type Shown struct {
 	Map      Box
 }
 
-// Box is a rectangle inside the window, in the page's units.
-type Box struct {
-	X      float64
-	Y      float64
-	Width  float64
-	Height float64
-}
-
 // Refitted fits the ribbon after a change of the application's own, then answers err (FR-707).
 func (c *Control) Refitted(err error) error { return c.window.refitted(err) }
 

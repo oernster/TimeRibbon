@@ -1,6 +1,8 @@
 // TimeRibbon's half of the wire between Go and the page, stated a second time here. dto.go is the
 // other statement; ribbonkit states the window's half. A structural test compares each pair.
 
+import type { Box } from '@oernster/ribbonkit'
+
 export interface Size {
   width: number
   height: number
@@ -78,14 +80,6 @@ export interface MenuChoice {
   checkable: boolean
   checked: boolean
   children: MenuChoice[]
-}
-
-/** A rectangle inside the window, in the page's units. */
-export interface Box {
-  x: number
-  y: number
-  width: number
-  height: number
 }
 
 /** One clock's place on the sun map (FR-908). */

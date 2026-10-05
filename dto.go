@@ -10,6 +10,7 @@ import (
 	"github.com/oernster/timeribbon/internal/product"
 	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/ui/window"
 )
 
 // sizeDTO is a width and a height in DIP.
@@ -107,14 +108,6 @@ func choicesOf(items []menus.Item) []choiceDTO {
 	return out
 }
 
-// boxDTO is a rectangle inside the window, in the page's units.
-type boxDTO struct {
-	X      float64 `json:"x"`
-	Y      float64 `json:"y"`
-	Width  float64 `json:"width"`
-	Height float64 `json:"height"`
-}
-
 // markDTO is one clock's place on the sun map (FR-908).
 type markDTO struct {
 	Label     string  `json:"label"`
@@ -126,15 +119,15 @@ type markDTO struct {
 // pull out's handle go, empty while the map is off; Shown is whether the map is drawn now, in Map,
 // beside the ribbon in Ribbon. Latitude and Longitude are the subsolar point.
 type sunMapDTO struct {
-	On        bool      `json:"on"`
-	PullOut   bool      `json:"pullOut"`
-	Side      string    `json:"side"`
-	Shown     bool      `json:"shown"`
-	Ribbon    boxDTO    `json:"ribbon"`
-	Map       boxDTO    `json:"map"`
-	Latitude  float64   `json:"latitude"`
-	Longitude float64   `json:"longitude"`
-	Marks     []markDTO `json:"marks"`
+	On        bool       `json:"on"`
+	PullOut   bool       `json:"pullOut"`
+	Side      string     `json:"side"`
+	Shown     bool       `json:"shown"`
+	Ribbon    window.Box `json:"ribbon"`
+	Map       window.Box `json:"map"`
+	Latitude  float64    `json:"latitude"`
+	Longitude float64    `json:"longitude"`
+	Marks     []markDTO  `json:"marks"`
 }
 
 // sunMapOf answers the wire form of the sun map's content; where it is drawn is the facade's.

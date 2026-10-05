@@ -54,24 +54,28 @@ figure with the fraction dropped, so it fails once cover is lost.
 | `internal/product` | 100% | not gated |
 | `installer` | 0%, no tests | not gated |
 
-Every figure is the Windows build's, which `test.ps1` measures. That build compiles 418 Go test
+Every figure is the Windows build's, which `test.ps1` measures. That build compiles 419 Go test
 functions, counted from the test files `go list` selects, each running once with no subtests, plus
-one `TestMain` in `internal/infrastructure/setup`. Thirty-four are the structural tests, which read
+one `TestMain` in `internal/infrastructure/setup`. Thirty-five are the structural tests, which read
 the source and are the same on every platform; [ARCHITECTURE.md](ARCHITECTURE.md) lists each against
 its rule. `TestA1Point0SettingsFileIsReadWhole` in `store` holds the settings file's promise
 (NFR-C-1); `contrast_test.go` holds NFR-U-1 in Go because Vitest hands a CSS import back empty. The
-macOS build compiles 391 and the Linux build 395 ([On macOS and Linux](#on-macos-and-linux)).
+macOS build compiles 392 and the Linux build 396 ([On macOS and Linux](#on-macos-and-linux)).
 
 ### The front end
 
-136 tests in 21 files under Vitest with jsdom, run from `frontend`; six of the files are ribbonkit's
-own (`ribbonkit/web`), reached through the front end's link to the kit's package. They cover the ribbon, Settings, About, Licence and the update
-panel; an accessible name and tooltip on every icon-only control (`a11y.test.tsx`, NFR-U-4); the sun
-map, its blend and its labels (FR-914); the page's background colour; the self-reading cycle; the
+149 tests in 24 files under Vitest with jsdom, run from `frontend`; nine of the files are ribbonkit's
+own (`ribbonkit/web`), reached through the front end's link to the kit's package. They cover the
+ribbon's band, its tab and the report that it has been drawn (`Band.test.tsx`, FR-614, FR-615); the
+handle that pulls the sun map out (`PullOut.test.tsx`, FR-903); the shell's panels, refreshes, theme
+and colour scheme (`shell.test.tsx`); the clocks, Settings, About, Licence and the update panel; an
+accessible name and tooltip on every icon-only control (`a11y.test.tsx`, NFR-U-4); the sun map, its
+blend and its labels (FR-914); the page's background colour; the self-reading cycle; the
 `devicePixelRatio` watch; measuring a cell's widest text (FR-620); Settings fitting its content
-(`panelFit.test.tsx`, FR-621); the opacity and its slider and opaque panels (`opacity.test.ts`, `OpacitySlider.test.tsx`,
-`panelOpacity.test.tsx`, FR-622); the corner grip (`ScaleGrip.test.tsx`, `scaleGrip.test.tsx`, FR-623); every timer the
-ribbon schedules against a reasoned allow-list (`timers.test.ts`, NFR-P-4); the setup page's screens,
+(`panelFit.test.tsx`, FR-621); the opacity and its slider and opaque panels (`opacity.test.ts`,
+`OpacitySlider.test.tsx`, `shell.test.tsx`, FR-622); the corner grip (`ScaleGrip.test.tsx`,
+`scaleGrip.test.tsx`, FR-623); every timer the page schedules, the kit's included, against a reasoned
+allow-list (`timers.test.ts`, NFR-P-4); the setup page's screens,
 keyboard ring and unreachable-program cases. No coverage provider is installed, so no figure is
 claimed.
 

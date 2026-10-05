@@ -15,6 +15,14 @@ export interface UpdateStatus {
   updateAvailable: boolean
 }
 
+/** A rectangle inside the window, in the page's units: where Go places the ribbon and what is beside it. */
+export interface Box {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
 export interface Credit {
   name: string
   licence: string

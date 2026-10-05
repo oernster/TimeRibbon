@@ -30,6 +30,15 @@ type updateDTO struct {
 	UpdateAvailable bool   `json:"updateAvailable"`
 }
 
+// Box is a rectangle inside the window, in the page's units: where Shown places the ribbon and what
+// is pulled out beside it. The application carries it to the page as it is.
+type Box struct {
+	X      float64 `json:"x"`
+	Y      float64 `json:"y"`
+	Width  float64 `json:"width"`
+	Height float64 `json:"height"`
+}
+
 func updateOf(status release.Status) updateDTO {
 	return updateDTO{Current: status.Current, Latest: status.Latest, UpdateAvailable: status.Available}
 }

@@ -1,83 +1,31 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { api, on, type Snapshot, type UpdateStatus } from './api'
-import { backgroundReporter, percentOfWhole, scrollbarThickness, showOpacity, watchPixelRatio } from '@oernster/ribbonkit'
+import { useEffect } from 'react'
+import { api } from './api'
+import { useShell, type Panel } from '@oernster/ribbonkit'
 import { About, Licence, Update } from './Help'
 import { useMeasuredCells } from './measure'
 import { Settings } from './Settings'
 import { Surface } from './Surface'
 
-/** The panels the window can become (CON-6); app.go names each in its open-panel event. */
-type Panel = 'settings' | 'about' | 'licence' | 'update'
-type View = 'ribbon' | Panel
-
 /**
- * The open-panel event's words, each naming the panel it opens; add-clock opens Settings on the place
- * search; update carries the check's outcome with it. The keys are quoted so the structural test
- * can find each word app.go sends.
+ * TimeRibbon's own open-panel word, which app.go sends: add-clock opens Settings on the place search.
+ * The window's words are ribbonkit's (useShell).
  */
 const addClock = 'add-clock'
-const panelFor: Record<string, Panel> = {
-  'settings': 'settings', [addClock]: 'settings', 'about': 'about', 'licence': 'licence', 'update': 'update',
-}
+const opens: Record<string, Panel> = { [addClock]: 'settings' }
 
 /**
- * App holds the snapshot and which surface the window shows. The snapshot is taken again at each
- * minute boundary Go names (FR-208) and whenever Go says the time, the displays or a choice changed
- * (FR-209).
+ * App is ribbonkit's shell around the clocks: it shows the ribbon, else the panel Go opened it at.
+ * The snapshot is also taken again at each minute boundary Go names (FR-208).
  */
 export function App() {
-  const [snapshot, setSnapshot] = useState<Snapshot | null>(null)
-  const [problem, setProblem] = useState('')
-  const [view, setView] = useState<View>('ribbon')
-  const [adding, setAdding] = useState(false)
-  const [update, setUpdate] = useState<UpdateStatus | null>(null)
-  // opened is true once Go has made the window the panel shown, so Settings measures its content at
-  // the panel's own size rather than the ribbon's (FR-621).
-  const [opened, setOpened] = useState(false)
-
-  const load = useCallback(() => {
-    void api.snapshot(setProblem).then((next) => {
-      if (next != null) {
-        setSnapshot(next)
-        setProblem('')
-      }
-    })
-  }, [])
-
-  const openPanel = useCallback((at?: unknown, outcome?: unknown) => {
-    setAdding(at === addClock)
-    setUpdate((outcome as UpdateStatus | undefined) ?? null)
-    const panel = panelFor[String(at)] ?? 'settings'
-    setOpened(false)
-    setView(panel)
-    void api.openPanel(panel, setProblem).then(() => setOpened(true))
-  }, [])
-
-  const closePanel = useCallback(() => {
-    setView('ribbon')
-    void api.closePanel(setProblem).then(load)
-  }, [load])
+  const { snapshot, problem, refused, view, at, update, opened, load, openPanel, closePanel } = useShell({
+    calls: api,
+    take: api.snapshot,
+    opens,
+  })
 
   // Go widens the cells to the widest time and date the page really draws, which only it can measure.
-  useMeasuredCells(snapshot, load, setProblem)
-
-  useEffect(() => {
-    // Go makes room for the scroll bar a scrolling ribbon shows, which only the page can measure.
-    void api.setScrollbar(scrollbarThickness(), setProblem)
-  }, [])
-
-  // Go sizes the window by the scale the page is really drawn at, which only the page knows.
-  useEffect(() => watchPixelRatio((ratio) => void api.setPixelRatio(ratio, setProblem)), [])
-
-  useEffect(() => {
-    load()
-    const stopRefresh = on('refresh', load)
-    const stopPanel = on('open-panel', openPanel)
-    return () => {
-      stopRefresh()
-      stopPanel()
-    }
-  }, [load, openPanel])
+  useMeasuredCells(snapshot, load, refused)
 
   useEffect(() => {
     if (snapshot == null) {
@@ -87,36 +35,11 @@ export function App() {
     return () => window.clearTimeout(timer)
   }, [snapshot, load])
 
-  // Go paints the window in the page's own background, which only the page's CSS knows.
-  const background = useRef<ReturnType<typeof backgroundReporter> | null>(null)
-  useEffect(() => {
-    const reporter = backgroundReporter((red, green, blue) => void api.setBackground(red, green, blue, setProblem))
-    background.current = reporter
-    reporter.check()
-    return reporter.stop
-  }, [])
-
-  useEffect(() => {
-    const root = document.documentElement
-    if (snapshot == null || snapshot.theme === 'system') {
-      delete root.dataset.theme
-    } else {
-      root.dataset.theme = snapshot.theme
-    }
-    // The colour scheme (FR-611); ribbonkit's colours.css and dials.css key their schemes off it.
-    root.dataset.colour = snapshot?.colour ?? 'classic'
-    // The chosen opacity is the ribbon's; a panel the window becomes is always drawn opaque (FR-622).
-    if (snapshot != null) {
-      showOpacity(view === 'ribbon' ? snapshot.opacity : percentOfWhole)
-    }
-    background.current?.check()
-  }, [snapshot, view])
-
   if (snapshot == null) {
     return <div className="problem">{problem}</div>
   }
   if (view === 'settings') {
-    return <Settings snapshot={snapshot} startAdding={adding} reload={load} onClose={closePanel} ready={opened} />
+    return <Settings snapshot={snapshot} startAdding={at === addClock} reload={load} onClose={closePanel} ready={opened} />
   }
   if (view === 'about') {
     return <About onClose={closePanel} />
@@ -127,5 +50,5 @@ export function App() {
   if (view === 'update' && update != null) {
     return <Update status={update} onClose={closePanel} />
   }
-  return <Surface snapshot={snapshot} onAddClock={() => openPanel(addClock)} refused={setProblem} />
+  return <Surface snapshot={snapshot} onAddClock={() => openPanel(addClock)} refused={refused} />
 }

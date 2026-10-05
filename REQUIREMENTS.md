@@ -256,7 +256,7 @@ Verified by: `TestRibbonLengthFollowsClockCountAndNeverExceedsWorkArea` (domain)
 the orientation, never clipped out of reach and never wrapped.
 Acceptance: a work area 1920 DIP wide and 12 horizontal cells needing 2400 DIP give a ribbon 1920 DIP
 long whose last cell is reachable by scrolling.
-Verified by: `TestRibbonLengthFollowsClockCountAndNeverExceedsWorkArea` (domain); `ribbon.test.tsx`.
+Verified by: `TestRibbonLengthFollowsClockCountAndNeverExceedsWorkArea` (domain); `Band.test.tsx` (ribbonkit).
 
 **FR-107 Empty ribbon** (Must). With no clock, the ribbon shall show one cell reading `No clocks yet`
 with an `Add clock` control opening the place search.
@@ -358,7 +358,7 @@ Verified by: by hand; `TestTheDragThresholdIsTheDesktopsOwn` (desktop, Linux and
 
 **FR-402 Controls do not drag** (Must). A press on a control (a button, the scroll bar, a menu, the
 grip, the handle) starts no drag.
-Verified by: `ribbon.test.tsx`; by hand.
+Verified by: `Band.test.tsx` (ribbonkit); by hand.
 
 **FR-403 Default placement** (Must; Amendment 10). With no placement stored, the ribbon shall stand
 flush against its orientation's home edge of the primary work area, centred along it (FR-409); so
@@ -614,7 +614,7 @@ Acceptance: a vertical ribbon 196 DIP long flush right collapses to an 8 by 196 
 edge; a horizontal one flush against the bottom of the upper of two stacked displays collapses along
 that edge.
 Verified by: `TestTheTabCoversTheFlushSide` (domain); `TestCollapsingKeepsThePlacement`,
-`TestARibbonAgainstNoEdgeHasNoTab` (arranger); `ribbon.test.tsx`; by hand.
+`TestARibbonAgainstNoEdgeHasNoTab` (arranger); `Band.test.tsx` (ribbonkit); by hand.
 
 **FR-615 Opens on a resting pointer** (Should; Amendment 18). When the pointer has rested on the tab
 for 0.3 s, the ribbon expands at its placement without taking keyboard focus; a pointer leaving sooner
@@ -623,7 +623,7 @@ while the window is still the tab.
 Acceptance: a 0.3 s rest opens it while the focused window keeps focus; a 0.1 s crossing does not.
 Verified by: `TestTheRibbonOpensAfterTheRest`, `TestAPassingPointerDoesNotOpenIt` (hover);
 `TestTheTabOpensAfterTheRestAndCollapsesOnceAway`, `TestAnOpeningRibbonIsDrawnWithItsMap`,
-`TestTheMapsPartsReachThePageInItsOwnUnits` (window); `surface.test.tsx`; focus by hand.
+`TestTheMapsPartsReachThePageInItsOwnUnits` (window); `Band.test.tsx`, `PullOut.test.tsx` (ribbonkit); focus by hand.
 
 **FR-616 Collapses after the pointer leaves** (Should; Amendment 18). While unpinned in effect and
 expanded, with no drag, menu or panel open, the ribbon collapses once the pointer has been off it for
@@ -696,7 +696,7 @@ holding 5 draws the background at 20.
 Verified by: `TestOpacityIsHeldWithinItsBounds` (ribbon); `TestOpacityIsChosenSavedAndShown`
 (application); `TestSettingsRoundTrip` (store); `TestThePagesBackgroundReachesTheWindow`,
 `TestTheWindowIsPaintedClearBelowFullOpacity` (window); `opacity.test.ts`, `OpacitySlider.test.tsx` (ribbonkit),
-`panelOpacity.test.tsx`, `background.test.ts` (ribbonkit); by hand.
+`shell.test.tsx`, `background.test.ts` (ribbonkit); by hand.
 
 **FR-623 Resizing the clocks** (Should; Amendments 27, 31; OQ-27, OQ-28). A grip in the ribbon's
 corner, dragged outward or back, draws everything in the clocks (text, dials, padding, cells, the
@@ -846,7 +846,7 @@ alone and the handle overlaps no text.
 Verified by: `TestAVerticalRibbonsMapWaitsForThePullOut`, `TestAHorizontalRibbonsMapWaitsForThePullOut`,
 `TestTheHandlesLaneDeepensTheRibbon` (arranger); `TestTheServiceHandsTheArrangerItsContent`
 (application); `TestTheHandleFlipsThePullOut` (window); `TestTimeRibbonsMenuActions` (facade);
-`surface.test.tsx`; by hand.
+`surface.test.tsx`; `PullOut.test.tsx` (ribbonkit); by hand.
 
 **FR-904 The map's size** (Should; OQ-15). The map is twice as long as deep, as long as the ribbon and
 centred on it, at least 480 by 240 DIP; with less room across, scaled down to fit, keeping its shape;
@@ -905,7 +905,7 @@ neither answers a right-click and a drag as the ribbon does (Amendment 33).
 Acceptance: a vertical ribbon 708 DIP long flush right with a 708 by 354 map shows the desktop above
 and below the map, clickable; closing the pull out leaves the ribbon alone.
 Verified by: `TestTheShapeIsTheRibbonAndItsMap` (placement); `TestTheShapeFollowsEveryRefit` (window);
-`TestThePointerIsReadAgainstTheWindowsShape` (desktop); `surface.test.tsx` for the spare area; by hand.
+`TestThePointerIsReadAgainstTheWindowsShape` (desktop); `PullOut.test.tsx` (ribbonkit) for the spare area; by hand.
 
 **FR-914 Labels stand clear** (Should; Amendment 21; OQ-20). Each label, in clock order, takes the
 first spot beside its dot (right, left, below, above) wholly inside the map and clear of every dot and

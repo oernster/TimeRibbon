@@ -24,6 +24,7 @@ here does not exist.
 |---|---|---|
 | Domain imports nothing from this module outside `internal/domain` | `TestDomainHasNoOutwardImports` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | `ribbonkit` imports nothing of TimeRibbon's, so it can leave this repository whole | `TestTheKitImportsNothingOfTimeRibbon` | [`boundary_test.go`](tests/structural/boundary_test.go) |
+| The kit's page reaches nothing outside `ribbonkit/web` and imports only the packages `ribbonkit/package.json` depends on, plus its test tools | `TestTheKitPageReachesNothingOfTimeRibbon` | [`kitpage_test.go`](tests/structural/kitpage_test.go) |
 | Domain is pure: no network, filesystem, process, random or tz package; no wall clock read, no zone loaded (FR-207, CON-5) | `TestDomainIsPure` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | Application never imports infrastructure or Wails | `TestApplicationDoesNotImportInfrastructure` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | Infrastructure never imports Wails | `TestWailsStaysOutOfInfrastructure` | [`boundary_test.go`](tests/structural/boundary_test.go) |
@@ -80,7 +81,14 @@ window: the drag and the right-click menu (`drag.ts`), the opacity, the `deviceP
 scroll bar's measure, the background colour reported to Go, a panel fitting its content
 (`panelFit.ts`), plus two controls: the corner grip (`ScaleGrip.tsx`, its tooltip in the
 application's words) and the opacity slider (`OpacitySlider.tsx`), styled by `controls.css`, which the
-package exports beside its entry. Each component takes only the values it draws, never the
+package exports beside its entry. The ribbon itself is the kit's too: `Band.tsx` is the band the
+application draws its content in, with the tab, the drag, the wheel, the menu, the grip and the
+report that an opening ribbon has been drawn; `PullOut.tsx` places the band and what is pulled out
+beside it at the boxes Go sends (`Box`, in the kit's wire), with the handle named in the
+application's words; `ribbon.css` styles both. `shell.ts` is the page's shell (`useShell`): it holds
+the application's snapshot, taken by a call the application passes in, routes the window's
+open-panel words to its panels, reloads on Go's refresh and draws the theme, colour scheme and
+opacity the snapshot names. Each component takes only the values it draws, never the
 application's snapshot. A module that reaches Go is handed the calls it needs rather than holding them.
 `web/testing` is its stand-in bridge, which TimeRibbon's `fakeBridge.ts` builds on. The front end
 reads the kit through the link: tsconfig's `preserveSymlinks` and Vite's `resolve.preserveSymlinks`
@@ -238,7 +246,7 @@ map and `ribbonFromWindow` reads a dragged window back. On Windows the window is
 (`placement.Shape`, `desktop.Shape` over `SetWindowRgn`, FR-913) before every placing. On macOS and
 Linux it stays a rectangle; the surface showing beside a ribbon shorter than its map answers a
 right-click and a drag as the ribbon does (Amendment 33). The page lays
-them out (`Surface.tsx`) at boxes Go sends in the page's units, blends day and night by solar altitude
+them out (`Surface.tsx`, over the kit's `PullOut.tsx`) at boxes Go sends in the page's units, blends day and night by solar altitude
 (`sunLight.ts`) and stands labels clear (`labels.ts`, FR-914).
 
 ## The ribbon's size and place

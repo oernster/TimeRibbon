@@ -8,7 +8,8 @@
     "./testing": "./web/testing/index.ts",
     "./theme.css": "./web/theme.css",
     "./colours.css": "./web/colours.css",
-    "./controls.css": "./web/controls.css"
+    "./controls.css": "./web/controls.css",
+    "./ribbon.css": "./web/ribbon.css"
   },
   "peerDependencies": {
     "react": "^18.3.1",

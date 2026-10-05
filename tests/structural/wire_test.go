@@ -24,7 +24,7 @@ import (
 var wirePairs = map[string]string{
 	"sizeDTO": "Size", "layoutDTO": "Layout", "cellDTO": "Cell", "snapshotDTO": "Snapshot", "placeDTO": "Place",
 	"aboutDTO": "About", "creditDTO": "Credit", "updateDTO": "UpdateStatus",
-	"boxDTO": "Box", "markDTO": "Mark", "sunMapDTO": "SunMap",
+	"Box": "Box", "markDTO": "Mark", "sunMapDTO": "SunMap",
 	"textSamplesDTO": "TextSamples", "measuredDTO": "Measured", "choiceDTO": "MenuChoice",
 }
 

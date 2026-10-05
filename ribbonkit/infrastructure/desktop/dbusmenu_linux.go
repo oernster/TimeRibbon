@@ -5,7 +5,7 @@ import (
 
 	"github.com/godbus/dbus/v5"
 
-	"github.com/oernster/timeribbon/internal/application"
+	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 )
 
 // The com.canonical.dbusmenu vocabulary the tray's menu is written in.
@@ -35,8 +35,8 @@ type menuNode struct {
 // layoutOf answers items as a dbusmenu layout under the root, with the action each chosen id
 // stands for. Ids are given out depth first from one. A separator and a submenu take an id too, as
 // every entry must; neither carries an action.
-func layoutOf(items []application.MenuItem) (menuNode, map[int32]application.MenuAction) {
-	actions := map[int32]application.MenuAction{}
+func layoutOf(items []menus.Item) (menuNode, map[int32]menus.Action) {
+	actions := map[int32]menus.Action{}
 	next := menuRootID
 	root := menuNode{ID: menuRootID, Properties: map[string]dbus.Variant{menuChildrenDisplay: dbus.MakeVariant(menuSubmenu)}}
 	root.Children = childrenOf(items, &next, actions)
@@ -44,7 +44,7 @@ func layoutOf(items []application.MenuItem) (menuNode, map[int32]application.Men
 }
 
 // childrenOf answers items as layout children, numbering them on from next.
-func childrenOf(items []application.MenuItem, next *int32, actions map[int32]application.MenuAction) []dbus.Variant {
+func childrenOf(items []menus.Item, next *int32, actions map[int32]menus.Action) []dbus.Variant {
 	var children []dbus.Variant
 	for _, item := range items {
 		if separatedBefore(item) {

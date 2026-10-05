@@ -5,6 +5,7 @@ import (
 
 	"github.com/oernster/timeribbon/internal/domain/settings"
 	"github.com/oernster/timeribbon/internal/domain/sun"
+	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
@@ -56,8 +57,8 @@ func (s *Service) SetPullOut(open bool) error {
 }
 
 // sunMapItem follows Pin ribbon in both menus, ticked while the sun map is on (FR-901).
-func (s *Service) sunMapItem() MenuItem {
-	return MenuItem{Action: ActionSunMap, Label: labelSunMap, Checkable: true, Checked: s.Settings().SunMap}
+func (s *Service) sunMapItem() menus.Item {
+	return menus.Item{Action: ActionSunMap, Label: labelSunMap, Checkable: true, Checked: s.Settings().SunMap}
 }
 
 // mapBeside answers where the sun map goes for a ribbon arranged at at of size on monitor, flush

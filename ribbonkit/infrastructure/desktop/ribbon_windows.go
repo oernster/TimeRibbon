@@ -8,8 +8,9 @@ import (
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
-// FindRibbon answers the window of class, the class name the ribbon's window is created with.
-func FindRibbon(class string) (Window, error) {
+// FindRibbon answers the window of class, the class name the ribbon's window is created with. The
+// name is for the desktops that find it by its title instead.
+func FindRibbon(class, _ string) (Window, error) {
 	for range findAttempts {
 		if handle, _, _ := procFindWindow.Call(utf16Pointer(class), 0); handle != 0 {
 			return Window(handle), nil

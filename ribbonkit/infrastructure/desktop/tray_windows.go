@@ -9,19 +9,17 @@ import (
 	"sync/atomic"
 	"unsafe"
 
+	"github.com/oernster/timeribbon/ribbonkit/application/menus"
+	"github.com/oernster/timeribbon/ribbonkit/domain/identity"
+
 	"golang.org/x/sys/windows"
-
-	"github.com/oernster/timeribbon/internal/application"
-	"github.com/oernster/timeribbon/internal/product"
 )
-
-// className is the hidden window's class, unique to TimeRibbon.
-const className = product.Name + "Desktop"
 
 // Desktop is the hidden window that owns the tray icon and hears the desktop's broadcasts. Every
 // Win32 handle it holds belongs to one locked thread; other goroutines only post to it.
 type Desktop struct {
-	menu   func() []application.MenuItem
+	app    identity.App
+	menu   func() []menus.Item
 	events chan Event
 	log    io.Writer
 
@@ -39,11 +37,14 @@ type Desktop struct {
 	ready   chan error
 }
 
-// New answers a desktop whose tray menu is menu, called each time the menu opens, reporting
+// New answers a desktop for app whose tray menu is menu, called each time the menu opens, reporting
 // failures on its own thread to log.
-func New(menu func() []application.MenuItem, log io.Writer) *Desktop {
-	return &Desktop{menu: menu, events: make(chan Event, eventBuffer), log: log, ready: make(chan error, 1)}
+func New(app identity.App, menu func() []menus.Item, log io.Writer) *Desktop {
+	return &Desktop{app: app, menu: menu, events: make(chan Event, eventBuffer), log: log, ready: make(chan error, 1)}
 }
+
+// className is the hidden window's class, unique to the application.
+func (d *Desktop) className() string { return d.app.Name + "Desktop" }
 
 // Events yields what happened. The channel is closed when the desktop stops.
 func (d *Desktop) Events() <-chan Event { return d.events }
@@ -87,7 +88,7 @@ func (d *Desktop) run() {
 // create registers the class, makes the hidden window, adds the icon and hooks the end of moves.
 func (d *Desktop) create() error {
 	instance, _, _ := procGetModuleHandle.Call(0)
-	classText, err := windows.UTF16PtrFromString(className)
+	classText, err := windows.UTF16PtrFromString(d.className())
 	if err != nil {
 		return fmt.Errorf("encoding the desktop window class: %w", err)
 	}
@@ -130,7 +131,7 @@ func (d *Desktop) addIcon() error {
 func (d *Desktop) iconData() notifyIconData {
 	data := notifyIconData{hWnd: d.window, uID: trayIconID, uFlags: nifMessage | nifIcon | nifTip, uCallbackMessage: wmTrayCallback, hIcon: d.icon}
 	data.cbSize = uint32(unsafe.Sizeof(data))
-	tip, _ := windows.UTF16FromString(product.Name)
+	tip, _ := windows.UTF16FromString(d.app.Name)
 	copy(data.szTip[:tipLength-1], tip)
 	return data
 }

@@ -6,15 +6,16 @@ import (
 	"testing"
 
 	"github.com/oernster/timeribbon/internal/application"
+	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 )
 
 // testChoices is a Colour group of two schemes, Neon ticked, then Pin ribbon on its own.
-var testChoices = []application.MenuItem{
-	{Label: "Colour", Children: []application.MenuItem{
+var testChoices = []menus.Item{
+	{Label: "Colour", Children: []menus.Item{
 		{Action: "colour-classic", Label: "Classic", Checkable: true},
 		{Action: "colour-neon", Label: "Neon", Checkable: true, Checked: true},
 	}},
-	{Action: application.ActionPin, Label: "Pin ribbon", Checkable: true, Checked: true},
+	{Action: menus.Pin, Label: "Pin ribbon", Checkable: true, Checked: true},
 }
 
 // FR-624: the snapshot carries the menus' choices whole with their ticks; never a null list.
@@ -28,7 +29,7 @@ func TestTheSnapshotCarriesTheMenusChoices(t *testing.T) {
 	if neon := got[0].Children[1]; neon.Action != "colour-neon" || !neon.Checkable || !neon.Checked {
 		t.Errorf("Neon went out as %+v", neon)
 	}
-	if pin := got[1]; pin.Children == nil || pin.Action != string(application.ActionPin) || !pin.Checked {
+	if pin := got[1]; pin.Children == nil || pin.Action != string(menus.Pin) || !pin.Checked {
 		t.Errorf("Pin ribbon went out as %+v, with a null list of children or without its tick", pin)
 	}
 }

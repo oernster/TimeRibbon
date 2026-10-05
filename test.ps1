@@ -86,7 +86,7 @@ try {
 $measured = [ordered]@{
     '.'                                  = 87
     './ribbonkit/infrastructure/appdata'  = 100
-    './internal/infrastructure/desktop'  = 38
+    './ribbonkit/infrastructure/desktop'  = 38
     './ribbonkit/infrastructure/iconscale' = 100
     './ribbonkit/infrastructure/runlog'   = 77
     './ribbonkit/infrastructure/monitors' = 82

@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oernster/timeribbon/internal/application"
+	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 	"github.com/oernster/timeribbon/ribbonkit/application/release"
 )
 
@@ -71,7 +71,7 @@ func TestCheckForUpdatesInHelpAsksForACheck(t *testing.T) {
 	t.Parallel()
 	app, service, _, _ := newTestApp(t)
 	service.checked = make(chan bool, 1)
-	app.act(application.ActionUpdates)
+	app.act(menus.Updates)
 	if !awaitCheck(t, service.checked) {
 		t.Error("Help's check was made as an automatic one")
 	}

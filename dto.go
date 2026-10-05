@@ -7,6 +7,7 @@ package main
 import (
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/internal/product"
+	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 	"github.com/oernster/timeribbon/ribbonkit/application/release"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
@@ -95,7 +96,7 @@ type choiceDTO struct {
 }
 
 // choicesOf answers the wire form of menu items, every list present so the page never meets null.
-func choicesOf(items []application.MenuItem) []choiceDTO {
+func choicesOf(items []menus.Item) []choiceDTO {
 	out := make([]choiceDTO, 0, len(items))
 	for _, item := range items {
 		out = append(out, choiceDTO{

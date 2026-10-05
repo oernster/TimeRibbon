@@ -75,7 +75,6 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/oernster/timeribbon/internal/product"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 	"github.com/oernster/timeribbon/ribbonkit/infrastructure/gtkmain"
 )
@@ -93,12 +92,12 @@ func gtkWindow(ribbon Window) (*C.GtkWindow, error) {
 }
 
 // FindRibbon answers the ribbon's window. On Linux there is no window class to find it by, so
-// class is not used: the ribbon is the process's top-level window titled with the product's name,
+// class is not used: the ribbon is the process's top-level window titled name, the product's name,
 // as Wails creates it.
-func FindRibbon(_ string) (Window, error) {
-	title := C.CString(product.Name)
+func FindRibbon(_, name string) (Window, error) {
+	title := C.CString(name)
 	defer C.free(unsafe.Pointer(title))
-	return findWith(func() unsafe.Pointer {
+	return findWith(name, func() unsafe.Pointer {
 		var found *C.GtkWindow
 		gtkmain.Do(func() { found = C.ribbon_toplevel(title) })
 		return unsafe.Pointer(found)
@@ -184,8 +183,8 @@ func size(ribbon Window) (placement.Size, error) {
 
 // newTestWindow shows a window set up as Wails sets up the ribbon's, for the tests: nothing in the
 // application makes one.
-func newTestWindow() Window {
-	title := C.CString(product.Name)
+func newTestWindow(name string) Window {
+	title := C.CString(name)
 	defer C.free(unsafe.Pointer(title))
 	var window *C.GtkWindow
 	gtkmain.Do(func() { window = C.test_window(title) })

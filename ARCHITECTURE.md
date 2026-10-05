@@ -60,8 +60,9 @@ here does not exist.
 The desktop behaviour shared with WeatherRibbon is being carved into `ribbonkit/`, which has the
 same layers (`ribbonkit/domain`, `ribbonkit/application`, `ribbonkit/infrastructure`), is held to
 every rule above and will leave this repository as a module of its own. It holds `placement`, `hover`,
-`ribbon` and `identity` in its domain; `release` in its application; `gtkmain`, `cocoamain`, `iconscale`,
-`system`, `monitors`, `appdata`, `runlog`, `startup` and `update` in its infrastructure. It names no
+`ribbon` and `identity` in its domain; `menus` (the menu model and every ribbon's actions) and
+`release` in its application; `gtkmain`, `cocoamain`, `iconscale`, `system`, `monitors`, `appdata`,
+`runlog`, `startup`, `update` and `desktop` in its infrastructure. It names no
 product: `identity.App` carries the name and app id, built once by `product.App()` and handed in by
 the composition root and setup. Each package is described below where it sits in the layering.
 

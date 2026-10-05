@@ -5,6 +5,7 @@ import (
 
 	"github.com/oernster/timeribbon/internal/domain/settings"
 	"github.com/oernster/timeribbon/internal/domain/sun"
+	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
@@ -16,7 +17,7 @@ var londonAt = sun.Point{Latitude: 51.5083, Longitude: -0.1253}
 func TestBothMenusOfferSunMap(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, settings.Defaults())
-	for name, menu := range map[string][]MenuItem{"tray": r.service.TrayMenu(true), "context": r.service.ContextMenu()} {
+	for name, menu := range map[string][]menus.Item{"tray": r.service.TrayMenu(true), "context": r.service.ContextMenu()} {
 		if item := find(t, menu, labelSunMap); item.Action != ActionSunMap || !item.Checkable || item.Checked {
 			t.Errorf("%s: %+v", name, item)
 		}

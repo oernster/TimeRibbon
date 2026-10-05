@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
@@ -17,7 +18,7 @@ func TestEveryMenuChoiceIsOfferedBySettings(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, settings.Defaults())
 	offered := labels(r.service.SettingsChoices())
-	for _, menu := range [][]MenuItem{r.service.TrayMenu(true), r.service.TrayMenu(false), r.service.ContextMenu()} {
+	for _, menu := range [][]menus.Item{r.service.TrayMenu(true), r.service.TrayMenu(false), r.service.ContextMenu()} {
 		for _, item := range menu {
 			if !slices.Contains(offered, item.Label) && !slices.Contains(commandLabels, item.Label) {
 				t.Errorf("%s is on a menu and not in Settings", item.Label)

@@ -4,7 +4,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/oernster/timeribbon/internal/infrastructure/desktop"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/desktop"
 )
 
 // The page's ratio is turned into window pixels with the toolkit's own window scale the desktop

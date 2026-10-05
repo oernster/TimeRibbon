@@ -8,8 +8,9 @@ import (
 	"testing"
 
 	"github.com/oernster/timeribbon/internal/application"
-	"github.com/oernster/timeribbon/internal/infrastructure/desktop"
+	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/desktop"
 )
 
 func TestADragIsRecordedAndTheRibbonPlacedWhereTheServiceSays(t *testing.T) {
@@ -107,11 +108,11 @@ func TestAPanicInOneEventIsLoggedAndSurvived(t *testing.T) {
 }
 
 func TestEachMenuActionOpensWhatItNames(t *testing.T) {
-	panels := map[application.MenuAction]string{
+	panels := map[menus.Action]string{
 		application.ActionAddClock: openAtAddClock,
-		application.ActionSettings: openAtSettings,
-		application.ActionAbout:    openAtAbout,
-		application.ActionLicence:  openAtLicence,
+		menus.Settings:             openAtSettings,
+		menus.About:                openAtAbout,
+		menus.Licence:              openAtLicence,
 	}
 	for action, panel := range panels {
 		app, _, seen, _ := newTestApp(t)
@@ -124,11 +125,11 @@ func TestEachMenuActionOpensWhatItNames(t *testing.T) {
 
 func TestShowAndHideFromTheMenu(t *testing.T) {
 	app, _, seen, _ := newTestApp(t)
-	app.act(application.ActionShow)
+	app.act(menus.Show)
 	if seen.shown != 1 || !app.visible.Load() || !seen.sawEvent(eventRefresh) {
 		t.Errorf("shown %d, visible %v, sent %v; want shown, visible and refreshed", seen.shown, app.visible.Load(), seen.events)
 	}
-	app.act(application.ActionHide)
+	app.act(menus.Hide)
 	if seen.hidden != 1 || app.visible.Load() {
 		t.Errorf("hidden %d, visible %v; want hidden", seen.hidden, app.visible.Load())
 	}
@@ -137,7 +138,7 @@ func TestShowAndHideFromTheMenu(t *testing.T) {
 func TestAlwaysOnTopFromTheMenuTurnsTheSettingOver(t *testing.T) {
 	app, service, seen, _ := newTestApp(t)
 	service.settings.AlwaysOnTop = true
-	app.act(application.ActionAlwaysOnTop)
+	app.act(menus.AlwaysOnTop)
 	if !slices.Equal(service.onTop, []bool{false}) || !slices.Equal(seen.onTop, []bool{false}) {
 		t.Errorf("the service was set %v and the window %v, want both turned off", service.onTop, seen.onTop)
 	}
@@ -150,7 +151,7 @@ func TestAlwaysOnTopFromTheMenuTurnsTheSettingOver(t *testing.T) {
 // the place is kept for the panel's close and the panel is left where it is.
 func TestAPositionItemPutsTheRibbonAgainstItsEdge(t *testing.T) {
 	app, service, seen, _ := newTestApp(t)
-	app.act(application.ActionRightEdge)
+	app.act(menus.RightEdge)
 	if !slices.Equal(service.calls, []string{"ToEdge"}) || service.at[0] != testRibbonAt || service.edges[0] != placement.Right {
 		t.Errorf("the service heard %v at %v for %v, want ToEdge from the ribbon for the right edge", service.calls, service.at, service.edges)
 	}
@@ -159,7 +160,7 @@ func TestAPositionItemPutsTheRibbonAgainstItsEdge(t *testing.T) {
 	}
 	app, service, seen, _ = newTestApp(t)
 	app.panelOpen.Store(true)
-	app.act(application.ActionTopEdge)
+	app.act(menus.TopEdge)
 	if !slices.Equal(service.calls, []string{"ToEdge"}) || len(seen.placed) != 0 {
 		t.Errorf("under a panel the service heard %v and the window was placed %d times, want the place kept only", service.calls, len(seen.placed))
 	}
@@ -218,7 +219,7 @@ func TestStyleAndOrientationItemsChooseAndRedraw(t *testing.T) {
 func TestNoRibbonIsMovedBeforeStartupFindsIt(t *testing.T) {
 	app, service, seen, _ := newTestApp(t)
 	app.ribbon = 0
-	app.act(application.ActionLeftEdge)
+	app.act(menus.LeftEdge)
 	if len(service.calls) != 0 || len(seen.placed) != 0 {
 		t.Errorf("the service heard %v and the window was placed %d times", service.calls, len(seen.placed))
 	}
@@ -228,10 +229,10 @@ func TestNoRibbonIsMovedBeforeStartupFindsIt(t *testing.T) {
 func TestAPositionItemThatFailsMovesNothing(t *testing.T) {
 	app, service, seen, log := newTestApp(t)
 	seen.readErr = errPlanted
-	app.act(application.ActionLeftEdge)
+	app.act(menus.LeftEdge)
 	service.arrangeErr = errPlanted
 	seen.readErr = nil
-	app.act(application.ActionLeftEdge)
+	app.act(menus.LeftEdge)
 	if len(seen.placed) != 0 || !strings.Contains(log.String(), "reading where the ribbon is") ||
 		!strings.Contains(log.String(), "putting the ribbon against an edge") {
 		t.Errorf("placed %d times with log %q, want nothing placed and both failures logged", len(seen.placed), log)
@@ -241,7 +242,7 @@ func TestAPositionItemThatFailsMovesNothing(t *testing.T) {
 func TestExitQuitsAndLetsTheCloseThrough(t *testing.T) {
 	app, _, seen, _ := newTestApp(t)
 	app.trayUp.Store(true)
-	app.act(application.ActionExit)
+	app.act(menus.Exit)
 	if seen.quits != 1 || !app.quitting.Load() {
 		t.Errorf("quit %d times, quitting %v; want one quit decided", seen.quits, app.quitting.Load())
 	}
@@ -269,7 +270,7 @@ func TestNothingReachesTheWindowBeforeStartup(t *testing.T) {
 	app.secondInstance()
 	app.hide()
 	app.applyAlwaysOnTop()
-	app.act(application.ActionExit)
+	app.act(menus.Exit)
 	if seen.shown+seen.hidden+seen.quits+len(seen.onTop) != 0 {
 		t.Errorf("before startup the window was shown %d, hidden %d, quit %d and set on top %v", seen.shown, seen.hidden, seen.quits, seen.onTop)
 	}

@@ -1,6 +1,6 @@
 package startup
 
-import "github.com/oernster/timeribbon/ribbonkit/domain/identity"
+import "github.com/oernster/timeribbon/ribbonkit/domain/identity/identitytest"
 
-// testApp stands for the application the kit runs for; the kit's tests name no real product.
-var testApp = identity.App{Name: "SampleRibbon", AppID: "uk.example.SampleRibbon"}
+// testApp is the application this package's tests run for.
+var testApp = identitytest.Sample

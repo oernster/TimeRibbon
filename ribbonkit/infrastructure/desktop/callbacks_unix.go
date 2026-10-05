@@ -11,7 +11,7 @@ import (
 	"runtime/cgo"
 	"sync"
 
-	"github.com/oernster/timeribbon/internal/application"
+	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
@@ -20,11 +20,11 @@ import (
 var shown struct {
 	sync.Mutex
 	desktop *Desktop
-	items   []application.MenuItem
+	items   []menus.Item
 }
 
 // showing records that items are the menu on screen, their choice going to d.
-func showing(d *Desktop, items []application.MenuItem) {
+func showing(d *Desktop, items []menus.Item) {
 	shown.Lock()
 	defer shown.Unlock()
 	shown.desktop, shown.items = d, items

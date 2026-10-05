@@ -20,7 +20,7 @@ import (
 	"runtime/cgo"
 	"unsafe"
 
-	"github.com/oernster/timeribbon/internal/application"
+	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 )
 
 // watchWindow reports the ribbon's moves and the changes of display to the desktop handle holds.
@@ -29,7 +29,7 @@ func watchWindow(ribbon Window, handle cgo.Handle) error {
 }
 
 // popUp shows items at the pointer over ribbon, their choice going to d.
-func popUp(ribbon Window, d *Desktop, items []application.MenuItem) error {
+func popUp(ribbon Window, d *Desktop, items []menus.Item) error {
 	showing(d, items)
 	return onWindow(ribbon, func(unsafe.Pointer) {
 		menu := C.menu_new()
@@ -41,7 +41,7 @@ func popUp(ribbon Window, d *Desktop, items []application.MenuItem) error {
 
 // build adds items to menu, a submenu for each item holding children. Numbers are given out depth
 // first from next, the order actionAt reads them in. It runs on AppKit's main thread.
-func build(menu unsafe.Pointer, items []application.MenuItem, next *int) {
+func build(menu unsafe.Pointer, items []menus.Item, next *int) {
 	for _, item := range items {
 		if separatedBefore(item) {
 			C.menu_add_separator(menu)

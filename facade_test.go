@@ -9,6 +9,7 @@ import (
 
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/internal/product"
+	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 )
 
 // Every change the page can make is followed by fitting the ribbon, whether or not it saved: a
@@ -161,7 +162,7 @@ func TestClosePanelPutsTheRibbonWhereItWasLastLeft(t *testing.T) {
 
 func TestShowContextMenuShowsTheServicesMenu(t *testing.T) {
 	app, service, seen, _ := newTestApp(t)
-	service.menu = []application.MenuItem{{Action: application.ActionHide, Label: "Hide ribbon"}}
+	service.menu = []menus.Item{{Action: menus.Hide, Label: "Hide ribbon"}}
 	app.ShowContextMenu()
 	if len(seen.menus) != 1 || !reflect.DeepEqual(seen.menus[0], service.menu) {
 		t.Errorf("showed %v, want %v", seen.menus, service.menu)

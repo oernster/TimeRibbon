@@ -22,9 +22,9 @@ const (
 var testSize = placement.Size{Width: 300, Height: 80}
 
 func TestTheRibbonIsFoundByItsTitle(t *testing.T) {
-	made := newTestWindow()
+	made := newTestWindow(testApp.Name)
 	defer closeTestWindow(made)
-	found, err := FindRibbon("")
+	found, err := FindRibbon("", testApp.Name)
 	if err != nil || found != made {
 		t.Errorf("found %d (%v), made %d", found, err, made)
 	}
@@ -33,7 +33,7 @@ func TestTheRibbonIsFoundByItsTitle(t *testing.T) {
 // FR-405: the ribbon stands where it is placed, at the size it is given. This is the measurement
 // the Linux design (on X11) and the macOS design both rest on.
 func TestTheRibbonGoesWhereItIsPlaced(t *testing.T) {
-	ribbon := newTestWindow()
+	ribbon := newTestWindow(testApp.Name)
 	defer closeTestWindow(ribbon)
 	work := primaryWorkArea(t)
 	target := placement.Point{X: work.Left + work.Width()/4, Y: work.Top + work.Height()/4}
@@ -59,7 +59,7 @@ func TestTheRibbonGoesWhereItIsPlaced(t *testing.T) {
 // 2026-09-28 in the running app: after a 560x760 panel, a ribbon placed at (1252,358) stood at
 // (880,152) instead.
 func TestTheRibbonReturnsFromAPanelToWhereItIsPlaced(t *testing.T) {
-	ribbon := newTestWindow()
+	ribbon := newTestWindow(testApp.Name)
 	defer closeTestWindow(ribbon)
 	work := primaryWorkArea(t)
 	ribbonAt := placement.Point{X: work.Right - testSize.Width, Y: work.Top + work.Height()/3}
@@ -97,7 +97,7 @@ func settled(ribbon Window, at placement.Point, want placement.Size) (placement.
 
 // FR-101.
 func TestTheRibbonIsKeptOffTheTaskbar(t *testing.T) {
-	ribbon := newTestWindow()
+	ribbon := newTestWindow(testApp.Name)
 	defer closeTestWindow(ribbon)
 	if err := HideFromTaskbar(ribbon); err != nil {
 		t.Fatal(err)

@@ -18,7 +18,6 @@ import (
 	"runtime/cgo"
 	"unsafe"
 
-	"github.com/oernster/timeribbon/internal/product"
 	"github.com/oernster/timeribbon/ribbonkit/infrastructure/cocoamain"
 )
 
@@ -34,7 +33,7 @@ func startTray(d *Desktop, icon []byte) (*tray, error) {
 		return nil, errNoIcon
 	}
 	t := &tray{handle: cgo.NewHandle(d)}
-	tooltip := C.CString(product.Name)
+	tooltip := C.CString(d.app.Name)
 	defer C.free(unsafe.Pointer(tooltip))
 	C.tray_start(C.uintptr_t(t.handle), unsafe.Pointer(&icon[0]), C.int(len(icon)), tooltip)
 	return t, nil

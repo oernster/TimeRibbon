@@ -21,10 +21,10 @@ import (
 // processStarters are the files that may start a program or hand an address to the desktop, each
 // for the reason given. Every one hands work to the desktop or to setup; none asks a network.
 var processStarters = map[string]string{
-	"internal/infrastructure/desktop/browser_unix.go":    "hands an address to open or xdg-open",
-	"internal/infrastructure/desktop/browser_windows.go": "hands an address to ShellExecute",
-	"internal/infrastructure/setup/deletion.go":          "deletes the install folder after setup exits",
-	"internal/infrastructure/setup/process.go":           "starts the installed application",
+	"ribbonkit/infrastructure/desktop/browser_unix.go":    "hands an address to open or xdg-open",
+	"ribbonkit/infrastructure/desktop/browser_windows.go": "hands an address to ShellExecute",
+	"internal/infrastructure/setup/deletion.go":           "deletes the install folder after setup exits",
+	"internal/infrastructure/setup/process.go":            "starts the installed application",
 }
 
 // processImport and processCalls are how a Go file starts another program.

@@ -20,7 +20,6 @@ import (
 	"io"
 	"unsafe"
 
-	"github.com/oernster/timeribbon/internal/product"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 	"github.com/oernster/timeribbon/ribbonkit/infrastructure/cocoamain"
 )
@@ -31,12 +30,12 @@ import (
 var dragThreshold = placement.Size{Width: 4, Height: 4}
 
 // FindRibbon answers the ribbon's window. On macOS there is no window class to find it by, so
-// class is not used: the ribbon is the process's window titled with the product's name, as Wails
+// class is not used: the ribbon is the process's window titled name, the product's name, as Wails
 // creates it.
-func FindRibbon(_ string) (Window, error) {
-	title := C.CString(product.Name)
+func FindRibbon(_, name string) (Window, error) {
+	title := C.CString(name)
 	defer C.free(unsafe.Pointer(title))
-	return findWith(func() unsafe.Pointer {
+	return findWith(name, func() unsafe.Pointer {
 		var found unsafe.Pointer
 		cocoamain.Do(func() { found = C.ribbon_find(title) })
 		return found
@@ -117,8 +116,8 @@ func size(ribbon Window) (placement.Size, error) {
 
 // newTestWindow shows a window set up as Wails sets up the ribbon's, for the tests: nothing in the
 // application makes one.
-func newTestWindow() Window {
-	title := C.CString(product.Name)
+func newTestWindow(name string) Window {
+	title := C.CString(name)
 	defer C.free(unsafe.Pointer(title))
 	var window unsafe.Pointer
 	cocoamain.Do(func() { window = C.test_window(title) })

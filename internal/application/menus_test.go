@@ -6,11 +6,11 @@ import (
 	"testing"
 
 	"github.com/oernster/timeribbon/internal/domain/settings"
-	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
-func labels(items []MenuItem) []string {
+func labels(items []menus.Item) []string {
 	var out []string
 	for _, item := range items {
 		out = append(out, item.Label)
@@ -24,11 +24,11 @@ func TestTrayMenuNamesTheOppositeOfTheVisibility(t *testing.T) {
 	r := newRig(t, settings.Defaults())
 	shown := r.service.TrayMenu(true)
 	if !slices.Equal(labels(shown), []string{"Hide ribbon", "Add clock", "Settings", "Style", "Colour", "Orientation", "Position", "Always on top", "Pin ribbon", "Sun map", "Help", "Exit"}) ||
-		shown[0].Action != ActionHide {
+		shown[0].Action != menus.Hide {
 		t.Errorf("visible: %+v", shown)
 	}
 	hidden := r.service.TrayMenu(false)
-	if hidden[0].Label != "Show ribbon" || hidden[0].Action != ActionShow {
+	if hidden[0].Label != "Show ribbon" || hidden[0].Action != menus.Show {
 		t.Errorf("hidden: %+v", hidden[0])
 	}
 }
@@ -38,7 +38,7 @@ func TestAlwaysOnTopItemShowsItsState(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, settings.Defaults())
 	item := find(t, r.service.TrayMenu(true), labelAlwaysOnTop)
-	if !item.Checkable || item.Checked || item.Action != ActionAlwaysOnTop {
+	if !item.Checkable || item.Checked || item.Action != menus.AlwaysOnTop {
 		t.Errorf("off: %+v", item)
 	}
 	if err := r.service.SetAlwaysOnTop(true); err != nil {
@@ -50,9 +50,9 @@ func TestAlwaysOnTopItemShowsItsState(t *testing.T) {
 }
 
 // find answers the item of menu labelled label, failing the test when there is none.
-func find(t *testing.T, menu []MenuItem, label string) MenuItem {
+func find(t *testing.T, menu []menus.Item, label string) menus.Item {
 	t.Helper()
-	index := slices.IndexFunc(menu, func(item MenuItem) bool { return item.Label == label })
+	index := slices.IndexFunc(menu, func(item menus.Item) bool { return item.Label == label })
 	if index < 0 {
 		t.Fatalf("no %s in %v", label, labels(menu))
 	}
@@ -67,7 +67,7 @@ func TestBothMenusOfferStyleAndOrientationWithTheCurrentTicked(t *testing.T) {
 	initial.Style = settings.Analogue
 	initial.Orientation = ribbon.Horizontal
 	r := newRig(t, initial)
-	for name, menu := range map[string][]MenuItem{"tray": r.service.TrayMenu(true), "context": r.service.ContextMenu()} {
+	for name, menu := range map[string][]menus.Item{"tray": r.service.TrayMenu(true), "context": r.service.ContextMenu()} {
 		style, orientation := find(t, menu, labelStyle), find(t, menu, labelOrientation)
 		if style.Action != "" || !slices.Equal(labels(style.Children), []string{"Digital", "Analogue"}) ||
 			style.Children[0].Checked || !style.Children[1].Checked || !style.Children[0].Checkable {
@@ -103,7 +103,7 @@ func TestContextMenuOffersTheRibbonsActions(t *testing.T) {
 	if got := labels(r.service.ContextMenu()); !slices.Equal(got, []string{"Add clock", "Settings", "Style", "Colour", "Orientation", "Position", "Always on top", "Pin ribbon", "Sun map", "Help", "Hide ribbon", "Exit"}) {
 		t.Errorf("got %v", got)
 	}
-	if last := r.service.ContextMenu()[len(r.service.ContextMenu())-1]; last.Action != ActionExit {
+	if last := r.service.ContextMenu()[len(r.service.ContextMenu())-1]; last.Action != menus.Exit {
 		t.Errorf("the last item acts as %q, want exit", last.Action)
 	}
 }
@@ -113,38 +113,38 @@ func TestContextMenuOffersTheRibbonsActions(t *testing.T) {
 func TestBothMenusOfferHelpWithAboutLicenceAndUpdates(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, settings.Defaults())
-	for name, menu := range map[string][]MenuItem{"tray": r.service.TrayMenu(true), "context": r.service.ContextMenu()} {
-		index := slices.IndexFunc(menu, func(item MenuItem) bool { return item.Label == "Help" })
+	for name, menu := range map[string][]menus.Item{"tray": r.service.TrayMenu(true), "context": r.service.ContextMenu()} {
+		index := slices.IndexFunc(menu, func(item menus.Item) bool { return item.Label == "Help" })
 		if index < 0 {
 			t.Fatalf("%s: no Help in %v", name, labels(menu))
 		}
 		help := menu[index]
 		if help.Action != "" || !slices.Equal(labels(help.Children), []string{"About", "Licence", "Check for updates"}) ||
-			help.Children[0].Action != ActionAbout || help.Children[1].Action != ActionLicence ||
-			help.Children[2].Action != ActionUpdates {
+			help.Children[0].Action != menus.About || help.Children[1].Action != menus.Licence ||
+			help.Children[2].Action != menus.Updates {
 			t.Errorf("%s: %+v", name, help)
 		}
 	}
 }
 
-// FR-408: Position offers the two edges the ribbon runs along, in both menus; each item names an
-// edge and nothing else does.
+// FR-408: Position offers the two edges the ribbon runs along, in both menus. Which edge each item
+// names is ribbonkit's menus package's test.
 func TestPositionOffersTheEdgesAlongTheOrientation(t *testing.T) {
 	t.Parallel()
-	want := map[ribbon.Orientation][]MenuAction{
-		ribbon.Vertical:   {ActionLeftEdge, ActionRightEdge},
-		ribbon.Horizontal: {ActionTopEdge, ActionBottomEdge},
+	want := map[ribbon.Orientation][]menus.Action{
+		ribbon.Vertical:   {menus.LeftEdge, menus.RightEdge},
+		ribbon.Horizontal: {menus.TopEdge, menus.BottomEdge},
 	}
 	for orientation, actions := range want {
 		initial := settings.Defaults()
 		initial.Orientation = orientation
 		r := newRig(t, initial)
-		for name, menu := range map[string][]MenuItem{"tray": r.service.TrayMenu(true), "context": r.service.ContextMenu()} {
-			index := slices.IndexFunc(menu, func(item MenuItem) bool { return item.Label == "Position" })
+		for name, menu := range map[string][]menus.Item{"tray": r.service.TrayMenu(true), "context": r.service.ContextMenu()} {
+			index := slices.IndexFunc(menu, func(item menus.Item) bool { return item.Label == "Position" })
 			if index < 0 {
 				t.Fatalf("%s %s: no Position in %v", orientation, name, labels(menu))
 			}
-			var got []MenuAction
+			var got []menus.Action
 			for _, child := range menu[index].Children {
 				got = append(got, child.Action)
 			}
@@ -152,18 +152,6 @@ func TestPositionOffersTheEdgesAlongTheOrientation(t *testing.T) {
 				t.Errorf("%s %s: %+v, want %v", orientation, name, menu[index], actions)
 			}
 		}
-	}
-	edges := map[MenuAction]placement.Edge{
-		ActionLeftEdge: placement.Left, ActionRightEdge: placement.Right,
-		ActionTopEdge: placement.Top, ActionBottomEdge: placement.Bottom,
-	}
-	for action, edge := range edges {
-		if got, ok := EdgeOf(action); !ok || got != edge {
-			t.Errorf("%s: got %s, %v; want %s", action, got, ok, edge)
-		}
-	}
-	if _, ok := EdgeOf(ActionSettings); ok {
-		t.Error("Settings was taken for an edge")
 	}
 }
 
@@ -174,7 +162,7 @@ func TestBothMenusOfferEveryColourWithTheCurrentTicked(t *testing.T) {
 	initial := settings.Defaults()
 	initial.Colour = ribbon.Ocean
 	r := newRig(t, initial)
-	for name, menu := range map[string][]MenuItem{"tray": r.service.TrayMenu(true), "context": r.service.ContextMenu()} {
+	for name, menu := range map[string][]menus.Item{"tray": r.service.TrayMenu(true), "context": r.service.ContextMenu()} {
 		colour := find(t, menu, labelColour)
 		if colour.Action != "" || !slices.Equal(labels(colour.Children), []string{
 			"Classic", "Neon", "Ocean", "Sunset", "Forest", "Amber", "Ruby", "Indigo", "Berry", "Contrast",
@@ -188,7 +176,7 @@ func TestBothMenusOfferEveryColourWithTheCurrentTicked(t *testing.T) {
 			}
 		}
 	}
-	for _, other := range []MenuAction{ActionDigital, "colour-mauve", "colour-"} {
+	for _, other := range []menus.Action{ActionDigital, "colour-mauve", "colour-"} {
 		if _, ok := ColourOf(other); ok {
 			t.Errorf("%q was taken for a colour", other)
 		}
@@ -205,7 +193,7 @@ func TestBothMenusOfferEveryColourWithTheCurrentTicked(t *testing.T) {
 func TestCloseRequestHidesRatherThanQuits(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, settings.Defaults())
-	if got := r.service.CloseRequested(); got != ActionHide {
+	if got := r.service.CloseRequested(); got != menus.Hide {
 		t.Errorf("got %s", got)
 	}
 }

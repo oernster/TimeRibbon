@@ -5,9 +5,10 @@ import (
 	"testing"
 
 	"github.com/oernster/timeribbon/internal/application"
-	"github.com/oernster/timeribbon/internal/infrastructure/desktop"
+	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 	"github.com/oernster/timeribbon/ribbonkit/domain/hover"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/desktop"
 )
 
 // unpinnedApp answers a facade whose ribbon is unpinned, launched and shown: its tab.
@@ -118,7 +119,7 @@ func TestAPanelAndTheMenuHoldTheRibbonOpen(t *testing.T) {
 func TestPinningAndUnpinning(t *testing.T) {
 	t.Parallel()
 	app, service, seen := unpinnedApp(t)
-	app.act(application.ActionPin)
+	app.act(menus.Pin)
 	app.RibbonDrawn()
 	if !service.settings.Pinned || lastPlaced(t, seen).Size != testArrange.Size {
 		t.Errorf("pinning left pinned %v, placed %+v", service.settings.Pinned, lastPlaced(t, seen))
@@ -133,7 +134,7 @@ func TestPinningAndUnpinning(t *testing.T) {
 	if seen.pending != nil {
 		t.Error("a pinned ribbon heard the pointer")
 	}
-	app.act(application.ActionPin)
+	app.act(menus.Pin)
 	if service.settings.Pinned || !seen.onTop[len(seen.onTop)-1] || seen.waited != hover.Away {
 		t.Errorf("unpinning: pinned %v, on top %v, waiting %v", service.settings.Pinned, seen.onTop, seen.waited)
 	}

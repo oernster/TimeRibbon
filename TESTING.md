@@ -49,17 +49,17 @@ figure with the fraction dropped, so it fails once cover is lost.
 | `tools/identity` | 75% | 75% |
 | `tools/linuxicons` | 67.7% | 67% |
 | `tools/genplaces` | 58.6% | 58% |
-| `internal/infrastructure/desktop` | 38.1% | 38% |
+| `ribbonkit/infrastructure/desktop` | 38.0% | 38% |
 | `internal/product` | 100% | not gated |
 | `installer` | 0%, no tests | not gated |
 
-Every figure is the Windows build's, which `test.ps1` measures. That build compiles 393 Go test
+Every figure is the Windows build's, which `test.ps1` measures. That build compiles 397 Go test
 functions, counted from the test files `go list` selects, each running once with no subtests, plus
-one `TestMain` in `internal/infrastructure/setup`. Thirty-one are the structural tests, which read
+one `TestMain` in `internal/infrastructure/setup`. Thirty-two are the structural tests, which read
 the source and are the same on every platform; [ARCHITECTURE.md](ARCHITECTURE.md) lists each against
 its rule. `TestA1Point0SettingsFileIsReadWhole` in `store` holds the settings file's promise
 (NFR-C-1); `contrast_test.go` holds NFR-U-1 in Go because Vitest hands a CSS import back empty. The
-macOS build compiles 367 and the Linux build 371 ([On macOS and Linux](#on-macos-and-linux)).
+macOS build compiles 371 and the Linux build 375 ([On macOS and Linux](#on-macos-and-linux)).
 
 ### The front end
 
@@ -92,7 +92,7 @@ so GitHub is asked only by the running application, which is checked by hand.
 
 ### The platform owns it
 
-- **`desktop` (38.1%).** The tray, native menus, move fence and broadcasts run on a hidden window's
+- **`desktop` (38.0%).** The tray, native menus, move fence and broadcasts run on a hidden window's
   message loop and act on the real ribbon window. Tested: menu identifier numbering, the fence's
   arithmetic, a work area at a point, the drag distance, an address Windows refuses, the clock watch,
   the window's cut (FR-913) with the pointer read against it; the cursor read for the grip.
@@ -137,7 +137,7 @@ that platform, set up as [DEVELOPMENT.md](DEVELOPMENT.md) says, with the page bu
 | What | macOS | Linux |
 |---|---|---|
 | Tags | `desktop,production` | `desktop,production,webkit2_41` |
-| Go test functions | 367, plus 3 `TestMain` | 371, plus 3 `TestMain` |
+| Go test functions | 371, plus 3 `TestMain` | 375, plus 3 `TestMain` |
 | Tests that need cgo | `cocoamain` 3, `monitors` 3, `desktop` 17 | `gtkmain` 5, `monitors` 2, `desktop` 20 |
 | Needs | a signed-in desktop | a signed-in desktop with a display and a tray host |
 
@@ -156,15 +156,15 @@ go run honnef.co/go/tools/cmd/staticcheck@v0.8.1 -tags "$TAGS" ./...
 ```
 
 ```bash
-go test -count=1 -tags "$TAGS" ./internal/...
+go test -count=1 -tags "$TAGS" ./internal/... ./ribbonkit/...
 ```
 
 ```bash
 go build -tags "$TAGS" -o /tmp/timeribbon .
 ```
 
-staticcheck is the version `test.ps1` pins. Every macOS and Linux test lives under `./internal/...`;
-the rest already runs on Windows. To run from source with a scratch settings folder (`HOME` on macOS,
+staticcheck is the version `test.ps1` pins. Every macOS and Linux test lives under `./internal/...`
+or `./ribbonkit/...`; the rest already runs on Windows. To run from source with a scratch settings folder (`HOME` on macOS,
 `XDG_CONFIG_HOME` on Linux):
 
 ```bash

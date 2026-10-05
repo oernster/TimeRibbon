@@ -11,7 +11,7 @@ in the release notes.
 
 ## 1. A Linux and macOS test writes the panel's size out again
 
-`TestTheRibbonReturnsFromAPanelToWhereItIsPlaced` in `internal/infrastructure/desktop/ribbon_unix_test.go`
+`TestTheRibbonReturnsFromAPanelToWhereItIsPlaced` in `ribbonkit/infrastructure/desktop/ribbon_unix_test.go`
 writes the panel's size in as 560 by 760, a second copy of `panels` in `main.go`, which the desktop
 package cannot import. It has drifted in meaning: that is About's size, while Settings opens at 900 by
 760 (FR-625).

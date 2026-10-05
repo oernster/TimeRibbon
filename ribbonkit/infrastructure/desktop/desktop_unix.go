@@ -9,7 +9,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/oernster/timeribbon/internal/application"
+	"github.com/oernster/timeribbon/ribbonkit/application/menus"
+	"github.com/oernster/timeribbon/ribbonkit/domain/identity"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
@@ -25,7 +26,8 @@ const moveSettle = 300 * time.Millisecond
 // bus rather than GTK; on macOS it is set up once AppKit's loop runs. Each platform supplies
 // startTray, watchWindow, popUp and the ribbon's operations in files of its own.
 type Desktop struct {
-	menu   func() []application.MenuItem
+	app    identity.App
+	menu   func() []menus.Item
 	events chan Event
 	log    io.Writer
 	stop   chan struct{}
@@ -49,9 +51,9 @@ type Desktop struct {
 // 2026-09-28, REQUIREMENTS section 2.3), so no style holds the window wider.
 func SetTabFrame(Window, bool) error { return nil }
 
-// New answers a desktop whose tray menu is menu, reporting failures to log.
-func New(menu func() []application.MenuItem, log io.Writer) *Desktop {
-	return &Desktop{menu: menu, events: make(chan Event, eventBuffer), log: log, stop: make(chan struct{})}
+// New answers a desktop for app whose tray menu is menu, reporting failures to log.
+func New(app identity.App, menu func() []menus.Item, log io.Writer) *Desktop {
+	return &Desktop{app: app, menu: menu, events: make(chan Event, eventBuffer), log: log, stop: make(chan struct{})}
 }
 
 // Events yields what happened. The channel is closed when the desktop stops.
@@ -104,7 +106,7 @@ func (d *Desktop) Watch(ribbon Window) {
 // ShowMenu shows items as a native menu at the pointer, from any goroutine: the ribbon's right-click
 // menu (FR-108). The choice arrives as an EventMenu. Before the ribbon is found there is nothing to
 // show it over.
-func (d *Desktop) ShowMenu(items []application.MenuItem) {
+func (d *Desktop) ShowMenu(items []menus.Item) {
 	d.guard.Lock()
 	ribbon := d.ribbon
 	d.guard.Unlock()

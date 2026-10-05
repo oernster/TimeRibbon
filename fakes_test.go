@@ -10,6 +10,7 @@ import (
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 	"github.com/oernster/timeribbon/ribbonkit/application/release"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
@@ -24,8 +25,8 @@ type scriptedService struct {
 	settings    settings.Settings
 	snapshot    application.Snapshot
 	places      []application.Place
-	menu        []application.MenuItem
-	choices     []application.MenuItem
+	menu        []menus.Item
+	choices     []menus.Item
 	arrangement application.Arrangement
 	// measured is the last measurement SetMeasured was handed.
 	measured application.Measured
@@ -173,11 +174,11 @@ func (s *scriptedService) SetMeasured(measured application.Measured) error {
 
 func (s *scriptedService) SetPixelsPerDIP(float64) error { return s.change("SetPixelsPerDIP") }
 
-func (s *scriptedService) ContextMenu() []application.MenuItem { return s.menu }
+func (s *scriptedService) ContextMenu() []menus.Item { return s.menu }
 
-func (s *scriptedService) SettingsChoices() []application.MenuItem { return s.choices }
+func (s *scriptedService) SettingsChoices() []menus.Item { return s.choices }
 
-func (s *scriptedService) CloseRequested() application.MenuAction { return application.ActionHide }
+func (s *scriptedService) CloseRequested() menus.Action { return menus.Hide }
 
 func (s *scriptedService) Launch() (application.Arrangement, error) {
 	s.record("Launch")
@@ -287,7 +288,7 @@ func newTestApp(t *testing.T) (*App, *scriptedService, *window, *bytes.Buffer) {
 		seen.browsed = append(seen.browsed, address)
 		return seen.browseErr
 	}
-	app.showMenu = func(items []application.MenuItem) { seen.menus = append(seen.menus, items) }
+	app.showMenu = func(items []menus.Item) { seen.menus = append(seen.menus, items) }
 	app.position = func() (placement.Point, error) {
 		seen.positions++
 		return seen.ribbonAt, seen.readErr

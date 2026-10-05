@@ -7,9 +7,10 @@ import (
 	"fmt"
 
 	"github.com/oernster/timeribbon/internal/application"
-	"github.com/oernster/timeribbon/internal/infrastructure/desktop"
 	"github.com/oernster/timeribbon/internal/product"
+	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/desktop"
 )
 
 // startup takes the ribbon off the taskbar and puts it in place while it is still hidden, then
@@ -18,7 +19,7 @@ import (
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 	go a.watchForUpdates(ctx)
-	ribbon, err := desktop.FindRibbon(product.RibbonClass)
+	ribbon, err := desktop.FindRibbon(product.RibbonClass, product.Name)
 	if err != nil {
 		a.report("finding the ribbon", err)
 		return
@@ -43,7 +44,7 @@ func (a *App) beforeClose(context.Context) bool {
 	if a.quitting.Load() || !a.trayUp.Load() {
 		return false
 	}
-	if a.service.CloseRequested() == application.ActionHide {
+	if a.service.CloseRequested() == menus.Hide {
 		a.hide()
 	}
 	return true
@@ -91,36 +92,36 @@ func (a *App) handleSafely(event desktop.Event) {
 }
 
 // act carries out a menu action from the tray or the ribbon's own menu.
-func (a *App) act(action application.MenuAction) {
+func (a *App) act(action menus.Action) {
 	switch action {
-	case application.ActionShow:
+	case menus.Show:
 		a.show()
-	case application.ActionHide:
+	case menus.Hide:
 		a.hide()
 	case application.ActionAddClock:
 		a.show()
 		a.emit(eventOpenPanel, openAtAddClock)
-	case application.ActionSettings:
+	case menus.Settings:
 		a.show()
 		a.emit(eventOpenPanel, openAtSettings)
-	case application.ActionAbout:
+	case menus.About:
 		a.show()
 		a.emit(eventOpenPanel, openAtAbout)
-	case application.ActionLicence:
+	case menus.Licence:
 		a.show()
 		a.emit(eventOpenPanel, openAtLicence)
-	case application.ActionUpdates:
+	case menus.Updates:
 		go a.checkForUpdate(a.ctx, true)
-	case application.ActionAlwaysOnTop:
+	case menus.AlwaysOnTop:
 		a.report("changing Always on top", a.SetAlwaysOnTop(!a.service.Settings().AlwaysOnTop))
 		a.emit(eventRefresh)
-	case application.ActionPin:
+	case menus.Pin:
 		a.report("pinning the ribbon", a.setPinned(!a.pinned()))
 		a.emit(eventRefresh)
 	case application.ActionSunMap:
 		a.report("turning the sun map on or off", a.SetSunMap(!a.service.Settings().SunMap))
 		a.emit(eventRefresh)
-	case application.ActionExit:
+	case menus.Exit:
 		a.quitting.Store(true)
 		if a.ctx != nil {
 			a.quit()
@@ -132,8 +133,8 @@ func (a *App) act(action application.MenuAction) {
 
 // actOnChoice carries out a Position, Style or Orientation item (FR-108, FR-408, FR-409), then has
 // the page redraw, since a choice made from a menu is one the page did not make.
-func (a *App) actOnChoice(action application.MenuAction) {
-	if edge, ok := application.EdgeOf(action); ok {
+func (a *App) actOnChoice(action menus.Action) {
+	if edge, ok := menus.EdgeOf(action); ok {
 		a.toEdge(edge)
 		return
 	}

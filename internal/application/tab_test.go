@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
@@ -72,17 +73,17 @@ func TestARibbonAgainstNoEdgeHasNoTab(t *testing.T) {
 func TestBothMenusOfferPinAfterAlwaysOnTop(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, settings.Defaults())
-	for name, menu := range map[string][]MenuItem{"tray": r.service.TrayMenu(true), "context": r.service.ContextMenu()} {
+	for name, menu := range map[string][]menus.Item{"tray": r.service.TrayMenu(true), "context": r.service.ContextMenu()} {
 		index := -1
 		for position, item := range menu {
-			if item.Action == ActionAlwaysOnTop {
+			if item.Action == menus.AlwaysOnTop {
 				index = position
 			}
 		}
 		if index < 0 || index+1 >= len(menu) {
 			t.Fatalf("%s: no item follows Always on top", name)
 		}
-		if pin := menu[index+1]; pin.Action != ActionPin || pin.Label != labelPin || !pin.Checkable || !pin.Checked {
+		if pin := menu[index+1]; pin.Action != menus.Pin || pin.Label != labelPin || !pin.Checkable || !pin.Checked {
 			t.Errorf("%s: after Always on top came %+v, want Pin ribbon ticked", name, pin)
 		}
 	}

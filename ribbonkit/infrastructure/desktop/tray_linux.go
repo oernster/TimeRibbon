@@ -9,8 +9,7 @@ import (
 	"github.com/godbus/dbus/v5"
 	"github.com/godbus/dbus/v5/prop"
 
-	"github.com/oernster/timeribbon/internal/application"
-	"github.com/oernster/timeribbon/internal/product"
+	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 )
 
 // The tray on Linux is a StatusNotifierItem with a com.canonical.dbusmenu menu, the standard the
@@ -55,7 +54,7 @@ type tray struct {
 	guard    sync.Mutex
 	revision uint32
 	layout   menuNode
-	actions  map[int32]application.MenuAction
+	actions  map[int32]menus.Action
 }
 
 // startTray puts the icon in the tray, answering why it could not.
@@ -94,10 +93,10 @@ func (t *tray) export(icon []byte) error {
 	}
 	fixed := func(value any) *prop.Prop { return &prop.Prop{Value: value, Emit: prop.EmitTrue} }
 	if _, err := prop.Export(t.conn, itemPath, prop.Map{itemInterface: {
-		"Category": fixed(itemCategory), "Id": fixed(product.AppID), "Title": fixed(product.Name),
+		"Category": fixed(itemCategory), "Id": fixed(t.desktop.app.AppID), "Title": fixed(t.desktop.app.Name),
 		"Status": fixed(itemStatusActive), "WindowId": fixed(int32(0)), "IconName": fixed(""),
 		"IconPixmap": fixed(pixmaps), "ItemIsMenu": fixed(false), "Menu": fixed(menuPath),
-		"ToolTip": fixed(tooltip{Pixmaps: []pixmap{}, Title: product.Name}),
+		"ToolTip": fixed(tooltip{Pixmaps: []pixmap{}, Title: t.desktop.app.Name}),
 	}}); err != nil {
 		return fmt.Errorf("describing the tray icon: %w", err)
 	}

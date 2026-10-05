@@ -4,7 +4,7 @@ import (
 	"sync/atomic"
 	"unsafe"
 
-	"github.com/oernster/timeribbon/internal/application"
+	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 )
 
 // wmShowMenu asks the desktop's thread to show the menu waiting in pending.
@@ -12,13 +12,13 @@ const wmShowMenu = wmApp + 2
 
 // pendingMenu holds the items a ShowMenu call handed over until the desktop's thread shows them.
 type pendingMenu struct {
-	items atomic.Pointer[[]application.MenuItem]
+	items atomic.Pointer[[]menus.Item]
 }
 
 // ShowMenu shows items as a native menu at the cursor, from any goroutine: the ribbon's right-click
 // menu (FR-108). A native menu is not clipped by the ribbon's small window, as one drawn in the page
 // would be. The choice arrives as an EventMenu like the tray's.
-func (d *Desktop) ShowMenu(items []application.MenuItem) {
+func (d *Desktop) ShowMenu(items []menus.Item) {
 	d.pending.items.Store(&items)
 	if window := d.posted.Load(); window != 0 {
 		_, _, _ = procPostMessage.Call(window, wmShowMenu, 0, 0)
@@ -34,7 +34,7 @@ func (d *Desktop) showPending() {
 
 // track shows items as a popup menu at the cursor and reports the choice (FR-502, FR-108). It runs
 // on the desktop's thread.
-func (d *Desktop) track(items []application.MenuItem) {
+func (d *Desktop) track(items []menus.Item) {
 	menu, _, _ := procCreatePopupMenu.Call()
 	if menu == 0 {
 		return
@@ -59,7 +59,7 @@ func (d *Desktop) track(items []application.MenuItem) {
 
 // fill appends items to menu, a submenu for each item holding children (FR-508). Identifiers are
 // given out depth first from next, the order numbered answers them in.
-func fill(menu uintptr, items []application.MenuItem, next *int) {
+func fill(menu uintptr, items []menus.Item, next *int) {
 	for _, item := range items {
 		if separatedBefore(item) {
 			_, _, _ = procAppendMenu.Call(menu, mfSeparator, 0, 0)
@@ -84,6 +84,6 @@ func fill(menu uintptr, items []application.MenuItem, next *int) {
 
 // chosenAction answers the action of the menu identifier Windows answered; false for none.
 // Identifiers start at menuIDBase, since Windows answers zero for no choice.
-func chosenAction(items []application.MenuItem, id int) (application.MenuAction, bool) {
+func chosenAction(items []menus.Item, id int) (menus.Action, bool) {
 	return actionAt(items, id-menuIDBase)
 }

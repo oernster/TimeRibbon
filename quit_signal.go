@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/oernster/timeribbon/internal/application"
+	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 )
 
 // exitWhen ends the application once a signal arrives on signals: a request from outside, as when
@@ -12,6 +12,6 @@ import (
 // (measured 2026-09-28: with the tray up, SIGTERM left the ribbon running).
 func (a *App) exitWhen(signals <-chan os.Signal) {
 	if _, open := <-signals; open {
-		a.act(application.ActionExit)
+		a.act(menus.Exit)
 	}
 }

@@ -13,13 +13,14 @@ import (
 	"time"
 
 	"github.com/oernster/timeribbon/internal/application"
-	"github.com/oernster/timeribbon/internal/infrastructure/desktop"
 	"github.com/oernster/timeribbon/internal/infrastructure/store"
 	"github.com/oernster/timeribbon/internal/infrastructure/zones"
 	"github.com/oernster/timeribbon/internal/product"
+	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 	"github.com/oernster/timeribbon/ribbonkit/application/release"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 	"github.com/oernster/timeribbon/ribbonkit/infrastructure/appdata"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/desktop"
 	"github.com/oernster/timeribbon/ribbonkit/infrastructure/monitors"
 	"github.com/oernster/timeribbon/ribbonkit/infrastructure/runlog"
 	"github.com/oernster/timeribbon/ribbonkit/infrastructure/startup"
@@ -134,7 +135,7 @@ func run(log io.Writer) error {
 		fmt.Fprintf(log, "loading settings: %v\n", err)
 	}
 	var app *App
-	desk := desktop.New(func() []application.MenuItem { return service.TrayMenu(app.visible.Load()) }, log)
+	desk := desktop.New(product.App(), func() []menus.Item { return service.TrayMenu(app.visible.Load()) }, log)
 	app = newApp(service, desk, log, panels)
 	preparePlatform(app, desk)
 	if err := desk.Start(); err != nil {

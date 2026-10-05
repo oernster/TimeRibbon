@@ -5,9 +5,10 @@ import (
 	"testing"
 
 	"github.com/oernster/timeribbon/internal/application"
-	"github.com/oernster/timeribbon/internal/infrastructure/desktop"
+	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 	"github.com/oernster/timeribbon/ribbonkit/domain/hover"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/desktop"
 )
 
 // openUnpinnedApp answers an unpinned ribbon opened from its tab and shown in full.
@@ -95,7 +96,7 @@ func TestUnpinningAwayFromAnEdgeMovesItToTheLastEdge(t *testing.T) {
 		t.Fatal(err)
 	}
 	app.show()
-	app.act(application.ActionPin)
+	app.act(menus.Pin)
 	if !slices.Contains(service.calls, "ToLastEdge") || lastPlaced(t, seen) != (application.Arrangement{At: testArrange.At, Size: testArrange.Size}) {
 		t.Fatalf("calls %v, placed %+v; want the last edge", service.calls, lastPlaced(t, seen))
 	}
@@ -116,7 +117,7 @@ func TestUnpinningOnAnEdgeMovesNothingAndRecentringKeepsThePin(t *testing.T) {
 		t.Fatal(err)
 	}
 	app.show()
-	app.act(application.ActionPin)
+	app.act(menus.Pin)
 	if slices.Contains(service.calls, "ToLastEdge") {
 		t.Error("unpinning a flush ribbon moved it")
 	}

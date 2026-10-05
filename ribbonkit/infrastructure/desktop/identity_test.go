@@ -1,4 +1,4 @@
-package runlog
+package desktop
 
 import "github.com/oernster/timeribbon/ribbonkit/domain/identity/identitytest"
 

@@ -9,7 +9,6 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/oernster/timeribbon/internal/product"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
@@ -65,15 +64,16 @@ func forget(ribbon Window) {
 }
 
 // findWith asks find for the ribbon's window until it answers one or findAttempts run out, then
-// answers the Window for it. Wails creates the window as it starts, so it may not exist yet.
-func findWith(find func() unsafe.Pointer) (Window, error) {
+// answers the Window for it, title naming it in the error when none was found. Wails creates the
+// window as it starts, so it may not exist yet.
+func findWith(title string, find func() unsafe.Pointer) (Window, error) {
 	for range findAttempts {
 		if found := find(); found != nil {
 			return remember(found), nil
 		}
 		time.Sleep(findPause)
 	}
-	return 0, fmt.Errorf("%w: no window titled %s", ErrRibbonNotFound, product.Name)
+	return 0, fmt.Errorf("%w: no window titled %s", ErrRibbonNotFound, title)
 }
 
 // pointerOf answers the native window a Window stands for.

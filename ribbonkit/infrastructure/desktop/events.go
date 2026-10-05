@@ -1,6 +1,6 @@
 package desktop
 
-import "github.com/oernster/timeribbon/internal/application"
+import "github.com/oernster/timeribbon/ribbonkit/application/menus"
 
 // eventBuffer is how many events may wait unread before the next is dropped rather than block the
 // thread the desktop calls in on.
@@ -34,5 +34,5 @@ const (
 // Event is one thing that happened on the desktop.
 type Event struct {
 	Kind   EventKind
-	Action application.MenuAction
+	Action menus.Action
 }

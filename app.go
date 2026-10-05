@@ -14,11 +14,12 @@ import (
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
-	"github.com/oernster/timeribbon/internal/infrastructure/desktop"
 	"github.com/oernster/timeribbon/internal/product"
+	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 	"github.com/oernster/timeribbon/ribbonkit/application/release"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/desktop"
 )
 
 // Events the page listens for.
@@ -69,9 +70,9 @@ type ribbonService interface {
 	TextSamples() (times, dates []string)
 	SetMeasured(measured application.Measured) error
 	SetPixelsPerDIP(scale float64) error
-	ContextMenu() []application.MenuItem
-	SettingsChoices() []application.MenuItem
-	CloseRequested() application.MenuAction
+	ContextMenu() []menus.Item
+	SettingsChoices() []menus.Item
+	CloseRequested() menus.Action
 	Launch() (application.Arrangement, error)
 	Rearrange(at placement.Point) (application.Arrangement, error)
 	Moved(at placement.Point) (application.Arrangement, error)
@@ -99,7 +100,7 @@ type App struct {
 	quit       func()
 	setOnTop   func(on bool)
 	browse     func(address string) error
-	showMenu   func(items []application.MenuItem)
+	showMenu   func(items []menus.Item)
 	position   func() (placement.Point, error)
 	place      func(at placement.Point, size placement.Size) error
 	shape      func(parts []placement.Rect) error

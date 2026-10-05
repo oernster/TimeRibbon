@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/oernster/timeribbon/internal/application"
+	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
@@ -24,7 +25,7 @@ type window struct {
 	quits     int
 	onTop     []bool
 	browsed   []string
-	menus     [][]application.MenuItem
+	menus     [][]menus.Item
 	placed    []application.Arrangement
 	shapes    [][]placement.Rect
 	ribbonAt  placement.Point

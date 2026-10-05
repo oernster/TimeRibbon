@@ -19,7 +19,7 @@ func TestThePointerIsReadWhereTheRibbonIsPlaced(t *testing.T) {
 		t.Fatal("the pointer could not be read")
 	}
 	defer warpPointer(from)
-	ribbon := newTestWindow()
+	ribbon := newTestWindow(testApp.Name)
 	defer closeTestWindow(ribbon)
 	work := primaryWorkArea(t)
 	corner := placement.Point{X: work.Left + work.Width()/4, Y: work.Top + work.Height()/4}

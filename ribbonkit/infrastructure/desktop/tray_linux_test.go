@@ -12,17 +12,17 @@ import (
 	"testing"
 	"time"
 
-	"github.com/godbus/dbus/v5"
+	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 
-	"github.com/oernster/timeribbon/internal/application"
+	"github.com/godbus/dbus/v5"
 )
 
 // testTrayItems is a menu shaped as the tray's is: plain items, a check item, a submenu, then Exit.
-var testTrayItems = []application.MenuItem{
-	{Action: application.ActionHide, Label: "Hide"},
-	{Action: application.ActionAlwaysOnTop, Label: "Always_on top", Checkable: true, Checked: true},
-	{Label: "Help", Children: []application.MenuItem{{Action: application.ActionAbout, Label: "About"}}},
-	{Action: application.ActionExit, Label: "Exit"},
+var testTrayItems = []menus.Item{
+	{Action: menus.Hide, Label: "Hide"},
+	{Action: menus.AlwaysOnTop, Label: "Always_on top", Checkable: true, Checked: true},
+	{Label: "Help", Children: []menus.Item{{Action: menus.About, Label: "About"}}},
+	{Action: menus.Exit, Label: "Exit"},
 }
 
 // FR-502, FR-508: ids depth first from one, a separator above Exit, a submenu holding its items,
@@ -46,7 +46,7 @@ func TestTheTrayMenuIsLaidOutForTheHost(t *testing.T) {
 	if check.Properties[menuToggleType].Value() != menuCheckmark || check.Properties[menuToggleState].Value() != menuToggleOn {
 		t.Errorf("check item %+v", check.Properties)
 	}
-	want := map[int32]application.MenuAction{1: application.ActionHide, 2: application.ActionAlwaysOnTop, 4: application.ActionAbout, 6: application.ActionExit}
+	want := map[int32]menus.Action{1: menus.Hide, 2: menus.AlwaysOnTop, 4: menus.About, 6: menus.Exit}
 	if len(actions) != len(want) {
 		t.Errorf("actions %v, want %v", actions, want)
 	}
@@ -88,7 +88,7 @@ func TestTheTrayIconIsAveragedDownToARGB(t *testing.T) {
 // the menu, choose from it and see it change when what it says changes.
 func TestTheTrayIsHostedAndAnswersTheHost(t *testing.T) {
 	var hidden atomic.Bool
-	d := New(func() []application.MenuItem {
+	d := New(testApp, func() []menus.Item {
 		if hidden.Load() {
 			return testTrayItems[1:]
 		}
@@ -136,7 +136,7 @@ func TestTheTrayIsHostedAndAnswersTheHost(t *testing.T) {
 	if err := menu.Call(menuInterface+".Event", 0, int32(1), menuClicked, dbus.MakeVariant(""), uint32(0)).Err; err != nil {
 		t.Fatal(err)
 	}
-	if event := <-d.Events(); event.Kind != EventMenu || event.Action != application.ActionHide {
+	if event := <-d.Events(); event.Kind != EventMenu || event.Action != menus.Hide {
 		t.Errorf("clicking id 1 gave %+v", event)
 	}
 	hidden.Store(true)

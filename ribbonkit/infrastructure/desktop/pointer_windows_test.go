@@ -132,7 +132,7 @@ func TestTrackingReportsThePointerAndStops(t *testing.T) {
 	window := testRibbonWindow(t)
 	aroundPointer(t, window, true)
 	log := &bytes.Buffer{}
-	d := New(nil, log)
+	d := New(testApp, nil, log)
 	d.TrackPointer(window, true)
 	d.TrackPointer(window, true)
 	select {
@@ -151,7 +151,7 @@ func TestTrackingReportsThePointerAndStops(t *testing.T) {
 	}
 
 	gone := &bytes.Buffer{}
-	lost := New(nil, gone)
+	lost := New(testApp, nil, gone)
 	lost.TrackPointer(Window(^uintptr(0)>>1), true)
 	time.Sleep(3 * pointerEvery)
 	lost.TrackPointer(0, false)

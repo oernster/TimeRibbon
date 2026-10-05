@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oernster/timeribbon/internal/application"
+	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
@@ -17,8 +17,8 @@ const quietFor = 3 * moveSettle
 // watchedDesktop answers a desktop watching a fresh test window, with both cleaned up afterwards.
 func watchedDesktop(t *testing.T) (*Desktop, Window) {
 	t.Helper()
-	ribbon := newTestWindow()
-	d := New(func() []application.MenuItem { return nil }, io.Discard)
+	ribbon := newTestWindow(testApp.Name)
+	d := New(testApp, func() []menus.Item { return nil }, io.Discard)
 	d.guard.Lock()
 	d.ribbon = ribbon
 	d.guard.Unlock()
@@ -80,16 +80,16 @@ func TestAPassingPositionOnTheWayToAPlacementIsNotAMove(t *testing.T) {
 // FR-108: the item chosen from the ribbon's menu reaches the desktop as its action.
 func TestTheChosenMenuItemIsReported(t *testing.T) {
 	d, _ := watchedDesktop(t)
-	items := []application.MenuItem{
-		{Action: application.ActionSettings},
-		{Label: "Help", Children: []application.MenuItem{{Action: application.ActionAbout}}},
-		{Action: application.ActionExit},
+	items := []menus.Item{
+		{Action: menus.Settings},
+		{Label: "Help", Children: []menus.Item{{Action: menus.About}}},
+		{Action: menus.Exit},
 	}
 	shown.Lock()
 	shown.desktop, shown.items = d, items
 	shown.Unlock()
 	desktopMenuChosen(1)
-	if event := <-d.Events(); event.Kind != EventMenu || event.Action != application.ActionAbout {
+	if event := <-d.Events(); event.Kind != EventMenu || event.Action != menus.About {
 		t.Errorf("got %+v", event)
 	}
 }

@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oernster/timeribbon/internal/application"
+	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 )
 
 // The icon appears once AppKit's loop has served the request, so its arrival is polled for.
@@ -22,7 +22,7 @@ func TestTheIconStandsInTheMenuBarUntilStop(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	d := New(func() []application.MenuItem { return nil }, io.Discard)
+	d := New(testApp, func() []menus.Item { return nil }, io.Discard)
 	d.UseIcon(icon)
 	if err := d.Start(); err != nil {
 		t.Fatal(err)
@@ -42,7 +42,7 @@ func TestTheIconStandsInTheMenuBarUntilStop(t *testing.T) {
 
 // A desktop given no image says so rather than showing an empty icon.
 func TestAnIconWithNoImageIsRefused(t *testing.T) {
-	d := New(func() []application.MenuItem { return nil }, io.Discard)
+	d := New(testApp, func() []menus.Item { return nil }, io.Discard)
 	defer d.Stop()
 	if err := d.Start(); !errors.Is(err, errNoIcon) {
 		t.Errorf("got %v", err)

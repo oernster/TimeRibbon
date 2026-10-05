@@ -3,19 +3,19 @@ package desktop
 import (
 	"testing"
 
-	"github.com/oernster/timeribbon/internal/application"
+	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 )
 
 func TestTheChosenIdentifierNamesItsItem(t *testing.T) {
 	t.Parallel()
-	items := []application.MenuItem{{Action: application.ActionHide}, {Action: application.ActionExit}}
+	items := []menus.Item{{Action: menus.Hide}, {Action: menus.Exit}}
 	cases := map[int]struct {
-		action application.MenuAction
+		action menus.Action
 		ok     bool
 	}{
 		0:              {"", false},
-		menuIDBase:     {application.ActionHide, true},
-		menuIDBase + 1: {application.ActionExit, true},
+		menuIDBase:     {menus.Hide, true},
+		menuIDBase + 1: {menus.Exit, true},
 		menuIDBase + 2: {"", false},
 	}
 	for id, want := range cases {

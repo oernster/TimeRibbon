@@ -1,7 +1,7 @@
 import { useEffect, useState, type KeyboardEvent, type ReactNode } from 'react'
-import { api, type About as AboutFacts, type UpdateStatus } from './api'
 import { useAutoScroll } from './autoScroll'
-import appIcon from './assets/app-icon.png'
+import type { WindowCalls } from './bridge'
+import type { AboutFacts, UpdateStatus } from './wire'
 
 interface PanelProps {
   title: string
@@ -42,17 +42,24 @@ function Panel({ title, problem, onClose, children }: PanelProps) {
   )
 }
 
+interface AboutProps {
+  onClose: () => void
+  calls: Pick<WindowCalls, 'about'>
+  /** icon is the application's own picture, shown at the head of the panel. */
+  icon: string
+}
+
 /** About names the application, its author and every component it ships, in that order (FR-607). */
-export function About({ onClose }: { onClose: () => void }) {
+export function About({ onClose, calls, icon }: AboutProps) {
   const [facts, setFacts] = useState<AboutFacts | null>(null)
   const [problem, setProblem] = useState('')
   useEffect(() => {
-    void api.about(setProblem).then(setFacts)
-  }, [])
+    void calls.about(setProblem).then(setFacts)
+  }, [calls])
   return (
     <Panel title="About" problem={problem} onClose={onClose}>
       <div className="about-head">
-        <img src={appIcon} alt="" draggable={false} />
+        <img src={icon} alt="" draggable={false} />
         {facts != null && (
           <>
             <h2>
@@ -84,7 +91,15 @@ export function About({ onClose }: { onClose: () => void }) {
  * and Later; a check that found none says so. One that could not reach GitHub says that instead. Go keeps the
  * addresses and the version: Download and Skip ask it to act on what it offered.
  */
-export function Update({ status, onClose }: { status: UpdateStatus; onClose: () => void }) {
+export function Update({
+  status,
+  onClose,
+  calls,
+}: {
+  status: UpdateStatus
+  onClose: () => void
+  calls: Pick<WindowCalls, 'openUpdate' | 'skipUpdate'>
+}) {
   const [problem, setProblem] = useState('')
   const thenClose = (done: unknown) => {
     if (done !== null) {
@@ -108,10 +123,10 @@ export function Update({ status, onClose }: { status: UpdateStatus; onClose: () 
         Version {status.latest} is available. You are running {status.current}.
       </p>
       <div className="update-actions">
-        <button type="button" onClick={() => void api.openUpdate(setProblem).then(thenClose)}>
+        <button type="button" onClick={() => void calls.openUpdate(setProblem).then(thenClose)}>
           Download
         </button>
-        <button type="button" onClick={() => void api.skipUpdate(setProblem).then(thenClose)}>
+        <button type="button" onClick={() => void calls.skipUpdate(setProblem).then(thenClose)}>
           Skip this version
         </button>
         <button type="button" onClick={onClose}>
@@ -123,12 +138,12 @@ export function Update({ status, onClose }: { status: UpdateStatus; onClose: () 
 }
 
 /** Licence shows the whole of the terms the application was built with (FR-608). */
-export function Licence({ onClose }: { onClose: () => void }) {
+export function Licence({ onClose, calls }: { onClose: () => void; calls: Pick<WindowCalls, 'licence'> }) {
   const [text, setText] = useState('')
   const [problem, setProblem] = useState('')
   useEffect(() => {
-    void api.licence(setProblem).then((terms) => setText(terms ?? ''))
-  }, [])
+    void calls.licence(setProblem).then((terms) => setText(terms ?? ''))
+  }, [calls])
   return (
     <Panel title="Licence" problem={problem} onClose={onClose}>
       <div className="licence">

@@ -9,7 +9,7 @@ import '@oernster/ribbonkit/controls.css'
 import '@oernster/ribbonkit/ribbon.css'
 import './app.css'
 import './settings.css'
-import './help.css'
+import '@oernster/ribbonkit/help.css'
 
 const root = document.getElementById(rootId)
 if (root != null) {

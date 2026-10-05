@@ -70,7 +70,7 @@ macOS build compiles 394 and the Linux build 398 ([On macOS and Linux](#on-macos
 
 ### The front end
 
-149 tests in 24 files under Vitest with jsdom, run from `frontend`; nine of the files are ribbonkit's
+149 tests in 24 files under Vitest with jsdom, run from `frontend`; eleven of the files are ribbonkit's
 own (`ribbonkit/web`), reached through the front end's link to the kit's package. They cover the
 ribbon's band, its tab and the report that it has been drawn (`Band.test.tsx`, FR-614, FR-615); the
 handle that pulls the sun map out (`PullOut.test.tsx`, FR-903); the shell's panels, refreshes, theme

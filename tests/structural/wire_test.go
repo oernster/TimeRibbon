@@ -23,7 +23,7 @@ import (
 // wirePairs names each Go wire type with the TypeScript interface stating it again.
 var wirePairs = map[string]string{
 	"sizeDTO": "Size", "layoutDTO": "Layout", "cellDTO": "Cell", "snapshotDTO": "Snapshot", "placeDTO": "Place",
-	"aboutDTO": "About", "creditDTO": "Credit", "updateDTO": "UpdateStatus",
+	"aboutDTO": "AboutFacts", "creditDTO": "Credit", "updateDTO": "UpdateStatus",
 	"Box": "Box", "markDTO": "Mark", "sunMapDTO": "SunMap",
 	"textSamplesDTO": "TextSamples", "measuredDTO": "Measured", "choiceDTO": "MenuChoice",
 }

@@ -4,7 +4,7 @@
 // React a hook over it.
 
 import { useCallback, useEffect, useState } from 'react'
-import '../../ribbonkit/installer/page/auto-scroll.js'
+import '../installer/page/auto-scroll.js'
 
 export type AutoScrollPhase = 'down' | 'pauseBottom' | 'up' | 'pauseTop' | 'manual'
 

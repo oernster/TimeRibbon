@@ -64,13 +64,13 @@ interface AllowedSite extends TimerSite {
 }
 
 /** HELP_CYCLE is the one module allowed a periodic timer: the self-reading cycle (FR-609). */
-const HELP_CYCLE = '../../ribbonkit/installer/page/auto-scroll.js'
+const HELP_CYCLE = `${KIT_ROOT}/installer/page/auto-scroll.js`
 
 /** HELP_CYCLE_USERS are the only page modules that may start the cycle: Help, while it is mounted. */
-const HELP_CYCLE_USERS = ['Help.tsx']
+const HELP_CYCLE_USERS = [`${KIT_SOURCE}Help.tsx`]
 
 /** HELP_CYCLE_HOOK is the module that starts the cycle for a mounted element and ends it on unmount. */
-const HELP_CYCLE_HOOK = 'autoScroll.ts'
+const HELP_CYCLE_HOOK = `${KIT_SOURCE}autoScroll.ts`
 
 const ALLOWED: AllowedSite[] = [
   {

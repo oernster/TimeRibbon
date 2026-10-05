@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { api } from './api'
-import { useShell, type Panel } from '@oernster/ribbonkit'
-import { About, Licence, Update } from './Help'
+import { About, Licence, Update, useShell, type Panel } from '@oernster/ribbonkit'
+import appIcon from './assets/app-icon.png'
 import { useMeasuredCells } from './measure'
 import { Settings } from './Settings'
 import { Surface } from './Surface'
@@ -42,13 +42,13 @@ export function App() {
     return <Settings snapshot={snapshot} startAdding={at === addClock} reload={load} onClose={closePanel} ready={opened} />
   }
   if (view === 'about') {
-    return <About onClose={closePanel} />
+    return <About onClose={closePanel} calls={api} icon={appIcon} />
   }
   if (view === 'licence') {
-    return <Licence onClose={closePanel} />
+    return <Licence onClose={closePanel} calls={api} />
   }
   if (view === 'update' && update != null) {
-    return <Update status={update} onClose={closePanel} />
+    return <Update status={update} onClose={closePanel} calls={api} />
   }
   return <Surface snapshot={snapshot} onAddClock={() => openPanel(addClock)} refused={refused} />
 }

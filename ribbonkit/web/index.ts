@@ -3,6 +3,7 @@
 
 export { Band } from './Band'
 export { backgroundReporter, rgbOf, rootId, swatchId, type Rgb } from './background'
+export { About, Licence, Update } from './Help'
 export { connect, on, startDrag, windowCalls, type Call, type Refused, type WindowBridge, type WindowCalls } from './bridge'
 export { showsTheMenu, useDrag, type Distance } from './drag'
 export { opacityProperty, percentOfWhole, showOpacity } from './opacity'
@@ -13,4 +14,4 @@ export { PullOut, type PullOutWords } from './PullOut'
 export { ScaleGrip } from './ScaleGrip'
 export { scrollbarThickness } from './scrollbar'
 export { useShell, type Drawn, type Panel, type ShellOptions, type View } from './shell'
-export type { About, Box, Credit, UpdateStatus } from './wire'
+export type { AboutFacts, Box, Credit, UpdateStatus } from './wire'

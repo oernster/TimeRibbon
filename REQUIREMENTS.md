@@ -501,7 +501,7 @@ Verified by: `TestIsNewerVersionComparesDottedIntegers`, `TestEachSystemDownload
 `TestEveryUnusableAnswerIsAnError`, `TestTheProductionSourceAsksThisRepositoryAndGivesUp` (update);
 `TestAnAutomaticCheckSpeaksOnlyOfANewRelease`, `TestAManualCheckAlwaysAnswers`,
 `TestTheWatchChecksAfterTheStartThenAtEachIntervalUntilTheEnd`, `TestDownloadOpensWhatWasOffered`,
-`TestSkipKeepsTheOfferedVersion` (window); `TestSettingsRoundTrip` (store); `help.test.tsx`; the real
+`TestSkipKeepsTheOfferedVersion` (window); `TestSettingsRoundTrip` (store); `Help.test.tsx` (ribbonkit); the real
 request and browser by hand.
 
 ### 3.6 Settings and startup
@@ -540,19 +540,19 @@ Verified by: by hand; no front-end test yet.
 **FR-607 About** (Must; Amendments 2, 13). About shows, in order, the icon, the name with this build's
 version, `by Oliver Ernster`, `© Oliver Ernster`, then a credit for every component this platform's
 build ships, naming its licence and what it does. Close and Escape return to the ribbon.
-Verified by: `help.test.tsx`; `TestEveryLinkedModuleIsCredited`, `TestAModuleIsCreditedOncePerPlatform`
+Verified by: `Help.test.tsx` (ribbonkit); `TestEveryLinkedModuleIsCredited`, `TestAModuleIsCreditedOncePerPlatform`
 (structural); `TestEachPlatformCreditsWhatItShips` (product).
 
 **FR-608 Licence** (Must; Amendment 2). Licence shows the whole embedded `LICENSE`. Close and Escape
 return to the ribbon.
-Verified by: `help.test.tsx`; `TestTheLicencePanelIsSizedForTheLicencesWidestLine` (structural).
+Verified by: `Help.test.tsx` (ribbonkit); `TestTheLicencePanelIsSizedForTheLicencesWidestLine` (structural).
 
 **FR-609 Help reads itself** (Must; Amendment 2). While About or Licence overflows, its body reads
 itself: still for 5 s; down 1 DIP every 80 ms; still 5 s at the end; back up at 15 DIP every 40 ms;
 still 2 s; repeat. A wheel, press, touch, key or focus suspends it for 2.5 s, after which it resumes
 where the reader left it; focus does not shorten the opening 5 s; under a modal dialog it stands
 frozen. One script serves setup too (FR-811).
-Verified by: `autoScroll.test.ts`; `help.test.tsx`.
+Verified by: `autoScroll.test.ts`, `Help.test.tsx` (ribbonkit).
 
 **FR-610 Clock size** (Must; Amendments 8, 24). Every cell is drawn large or small as held, large
 when none is held. Small cells are 146 by 72 DIP digital and 146 by 116 analogue against large's 176 by

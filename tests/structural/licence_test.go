@@ -18,7 +18,7 @@ var licenceColumns = regexp.MustCompile(`--licence-columns:\s*(\d+);`)
 
 func TestTheLicencePanelIsSizedForTheLicencesWidestLine(t *testing.T) {
 	root := repoRoot(t)
-	sheet, err := os.ReadFile(filepath.Join(root, "frontend", "src", "help.css"))
+	sheet, err := os.ReadFile(filepath.Join(root, kitTree, "web", "help.css"))
 	if err != nil {
 		t.Fatal(err)
 	}

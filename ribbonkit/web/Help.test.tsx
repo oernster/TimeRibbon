@@ -1,17 +1,20 @@
 import { act, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { about, installBridge } from './fakeBridge'
+import { about, install, sampleCalls, windowBridge } from './testing'
 import { About, Licence, Update } from './Help'
-import type { UpdateStatus } from './api'
+import type { UpdateStatus } from './wire'
 import { autoScroll } from './autoScroll'
+
+// icon stands for the application's picture at the head of About.
+const icon = 'app-icon.png'
 
 afterEach(() => vi.useRealTimers())
 
 async function open(panel: 'about' | 'licence') {
-  const bridge = installBridge()
+  const bridge = install(windowBridge())
   const onClose = vi.fn()
   await act(async () => {
-    render(panel === 'about' ? <About onClose={onClose} /> : <Licence onClose={onClose} />)
+    render(panel === 'about' ? <About onClose={onClose} calls={sampleCalls} icon={icon} /> : <Licence onClose={onClose} calls={sampleCalls} />)
   })
   return { bridge, onClose }
 }
@@ -38,10 +41,10 @@ describe('About (FR-607)', () => {
   })
 
   it('says why when About cannot be read', async () => {
-    const bridge = installBridge()
+    const bridge = install(windowBridge())
     bridge.About.mockRejectedValueOnce('no facade')
     await act(async () => {
-      render(<About onClose={vi.fn()} />)
+      render(<About onClose={vi.fn()} calls={sampleCalls} icon={icon} />)
     })
     expect(screen.getByRole('alert').textContent).toBe('no facade')
   })
@@ -51,9 +54,9 @@ describe('Update (FR-509)', () => {
   const newer: UpdateStatus = { current: '2.0.0', latest: 'v2.1.0', updateAvailable: true }
 
   function showUpdate(status: UpdateStatus) {
-    const bridge = installBridge()
+    const bridge = install(windowBridge())
     const onClose = vi.fn()
-    render(<Update status={status} onClose={onClose} />)
+    render(<Update status={status} onClose={onClose} calls={sampleCalls} />)
     return { bridge, onClose }
   }
 

@@ -3,7 +3,8 @@ package structural
 // ribbonkit's half of the page leaves this repository with the rest of the kit (WeatherRibbon
 // CON-10), so it may reach nothing of TimeRibbon's. TestTheKitImportsNothingOfTimeRibbon holds the
 // Go half to that; this holds the page half: every relative import and every url() in ribbonkit/web
-// stays inside ribbonkit/web. Every package it names is one the kit's package.json states.
+// stays inside the kit (the self-reading cycle it imports lives beside the setup page, which can
+// import nothing). Every package it names is one the kit's package.json states.
 
 import (
 	"encoding/json"
@@ -87,7 +88,8 @@ func referencesOf(t *testing.T, path string) []string {
 
 func TestTheKitPageReachesNothingOfTimeRibbon(t *testing.T) {
 	root := repoRoot(t)
-	web := filepath.Join(root, kitTree, "web")
+	kit := filepath.Join(root, kitTree)
+	web := filepath.Join(kit, "web")
 	peers := kitPeers(t)
 	read := 0
 	for _, path := range frontendFiles(t) {
@@ -98,9 +100,9 @@ func TestTheKitPageReachesNothingOfTimeRibbon(t *testing.T) {
 		read++
 		for _, reference := range referencesOf(t, path) {
 			if strings.HasPrefix(reference, ".") {
-				target, _ := filepath.Rel(web, filepath.Join(filepath.Dir(path), reference))
+				target, _ := filepath.Rel(kit, filepath.Join(filepath.Dir(path), reference))
 				if strings.HasPrefix(target, "..") {
-					t.Errorf("%s reaches %s, outside ribbonkit/web", filepath.ToSlash(inside), reference)
+					t.Errorf("%s reaches %s, outside the kit", filepath.ToSlash(inside), reference)
 				}
 				continue
 			}

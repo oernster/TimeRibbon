@@ -5,7 +5,7 @@
 // Every call that Go can refuse takes a refusal handler as its last argument and answers null
 // rather than rejecting, so a call without a handler does not compile (ported from Bridge Talk).
 
-import type { About } from './wire'
+import type { AboutFacts } from './wire'
 
 /** A handler told, in words, why a call was refused. */
 export type Refused = (reason: string) => void
@@ -34,7 +34,7 @@ export interface WindowBridge {
   OpenDonation(): Promise<void>
   OpenUpdate(): Promise<void>
   SkipUpdate(): Promise<void>
-  About(): Promise<About>
+  About(): Promise<AboutFacts>
   Licence(): Promise<string>
 }
 

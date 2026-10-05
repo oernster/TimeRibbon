@@ -4,7 +4,7 @@
 import { connect, windowCalls, type Refused, type WindowBridge } from '@oernster/ribbonkit'
 import type { Measured, Place, Snapshot, TextSamples } from './wire'
 
-export { on, startDrag, type About, type Credit, type Refused, type UpdateStatus } from '@oernster/ribbonkit'
+export { on, startDrag, type Credit, type Refused, type UpdateStatus } from '@oernster/ribbonkit'
 export type { Cell, Layout, Mark, Measured, MenuChoice, Place, Size, Snapshot, SunMap, TextSamples } from './wire'
 
 /** Bridge is the App Wails binds: the window's methods (WindowBridge) and TimeRibbon's own (app.go). */

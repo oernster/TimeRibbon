@@ -2,7 +2,9 @@ import { render, waitFor } from '@testing-library/react'
 import type { ReactElement } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import { installBridge, snapshot } from './fakeBridge'
-import { About, Licence, Update } from './Help'
+import { About, Licence, Update } from '@oernster/ribbonkit'
+import { api } from './api'
+import appIcon from './assets/app-icon.png'
 import { Settings } from './Settings'
 import { Surface } from './Surface'
 import type { SunMap } from './wire'
@@ -33,9 +35,9 @@ const surfaces: Record<string, () => ReactElement> = {
   'the empty ribbon': () => <Surface snapshot={snapshot({ cells: [] })} onAddClock={vi.fn()} refused={vi.fn()} />,
   'Settings': () => <Settings snapshot={snapshot()} startAdding={false} reload={vi.fn()} onClose={vi.fn()} />,
   'Settings on the place search': () => <Settings snapshot={snapshot()} startAdding reload={vi.fn()} onClose={vi.fn()} />,
-  'About': () => <About onClose={vi.fn()} />,
-  'Licence': () => <Licence onClose={vi.fn()} />,
-  'the update panel': () => <Update status={{ current: '2.0.0', latest: 'v2.1.0', updateAvailable: true }} onClose={vi.fn()} />,
+  'About': () => <About onClose={vi.fn()} calls={api} icon={appIcon} />,
+  'Licence': () => <Licence onClose={vi.fn()} calls={api} />,
+  'the update panel': () => <Update status={{ current: '2.0.0', latest: 'v2.1.0', updateAvailable: true }} onClose={vi.fn()} calls={api} />,
 }
 
 describe('icon-only controls (NFR-U-4)', () => {

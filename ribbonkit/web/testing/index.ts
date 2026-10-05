@@ -4,12 +4,12 @@
 import { act } from '@testing-library/react'
 import { vi } from 'vitest'
 import { connect, windowCalls, type WindowBridge } from '../bridge'
-import type { About } from '../wire'
+import type { AboutFacts } from '../wire'
 
 /** sampleName stands for the application the kit's tests run for. */
 export const sampleName = 'SampleRibbon'
 
-export const about: About = {
+export const about: AboutFacts = {
   name: 'Product', version: '0.1.0', author: 'The Author', copyright: '© The Author',
   credits: [
     { name: 'Go standard library', licence: 'BSD-3-Clause', role: 'the language and its runtime' },

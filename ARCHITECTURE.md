@@ -24,7 +24,7 @@ here does not exist.
 |---|---|---|
 | Domain imports nothing from this module outside `internal/domain` | `TestDomainHasNoOutwardImports` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | `ribbonkit` imports nothing of TimeRibbon's, so it can leave this repository whole | `TestTheKitImportsNothingOfTimeRibbon` | [`boundary_test.go`](tests/structural/boundary_test.go) |
-| The kit's page reaches nothing outside `ribbonkit/web` and imports only the packages `ribbonkit/package.json` depends on, plus its test tools | `TestTheKitPageReachesNothingOfTimeRibbon` | [`kitpage_test.go`](tests/structural/kitpage_test.go) |
+| The kit's page reaches nothing outside the kit and imports only the packages `ribbonkit/package.json` depends on, plus its test tools | `TestTheKitPageReachesNothingOfTimeRibbon` | [`kitpage_test.go`](tests/structural/kitpage_test.go) |
 | Domain is pure: no network, filesystem, process, random or tz package; no wall clock read, no zone loaded (FR-207, CON-5) | `TestDomainIsPure` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | Application never imports infrastructure or Wails | `TestApplicationDoesNotImportInfrastructure` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | Infrastructure never imports Wails | `TestWailsStaysOutOfInfrastructure` | [`boundary_test.go`](tests/structural/boundary_test.go) |
@@ -91,7 +91,7 @@ beside it at the boxes Go sends (`Box`, in the kit's wire), with the handle name
 application's words; `ribbon.css` styles both. `shell.ts` is the page's shell (`useShell`): it holds
 the application's snapshot, taken by a call the application passes in, routes the window's
 open-panel words to its panels, reloads on Go's refresh and draws the theme, colour scheme and
-opacity the snapshot names. Each component takes only the values it draws, never the
+opacity the snapshot names. Help, About and Licence are its panels (`Help.tsx`, `help.css`). Each component takes only the values it draws, never the
 application's snapshot. A module that reaches Go is handed the calls it needs rather than holding them.
 `web/testing` is its stand-in bridge, which TimeRibbon's `fakeBridge.ts` builds on. The front end
 reads the kit through the link: tsconfig's `preserveSymlinks` and Vite's `resolve.preserveSymlinks`
@@ -390,7 +390,9 @@ platform's build ships (FR-607), from one table in `internal/product/credits.go`
 Licence shows the embedded `LICENSE` exactly as written, its type sized so the widest line fits
 (FR-608). Both read themselves when they overflow (FR-609) through one script,
 `ribbonkit/installer/page/auto-scroll.js`, shared with the setup page, which can import nothing;
-`frontend/src/autoScroll.ts` types it and wraps it in a React hook.
+`ribbonkit/web/autoScroll.ts` types it and wraps it in a React hook. The three panels are the kit's
+(`ribbonkit/web/Help.tsx`, styled by `help.css`): each takes the window calls it makes; About also
+takes the application's own picture for its head.
 
 ## The update check
 

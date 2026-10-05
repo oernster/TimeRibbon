@@ -9,7 +9,8 @@
     "./theme.css": "./web/theme.css",
     "./colours.css": "./web/colours.css",
     "./controls.css": "./web/controls.css",
-    "./ribbon.css": "./web/ribbon.css"
+    "./ribbon.css": "./web/ribbon.css",
+    "./help.css": "./web/help.css"
   },
   "peerDependencies": {
     "react": "^18.3.1",

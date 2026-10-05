@@ -4,7 +4,7 @@ import (
 	"math"
 	"sync"
 
-	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // paintState is the page's background as it last reported it, kept so a change of opacity can paint
@@ -34,7 +34,7 @@ func (a *App) repaint() {
 		return
 	}
 	var alpha uint8
-	if a.service.Settings().Opacity >= settings.MaxOpacity {
+	if a.service.Settings().Opacity >= ribbon.MaxOpacity {
 		alpha = math.MaxUint8
 	}
 	a.background(a.paint.colour[0], a.paint.colour[1], a.paint.colour[2], alpha)

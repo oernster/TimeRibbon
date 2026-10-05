@@ -6,13 +6,14 @@ import (
 
 	"github.com/oernster/timeribbon/internal/domain/settings"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // clocks answers horizontal settings holding n London clocks; the arithmetic below is worked for
 // horizontal cells, whatever the default orientation is.
 func clocks(n int) settings.Settings {
 	s := settings.Defaults()
-	s.Orientation = settings.Horizontal
+	s.Orientation = ribbon.Horizontal
 	for range n {
 		s = s.WithClockAdded(settings.Entry{ID: "x", Zone: "Europe/London"})
 	}
@@ -37,7 +38,7 @@ func TestLaunchWithNothingStoredGoesToTheDefaultPlace(t *testing.T) {
 		t.Errorf("horizontal: got %+v, want %+v", got, want)
 	}
 	vertical := clocks(2)
-	vertical.Orientation = settings.Vertical
+	vertical.Orientation = ribbon.Vertical
 	// Vertical, the same two cells are 160 + 2 x 8 = 176 across and 2 x 90 + 2 x 8 = 196 along.
 	if got, _ := newRig(t, vertical).service.Launch(); got.At != (placement.Point{X: 1920 - 176, Y: (1032 - 196) / 2}) {
 		t.Errorf("vertical: got %+v", got)
@@ -64,7 +65,7 @@ func TestLaunchRestoresTheStoredMonitorAtItsScaling(t *testing.T) {
 func TestVerticalRibbonsStackTheirCells(t *testing.T) {
 	t.Parallel()
 	initial := clocks(3)
-	initial.Orientation = settings.Vertical
+	initial.Orientation = ribbon.Vertical
 	initial.Style = settings.Analogue
 	r := newRig(t, initial)
 	got, _ := r.service.Launch()
@@ -75,7 +76,7 @@ func TestVerticalRibbonsStackTheirCells(t *testing.T) {
 
 // draggedTo answers settings holding n London clocks in orientation, stored where a drag left the
 // ribbon at at on the primary monitor.
-func draggedTo(n int, orientation settings.Orientation, at placement.Point) settings.Settings {
+func draggedTo(n int, orientation ribbon.Orientation, at placement.Point) settings.Settings {
 	s := clocks(n)
 	s.Orientation = orientation
 	s.Placement = &placement.Stored{Device: primaryMonitor.Device, DPI: placement.BaseDPI, Offset: at}
@@ -88,7 +89,7 @@ func draggedTo(n int, orientation settings.Orientation, at placement.Point) sett
 func TestARibbonWhoseLengthChangesIsRecentredAndKept(t *testing.T) {
 	t.Parallel()
 	dragged := placement.Point{X: 1700, Y: 40}
-	r := newRig(t, draggedTo(2, settings.Vertical, dragged))
+	r := newRig(t, draggedTo(2, ribbon.Vertical, dragged))
 	if got, _ := r.service.Launch(); got.At != dragged {
 		t.Fatalf("launched at %+v, want where the drag left it", got.At)
 	}
@@ -112,7 +113,7 @@ func TestARibbonWhoseLengthChangesIsRecentredAndKept(t *testing.T) {
 func TestAHorizontalRibbonIsRecentredLeftToRight(t *testing.T) {
 	t.Parallel()
 	dragged := placement.Point{X: 30, Y: 800}
-	r := newRig(t, draggedTo(2, settings.Horizontal, dragged))
+	r := newRig(t, draggedTo(2, ribbon.Horizontal, dragged))
 	_, _ = r.service.Launch()
 	_, _ = r.service.AddClock("Asia/Kolkata")
 	got, _ := r.service.Rearrange(dragged)
@@ -126,7 +127,7 @@ func TestAHorizontalRibbonIsRecentredLeftToRight(t *testing.T) {
 func TestNothingButAChangeOfLengthRecentresTheRibbon(t *testing.T) {
 	t.Parallel()
 	dragged := placement.Point{X: 1700, Y: 40}
-	r := newRig(t, draggedTo(2, settings.Vertical, dragged))
+	r := newRig(t, draggedTo(2, ribbon.Vertical, dragged))
 	_, _ = r.service.Launch()
 	if got, _ := r.service.Rearrange(dragged); got.At != dragged || len(r.store.saved) != 0 {
 		t.Errorf("rearranged to %+v with %d saves, want it left alone", got.At, len(r.store.saved))
@@ -163,7 +164,7 @@ func TestTheRibbonMakesRoomForANotice(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, clocks(2))
 	r.store.saveErr = errPlanted
-	if err := r.service.SetTheme(settings.Dark); !errors.Is(err, errPlanted) {
+	if err := r.service.SetTheme(ribbon.Dark); !errors.Is(err, errPlanted) {
 		t.Fatalf("the save did not fail: %v", err)
 	}
 	got, _ := r.service.Launch()
@@ -184,7 +185,7 @@ func TestARecentringThatCannotBeSavedMakesRoomForItsNotice(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, clocks(2))
 	r.store.saveErr = errPlanted
-	_ = r.service.SetTheme(settings.Dark)
+	_ = r.service.SetTheme(ribbon.Dark)
 	if _, err := r.service.Launch(); err != nil {
 		t.Fatal(err)
 	}

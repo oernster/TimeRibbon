@@ -5,7 +5,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // The page's background reaches the window, so a window catching up with a new size shows it rather
@@ -13,7 +13,7 @@ import (
 func TestThePagesBackgroundReachesTheWindow(t *testing.T) {
 	t.Parallel()
 	app, service, seen, _ := newTestApp(t)
-	service.settings.Opacity = settings.MaxOpacity
+	service.settings.Opacity = ribbon.MaxOpacity
 	if err := app.SetBackground(7, 36, math.MaxUint8); err != nil {
 		t.Fatal(err)
 	}
@@ -27,14 +27,14 @@ func TestThePagesBackgroundReachesTheWindow(t *testing.T) {
 func TestTheWindowIsPaintedClearBelowFullOpacity(t *testing.T) {
 	t.Parallel()
 	app, service, seen, _ := newTestApp(t)
-	service.settings.Opacity = settings.MaxOpacity
-	if err := app.SetOpacity(settings.MinOpacity); err != nil || len(seen.backgrounds) != 0 {
+	service.settings.Opacity = ribbon.MaxOpacity
+	if err := app.SetOpacity(ribbon.MinOpacity); err != nil || len(seen.backgrounds) != 0 {
 		t.Fatalf("before the page reported a colour: %v, painted %v", err, seen.backgrounds)
 	}
 	if err := app.SetBackground(7, 36, 9); err != nil {
 		t.Fatal(err)
 	}
-	if err := app.SetOpacity(settings.MaxOpacity); err != nil {
+	if err := app.SetOpacity(ribbon.MaxOpacity); err != nil {
 		t.Fatal(err)
 	}
 	want := [][4]uint8{{7, 36, 9, 0}, {7, 36, 9, math.MaxUint8}}

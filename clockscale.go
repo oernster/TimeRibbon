@@ -4,7 +4,7 @@ import (
 	"math"
 	"sync"
 
-	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // gripDrag is a drag of the corner grip under way (FR-623): where the pointer began, in the page's
@@ -65,10 +65,10 @@ func (a *App) EndScale(x, y float64) error {
 func (a *App) gripScale(x, y float64) float64 {
 	atX, atY := a.pointerAt(x, y)
 	moved := atY - a.grip.fromY
-	if a.service.Settings().Orientation == settings.Vertical {
+	if a.service.Settings().Orientation == ribbon.Vertical {
 		moved = atX - a.grip.fromX
 	}
-	return settings.ScaleAfter(a.grip.began, a.grip.thickness, moved)
+	return ribbon.ScaleAfter(a.grip.began, a.grip.thickness, moved)
 }
 
 // pointerAt answers where the pointer is in the page's units: the desktop's own reading wherever it

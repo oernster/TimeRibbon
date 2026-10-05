@@ -5,8 +5,8 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/oernster/timeribbon/internal/domain/settings"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // FR-623: the grip's page cannot take a snapshot mid-drag by itself, so a preview and the kept
@@ -31,7 +31,7 @@ const gripThickness = 200.0
 // never the page's own reading, which was measured jumping backwards mid-drag (2026-10-04).
 func TestTheGripFollowsTheDesktopsPointerOverThePages(t *testing.T) {
 	app, service, _, _ := newTestApp(t)
-	service.settings.Scale, service.settings.Orientation = settings.WholeScale, settings.Vertical
+	service.settings.Scale, service.settings.Orientation = ribbon.WholeScale, ribbon.Vertical
 	const perDIP = 2.0
 	app.pixelsPerDIP.Store(math.Float64bits(perDIP))
 	cursor := placement.Point{X: 1000, Y: 300}
@@ -44,7 +44,7 @@ func TestTheGripFollowsTheDesktopsPointerOverThePages(t *testing.T) {
 	if err := app.EndScale(-gripThickness, 0); err != nil {
 		t.Fatal(err)
 	}
-	want := settings.WholeScale + settings.WholeScale/4
+	want := ribbon.WholeScale + ribbon.WholeScale/4
 	if !slices.Equal(service.previewed, []float64{float64(want)}) || !slices.Equal(service.kept, []int{want}) {
 		t.Errorf("previewed %v, kept %v; want %d for both", service.previewed, service.kept, want)
 	}
@@ -54,14 +54,14 @@ func TestTheGripFollowsTheDesktopsPointerOverThePages(t *testing.T) {
 // for a horizontal ribbon; the same scale twice is previewed once.
 func TestTheGripFollowsThePagesPointerWhereTheDesktopCannotReadIt(t *testing.T) {
 	app, service, _, _ := newTestApp(t)
-	service.settings.Scale, service.settings.Orientation = settings.WholeScale, settings.Horizontal
+	service.settings.Scale, service.settings.Orientation = ribbon.WholeScale, ribbon.Horizontal
 	app.BeginScale(gripThickness, 0, 0)
 	for range 2 {
 		if err := app.DragScale(gripThickness, gripThickness/2); err != nil {
 			t.Fatal(err)
 		}
 	}
-	want := settings.WholeScale + settings.WholeScale/2
+	want := ribbon.WholeScale + ribbon.WholeScale/2
 	if !slices.Equal(service.previewed, []float64{float64(want)}) {
 		t.Errorf("previewed %v, want only %d", service.previewed, want)
 	}
@@ -71,7 +71,7 @@ func TestTheGripFollowsThePagesPointerWhereTheDesktopCannotReadIt(t *testing.T) 
 // after the drag has ended does nothing.
 func TestAPressThatMovesNothingKeepsNothing(t *testing.T) {
 	app, service, _, _ := newTestApp(t)
-	service.settings.Scale = settings.WholeScale
+	service.settings.Scale = ribbon.WholeScale
 	app.BeginScale(gripThickness, 0, 0)
 	if err := app.DragScale(0, 0); err != nil {
 		t.Fatal(err)

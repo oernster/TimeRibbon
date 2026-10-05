@@ -8,9 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oernster/timeribbon/ribbonkit/application/release"
-
 	"github.com/oernster/timeribbon/internal/application"
+	"github.com/oernster/timeribbon/ribbonkit/application/release"
 )
 
 // waitLimit bounds how long a test waits for a check made on a goroutine.

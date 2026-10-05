@@ -6,6 +6,7 @@ import (
 	"github.com/oernster/timeribbon/internal/domain/settings"
 	"github.com/oernster/timeribbon/internal/domain/sun"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // londonAt is Europe/London's city as the rig's catalogue gives it.
@@ -95,7 +96,7 @@ func TestAHorizontalRibbonsMapWaitsForThePullOut(t *testing.T) {
 // closed and whichever way it runs, so the handle covers no cell; its length is unchanged.
 func TestTheHandlesLaneDeepensTheRibbon(t *testing.T) {
 	t.Parallel()
-	for _, orientation := range []settings.Orientation{settings.Horizontal, settings.Vertical} {
+	for _, orientation := range []ribbon.Orientation{ribbon.Horizontal, ribbon.Vertical} {
 		for _, pullOut := range []bool{false, true} {
 			off := clocks(2)
 			off.Orientation = orientation
@@ -110,7 +111,7 @@ func TestTheHandlesLaneDeepensTheRibbon(t *testing.T) {
 				t.Fatal(err)
 			}
 			wantDeeper := placement.Size{Width: without.Size.Width, Height: without.Size.Height + testLayout.HandleLane}
-			if orientation == settings.Vertical {
+			if orientation == ribbon.Vertical {
 				wantDeeper = placement.Size{Width: without.Size.Width + testLayout.HandleLane, Height: without.Size.Height}
 			}
 			if with.Size != wantDeeper {
@@ -125,7 +126,7 @@ func TestTheHandlesLaneDeepensTheRibbon(t *testing.T) {
 func TestAVerticalRibbonsMapWaitsForThePullOut(t *testing.T) {
 	t.Parallel()
 	closed := clocks(2)
-	closed.Orientation, closed.SunMap = settings.Vertical, true
+	closed.Orientation, closed.SunMap = ribbon.Vertical, true
 	got, err := newRig(t, closed).service.Launch()
 	if err != nil {
 		t.Fatal(err)

@@ -12,6 +12,7 @@ import (
 	"github.com/oernster/timeribbon/internal/domain/settings"
 	"github.com/oernster/timeribbon/ribbonkit/application/release"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // errPlanted is the failure a stand-in answers when a test asks it to fail.
@@ -79,7 +80,7 @@ func (s *scriptedService) SetStyle(settings.Style) error { return s.change("SetS
 
 func (s *scriptedService) SetSize(settings.Size) error { return s.change("SetSize") }
 
-func (s *scriptedService) SetColour(settings.Colour) error { return s.change("SetColour") }
+func (s *scriptedService) SetColour(ribbon.Colour) error { return s.change("SetColour") }
 
 func (s *scriptedService) SetFormat(clock.Format) error { return s.change("SetFormat") }
 
@@ -87,14 +88,14 @@ func (s *scriptedService) SetDateFormat(clock.DateFormat) error { return s.chang
 
 // SetOrientation takes the choice unless it is refused as one the setting does not offer, as the
 // service does: a save that fails still leaves the choice in effect.
-func (s *scriptedService) SetOrientation(orientation settings.Orientation) error {
+func (s *scriptedService) SetOrientation(orientation ribbon.Orientation) error {
 	if !errors.Is(s.changeErr, application.ErrUnknownChoice) {
 		s.settings.Orientation = orientation
 	}
 	return s.change("SetOrientation")
 }
 
-func (s *scriptedService) SetTheme(settings.Theme) error { return s.change("SetTheme") }
+func (s *scriptedService) SetTheme(ribbon.Theme) error { return s.change("SetTheme") }
 
 func (s *scriptedService) SetAlwaysOnTop(on bool) error {
 	s.onTop = append(s.onTop, on)

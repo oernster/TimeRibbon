@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // commandLabels are the menu items that choose nothing, so Settings does not offer them (FR-624).
@@ -34,7 +35,7 @@ func TestEveryMenuChoiceIsOfferedBySettings(t *testing.T) {
 func TestSettingsChoicesAreTheMenusOwnItems(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, settings.Defaults())
-	if err := r.service.SetColour(settings.Ocean); err != nil {
+	if err := r.service.SetColour(ribbon.Ocean); err != nil {
 		t.Fatal(err)
 	}
 	menu := r.service.ContextMenu()
@@ -45,7 +46,7 @@ func TestSettingsChoicesAreTheMenusOwnItems(t *testing.T) {
 		}
 	}
 	colour := find(t, r.service.SettingsChoices(), labelColour)
-	if ocean := find(t, colour.Children, colourLabels[settings.Ocean]); !ocean.Checked {
+	if ocean := find(t, colour.Children, colourLabels[ribbon.Ocean]); !ocean.Checked {
 		t.Errorf("Ocean chosen and not ticked: %+v", ocean)
 	}
 }

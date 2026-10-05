@@ -1,8 +1,8 @@
 package application
 
 import (
-	"github.com/oernster/timeribbon/internal/domain/settings"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // MenuAction names what a menu item does. The window and the tray act on it; the words shown for
@@ -110,7 +110,7 @@ func (s *Service) SettingsChoices() []MenuItem {
 // one the top and bottom.
 func (s *Service) positionItem() MenuItem {
 	children := []MenuItem{{Action: ActionTopEdge, Label: labelTopEdge}, {Action: ActionBottomEdge, Label: labelBottomEdge}}
-	if s.Settings().Orientation == settings.Vertical {
+	if s.Settings().Orientation == ribbon.Vertical {
 		children = []MenuItem{{Action: ActionLeftEdge, Label: labelLeftEdge}, {Action: ActionRightEdge, Label: labelRightEdge}}
 	}
 	return MenuItem{Label: labelPosition, Children: children}

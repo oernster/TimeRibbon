@@ -12,13 +12,12 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/oernster/timeribbon/ribbonkit/application/release"
-
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/internal/infrastructure/desktop"
 	"github.com/oernster/timeribbon/internal/infrastructure/store"
 	"github.com/oernster/timeribbon/internal/infrastructure/zones"
 	"github.com/oernster/timeribbon/internal/product"
+	"github.com/oernster/timeribbon/ribbonkit/application/release"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 	"github.com/oernster/timeribbon/ribbonkit/infrastructure/appdata"
 	"github.com/oernster/timeribbon/ribbonkit/infrastructure/monitors"

@@ -11,14 +11,14 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/oernster/timeribbon/ribbonkit/application/release"
-
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
 	"github.com/oernster/timeribbon/internal/infrastructure/desktop"
 	"github.com/oernster/timeribbon/internal/product"
+	"github.com/oernster/timeribbon/ribbonkit/application/release"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // Events the page listens for.
@@ -50,11 +50,11 @@ type ribbonService interface {
 	SearchPlaces(query string) []application.Place
 	SetStyle(style settings.Style) error
 	SetSize(size settings.Size) error
-	SetColour(colour settings.Colour) error
+	SetColour(colour ribbon.Colour) error
 	SetFormat(format clock.Format) error
 	SetDateFormat(dateFormat clock.DateFormat) error
-	SetOrientation(orientation settings.Orientation) error
-	SetTheme(theme settings.Theme) error
+	SetOrientation(orientation ribbon.Orientation) error
+	SetTheme(theme ribbon.Theme) error
 	SetAlwaysOnTop(on bool) error
 	SetPinned(on bool) error
 	SetSunMap(on bool) error
@@ -223,7 +223,7 @@ func (a *App) SetSize(size string) error {
 
 // SetColour chooses the colour scheme (FR-611).
 func (a *App) SetColour(colour string) error {
-	return a.refitted(a.service.SetColour(settings.Colour(colour)))
+	return a.refitted(a.service.SetColour(ribbon.Colour(colour)))
 }
 
 // SetFormat chooses 12-hour or 24-hour (FR-206).
@@ -240,9 +240,9 @@ func (a *App) SetDateFormat(dateFormat string) error {
 // orientation's home edge (FR-409). A choice that did not take, as one the setting does not offer,
 // fits the ribbon where it stands. One whose save failed has still taken, so it moves.
 func (a *App) SetOrientation(orientation string) error {
-	chosen := settings.Orientation(orientation)
+	chosen := ribbon.Orientation(orientation)
 	err := a.service.SetOrientation(chosen)
-	edge, known := settings.HomeEdge(chosen)
+	edge, known := ribbon.HomeEdge(chosen)
 	if !known || a.service.Settings().Orientation != chosen {
 		a.contentChanged()
 		return err
@@ -253,7 +253,7 @@ func (a *App) SetOrientation(orientation string) error {
 
 // SetTheme chooses system, light or dark (FR-606).
 func (a *App) SetTheme(theme string) error {
-	return a.refitted(a.service.SetTheme(settings.Theme(theme)))
+	return a.refitted(a.service.SetTheme(ribbon.Theme(theme)))
 }
 
 // SetAlwaysOnTop turns Always on Top on or off and applies it at once (FR-505).

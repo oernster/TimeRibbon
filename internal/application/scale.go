@@ -5,11 +5,12 @@ import (
 
 	"github.com/oernster/timeribbon/internal/domain/settings"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // SetScale chooses how large the clocks are drawn on top of their size in percent, then keeps it;
-// any preview ends and the sun map is no longer held (FR-623). A value outside settings.MinScale to
-// settings.MaxScale is refused and changes nothing.
+// any preview ends and the sun map is no longer held (FR-623). A value outside ribbon.MinScale to
+// ribbon.MaxScale is refused and changes nothing.
 func (s *Service) SetScale(percent int) error {
 	err := choose(s, percent, func(c *settings.Settings) *int { return &c.Scale })
 	s.mutex.Lock()
@@ -23,7 +24,7 @@ func (s *Service) SetScale(percent int) error {
 // the pointer pixel by pixel. The first preview of a drag holds the sun map where it stands. A
 // value outside the bounds is refused.
 func (s *Service) PreviewScale(percent float64) error {
-	if !(percent >= settings.MinScale && percent <= settings.MaxScale) {
+	if !(percent >= ribbon.MinScale && percent <= ribbon.MaxScale) {
 		return fmt.Errorf("%w: a scale of %v percent", ErrUnknownChoice, percent)
 	}
 	s.mutex.Lock()

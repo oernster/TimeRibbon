@@ -5,6 +5,7 @@ import (
 
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // SetStyle chooses digital or analogue presentation (FR-601 to FR-604).
@@ -18,14 +19,14 @@ func (s *Service) SetSize(size settings.Size) error {
 }
 
 // SetOpacity chooses how opaque the window is drawn, in percent (FR-622). A value outside
-// settings.MinOpacity to settings.MaxOpacity is refused and changes nothing.
+// ribbon.MinOpacity to ribbon.MaxOpacity is refused and changes nothing.
 func (s *Service) SetOpacity(percent int) error {
 	return choose(s, percent, func(c *settings.Settings) *int { return &c.Opacity })
 }
 
 // SetColour chooses the colour scheme every clock is drawn in (FR-611).
-func (s *Service) SetColour(colour settings.Colour) error {
-	return choose(s, colour, func(c *settings.Settings) *settings.Colour { return &c.Colour })
+func (s *Service) SetColour(colour ribbon.Colour) error {
+	return choose(s, colour, func(c *settings.Settings) *ribbon.Colour { return &c.Colour })
 }
 
 // SetFormat chooses 12-hour or 24-hour time (FR-206).
@@ -40,13 +41,13 @@ func (s *Service) SetDateFormat(dateFormat clock.DateFormat) error {
 
 // SetOrientation chooses horizontal or vertical (FR-103). The window then goes to the
 // orientation's home edge (FR-409).
-func (s *Service) SetOrientation(orientation settings.Orientation) error {
-	return choose(s, orientation, func(c *settings.Settings) *settings.Orientation { return &c.Orientation })
+func (s *Service) SetOrientation(orientation ribbon.Orientation) error {
+	return choose(s, orientation, func(c *settings.Settings) *ribbon.Orientation { return &c.Orientation })
 }
 
 // SetTheme chooses system, light or dark (FR-606).
-func (s *Service) SetTheme(theme settings.Theme) error {
-	return choose(s, theme, func(c *settings.Settings) *settings.Theme { return &c.Theme })
+func (s *Service) SetTheme(theme ribbon.Theme) error {
+	return choose(s, theme, func(c *settings.Settings) *ribbon.Theme { return &c.Theme })
 }
 
 // SetAlwaysOnTop turns Always on Top on or off (FR-505).

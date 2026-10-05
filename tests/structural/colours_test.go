@@ -13,7 +13,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 var (
@@ -52,8 +52,8 @@ func TestEveryOfferedSchemeHasItsOwnCompleteBlock(t *testing.T) {
 	for _, match := range schemeBlock.FindAllStringSubmatch(readFrontend(t, "colours.css"), -1) {
 		blocks[match[1]] = match[2]
 	}
-	for _, colour := range settings.Colours {
-		if colour == settings.Classic {
+	for _, colour := range ribbon.Colours {
+		if colour == ribbon.Classic {
 			continue
 		}
 		body, found := blocks[string(colour)]
@@ -69,7 +69,7 @@ func TestEveryOfferedSchemeHasItsOwnCompleteBlock(t *testing.T) {
 		}
 	}
 	for name := range blocks {
-		if name == string(settings.Classic) || !slices.Contains(settings.Colours, settings.Colour(name)) {
+		if name == string(ribbon.Classic) || !slices.Contains(ribbon.Colours, ribbon.Colour(name)) {
 			t.Errorf("colours.css holds a block for %q, which no menu offers", name)
 		}
 	}

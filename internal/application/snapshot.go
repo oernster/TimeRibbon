@@ -7,6 +7,7 @@ import (
 
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // Words an invalid clock is shown with (FR-705, FR-706). They say what is wrong rather than
@@ -37,11 +38,11 @@ type Snapshot struct {
 	Cells       []Cell
 	Style       settings.Style
 	Size        settings.Size
-	Colour      settings.Colour
+	Colour      ribbon.Colour
 	Format      clock.Format
 	DateFormat  clock.DateFormat
-	Orientation settings.Orientation
-	Theme       settings.Theme
+	Orientation ribbon.Orientation
+	Theme       ribbon.Theme
 	AlwaysOnTop bool
 	// Opacity is how opaque the window is drawn, in percent; MinOpacity the least it may be, so the
 	// page's control offers no value the setting would refuse (FR-622).
@@ -124,10 +125,10 @@ func (s *Service) Snapshot() Snapshot {
 		Theme:       current.Theme,
 		AlwaysOnTop: current.AlwaysOnTop,
 		Opacity:     current.Opacity,
-		MinOpacity:  settings.MinOpacity,
+		MinOpacity:  ribbon.MinOpacity,
 		Scale:       s.scaleOf(current),
-		MinScale:    settings.MinScale,
-		MaxScale:    settings.MaxScale,
+		MinScale:    ribbon.MinScale,
+		MaxScale:    ribbon.MaxScale,
 		Layout:      s.layoutFor(current),
 		Now:         now,
 		NextRefresh: clock.NextRefresh(now),

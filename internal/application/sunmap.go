@@ -6,6 +6,7 @@ import (
 	"github.com/oernster/timeribbon/internal/domain/settings"
 	"github.com/oernster/timeribbon/internal/domain/sun"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // SunMap is what the sun map draws at one instant (FR-905 to FR-908).
@@ -67,7 +68,7 @@ func (s *Service) mapBeside(current settings.Settings, at placement.Point, size 
 	if !current.SunMap {
 		return "", placement.Rect{}, false
 	}
-	vertical := current.Orientation == settings.Vertical
+	vertical := current.Orientation == ribbon.Vertical
 	ribbon := placement.Rect{Left: at.X, Top: at.Y, Right: at.X + size.Width, Bottom: at.Y + size.Height}
 	side := placement.InnerSide(ribbon, monitor.Work, vertical, edge)
 	if !current.PullOut {

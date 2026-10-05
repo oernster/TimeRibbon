@@ -59,8 +59,8 @@ here does not exist.
 
 The desktop behaviour shared with WeatherRibbon is being carved into `ribbonkit/`, which has the
 same layers (`ribbonkit/domain`, `ribbonkit/application`, `ribbonkit/infrastructure`), is held to
-every rule above and will leave this repository as a module of its own. It holds `placement`, `hover`
-and `identity` in its domain; `release` in its application; `gtkmain`, `cocoamain`, `iconscale`,
+every rule above and will leave this repository as a module of its own. It holds `placement`, `hover`,
+`ribbon` and `identity` in its domain; `release` in its application; `gtkmain`, `cocoamain`, `iconscale`,
 `system`, `monitors`, `appdata`, `runlog`, `startup` and `update` in its infrastructure. It names no
 product: `identity.App` carries the name and app id, built once by `product.App()` and handed in by
 the composition root and setup. Each package is described below where it sits in the layering.
@@ -75,10 +75,15 @@ the composition root and setup. Each package is described below where it sits in
     the edge a ribbon stands flush against (`FlushAgainst`) and the snap of a drop within `SnapReach`
     (`Snapped`, FR-410). `sunmap.go` puts the map on the side away from the ribbon's edge
     (`InnerSide`, `MapBeside`); `MapHeld` keeps it still while the grip is dragged (FR-623).
-  - `settings`: the user's choices as one value, every operation answering a new one. It holds the
-    pin in effect (`PinnedInEffect`, FR-619), the stay-on-top rule (`OnTop`, FR-617), the last edge
-    (`LastEdge`, FR-411), the opacity bounds (20 to 100 percent, FR-622), the scale bounds (75 to
-    200, FR-623) and `ScaleAfter`, the scale a drag of the grip has reached.
+  - `ribbon` (the kit's): the ribbon's own choices as one value, `Choices`: colour, orientation and
+    its home edge (FR-409), theme, Always on top, the pin and the pin in effect (`PinnedInEffect`,
+    FR-619), the stay-on-top rule (`OnTop`, FR-617), the skipped release, the placement, the last
+    edge (`LastEdge`, FR-411), the opacity bounds (20 to 100 percent, FR-622), the scale bounds (75
+    to 200, FR-623) and `ScaleAfter`, the scale a drag of the grip has reached.
+  - `settings`: the user's choices as one value, every operation answering a new one: the ribbon's
+    `Choices` embedded, so they read as its own fields, then the clocks' style, size, formats, sun
+    map, pull out and the clocks themselves. The settings file is written exactly as before the
+    split (NFR-C-1).
   - `sun`: the subsolar point from NOAA's equations (FR-906), checked against NOAA's values in
     `testdata`.
   - `hover`: told the pointer arrived or left and the time, it answers whether an unpinned ribbon is

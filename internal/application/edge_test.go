@@ -6,13 +6,14 @@ import (
 
 	"github.com/oernster/timeribbon/internal/domain/settings"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // FR-408: two vertical digital cells, 160 + 16 across and 2 x 90 + 16 = 196 along, put against the
 // left then the right edge of the primary: flush, centred top to bottom, the place saved.
 func TestToEdgePutsAVerticalRibbonFlushAndKeepsIt(t *testing.T) {
 	t.Parallel()
-	r := newRig(t, draggedTo(2, settings.Vertical, placement.Point{X: 700, Y: 40}))
+	r := newRig(t, draggedTo(2, ribbon.Vertical, placement.Point{X: 700, Y: 40}))
 	centredY := (1032 - 196) / 2
 	for edge, want := range map[placement.Edge]placement.Point{
 		placement.Left:  {X: 0, Y: centredY},
@@ -79,7 +80,7 @@ func TestToEdgeThatCannotBeSavedMakesRoomForItsNotice(t *testing.T) {
 func TestADropNearAnEdgeSnapsFlushAndIsStored(t *testing.T) {
 	t.Parallel()
 	vertical := clocks(2)
-	vertical.Orientation = settings.Vertical
+	vertical.Orientation = ribbon.Vertical
 	r := newRig(t, vertical)
 	got, err := r.service.Moved(placement.Point{X: 1920 - 176 - 10, Y: 300})
 	if err != nil {
@@ -101,7 +102,7 @@ func TestADropNearAnEdgeSnapsFlushAndIsStored(t *testing.T) {
 func TestAVerticalRibbonNeverSnapsToTheTop(t *testing.T) {
 	t.Parallel()
 	vertical := clocks(2)
-	vertical.Orientation = settings.Vertical
+	vertical.Orientation = ribbon.Vertical
 	r := newRig(t, vertical)
 	got, err := r.service.Moved(placement.Point{X: 800, Y: 4})
 	if err != nil {
@@ -116,7 +117,7 @@ func TestAVerticalRibbonNeverSnapsToTheTop(t *testing.T) {
 func TestTheLastEdgeIsRemembered(t *testing.T) {
 	t.Parallel()
 	vertical := clocks(2)
-	vertical.Orientation = settings.Vertical
+	vertical.Orientation = ribbon.Vertical
 	r := newRig(t, vertical)
 	if _, err := r.service.ToEdge(placement.Point{X: 700, Y: 40}, placement.Left); err != nil {
 		t.Fatal(err)
@@ -135,7 +136,7 @@ func TestTheLastEdgeIsRemembered(t *testing.T) {
 func TestUnpinningAwayFromAnEdgeGoesToTheLastEdge(t *testing.T) {
 	t.Parallel()
 	vertical := clocks(2)
-	vertical.Orientation = settings.Vertical
+	vertical.Orientation = ribbon.Vertical
 	middle := placement.Point{X: 800, Y: 300}
 	centredTop := (1032 - 196) / 2
 
@@ -163,7 +164,7 @@ func TestUnpinningAwayFromAnEdgeGoesToTheLastEdge(t *testing.T) {
 func TestUnpinningGoesToTheRememberedDisplay(t *testing.T) {
 	t.Parallel()
 	vertical := clocks(2)
-	vertical.Orientation = settings.Vertical
+	vertical.Orientation = ribbon.Vertical
 	vertical.LastEdge = &placement.Against{Device: secondaryMonitor.Device, Edge: placement.Right}
 	got, err := newRig(t, vertical).service.ToLastEdge(placement.Point{X: 800, Y: 300})
 	if err != nil {
@@ -181,14 +182,14 @@ func TestUnpinningGoesToTheRememberedDisplay(t *testing.T) {
 func TestShrinkingKeepsTheRibbonAgainstItsEdge(t *testing.T) {
 	t.Parallel()
 	cases := []struct {
-		orientation settings.Orientation
+		orientation ribbon.Orientation
 		edge        placement.Edge
 		flush       func(Arrangement) bool
 	}{
-		{settings.Vertical, placement.Right, func(a Arrangement) bool { return a.At.X+a.Size.Width == 1920 }},
-		{settings.Horizontal, placement.Bottom, func(a Arrangement) bool { return a.At.Y+a.Size.Height == 1032 }},
-		{settings.Vertical, placement.Left, func(a Arrangement) bool { return a.At.X == 0 }},
-		{settings.Horizontal, placement.Top, func(a Arrangement) bool { return a.At.Y == 0 }},
+		{ribbon.Vertical, placement.Right, func(a Arrangement) bool { return a.At.X+a.Size.Width == 1920 }},
+		{ribbon.Horizontal, placement.Bottom, func(a Arrangement) bool { return a.At.Y+a.Size.Height == 1032 }},
+		{ribbon.Vertical, placement.Left, func(a Arrangement) bool { return a.At.X == 0 }},
+		{ribbon.Horizontal, placement.Top, func(a Arrangement) bool { return a.At.Y == 0 }},
 	}
 	for _, each := range cases {
 		for name, replace := range map[string]func(r rig, at placement.Point) (Arrangement, error){
@@ -223,7 +224,7 @@ func TestShrinkingKeepsTheRibbonAgainstItsEdge(t *testing.T) {
 // edge, where an unpinned ribbon never collapses (FR-619).
 func TestAPlaceKeptAgainstTheEdgeIsSaved(t *testing.T) {
 	t.Parallel()
-	start := draggedTo(2, settings.Vertical, placement.Point{X: 700, Y: 40})
+	start := draggedTo(2, ribbon.Vertical, placement.Point{X: 700, Y: 40})
 	start.SunMap = true
 	r := newRig(t, start)
 	if _, err := r.service.Launch(); err != nil {
@@ -256,7 +257,7 @@ func TestAPlaceKeptAgainstTheEdgeIsSaved(t *testing.T) {
 func TestTheSmallSizeFitsTheRibbonToSmallCells(t *testing.T) {
 	t.Parallel()
 	initial := clocks(2)
-	initial.Orientation = settings.Vertical
+	initial.Orientation = ribbon.Vertical
 	initial.Style = settings.Analogue
 	r := newRig(t, initial)
 	if err := r.service.SetSize(settings.Small); err != nil {

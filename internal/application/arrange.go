@@ -7,6 +7,7 @@ import (
 
 	"github.com/oernster/timeribbon/internal/domain/settings"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // Arrangement is where the window goes and how big it is, in physical pixels.
@@ -61,7 +62,7 @@ func (s *Service) Moved(at placement.Point) (Arrangement, error) {
 		placed, _ := placement.Recover(at, size, monitors, homeOf(current))
 		placed = s.keptFlush(placed, size)
 		reach := placement.PixelsOf(placement.SnapReach, s.perDIP(placed.Monitor))
-		placed.At = placement.Snapped(placed.At, size, placed.Monitor.Work, current.Orientation == settings.Vertical, reach)
+		placed.At = placement.Snapped(placed.At, size, placed.Monitor.Work, current.Orientation == ribbon.Vertical, reach)
 		return placed
 	})
 	if err != nil {
@@ -83,7 +84,7 @@ func (s *Service) ToEdge(at placement.Point, edge placement.Edge) (Arrangement, 
 func (s *Service) ToLastEdge(at placement.Point) (Arrangement, error) {
 	current := s.Settings()
 	edge, device := homeOf(current), ""
-	if last := current.LastEdge; last != nil && placement.Along(last.Edge, current.Orientation == settings.Vertical) {
+	if last := current.LastEdge; last != nil && placement.Along(last.Edge, current.Orientation == ribbon.Vertical) {
 		edge, device = last.Edge, last.Device
 	}
 	return s.toEdgeOf(func(monitors []placement.Monitor) placement.Monitor {
@@ -200,7 +201,7 @@ func (s *Service) arrange(
 		size, scrolls, length = s.ribbonSize(content, placed.Monitor)
 		placed = place(size, monitors, current)
 	}
-	vertical := current.Orientation == settings.Vertical
+	vertical := current.Orientation == ribbon.Vertical
 	recentred := s.lengthChanged(ribbonLength{known: true, vertical: vertical, length: length, scale: content.scale})
 	if recentred {
 		placed.At = placement.CentredAlong(placed.At, size, placed.Monitor.Work, vertical)
@@ -314,12 +315,12 @@ func (s *Service) ribbonSize(content content, monitor placement.Monitor) (placem
 	}
 	along, across := cell.Width, cell.Height
 	room := monitor.Work.Width()
-	if current.Orientation == settings.Vertical {
+	if current.Orientation == ribbon.Vertical {
 		along, across = cell.Height, cell.Width
 		room = monitor.Work.Height()
 	}
 	perDIP := sizingScale(content.pixelsPerDIP, monitor)
-	scaled := perDIP * content.scale / settings.WholeScale
+	scaled := perDIP * content.scale / ribbon.WholeScale
 	available := placement.DIPOf(room, scaled)
 	fitted := placement.Fit(content.cells, along, layout.Padding, available)
 	thickness := across + 2*layout.Padding
@@ -331,8 +332,8 @@ func (s *Service) ribbonSize(content content, monitor placement.Monitor) (placem
 	if fitted.Scrolls {
 		breadth += placement.PixelsOf(content.scrollbar, perDIP)
 	}
-	lengthDIP := int(math.Round(float64(fitted.Length) * content.scale / settings.WholeScale))
-	if current.Orientation == settings.Vertical {
+	lengthDIP := int(math.Round(float64(fitted.Length) * content.scale / ribbon.WholeScale))
+	if current.Orientation == ribbon.Vertical {
 		return placement.Size{Width: breadth, Height: length}, fitted.Scrolls, lengthDIP
 	}
 	return placement.Size{Width: length, Height: breadth}, fitted.Scrolls, lengthDIP
@@ -360,6 +361,6 @@ func mostOverlapped(monitors []placement.Monitor, at placement.Point) placement.
 // homeOf answers the home edge of current's orientation (FR-409), where a ribbon with no place of its
 // own goes. The settings the service holds are normalised, so the orientation is always one offered.
 func homeOf(current settings.Settings) placement.Edge {
-	edge, _ := settings.HomeEdge(current.Orientation)
+	edge, _ := ribbon.HomeEdge(current.Orientation)
 	return edge
 }

@@ -35,7 +35,7 @@ figure with the fraction dropped, so it fails once cover is lost.
 
 | Package | Coverage | Floor |
 |---|---|---|
-| `internal/domain/clock`, `settings`, `sun`; `ribbonkit/domain/hover`, `placement` | 100% | 100% |
+| `internal/domain/clock`, `settings`, `sun`; `ribbonkit/domain/hover`, `placement`, `ribbon` | 100% | 100% |
 | `internal/application`; `ribbonkit/application/release` | 100% | 100% |
 | `internal/infrastructure/zones`; `ribbonkit/infrastructure/appdata`, `iconscale`, `system`, `update` | 100% | 100% |
 | `internal/infrastructure/store` | 94.0% | 94% |

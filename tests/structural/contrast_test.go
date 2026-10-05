@@ -19,7 +19,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // minContrast is WCAG 2.x's AA floor for body text (success criterion 1.4.3).
@@ -128,7 +128,7 @@ type palette func(token string) (string, error)
 
 // palettes answers each offered scheme's palette per theme, a scheme's missing token falling back
 // to Classic's value for the same theme as the cascade does.
-func palettes(t *testing.T) map[settings.Colour]map[theme]palette {
+func palettes(t *testing.T) map[ribbon.Colour]map[theme]palette {
 	t.Helper()
 	themeCss := readFrontend(t, "theme.css")
 	light := classicBlock.FindStringSubmatch(themeCss)
@@ -141,8 +141,8 @@ func palettes(t *testing.T) map[settings.Colour]map[theme]palette {
 	for _, match := range schemeBlock.FindAllStringSubmatch(readFrontend(t, "colours.css"), -1) {
 		stated[match[1]] = declarations(match[2])
 	}
-	all := map[settings.Colour]map[theme]palette{}
-	for _, colour := range settings.Colours {
+	all := map[ribbon.Colour]map[theme]palette{}
+	for _, colour := range ribbon.Colours {
 		own := stated[string(colour)]
 		all[colour] = map[theme]palette{}
 		for _, side := range []theme{lightTheme, darkTheme} {

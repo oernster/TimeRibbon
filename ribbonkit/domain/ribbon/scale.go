@@ -1,4 +1,4 @@
-package settings
+package ribbon
 
 // ScaleAfter answers the scale a drag of the corner grip has reached (FR-623): the scale it began
 // at, grown or shrunk as the ribbon's thickness would be by moving its far side the distance moved,

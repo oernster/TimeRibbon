@@ -419,7 +419,7 @@ against its home edge as FR-408 does: top for horizontal, right for vertical. A 
 failed still moves it; a refused choice leaves it fitted where it stands.
 Acceptance: a vertical ribbon anywhere, when Horizontal is chosen, lies flush against the top of its
 display's work area, centred.
-Verified by: `TestEachOrientationHasAHomeEdge` (domain); `TestChoosingAnOrientationGoesToItsHomeEdge`,
+Verified by: `TestEachOrientationHasAHomeEdge` (ribbon); `TestChoosingAnOrientationGoesToItsHomeEdge`,
 `TestStyleAndOrientationItemsChooseAndRedraw` (facade), each proved by planting the wrong edge; by hand.
 
 **FR-410 A drop near an edge snaps flush** (Should; Amendment 19; OQ-11, OQ-12). When a drag ends
@@ -439,7 +439,7 @@ against an edge along its orientation, however it got there, the settings file s
 edge and its display; placed anywhere else it keeps the last one.
 Acceptance: a vertical ribbon flush against the left edge of `\\.\DISPLAY2`, dragged to the middle of
 `\\.\DISPLAY1`, still has the left edge of `\\.\DISPLAY2` remembered.
-Verified by: `TestAnUnknownRememberedEdgeIsForgotten` (domain); `TestTheLastEdgeIsRemembered`,
+Verified by: `TestAnUnknownRememberedEdgeIsForgotten` (ribbon); `TestTheLastEdgeIsRemembered`,
 `TestRearrangingClampsAndSavesNothing` (application); `TestSettingsRoundTrip`,
 `TestAnUnreadableLastEdgeIsNone` (store).
 
@@ -641,7 +641,7 @@ ribbon and tab stay above windows not themselves topmost, whatever Always on top
 stored value; pinned in effect, Always on top applies.
 Acceptance: with Always on top off, a maximised window does not cover the tab; once pinned the ribbon
 is no longer kept on top.
-Verified by: `TestAnUnpinnedRibbonIsAlwaysOnTop` (domain); `TestPinningAndUnpinning` (facade); by hand.
+Verified by: `TestAnUnpinnedRibbonIsAlwaysOnTop` (ribbon); `TestPinningAndUnpinning` (facade); by hand.
 
 **FR-618 Collapsed counts as shown** (Should; Amendment 18; OQ-9). The tray menu, tray click and a
 second launch treat a collapsed ribbon as shown, so each hides it, tab included.
@@ -659,7 +659,7 @@ Acceptance: an unpinned vertical ribbon dragged from the right edge to mid-displ
 `"pinned": false` kept; dropped within 16 DIP of the left edge it snaps flush and collapses 1 s after
 the pointer leaves. One standing away from every edge at launch shows in full. One flush against an
 edge sent to `Centre on left edge` stays unpinned and collapses there once the pointer is off it.
-Verified by: `TestFlushnessGivesThePinInEffect`, `TestAnUnpinnedRibbonIsAlwaysOnTop` (settings);
+Verified by: `TestFlushnessGivesThePinInEffect`, `TestAnUnpinnedRibbonIsAlwaysOnTop` (ribbon);
 `TestOnlyAnEdgeAlongTheOrientationIsFlush`, `TestAnInnerEdgeCounts` (placement);
 `TestAnUnpinnedRibbonOffAnEdgeShowsInFull`, `TestDraggingBackOntoAnEdgeCollapsesAgain`,
 `TestUnpinningOnAnEdgeMovesNothingAndRecentringKeepsThePin` (facade); by hand.
@@ -696,7 +696,7 @@ file.
 Acceptance: dragged to 40 and let go, Settings stays wholly opaque, the file holds `"opacity": 40` and
 a restart keeps it; closed, the clocks are solid while the desktop shows through behind them; a file
 holding 5 draws the background at 20.
-Verified by: `TestOpacityIsHeldWithinItsBounds` (domain); `TestOpacityIsChosenSavedAndShown`
+Verified by: `TestOpacityIsHeldWithinItsBounds` (ribbon); `TestOpacityIsChosenSavedAndShown`
 (application); `TestSettingsRoundTrip` (store); `TestThePagesBackgroundReachesTheWindow`,
 `TestTheWindowIsPaintedClearBelowFullOpacity` (facade); `opacity.test.tsx`,
 `panelOpacity.test.tsx`, `background.test.ts`; by hand.
@@ -717,7 +717,7 @@ Note (2026-10-04): the drag follows the cursor read from the desktop on every pl
 page's pointer events jumped backwards on Windows while the window resized (smooth on macOS and
 Linux by hand the same day); the sun map holds still until the grip is
 let go, so the window's corner does not move.
-Verified by: `TestScaleIsHeldWithinItsBounds`, `TestScaleAfterFollowsTheFarSide` (settings);
+Verified by: `TestScaleIsHeldWithinItsBounds`, `TestScaleAfterFollowsTheFarSide` (ribbon);
 `TestTheMapIsHeldWhileTheRibbonIsResized` (placement); `TestAScaledRibbonGrowsInBothDirections`,
 `TestAPreviewIsDrawnButNotKept`, `TestAChangeOfScaleKeepsTheCorner`,
 `TestAChangeOfClocksAfterAScaleStillRecentres`, `TestTheScrollBarIsNotScaled`,

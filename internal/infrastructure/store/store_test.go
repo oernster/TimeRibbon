@@ -12,6 +12,7 @@ import (
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // write puts text in dir's settings file.
@@ -34,14 +35,18 @@ func read(t *testing.T, dir string) string {
 
 func full() settings.Settings {
 	s := settings.Settings{
-		Style: settings.Analogue, Size: settings.Small, Colour: settings.Sunset, Format: clock.TwelveHour, Orientation: settings.Vertical,
-		Theme: settings.Dark, AlwaysOnTop: true, SkippedUpdate: "v2.1.0", DateFormat: clock.MonthDayYear,
-		Placement: &placement.Stored{
-			Device: `\\.\DISPLAY2`, Work: placement.Rect{Left: 1920, Right: 4480, Bottom: 1392},
-			DPI: 144, Offset: placement.Point{X: 180, Y: -4},
+		Choices: ribbon.Choices{
+			Colour: ribbon.Sunset, Orientation: ribbon.Vertical, Theme: ribbon.Dark, AlwaysOnTop: true,
+			SkippedUpdate: "v2.1.0",
+			Placement: &placement.Stored{
+				Device: `\\.\DISPLAY2`, Work: placement.Rect{Left: 1920, Right: 4480, Bottom: 1392},
+				DPI: 144, Offset: placement.Point{X: 180, Y: -4},
+			},
+			LastEdge: &placement.Against{Device: `\\.\DISPLAY2`, Edge: placement.Left},
+			Opacity:  55, Scale: 150,
 		},
-		LastEdge: &placement.Against{Device: `\\.\DISPLAY2`, Edge: placement.Left},
-		SunMap:   true, PullOut: true, Opacity: 55, Scale: 150,
+		Style: settings.Analogue, Size: settings.Small, Format: clock.TwelveHour, DateFormat: clock.MonthDayYear,
+		SunMap: true, PullOut: true,
 	}
 	s = s.WithClockAdded(settings.Entry{ID: "a1", Zone: "America/New_York", Label: "New York"})
 	return s.WithClockAdded(settings.Entry{ID: "b2", Zone: "Australia/Sydney", Label: "Mum"})
@@ -209,7 +214,7 @@ func TestABadValueLeavesItsDefaultAndTheRestLoad(t *testing.T) {
 		"clocks": null}`)
 	loaded, err := New(dir).Load()
 	got := loaded.Settings
-	if err != nil || got.Style != settings.Digital || got.Theme != settings.Dark || got.AlwaysOnTop || got.Placement != nil {
+	if err != nil || got.Style != settings.Digital || got.Theme != ribbon.Dark || got.AlwaysOnTop || got.Placement != nil {
 		t.Errorf("got %+v (%v)", got, err)
 	}
 }

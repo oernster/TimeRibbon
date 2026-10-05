@@ -7,6 +7,7 @@ import (
 
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // measuredFor answers a measurement of width taken under current's choices.
@@ -31,7 +32,7 @@ func TestTheTextSamplesFollowTheFormats(t *testing.T) {
 func TestAMeasuredWidthWidensTheCells(t *testing.T) {
 	t.Parallel()
 	wider := testLayout.Digital.Width + testLayout.Padding
-	for _, orientation := range []settings.Orientation{settings.Horizontal, settings.Vertical} {
+	for _, orientation := range []ribbon.Orientation{ribbon.Horizontal, ribbon.Vertical} {
 		initial := clocks(2)
 		initial.Orientation = orientation
 		r := newRig(t, initial)
@@ -46,7 +47,7 @@ func TestAMeasuredWidthWidensTheCells(t *testing.T) {
 			t.Fatal(err)
 		}
 		want, across := 2*wider+2*testLayout.Padding, got.Size.Width
-		if orientation == settings.Vertical {
+		if orientation == ribbon.Vertical {
 			want = wider + 2*testLayout.Padding
 		}
 		if across != want {

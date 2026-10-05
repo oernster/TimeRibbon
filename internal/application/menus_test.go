@@ -7,6 +7,7 @@ import (
 
 	"github.com/oernster/timeribbon/internal/domain/settings"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 func labels(items []MenuItem) []string {
@@ -64,7 +65,7 @@ func TestBothMenusOfferStyleAndOrientationWithTheCurrentTicked(t *testing.T) {
 	t.Parallel()
 	initial := settings.Defaults()
 	initial.Style = settings.Analogue
-	initial.Orientation = settings.Horizontal
+	initial.Orientation = ribbon.Horizontal
 	r := newRig(t, initial)
 	for name, menu := range map[string][]MenuItem{"tray": r.service.TrayMenu(true), "context": r.service.ContextMenu()} {
 		style, orientation := find(t, menu, labelStyle), find(t, menu, labelOrientation)
@@ -130,9 +131,9 @@ func TestBothMenusOfferHelpWithAboutLicenceAndUpdates(t *testing.T) {
 // edge and nothing else does.
 func TestPositionOffersTheEdgesAlongTheOrientation(t *testing.T) {
 	t.Parallel()
-	want := map[settings.Orientation][]MenuAction{
-		settings.Vertical:   {ActionLeftEdge, ActionRightEdge},
-		settings.Horizontal: {ActionTopEdge, ActionBottomEdge},
+	want := map[ribbon.Orientation][]MenuAction{
+		ribbon.Vertical:   {ActionLeftEdge, ActionRightEdge},
+		ribbon.Horizontal: {ActionTopEdge, ActionBottomEdge},
 	}
 	for orientation, actions := range want {
 		initial := settings.Defaults()
@@ -171,7 +172,7 @@ func TestPositionOffersTheEdgesAlongTheOrientation(t *testing.T) {
 func TestBothMenusOfferEveryColourWithTheCurrentTicked(t *testing.T) {
 	t.Parallel()
 	initial := settings.Defaults()
-	initial.Colour = settings.Ocean
+	initial.Colour = ribbon.Ocean
 	r := newRig(t, initial)
 	for name, menu := range map[string][]MenuItem{"tray": r.service.TrayMenu(true), "context": r.service.ContextMenu()} {
 		colour := find(t, menu, labelColour)
@@ -182,7 +183,7 @@ func TestBothMenusOfferEveryColourWithTheCurrentTicked(t *testing.T) {
 		}
 		for index, item := range colour.Children {
 			got, ok := ColourOf(item.Action)
-			if !ok || got != settings.Colours[index] || !item.Checkable || item.Checked != (got == settings.Ocean) {
+			if !ok || got != ribbon.Colours[index] || !item.Checkable || item.Checked != (got == ribbon.Ocean) {
 				t.Errorf("%s: %+v answered %s, %v", name, item, got, ok)
 			}
 		}
@@ -195,7 +196,7 @@ func TestBothMenusOfferEveryColourWithTheCurrentTicked(t *testing.T) {
 	if err := r.service.SetColour("mauve"); !errors.Is(err, ErrUnknownChoice) {
 		t.Errorf("an unknown colour answered %v", err)
 	}
-	if err := r.service.SetColour(settings.Neon); err != nil || r.store.last(t).Colour != settings.Neon || r.service.Snapshot().Colour != settings.Neon {
+	if err := r.service.SetColour(ribbon.Neon); err != nil || r.store.last(t).Colour != ribbon.Neon || r.service.Snapshot().Colour != ribbon.Neon {
 		t.Errorf("neon was not chosen, saved and shown: %v", err)
 	}
 }

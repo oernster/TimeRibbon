@@ -14,6 +14,7 @@ import (
 	"testing"
 
 	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // contractFixture is a settings file as 1.0.0 writes it.
@@ -42,7 +43,7 @@ func TestA1Point0SettingsFileIsReadWhole(t *testing.T) {
 		t.Errorf("a 1.0.0 file read as %+v, want %+v", got, want)
 	}
 	// 1.0.0 had no size (FR-610): its clocks were the large ones, so they stay large.
-	if got.Colour != settings.Classic {
+	if got.Colour != ribbon.Classic {
 		t.Errorf("a 1.0.0 file read with colour %q, want classic", got.Colour)
 	}
 	if got.Size != settings.Large {

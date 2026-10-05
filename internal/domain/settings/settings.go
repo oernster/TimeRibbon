@@ -10,7 +10,7 @@ import (
 	"slices"
 
 	"github.com/oernster/timeribbon/internal/domain/clock"
-	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // Style is how every cell presents its time (FR-603, FR-604).
@@ -31,56 +31,6 @@ const (
 	Small Size = "small"
 )
 
-// Colour is the colour scheme every clock is drawn in (FR-611).
-type Colour string
-
-// The colour schemes. Classic is the look the ribbon has always had.
-const (
-	Classic  Colour = "classic"
-	Neon     Colour = "neon"
-	Ocean    Colour = "ocean"
-	Sunset   Colour = "sunset"
-	Forest   Colour = "forest"
-	Amber    Colour = "amber"
-	Ruby     Colour = "ruby"
-	Indigo   Colour = "indigo"
-	Berry    Colour = "berry"
-	Contrast Colour = "contrast"
-)
-
-// Colours lists the colour schemes in the order they are offered.
-var Colours = []Colour{Classic, Neon, Ocean, Sunset, Forest, Amber, Ruby, Indigo, Berry, Contrast}
-
-// Orientation is the direction cells run in (FR-103).
-type Orientation string
-
-// The orientations.
-const (
-	Horizontal Orientation = "horizontal"
-	Vertical   Orientation = "vertical"
-)
-
-// homeEdges is each orientation's home edge (FR-409): a horizontal ribbon goes to the top, a
-// vertical one to the right.
-var homeEdges = map[Orientation]placement.Edge{Horizontal: placement.Top, Vertical: placement.Right}
-
-// HomeEdge answers the edge a ribbon of orientation goes to when that orientation is chosen and
-// wherever it has no place of its own (FR-403, FR-409); false for an orientation not offered.
-func HomeEdge(orientation Orientation) (placement.Edge, bool) {
-	edge, ok := homeEdges[orientation]
-	return edge, ok
-}
-
-// Theme is the colour scheme (FR-606).
-type Theme string
-
-// The themes.
-const (
-	System Theme = "system"
-	Light  Theme = "light"
-	Dark   Theme = "dark"
-)
-
 // ErrNoSuchClock is answered when an operation names a clock id that is not configured.
 var ErrNoSuchClock = errors.New("no clock has that id")
 
@@ -99,97 +49,44 @@ type Entry struct {
 	Original string
 }
 
-// Settings is every choice the user has made.
+// Settings is every choice the user has made: the ribbon's own, which ribbonkit holds, then the
+// clocks'. The ribbon's are embedded, so they read as fields of Settings.
 type Settings struct {
-	Style       Style
-	Size        Size
-	Colour      Colour
-	Format      clock.Format
-	DateFormat  clock.DateFormat
-	Orientation Orientation
-	Theme       Theme
-	AlwaysOnTop bool
-	// Pinned keeps the ribbon shown in full; unpinned, it waits as a tab (FR-613).
-	Pinned bool
-	// SkippedUpdate is the release the user chose to skip, which the automatic update check never
-	// offers again (FR-509); empty when none has been skipped.
-	SkippedUpdate string
-	// Placement is where the ribbon was last left; nil until it has been placed (FR-403).
-	Placement *placement.Stored
+	ribbon.Choices
+	Style      Style
+	Size       Size
+	Format     clock.Format
+	DateFormat clock.DateFormat
 	// SunMap shows the world map lit by day beside the ribbon (FR-901); PullOut keeps a vertical
 	// ribbon's map pulled out (FR-903). Both are off on a first run.
 	SunMap  bool
 	PullOut bool
-	// Opacity is how opaque the window is drawn, in percent, from MinOpacity to MaxOpacity (FR-622).
-	Opacity int
-	// Scale is how large the clocks are drawn on top of their size, in percent, from MinScale to
-	// MaxScale (FR-623).
-	Scale int
-	// LastEdge is the edge the ribbon last stood flush against, which unpinning away from every edge
-	// returns it to (FR-411, FR-613); nil until it has stood against one.
-	LastEdge *placement.Against
 	// Clocks is the configured clocks in their order (FR-102).
 	Clocks []Entry
 }
 
-// Defaults answers the settings of a first run (FR-703): digital, large (FR-610), 24-hour, vertical
-// (FR-103, amended by Oliver on 2026-09-27), system theme, not on top, pinned (FR-613), not yet
-// placed, no clocks.
+// Defaults answers the settings of a first run (FR-703): the ribbon's own (vertical, FR-103, amended
+// by Oliver on 2026-09-27; pinned, FR-613), then digital, large (FR-610), 24-hour, no clocks.
 func Defaults() Settings {
 	return Settings{
-		Style:       Digital,
-		Size:        Large,
-		Colour:      Classic,
-		Format:      clock.TwentyFourHour,
-		DateFormat:  clock.DayMonth,
-		Orientation: Vertical,
-		Theme:       System,
-		Pinned:      true,
-		Opacity:     MaxOpacity,
-		Scale:       WholeScale,
+		Choices:    ribbon.Defaults(),
+		Style:      Digital,
+		Size:       Large,
+		Format:     clock.TwentyFourHour,
+		DateFormat: clock.DayMonth,
 	}
 }
-
-// The scale the clocks may be drawn at on top of their size, in percent (FR-623). At MinScale a
-// small clock's 11 px text draws at about 8 px, the least that stays readable; at MaxScale the
-// thickest ribbon, large analogue standing vertical with the sun map's lane, is 408 DIP across,
-// which a 720 line display still holds. WholeScale draws each size as it is.
-const (
-	MinScale   = 75
-	WholeScale = 100
-	MaxScale   = 200
-)
-
-// The opacity a window may be drawn at, in percent (FR-622): wholly opaque at most; at least faint
-// enough to see through while never so faint the ribbon cannot be seen or found again (Oliver,
-// 2026-09-29).
-const (
-	MinOpacity = 20
-	MaxOpacity = 100
-)
-
-// PinnedInEffect answers whether the ribbon behaves as pinned, flush telling whether it stands flush
-// against an edge running along its orientation: pinned when chosen so; also anywhere away from such
-// an edge whatever was chosen (FR-619). The choice itself is Pinned, which this never changes.
-func (s Settings) PinnedInEffect(flush bool) bool { return s.Pinned || !flush }
-
-// OnTop answers whether the ribbon is kept above other windows, flush as for PinnedInEffect: where
-// Always on top is on; always while unpinned in effect, so a tab can never be covered for good
-// (FR-505, FR-617).
-func (s Settings) OnTop(flush bool) bool { return s.AlwaysOnTop || !s.PinnedInEffect(flush) }
 
 // Normalised answers the settings with any choice that is not one of the known values replaced by
 // its default, so a hand-edited file holding a word it should not cannot leave a choice unset.
 func (s Settings) Normalised() Settings {
 	defaults := Defaults()
+	s.Choices = s.Choices.Normalised()
 	if s.Style != Digital && s.Style != Analogue {
 		s.Style = defaults.Style
 	}
 	if s.Size != Large && s.Size != Small {
 		s.Size = defaults.Size
-	}
-	if !slices.Contains(Colours, s.Colour) {
-		s.Colour = defaults.Colour
 	}
 	if s.Format != clock.TwentyFourHour && s.Format != clock.TwelveHour {
 		s.Format = defaults.Format
@@ -197,23 +94,9 @@ func (s Settings) Normalised() Settings {
 	if !slices.Contains(clock.DateFormats, s.DateFormat) {
 		s.DateFormat = defaults.DateFormat
 	}
-	if s.Orientation != Horizontal && s.Orientation != Vertical {
-		s.Orientation = defaults.Orientation
-	}
-	if s.Theme != System && s.Theme != Light && s.Theme != Dark {
-		s.Theme = defaults.Theme
-	}
-	s.Opacity = min(max(s.Opacity, MinOpacity), MaxOpacity)
-	s.Scale = min(max(s.Scale, MinScale), MaxScale)
-	if s.LastEdge != nil && !slices.Contains(edges, s.LastEdge.Edge) {
-		s.LastEdge = nil
-	}
 	s.Clocks = slices.Clone(s.Clocks)
 	return s
 }
-
-// edges is every edge a ribbon can stand against.
-var edges = []placement.Edge{placement.Left, placement.Right, placement.Top, placement.Bottom}
 
 // WithClockAdded answers the settings with entry appended at the end (FR-301).
 func (s Settings) WithClockAdded(entry Entry) Settings {

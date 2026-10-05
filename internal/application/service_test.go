@@ -8,6 +8,7 @@ import (
 
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // FR-704: the store's notice reaches the ribbon.
@@ -75,8 +76,8 @@ func TestChangingASettingPersistsIt(t *testing.T) {
 		r.service.SetStyle(settings.Analogue),
 		r.service.SetFormat(clock.TwelveHour),
 		r.service.SetDateFormat(clock.DayMonthYear),
-		r.service.SetOrientation(settings.Vertical),
-		r.service.SetTheme(settings.Dark),
+		r.service.SetOrientation(ribbon.Vertical),
+		r.service.SetTheme(ribbon.Dark),
 		r.service.SetAlwaysOnTop(true),
 	}
 	for index, err := range steps {
@@ -86,7 +87,7 @@ func TestChangingASettingPersistsIt(t *testing.T) {
 	}
 	saved := r.store.last(t)
 	if saved.Style != settings.Analogue || saved.Format != clock.TwelveHour || saved.DateFormat != clock.DayMonthYear ||
-		saved.Orientation != settings.Vertical || saved.Theme != settings.Dark || !saved.AlwaysOnTop {
+		saved.Orientation != ribbon.Vertical || saved.Theme != ribbon.Dark || !saved.AlwaysOnTop {
 		t.Errorf("saved %+v", saved)
 	}
 }

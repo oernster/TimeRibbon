@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // The actions of the Style and Orientation submenus (FR-108, FR-502).
@@ -29,36 +30,36 @@ const (
 var styleActions = map[MenuAction]settings.Style{ActionDigital: settings.Digital, ActionAnalogue: settings.Analogue}
 
 // orientationActions maps each Orientation item to the orientation it chooses.
-var orientationActions = map[MenuAction]settings.Orientation{
-	ActionHorizontal: settings.Horizontal, ActionVertical: settings.Vertical,
+var orientationActions = map[MenuAction]ribbon.Orientation{
+	ActionHorizontal: ribbon.Horizontal, ActionVertical: ribbon.Vertical,
 }
 
 // colourPrefix begins each Colour item's action, which ends in the scheme it chooses.
 const colourPrefix = "colour-"
 
 // colourLabels are the Colour items' words, one home each.
-var colourLabels = map[settings.Colour]string{
-	settings.Classic: "Classic", settings.Neon: "Neon", settings.Ocean: "Ocean",
-	settings.Sunset: "Sunset", settings.Forest: "Forest", settings.Amber: "Amber",
-	settings.Ruby: "Ruby", settings.Indigo: "Indigo", settings.Berry: "Berry",
-	settings.Contrast: "Contrast",
+var colourLabels = map[ribbon.Colour]string{
+	ribbon.Classic: "Classic", ribbon.Neon: "Neon", ribbon.Ocean: "Ocean",
+	ribbon.Sunset: "Sunset", ribbon.Forest: "Forest", ribbon.Amber: "Amber",
+	ribbon.Ruby: "Ruby", ribbon.Indigo: "Indigo", ribbon.Berry: "Berry",
+	ribbon.Contrast: "Contrast",
 }
 
 // labelColour is the Colour submenu's own word.
 const labelColour = "Colour"
 
 // ColourOf answers the scheme a Colour item chooses; false for any other action.
-func ColourOf(action MenuAction) (settings.Colour, bool) {
+func ColourOf(action MenuAction) (ribbon.Colour, bool) {
 	name, found := strings.CutPrefix(string(action), colourPrefix)
-	colour := settings.Colour(name)
-	return colour, found && slices.Contains(settings.Colours, colour)
+	colour := ribbon.Colour(name)
+	return colour, found && slices.Contains(ribbon.Colours, colour)
 }
 
 // colourItem is the Colour submenu both menus hold, the current scheme ticked (FR-611).
 func (s *Service) colourItem() MenuItem {
 	current := s.Settings().Colour
-	children := make([]MenuItem, 0, len(settings.Colours))
-	for _, colour := range settings.Colours {
+	children := make([]MenuItem, 0, len(ribbon.Colours))
+	for _, colour := range ribbon.Colours {
 		children = append(children, MenuItem{
 			Action: MenuAction(colourPrefix + string(colour)), Label: colourLabels[colour],
 			Checkable: true, Checked: colour == current,
@@ -74,7 +75,7 @@ func StyleOf(action MenuAction) (settings.Style, bool) {
 }
 
 // OrientationOf answers the orientation an Orientation item chooses; false for any other action.
-func OrientationOf(action MenuAction) (settings.Orientation, bool) {
+func OrientationOf(action MenuAction) (ribbon.Orientation, bool) {
 	orientation, ok := orientationActions[action]
 	return orientation, ok
 }
@@ -92,7 +93,7 @@ func (s *Service) styleItem() MenuItem {
 func (s *Service) orientationItem() MenuItem {
 	current := s.Settings().Orientation
 	return MenuItem{Label: labelOrientation, Children: []MenuItem{
-		{Action: ActionHorizontal, Label: labelHorizontal, Checkable: true, Checked: current == settings.Horizontal},
-		{Action: ActionVertical, Label: labelVertical, Checkable: true, Checked: current == settings.Vertical},
+		{Action: ActionHorizontal, Label: labelHorizontal, Checkable: true, Checked: current == ribbon.Horizontal},
+		{Action: ActionVertical, Label: labelVertical, Checkable: true, Checked: current == ribbon.Vertical},
 	}}
 }

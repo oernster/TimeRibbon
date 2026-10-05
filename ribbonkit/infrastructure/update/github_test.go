@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/oernster/timeribbon/internal/application"
+	"github.com/oernster/timeribbon/ribbonkit/application/release"
 )
 
 // fakeDoer answers every request with status and body (with err instead when err is set); it keeps
@@ -39,7 +39,7 @@ type failingReader struct{}
 
 func (failingReader) Read([]byte) (int, error) { return 0, errors.New("connection dropped") }
 
-const release = `{"tag_name":"v2.1.0","html_url":"https://github.com/oernster/TimeRibbon/releases/tag/v2.1.0","assets":[
+const releaseJSON = `{"tag_name":"v2.1.0","html_url":"https://github.com/oernster/TimeRibbon/releases/tag/v2.1.0","assets":[
 	{"name":"TimeRibbonSetup.exe","browser_download_url":"https://github.com/oernster/TimeRibbon/releases/download/v2.1.0/a.exe"},
 	{"name":"","browser_download_url":"https://github.com/nameless"},
 	{"name":"TimeRibbon.dmg","browser_download_url":""},
@@ -47,9 +47,9 @@ const release = `{"tag_name":"v2.1.0","html_url":"https://github.com/oernster/Ti
 
 func TestTheLatestReleaseIsReadWithOnlyWholeAssets(t *testing.T) {
 	t.Parallel()
-	doer := answering(http.StatusOK, release)
+	doer := answering(http.StatusOK, releaseJSON)
 	got, err := NewWith(LatestReleaseAPIURL, doer).LatestRelease(context.Background())
-	want := []application.ReleaseAsset{
+	want := []release.Asset{
 		{Name: "TimeRibbonSetup.exe", DownloadURL: "https://github.com/oernster/TimeRibbon/releases/download/v2.1.0/a.exe"},
 		{Name: "timeribbon.flatpak", DownloadURL: "https://github.com/oernster/TimeRibbon/releases/download/v2.1.0/a.flatpak"},
 	}
@@ -77,7 +77,7 @@ func TestEveryUnusableAnswerIsAnError(t *testing.T) {
 	t.Parallel()
 	cases := map[string]*fakeDoer{
 		"unreachable":    {err: errors.New("no route")},
-		"not found":      answering(http.StatusNotFound, release),
+		"not found":      answering(http.StatusNotFound, releaseJSON),
 		"dropped":        {status: http.StatusOK, body: failingReader{}},
 		"not JSON":       answering(http.StatusOK, "<html>"),
 		"no tag":         answering(http.StatusOK, `{"html_url":"https://github.com/oernster/TimeRibbon/releases/tag/v2.1.0"}`),
@@ -96,7 +96,7 @@ func TestEveryUnusableAnswerIsAnError(t *testing.T) {
 
 func TestAnAddressThatCannotBeAskedIsAnError(t *testing.T) {
 	t.Parallel()
-	if _, err := NewWith("://", answering(http.StatusOK, release)).LatestRelease(context.Background()); err == nil {
+	if _, err := NewWith("://", answering(http.StatusOK, releaseJSON)).LatestRelease(context.Background()); err == nil {
 		t.Error("a malformed address was asked")
 	}
 }

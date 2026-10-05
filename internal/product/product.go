@@ -2,6 +2,8 @@
 // the settings folder, the log, the Start with Windows value and the setup program.
 package product
 
+import "github.com/oernster/timeribbon/ribbonkit/domain/identity"
+
 // Name is the product's name as a reader sees it.
 const Name = "TimeRibbon"
 
@@ -21,6 +23,9 @@ const RibbonClass = Name + "Window"
 // desktop to open rather than fetched, so it adds nothing to the application's one network request,
 // the update check (NFR-S-1).
 const DonateURL = "https://www.paypal.com/ncp/payment/THUS4KZ5GECH8"
+
+// App answers the names ribbonkit is handed: the one place they leave this package for the kit.
+func App() identity.App { return identity.App{Name: Name, AppID: AppID} }
 
 // Version is the version this build carries. build.ps1 stamps it from VERSION into both
 // executables with -ldflags -X, which reaches only a var, never a const (CON-4). A build made any

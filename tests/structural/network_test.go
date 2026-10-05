@@ -14,7 +14,7 @@ import (
 
 // networkExempt is the one directory whose files may import a network package: the update check's
 // adapter, which asks GitHub for the latest release (Amendment 15).
-var networkExempt = filepath.Join("internal", "infrastructure", "update")
+var networkExempt = filepath.Join("ribbonkit", "infrastructure", "update")
 
 // networkPackages are the packages a request is made through; a path beneath one is one of them.
 var networkPackages = []string{"net", "crypto/tls", "golang.org/x/net"}

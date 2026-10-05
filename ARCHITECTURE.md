@@ -6,7 +6,7 @@ latest release. The time zone rules are built in; macOS and Linux read their own
 ([Time](#time)). The domain and application are the same code everywhere; each platform's own half
 sits in files its build tags or names select.
 
-Its one network request is the update check (FR-509): only `internal/infrastructure/update` imports a
+Its one network request is the update check (FR-509): only `ribbonkit/infrastructure/update` imports a
 network package; `requests_test.go` holds the other ways out (a program started, a Windows library
 loaded by name, a request from either page) to the ones it names. The donation page and a release's
 download go to the desktop's browser; a release's addresses are taken only as `https` on `github.com`.
@@ -32,7 +32,7 @@ here does not exist.
 | No source file sits in the danger band of 381 to 400 lines | `TestNoFileInDangerBand` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | Every exported type carries a doc comment | `TestEveryExportedTypeIsDocumented` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | Lines are counted as an editor numbers them | `TestLineCountCountsTheLinesAnEditorShows` | [`linecount_test.go`](tests/structural/linecount_test.go) |
-| No Go file outside `internal/infrastructure/update` imports `net`, `crypto/tls` or `golang.org/x/net` (NFR-S-1) | `TestOnlyTheUpdateCheckImportsANetworkPackage` | [`network_test.go`](tests/structural/network_test.go) |
+| No Go file outside `ribbonkit/infrastructure/update` imports `net`, `crypto/tls` or `golang.org/x/net` (NFR-S-1) | `TestOnlyTheUpdateCheckImportsANetworkPackage` | [`network_test.go`](tests/structural/network_test.go) |
 | Only the files in `processStarters` start a program or hand an address to the desktop; no Go file names a Windows library outside `systemLibraries` (NFR-S-1) | `TestOnlyNamedFilesStartAProcess` | [`requests_test.go`](tests/structural/requests_test.go) |
 | Every file in `processStarters` exists | `TestEveryNamedProcessStarterExists` | [`requests_test.go`](tests/structural/requests_test.go) |
 | Neither page uses a request API or names a web address, the SVG namespace aside (NFR-S-1) | `TestThePageMakesNoRequest` | [`requests_test.go`](tests/structural/requests_test.go) |
@@ -58,10 +58,12 @@ here does not exist.
 ## Layers
 
 The desktop behaviour shared with WeatherRibbon is being carved into `ribbonkit/`, which has the
-same layers (`ribbonkit/domain`, `ribbonkit/infrastructure`), is held to every rule above and will
-leave this repository as a module of its own. It holds `placement` and `hover` in its domain;
-`gtkmain`, `cocoamain`, `iconscale`, `system` and `monitors` in its infrastructure. Each is described
-below where it sits in the layering.
+same layers (`ribbonkit/domain`, `ribbonkit/application`, `ribbonkit/infrastructure`), is held to
+every rule above and will leave this repository as a module of its own. It holds `placement`, `hover`
+and `identity` in its domain; `release` in its application; `gtkmain`, `cocoamain`, `iconscale`,
+`system`, `monitors`, `appdata`, `runlog`, `startup` and `update` in its infrastructure. It names no
+product: `identity.App` carries the name and app id, built once by `product.App()` and handed in by
+the composition root and setup. Each package is described below where it sits in the layering.
 
 - **Domain** (`internal/domain`), pure Go: time arrives as an argument and a zone already resolved.
   - `clock`: an instant and a zone become what a cell shows (time in either format, the date in the
@@ -82,17 +84,17 @@ below where it sits in the layering.
   - `hover`: told the pointer arrived or left and the time, it answers whether an unpinned ribbon is
     open and when to ask again (FR-615, FR-616).
 - **Application** (`internal/application`): one `Service` over seven ports (`Store`, `Zones`, `Clock`,
-  `IDs`, `Monitors`, `StartupEntry` in `ports.go`; `ReleaseSource` in `updates.go`). It builds the
+  `IDs`, `Monitors`, `StartupEntry` and the kit's `release.Source` in `ports.go`). It builds the
   snapshot, edits clocks, searches places (`SearchPlaces`, FR-302), changes settings, arranges the
   ribbon (`Launch`, `Rearrange`, `Moved`, `ToEdge`, `ToLastEdge`, `Centred`), takes the page's
   measurements, previews and keeps the grip's scale (`PreviewScale`, `SetScale`), checks for updates
-  and answers the menus. The snapshot orders cells east from Greenwich (`eastFromGreenwich`): places
+  through `release.Check` with the release the user skipped and answers the menus. The snapshot orders cells east from Greenwich (`eastFromGreenwich`): places
   level with or ahead of UTC by offset, then those behind it, read at the snapshot's instant; ties keep
   their stored order and an unshowable clock goes last. A change that cannot be saved stays in effect
   with a notice (FR-707).
-- **Infrastructure** (`internal/infrastructure`): on every platform `store`, `zones`, `system` (wall
-  clock, ids), `update` and `iconscale`; per platform `monitors`, `startup`, `appdata`, `runlog` and
-  `desktop` (tray, native menus, the ribbon's window, the end of a move, the desktop's broadcasts, the
+- **Infrastructure** (`internal/infrastructure` and the kit's): on every platform `store`, `zones`,
+  `system` (wall clock, ids), `update` and `iconscale`; per platform `monitors`, `startup`,
+  `appdata`, `runlog` and `desktop` (tray, native menus, the ribbon's window, the end of a move, the desktop's broadcasts, the
   pointer, the browser opener). Windows only: `setup`. Linux only: `gtkmain`. macOS only: `cocoamain`.
 - **UI**: the React front end and the Wails facade in package `main`, which maps the service's
   answers into `dto.go`.
@@ -334,7 +336,7 @@ Licence shows the embedded `LICENSE` exactly as written, its type sized so the w
 
 ## The update check
 
-`internal/infrastructure/update` asks GitHub's `releases/latest`, which answers only a published
+`ribbonkit/infrastructure/update` asks GitHub's `releases/latest`, which answers only a published
 release, never a draft or prerelease. It is unauthenticated, times out after 5 seconds, never retries
 and reads at most a megabyte. The service compares the tag with the stamped version as dotted
 integers (anything else is never newer), picks this platform's asset by its ending and honours the

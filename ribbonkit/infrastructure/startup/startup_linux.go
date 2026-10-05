@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/oernster/timeribbon/internal/product"
+	"github.com/oernster/timeribbon/ribbonkit/domain/identity"
 )
 
 // Ported from o7Debrief's LinuxAutostart, where both traps below were met on a real Ubuntu desktop.
@@ -46,9 +46,9 @@ X-GNOME-Autostart-enabled=true
 
 // New answers the entry for program, the full path of TimeRibbon's executable, in the session's
 // autostart folder. Under a Flatpak the command is flatpak run with its id instead.
-func New(program string) Entry {
+func New(app identity.App, program string) Entry {
 	dir, err := autostartDir(os.Getenv, os.UserHomeDir)
-	entry := At(dir, program)
+	entry := At(app, dir, program)
 	if id := os.Getenv(flatpakIDVariable); id != "" {
 		entry.command = "flatpak run " + id
 	}
@@ -58,13 +58,13 @@ func New(program string) Entry {
 
 // At answers the entry for program in dir. Only a test names a folder of its own, so the real
 // session's entries are never touched.
-func At(dir, program string) Entry {
-	return Entry{dir: dir, command: execQuoted(program)}
+func At(app identity.App, dir, program string) Entry {
+	return Entry{app: app, dir: dir, command: execQuoted(program)}
 }
 
 // entryText answers the autostart entry that runs command.
-func entryText(command string) string {
-	return fmt.Sprintf(entryTemplate, product.Name, command, product.AppID)
+func entryText(app identity.App, command string) string {
+	return fmt.Sprintf(entryTemplate, app.Name, command, app.AppID)
 }
 
 // switchedOff answers whether an entry's text carries a line the desktop reads as off.

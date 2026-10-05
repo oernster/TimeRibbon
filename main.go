@@ -12,18 +12,20 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/oernster/timeribbon/ribbonkit/application/release"
+
 	"github.com/oernster/timeribbon/internal/application"
-	"github.com/oernster/timeribbon/internal/infrastructure/appdata"
 	"github.com/oernster/timeribbon/internal/infrastructure/desktop"
-	"github.com/oernster/timeribbon/internal/infrastructure/runlog"
-	"github.com/oernster/timeribbon/internal/infrastructure/startup"
 	"github.com/oernster/timeribbon/internal/infrastructure/store"
-	"github.com/oernster/timeribbon/internal/infrastructure/update"
 	"github.com/oernster/timeribbon/internal/infrastructure/zones"
 	"github.com/oernster/timeribbon/internal/product"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/appdata"
 	"github.com/oernster/timeribbon/ribbonkit/infrastructure/monitors"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/runlog"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/startup"
 	"github.com/oernster/timeribbon/ribbonkit/infrastructure/system"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/update"
 )
 
 // The empty ribbon's one cell, the padding round the cells and the pull out handle's lane, in DIP,
@@ -84,7 +86,7 @@ func keepLog() io.Writer {
 	if err != nil {
 		return os.Stderr
 	}
-	log, err := runlog.Open(dir, time.Now())
+	log, err := runlog.Open(dir, product.App(), time.Now())
 	if err != nil {
 		return os.Stderr
 	}
@@ -97,7 +99,7 @@ func keepLog() io.Writer {
 // settingsDir answers the settings folder appdata names; a folder of the same name in the temporary
 // folder when the environment names none, so the ribbon still opens.
 func settingsDir() (string, error) {
-	dir, err := appdata.Dir(os.LookupEnv)
+	dir, err := appdata.Dir(product.App(), os.LookupEnv)
 	if err != nil {
 		return filepath.Join(os.TempDir(), product.Name), err
 	}
@@ -125,9 +127,9 @@ func run(log io.Writer) error {
 		Clock:    system.Clock{},
 		IDs:      system.IDs{},
 		Monitors: monitors.Monitors{},
-		Startup:  startup.New(program),
+		Startup:  startup.New(product.App(), program),
 		Releases: update.New(),
-		Build:    application.Build{Version: product.Version, Platform: application.PlatformKeyFor(runtime.GOOS)},
+		Build:    release.Build{Version: product.Version, Platform: release.PlatformKeyFor(runtime.GOOS)},
 	}, layouts)
 	if err := service.Start(); err != nil {
 		fmt.Fprintf(log, "loading settings: %v\n", err)

@@ -18,7 +18,8 @@ import (
 
 	"golang.org/x/sys/windows/registry"
 
-	"github.com/oernster/timeribbon/internal/infrastructure/startup"
+	"github.com/oernster/timeribbon/internal/product"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/startup"
 )
 
 // standInVariable turns the test binary into a stand-in process: one that runs until its input
@@ -68,7 +69,7 @@ func newFixture(t *testing.T) *fixture {
 		Settings:   filepath.Join(root, "Roaming", AppName),
 	}
 	f := &fixture{places: places, startupKey: scratchKey(t), record: Record{key: scratchKey(t)}}
-	entryFor := func(program string) StartupEntry { return startup.At(f.startupKey, program) }
+	entryFor := func(program string) StartupEntry { return startup.At(product.App(), f.startupKey, program) }
 	f.machine = NewMachine(places, f.record, entryFor, func(dir string) error {
 		f.scheduled = append(f.scheduled, dir)
 		return nil

@@ -11,6 +11,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/oernster/timeribbon/ribbonkit/application/release"
+
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
@@ -77,7 +79,7 @@ type ribbonService interface {
 	ToLastEdge(at placement.Point) (application.Arrangement, error)
 	Centred(at placement.Point, size placement.Size) (application.Arrangement, error)
 	Collapsed(full application.Arrangement) (application.Arrangement, error)
-	CheckForUpdate(ctx context.Context, manual bool) application.UpdateStatus
+	CheckForUpdate(ctx context.Context, manual bool) release.Status
 	SkipUpdate(version string) error
 }
 

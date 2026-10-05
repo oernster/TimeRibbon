@@ -10,6 +10,7 @@ import (
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/ribbonkit/application/release"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
@@ -37,7 +38,7 @@ type scriptedService struct {
 	panicOnRearrange bool
 	// update answers every update check; panicOnUpdate makes one panic instead. manualChecks records
 	// whether each check was asked for; skipped the version each SkipUpdate kept.
-	update        application.UpdateStatus
+	update        release.Status
 	panicOnUpdate bool
 	manualChecks  []bool
 	skipped       []string
@@ -222,7 +223,7 @@ func (s *scriptedService) Centred(at placement.Point, size placement.Size) (appl
 	return s.arrangement, s.arrangeErr
 }
 
-func (s *scriptedService) CheckForUpdate(_ context.Context, manual bool) application.UpdateStatus {
+func (s *scriptedService) CheckForUpdate(_ context.Context, manual bool) release.Status {
 	if s.panicOnUpdate {
 		panic("planted panic")
 	}
@@ -242,54 +243,6 @@ func (s *scriptedService) SkipUpdate(version string) error {
 func (s *scriptedService) change(call string) error {
 	s.record(call)
 	return s.changeErr
-}
-
-// emitted is one event the facade sent the page.
-type emitted struct {
-	event string
-	data  []any
-}
-
-// window records what the facade asked of Wails and the desktop, standing in for both.
-type window struct {
-	events    []emitted
-	shown     int
-	hidden    int
-	quits     int
-	onTop     []bool
-	browsed   []string
-	menus     [][]application.MenuItem
-	placed    []application.Arrangement
-	shapes    [][]placement.Rect
-	ribbonAt  placement.Point
-	readErr   error
-	placeErr  error
-	browseErr error
-	positions int
-	// The unpinned ribbon's calls: the frames asked for, the pointer watching asked for, the time
-	// the tests set and the timers pending, which a test fires by hand: hover's, then the fallback
-	// that grows an opening ribbon whose page has not said it has drawn.
-	tabFrames   []bool
-	watching    []bool
-	backgrounds [][4]uint8
-	now         time.Time
-	pending     func()
-	waited      time.Duration
-	drawPending func()
-	// toolkitScale is the toolkit's window scale the desktop reports; unscaled unless a test sets it.
-	toolkitScale int
-	// sizePending is the launch's fallback for a page that never sizes the ribbon.
-	sizePending func()
-}
-
-// sawEvent reports whether the facade sent event with data first, when data is given.
-func (w *window) sawEvent(event string, data ...any) bool {
-	for _, sent := range w.events {
-		if sent.event == event && (len(data) == 0 || (len(sent.data) > 0 && sent.data[0] == data[0])) {
-			return true
-		}
-	}
-	return false
 }
 
 // Where the tests' ribbon stands, the arrangement the stand-in service answers and the panel's size.

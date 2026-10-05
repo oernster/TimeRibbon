@@ -8,17 +8,17 @@ import (
 	"errors"
 	"path/filepath"
 
-	"github.com/oernster/timeribbon/internal/product"
+	"github.com/oernster/timeribbon/ribbonkit/domain/identity"
 )
 
 // ErrNoAppData is answered when the environment names no application data folder.
 var ErrNoAppData = errors.New("the environment names no folder for application data")
 
-// Dir answers the folder, reading the environment through lookup.
-func Dir(lookup func(string) (string, bool)) (string, error) {
+// Dir answers app's folder, reading the environment through lookup.
+func Dir(app identity.App, lookup func(string) (string, bool)) (string, error) {
 	parent, ok := base(lookup)
 	if !ok {
 		return "", ErrNoAppData
 	}
-	return filepath.Join(parent, product.Name), nil
+	return filepath.Join(parent, app.Name), nil
 }

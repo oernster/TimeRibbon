@@ -497,7 +497,7 @@ shows nothing while Check for updates offers v1.3.0 again; with GitHub out of re
 updates speaks, saying so.
 Verified by: `TestIsNewerVersionComparesDottedIntegers`, `TestEachSystemDownloadsItsOwnAsset`,
 `TestANewerReleaseIsOffered`, `TestAnUnreachableSourceOffersNothing`,
-`TestTheRunningVersionIsNotOffered`, `TestASkippedReleaseIsOfferedOnlyWhenAskedFor`,
+`TestTheRunningVersionIsNotOffered`, `TestASkippedReleaseIsOfferedOnlyWhenAskedFor` (release);
 `TestSkippingKeepsTheVersion` (application); `TestTheLatestReleaseIsReadWithOnlyWholeAssets`,
 `TestEveryUnusableAnswerIsAnError`, `TestTheProductionSourceAsksThisRepositoryAndGivesUp` (update);
 `TestAnAutomaticCheckSpeaksOnlyOfANewRelease`, `TestAManualCheckAlwaysAnswers`,

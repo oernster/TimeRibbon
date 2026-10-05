@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"github.com/oernster/timeribbon/internal/product"
+	"github.com/oernster/timeribbon/ribbonkit/domain/identity"
 )
 
 // On macOS the entry is a launchd agent in the user's LaunchAgents folder, which launchd reads at
@@ -44,20 +44,22 @@ var disabledKey = regexp.MustCompile(`<key>Disabled</key>\s*<true/>`)
 
 // New answers the agent for program, the full path of TimeRibbon's executable, in the user's
 // LaunchAgents folder.
-func New(program string) Entry {
+func New(app identity.App, program string) Entry {
 	dir, err := agentsDir(os.UserHomeDir)
-	entry := At(dir, program)
+	entry := At(app, dir, program)
 	entry.problem = err
 	return entry
 }
 
 // At answers the agent for program in dir. Only a test names a folder of its own, so the real
 // user's agents are never touched.
-func At(dir, program string) Entry { return Entry{dir: dir, command: program} }
+func At(app identity.App, dir, program string) Entry {
+	return Entry{app: app, dir: dir, command: program}
+}
 
 // entryText answers the agent that runs command, the path escaped for the property list.
-func entryText(command string) string {
-	return fmt.Sprintf(agentTemplate, escaped(product.AppID), escaped(command))
+func entryText(app identity.App, command string) string {
+	return fmt.Sprintf(agentTemplate, escaped(app.AppID), escaped(command))
 }
 
 // switchedOff answers whether an agent's text carries the key launchd reads as off.

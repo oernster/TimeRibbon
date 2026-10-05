@@ -8,14 +8,16 @@ import (
 	"testing"
 	"time"
 
+	"github.com/oernster/timeribbon/ribbonkit/application/release"
+
 	"github.com/oernster/timeribbon/internal/application"
 )
 
 // waitLimit bounds how long a test waits for a check made on a goroutine.
 const waitLimit = 5 * time.Second
 
-var offeredUpdate = application.UpdateStatus{
-	Current: "2.0.0", Latest: "v2.1.0", UpdateAvailable: true,
+var offeredUpdate = release.Status{
+	Current: "2.0.0", Latest: "v2.1.0", Available: true,
 	DownloadURL: "https://example.test/windows", PageURL: "https://example.test/release",
 }
 
@@ -35,7 +37,7 @@ func awaitCheck(t *testing.T, checked chan bool) bool {
 func TestAnAutomaticCheckSpeaksOnlyOfANewRelease(t *testing.T) {
 	t.Parallel()
 	app, service, seen, _ := newTestApp(t)
-	service.update = application.UpdateStatus{Current: "2.0.0", Latest: "v2.0.0"}
+	service.update = release.Status{Current: "2.0.0", Latest: "v2.0.0"}
 	app.checkForUpdate(context.Background(), false)
 	if seen.shown != 0 || len(seen.events) != 0 {
 		t.Errorf("an up-to-date automatic check showed %d times and sent %v", seen.shown, seen.events)
@@ -55,7 +57,7 @@ func TestAnAutomaticCheckSpeaksOnlyOfANewRelease(t *testing.T) {
 func TestAManualCheckAlwaysAnswers(t *testing.T) {
 	t.Parallel()
 	app, service, seen, log := newTestApp(t)
-	service.update = application.UpdateStatus{Current: "2.0.0"}
+	service.update = release.Status{Current: "2.0.0"}
 	app.checkForUpdate(context.Background(), true)
 	if seen.shown != 1 || !seen.sawEvent(eventOpenPanel, openAtUpdate) || !slices.Equal(service.manualChecks, []bool{true}) {
 		t.Errorf("showed %d times, sent %v after checks %v", seen.shown, seen.events, service.manualChecks)

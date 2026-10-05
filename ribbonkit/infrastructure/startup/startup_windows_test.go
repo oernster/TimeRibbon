@@ -17,7 +17,7 @@ func scratch(t *testing.T) Entry {
 		_ = registry.DeleteKey(registry.CURRENT_USER, key)
 		_ = registry.DeleteKey(registry.CURRENT_USER, parent)
 	})
-	return At(key, `C:\Users\Someone\AppData\Local\Programs\TimeRibbon\TimeRibbon.exe`)
+	return At(testApp, key, `C:\Users\Someone\AppData\Local\Programs\TimeRibbon\TimeRibbon.exe`)
 }
 
 // FR-605.
@@ -36,7 +36,7 @@ func TestStartWithWindowsWritesAndRemovesOneValue(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	command, _, err := key.GetStringValue(ValueName)
+	command, _, err := key.GetStringValue(testApp.Name)
 	names, _ := key.ReadValueNames(0)
 	key.Close()
 	if err != nil || command != `"C:\Users\Someone\AppData\Local\Programs\TimeRibbon\TimeRibbon.exe"` || len(names) != 1 {
@@ -58,8 +58,8 @@ func TestStartWithWindowsWritesAndRemovesOneValue(t *testing.T) {
 
 func TestTheRealEntryNamesTheRunKey(t *testing.T) {
 	t.Parallel()
-	entry := New(`C:\x\TimeRibbon.exe`)
-	if entry.key != RunKey || entry.value != ValueName || entry.Command() != `"C:\x\TimeRibbon.exe"` {
+	entry := New(testApp, `C:\x\TimeRibbon.exe`)
+	if entry.key != RunKey || entry.value != testApp.Name || entry.Command() != `"C:\x\TimeRibbon.exe"` {
 		t.Errorf("got %+v", entry)
 	}
 }

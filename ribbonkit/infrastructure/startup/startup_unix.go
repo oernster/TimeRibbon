@@ -9,7 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/oernster/timeribbon/internal/product"
+	"github.com/oernster/timeribbon/ribbonkit/domain/identity"
 )
 
 // Off Windows the entry is one file in a folder the session reads at sign-in: an XDG autostart
@@ -26,6 +26,7 @@ var errNoHome = errors.New("the session names no home folder, so there is no fol
 
 // Entry is the application's StartupEntry port over one sign-in entry file.
 type Entry struct {
+	app     identity.App
 	dir     string
 	command string
 	problem error
@@ -36,7 +37,7 @@ type Entry struct {
 func (e Entry) Command() string { return e.command }
 
 // path is the entry's file, named by the app id as both platforms' conventions have it.
-func (e Entry) path() string { return filepath.Join(e.dir, product.AppID+entrySuffix) }
+func (e Entry) path() string { return filepath.Join(e.dir, e.app.AppID+entrySuffix) }
 
 // Enabled answers whether the entry is present and not switched off. A missing entry is off; one
 // that is there and cannot be read is a fault, answered as one.
@@ -62,7 +63,7 @@ func (e Entry) Enable() error {
 	if err := os.MkdirAll(e.dir, folderMode); err != nil {
 		return fmt.Errorf("making %s: %w", e.dir, err)
 	}
-	if err := os.WriteFile(e.path(), []byte(entryText(e.command)), entryMode); err != nil {
+	if err := os.WriteFile(e.path(), []byte(entryText(e.app, e.command)), entryMode); err != nil {
 		return fmt.Errorf("writing %s: %w", e.path(), err)
 	}
 	return nil

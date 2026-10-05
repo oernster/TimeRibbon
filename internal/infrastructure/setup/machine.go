@@ -5,7 +5,8 @@ package setup
 import (
 	"fmt"
 
-	"github.com/oernster/timeribbon/internal/infrastructure/startup"
+	"github.com/oernster/timeribbon/internal/product"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/startup"
 )
 
 // StartupEntry is the Start with Windows value: startup.Entry, the one Settings writes (FR-805).
@@ -17,7 +18,7 @@ type StartupEntry interface {
 
 // StartWithWindows answers the Start with Windows value for program. It is the value Settings
 // writes through the same package, so setup's box and the application's switch cannot disagree.
-func StartWithWindows(program string) StartupEntry { return startup.New(program) }
+func StartWithWindows(program string) StartupEntry { return startup.New(product.App(), program) }
 
 // Carried is what setup brings to an install: the payload, the version it carries and setup's own
 // path, which is copied in as the uninstaller.

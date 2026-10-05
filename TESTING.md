@@ -36,16 +36,16 @@ figure with the fraction dropped, so it fails once cover is lost.
 | Package | Coverage | Floor |
 |---|---|---|
 | `internal/domain/clock`, `settings`, `sun`; `ribbonkit/domain/hover`, `placement` | 100% | 100% |
-| `internal/application` | 100% | 100% |
-| `internal/infrastructure/appdata`, `update`, `zones`; `ribbonkit/infrastructure/iconscale`, `system` | 100% | 100% |
+| `internal/application`; `ribbonkit/application/release` | 100% | 100% |
+| `internal/infrastructure/zones`; `ribbonkit/infrastructure/appdata`, `iconscale`, `system`, `update` | 100% | 100% |
 | `internal/infrastructure/store` | 94.0% | 94% |
 | the root package (the Wails facade) | 87.4% | 87% |
 | `tools/versioninfo` | 86.7% | 86% |
 | `internal/infrastructure/setup` | 84.0% | 84% |
 | `tools/payload` | 82.8% | 82% |
 | `ribbonkit/infrastructure/monitors` | 82.6% | 82% |
-| `internal/infrastructure/startup` | 80.6% | 80% |
-| `internal/infrastructure/runlog` | 76.5% | 76% |
+| `ribbonkit/infrastructure/startup` | 80.6% | 80% |
+| `ribbonkit/infrastructure/runlog` | 77.8% | 77% |
 | `tools/identity` | 75% | 75% |
 | `tools/linuxicons` | 67.7% | 67% |
 | `tools/genplaces` | 58.6% | 58% |
@@ -100,7 +100,7 @@ so GitHub is asked only by the running application, which is checked by hand.
   count. The loop itself, the menus as drawn, the broadcasts, a browser opening and the desktop
   showing through are checked by hand in a real build.
 - **`monitors` (82.6%):** Windows refusing to enumerate or describe a display.
-- **`runlog` (76.5%):** the log refusing to open, its first line failing and `SetStdHandle` refusing.
+- **`runlog` (77.8%):** the log refusing to open, its first line failing and `SetStdHandle` refusing.
 - **The root package (87.4%).** The facade's decisions are tested across its fifteen test files:
   which calls refit the ribbon, panels and Settings' fit, the tab, the window holding and cut to the
   map, the menu actions, closing, a signal ending the run, the recover round each event and update

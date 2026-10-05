@@ -14,7 +14,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/oernster/timeribbon/internal/application"
+	"github.com/oernster/timeribbon/ribbonkit/application/release"
 )
 
 // LatestReleaseAPIURL is GitHub's latest-release endpoint for this repository.
@@ -62,7 +62,7 @@ type assetPayload struct {
 	DownloadURL string `json:"browser_download_url"`
 }
 
-// GitHub is an application.ReleaseSource over the GitHub API.
+// GitHub is an release.Source over the GitHub API.
 type GitHub struct {
 	apiURL string
 	client Doer
@@ -80,39 +80,39 @@ func NewWith(apiURL string, client Doer) *GitHub {
 
 // LatestRelease answers the latest published release; an error when it cannot be read, which the
 // service treats as no answer.
-func (g *GitHub) LatestRelease(ctx context.Context) (application.ReleaseInfo, error) {
+func (g *GitHub) LatestRelease(ctx context.Context) (release.Info, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, g.apiURL, nil)
 	if err != nil {
-		return application.ReleaseInfo{}, fmt.Errorf("building the release request: %w", err)
+		return release.Info{}, fmt.Errorf("building the release request: %w", err)
 	}
 	req.Header.Set("Accept", acceptHeader)
 	resp, err := g.client.Do(req)
 	if err != nil {
-		return application.ReleaseInfo{}, fmt.Errorf("asking for the latest release: %w", err)
+		return release.Info{}, fmt.Errorf("asking for the latest release: %w", err)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		return application.ReleaseInfo{}, fmt.Errorf("asking for the latest release: status %d", resp.StatusCode)
+		return release.Info{}, fmt.Errorf("asking for the latest release: status %d", resp.StatusCode)
 	}
 	body, err := io.ReadAll(io.LimitReader(resp.Body, maxBody))
 	if err != nil {
-		return application.ReleaseInfo{}, fmt.Errorf("reading the release: %w", err)
+		return release.Info{}, fmt.Errorf("reading the release: %w", err)
 	}
 	var payload releasePayload
 	if err := json.Unmarshal(body, &payload); err != nil {
-		return application.ReleaseInfo{}, fmt.Errorf("reading the release: %w", err)
+		return release.Info{}, fmt.Errorf("reading the release: %w", err)
 	}
 	if payload.TagName == "" || payload.HTMLURL == "" {
-		return application.ReleaseInfo{}, fmt.Errorf("the release names no version or no page")
+		return release.Info{}, fmt.Errorf("the release names no version or no page")
 	}
 	if !onGitHub(payload.HTMLURL) {
-		return application.ReleaseInfo{}, fmt.Errorf("the release's page %q is not on %s", payload.HTMLURL, releaseHost)
+		return release.Info{}, fmt.Errorf("the release's page %q is not on %s", payload.HTMLURL, releaseHost)
 	}
-	assets := make([]application.ReleaseAsset, 0, len(payload.Assets))
+	assets := make([]release.Asset, 0, len(payload.Assets))
 	for _, asset := range payload.Assets {
 		if asset.Name != "" && onGitHub(asset.DownloadURL) {
-			assets = append(assets, application.ReleaseAsset{Name: asset.Name, DownloadURL: asset.DownloadURL})
+			assets = append(assets, release.Asset{Name: asset.Name, DownloadURL: asset.DownloadURL})
 		}
 	}
-	return application.ReleaseInfo{Version: payload.TagName, PageURL: payload.HTMLURL, Assets: assets}, nil
+	return release.Info{Version: payload.TagName, PageURL: payload.HTMLURL, Assets: assets}, nil
 }

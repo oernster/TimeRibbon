@@ -9,7 +9,8 @@ import (
 
 	"golang.org/x/sys/windows"
 
-	"github.com/oernster/timeribbon/internal/infrastructure/appdata"
+	"github.com/oernster/timeribbon/internal/product"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/appdata"
 )
 
 // Places are the folders setup writes, resolved once (FR-810): each is under the user's own
@@ -44,7 +45,7 @@ func ResolvePlaces(lookup func(string) (string, bool), known KnownFolder) (Place
 	if !ok || base == "" {
 		return Places{}, ErrNoLocalAppData
 	}
-	settings, err := appdata.Dir(lookup)
+	settings, err := appdata.Dir(product.App(), lookup)
 	if err != nil {
 		return Places{}, fmt.Errorf("finding the settings folder: %w", err)
 	}

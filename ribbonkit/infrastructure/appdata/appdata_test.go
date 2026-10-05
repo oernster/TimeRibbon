@@ -11,7 +11,7 @@ func TestAnUnsetOrEmptyVariableIsRefused(t *testing.T) {
 		func(string) (string, bool) { return "", false },
 		func(string) (string, bool) { return "", true },
 	} {
-		if _, err := Dir(lookup); !errors.Is(err, ErrNoAppData) {
+		if _, err := Dir(testApp, lookup); !errors.Is(err, ErrNoAppData) {
 			t.Errorf("got %v", err)
 		}
 	}

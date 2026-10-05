@@ -6,15 +6,13 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
-
-	"github.com/oernster/timeribbon/internal/product"
 )
 
 // FR-605.
 func TestStartAtSignInWritesAndRemovesOneEntry(t *testing.T) {
 	t.Parallel()
 	dir := filepath.Join(t.TempDir(), "autostart")
-	entry := At(dir, "/opt/TimeRibbon/timeribbon")
+	entry := At(testApp, dir, "/opt/TimeRibbon/timeribbon")
 	if on, err := entry.Enabled(); err != nil || on {
 		t.Fatalf("before: %v %v", on, err)
 	}
@@ -25,7 +23,7 @@ func TestStartAtSignInWritesAndRemovesOneEntry(t *testing.T) {
 		t.Fatal(err)
 	}
 	names, _ := os.ReadDir(dir)
-	raw, err := os.ReadFile(filepath.Join(dir, product.AppID+".desktop"))
+	raw, err := os.ReadFile(filepath.Join(dir, testApp.AppID+".desktop"))
 	if err != nil || len(names) != 1 || !strings.Contains(string(raw), "\nExec=\"/opt/TimeRibbon/timeribbon\"\n") {
 		t.Errorf("wrote %q among %d entries (%v)", raw, len(names), err)
 	}
@@ -45,7 +43,7 @@ func TestAnEntrySwitchedOffReadsOff(t *testing.T) {
 	t.Parallel()
 	for _, line := range []string{hiddenLine, gnomeDisabledLine} {
 		dir := t.TempDir()
-		entry := At(dir, "/x")
+		entry := At(testApp, dir, "/x")
 		if err := os.WriteFile(entry.path(), []byte("[Desktop Entry]\n"+line+"\n"), entryMode); err != nil {
 			t.Fatal(err)
 		}
@@ -59,7 +57,7 @@ func TestAnEntrySwitchedOffReadsOff(t *testing.T) {
 func TestAnEntryThatCannotBeReadIsAFault(t *testing.T) {
 	t.Parallel()
 	dir := t.TempDir()
-	entry := At(dir, "/x")
+	entry := At(testApp, dir, "/x")
 	if err := os.Mkdir(entry.path(), folderMode); err != nil {
 		t.Fatal(err)
 	}
@@ -81,7 +79,7 @@ func TestTheAutostartFolderIsTheOneTheSessionReads(t *testing.T) {
 	}{
 		{"default", nil, "/home/someone/.config/autostart"},
 		{"XDG_CONFIG_HOME", map[string]string{configHomeVariable: "/cfg"}, "/cfg/autostart"},
-		{"Flatpak ignores the private XDG_CONFIG_HOME", map[string]string{configHomeVariable: "/home/someone/.var/app/x/config", flatpakIDVariable: product.AppID}, "/home/someone/.config/autostart"},
+		{"Flatpak ignores the private XDG_CONFIG_HOME", map[string]string{configHomeVariable: "/home/someone/.var/app/x/config", flatpakIDVariable: testApp.AppID}, "/home/someone/.config/autostart"},
 	}
 	for _, c := range cases {
 		if got, err := autostartDir(env(c.values), home); err != nil || got != c.want {
@@ -94,8 +92,8 @@ func TestTheAutostartFolderIsTheOneTheSessionReads(t *testing.T) {
 }
 
 func TestUnderAFlatpakTheEntryRunsTheFlatpak(t *testing.T) {
-	t.Setenv(flatpakIDVariable, product.AppID)
-	if got := New("/app/bin/timeribbon").Command(); got != "flatpak run "+product.AppID {
+	t.Setenv(flatpakIDVariable, testApp.AppID)
+	if got := New(testApp, "/app/bin/timeribbon").Command(); got != "flatpak run "+testApp.AppID {
 		t.Errorf("command %q", got)
 	}
 }

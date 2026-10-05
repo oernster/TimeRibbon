@@ -6,8 +6,6 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
-
-	"github.com/oernster/timeribbon/internal/product"
 )
 
 // FR-605.
@@ -15,7 +13,7 @@ func TestOpenAtLoginWritesAndRemovesOneAgent(t *testing.T) {
 	t.Parallel()
 	dir := filepath.Join(t.TempDir(), "LaunchAgents")
 	program := "/Applications/TimeRibbon.app/Contents/MacOS/TimeRibbon"
-	entry := At(dir, program)
+	entry := At(testApp, dir, program)
 	if on, err := entry.Enabled(); err != nil || on {
 		t.Fatalf("before: %v %v", on, err)
 	}
@@ -26,10 +24,10 @@ func TestOpenAtLoginWritesAndRemovesOneAgent(t *testing.T) {
 		t.Fatal(err)
 	}
 	names, _ := os.ReadDir(dir)
-	raw, err := os.ReadFile(filepath.Join(dir, product.AppID+".plist"))
+	raw, err := os.ReadFile(filepath.Join(dir, testApp.AppID+".plist"))
 	text := string(raw)
 	if err != nil || len(names) != 1 || !strings.Contains(text, "<string>"+program+"</string>") ||
-		!strings.Contains(text, "<string>"+product.AppID+"</string>") {
+		!strings.Contains(text, "<string>"+testApp.AppID+"</string>") {
 		t.Errorf("wrote %q among %d agents (%v)", raw, len(names), err)
 	}
 	if on, err := entry.Enabled(); err != nil || !on {
@@ -46,8 +44,8 @@ func TestOpenAtLoginWritesAndRemovesOneAgent(t *testing.T) {
 // An agent launchd treats as off is reported off, whoever switched it off.
 func TestAnAgentSwitchedOffReadsOff(t *testing.T) {
 	t.Parallel()
-	entry := At(t.TempDir(), "/x")
-	text := strings.Replace(entryText("/x"), "<dict>", "<dict>\n\t<key>Disabled</key>\n\t<true/>", 1)
+	entry := At(testApp, t.TempDir(), "/x")
+	text := strings.Replace(entryText(testApp, "/x"), "<dict>", "<dict>\n\t<key>Disabled</key>\n\t<true/>", 1)
 	if err := os.WriteFile(entry.path(), []byte(text), entryMode); err != nil {
 		t.Fatal(err)
 	}
@@ -59,7 +57,7 @@ func TestAnAgentSwitchedOffReadsOff(t *testing.T) {
 // Absence is off; an agent that is there and cannot be read is a fault.
 func TestAnAgentThatCannotBeReadIsAFault(t *testing.T) {
 	t.Parallel()
-	entry := At(t.TempDir(), "/x")
+	entry := At(testApp, t.TempDir(), "/x")
 	if err := os.Mkdir(entry.path(), folderMode); err != nil {
 		t.Fatal(err)
 	}
@@ -82,7 +80,7 @@ func TestTheAgentsFolderIsTheOneLaunchdReads(t *testing.T) {
 // A path is escaped for the property list, so a name holding an ampersand stays one string.
 func TestAPathIsEscapedForThePropertyList(t *testing.T) {
 	t.Parallel()
-	if got := entryText("/Apps/A&B <1>"); !strings.Contains(got, "<string>/Apps/A&amp;B &lt;1&gt;</string>") {
+	if got := entryText(testApp, "/Apps/A&B <1>"); !strings.Contains(got, "<string>/Apps/A&amp;B &lt;1&gt;</string>") {
 		t.Errorf("got %s", got)
 	}
 }

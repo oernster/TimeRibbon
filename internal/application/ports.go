@@ -10,6 +10,7 @@ import (
 
 	"github.com/oernster/timeribbon/internal/domain/settings"
 	"github.com/oernster/timeribbon/internal/domain/sun"
+	"github.com/oernster/timeribbon/ribbonkit/application/release"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
@@ -79,8 +80,8 @@ type Ports struct {
 	IDs      IDs
 	Monitors Monitors
 	Startup  StartupEntry
-	Releases ReleaseSource
+	Releases release.Source
 	// Build is not a collaborator but the facts about the running build the update check compares
 	// against, given here so the composition root states them once.
-	Build Build
+	Build release.Build
 }

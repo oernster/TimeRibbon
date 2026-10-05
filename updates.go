@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/oernster/timeribbon/internal/application"
+	"github.com/oernster/timeribbon/ribbonkit/application/release"
 )
 
 // When the automatic check runs: after the start has settled, then daily (FR-509).
@@ -30,16 +30,16 @@ type updateWatch struct {
 	every time.Duration
 
 	mutex   sync.Mutex
-	offered application.UpdateStatus
+	offered release.Status
 }
 
-func (w *updateWatch) offer(status application.UpdateStatus) {
+func (w *updateWatch) offer(status release.Status) {
 	w.mutex.Lock()
 	defer w.mutex.Unlock()
 	w.offered = status
 }
 
-func (w *updateWatch) current() application.UpdateStatus {
+func (w *updateWatch) current() release.Status {
 	w.mutex.Lock()
 	defer w.mutex.Unlock()
 	return w.offered
@@ -79,7 +79,7 @@ func (a *App) checkForUpdate(ctx context.Context, manual bool) {
 	if status.Latest == "" {
 		fmt.Fprintln(a.log, "the update check could not reach GitHub")
 	}
-	if !manual && !status.UpdateAvailable {
+	if !manual && !status.Available {
 		return
 	}
 	a.updates.offer(status)

@@ -7,6 +7,7 @@ package main
 import (
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/internal/product"
+	"github.com/oernster/timeribbon/ribbonkit/application/release"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
@@ -189,8 +190,8 @@ type updateDTO struct {
 	UpdateAvailable bool   `json:"updateAvailable"`
 }
 
-func updateOf(status application.UpdateStatus) updateDTO {
-	return updateDTO{Current: status.Current, Latest: status.Latest, UpdateAvailable: status.UpdateAvailable}
+func updateOf(status release.Status) updateDTO {
+	return updateDTO{Current: status.Current, Latest: status.Latest, UpdateAvailable: status.Available}
 }
 
 func sizeOf(size placement.Size) sizeDTO { return sizeDTO{Width: size.Width, Height: size.Height} }

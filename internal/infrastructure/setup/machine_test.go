@@ -12,7 +12,8 @@ import (
 	"github.com/go-ole/go-ole/oleutil"
 	"golang.org/x/sys/windows/registry"
 
-	"github.com/oernster/timeribbon/internal/infrastructure/startup"
+	"github.com/oernster/timeribbon/internal/product"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/startup"
 )
 
 // carried is a payload holding a program and the licence, with a stand-in for setup itself.
@@ -100,7 +101,7 @@ func TestAnInstallWritesEveryPartInPlace(t *testing.T) {
 	if shortcutPresent(f.places.Desktop) {
 		t.Error("a Desktop shortcut was placed with its box unticked")
 	}
-	if on, err := startup.At(f.startupKey, f.places.Program()).Enabled(); err != nil || !on {
+	if on, err := startup.At(product.App(), f.startupKey, f.places.Program()).Enabled(); err != nil || !on {
 		t.Errorf("Start with Windows is %v (%v)", on, err)
 	}
 }
@@ -160,8 +161,8 @@ func TestStartWithWindowsIsTheSameValueSettingsWrites(t *testing.T) {
 	t.Parallel()
 	program := filepath.Join(`C:\Users\Someone\AppData\Local`, programsSubdir, InstallFolder, ExeName)
 	entry, ok := StartWithWindows(program).(startup.Entry)
-	if !ok || entry != startup.New(program) {
-		t.Fatalf("setup's entry is %#v, want the one Settings writes, %#v", StartWithWindows(program), startup.New(program))
+	if !ok || entry != startup.New(product.App(), program) {
+		t.Fatalf("setup's entry is %#v, want the one Settings writes, %#v", StartWithWindows(program), startup.New(product.App(), program))
 	}
 	if entry.Command() != `"`+program+`"` {
 		t.Errorf("the value holds %s", entry.Command())
@@ -184,7 +185,7 @@ func TestForgettingRemovesOnlyTheSettingsFolder(t *testing.T) {
 		if shortcutPresent(f.places.StartMenu) || shortcutPresent(f.places.Desktop) {
 			t.Errorf("forget %v: a shortcut survived", forget)
 		}
-		if on, _ := startup.At(f.startupKey, f.places.Program()).Enabled(); on {
+		if on, _ := startup.At(product.App(), f.startupKey, f.places.Program()).Enabled(); on {
 			t.Errorf("forget %v: Start with Windows survived", forget)
 		}
 		if _, installed := f.record.Version(); installed {

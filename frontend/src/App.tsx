@@ -103,7 +103,7 @@ export function App() {
     } else {
       root.dataset.theme = snapshot.theme
     }
-    // The colour scheme (FR-611); colours.css keys its schemes off it, Classic being theme.css's own.
+    // The colour scheme (FR-611); ribbonkit's colours.css and dials.css key their schemes off it.
     root.dataset.colour = snapshot?.colour ?? 'classic'
     // The chosen opacity is the ribbon's; a panel the window becomes is always drawn opaque (FR-622).
     if (snapshot != null) {

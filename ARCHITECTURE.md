@@ -50,7 +50,7 @@ here does not exist.
 | Every method the page's `Bridge` calls is bound on `App`; none of the window's `Control` is | `TestEveryMethodThePageCallsIsBound`, `TestNothingOfTheControlIsBound` | [`page_api_test.go`](page_api_test.go) |
 | The setup page listens for every event `installer/app.go` emits | `TestTheSetupPageNamesEveryEventSetupEmits` | [`wire_test.go`](tests/structural/wire_test.go) |
 | Each `wails.json` names its executable as `internal/product` does | `TestEachWailsConfigNamesItsExecutableAsTheProductDoes` | [`names_test.go`](tests/structural/names_test.go) |
-| Every offered scheme has a block in `colours.css` stating each of Classic's tokens (the problem colour aside); every block is offered (FR-611) | `TestEveryOfferedSchemeHasItsOwnCompleteBlock` | [`colours_test.go`](tests/structural/colours_test.go) |
+| In each half of the palette (ribbonkit's `colours.css`, TimeRibbon's `dials.css`) every offered scheme has a block stating each of that half's Classic tokens (the problem colour aside); every block is offered (FR-611) | `TestEveryOfferedSchemeHasItsOwnCompleteBlock` | [`colours_test.go`](tests/structural/colours_test.go) |
 | Text, muted text and problem text meet 4.5:1 on the cell and the surface, every scheme, both themes (NFR-U-1) | `TestTextMeetsTheContrastFloorOnEverySchemeAndTheme` | [`contrast_test.go`](tests/structural/contrast_test.go) |
 | Classic's dark colours are the same under the system's dark mode as under a chosen dark theme | `TestClassicDarkIsTheSameUnderTheSystemAsWhenChosen` | [`contrast_test.go`](tests/structural/contrast_test.go) |
 | Contrast is computed as WCAG 2.x states it; an unreadable colour form is refused | `TestContrastIsComputedAsTheStandardStatesIt` | [`contrast_test.go`](tests/structural/contrast_test.go) |
@@ -317,8 +317,12 @@ The fixture is never regenerated.
 
 ## Colour
 
-Every colour has one home per scheme: Classic in `frontend/src/theme.css`, the others in
-`colours.css` keyed off `data-colour` (FR-611), each token stated once as `light-dark(light, dark)`.
+Every colour has one home per scheme, in two halves keyed off the same theme and `data-colour`
+(FR-611). ribbonkit's half holds the ribbon's own tokens (surface, cell, divider, the texts, accent,
+problem, focus and Neon's glow): Classic in `ribbonkit/web/theme.css`, the others in its
+`colours.css`. TimeRibbon's half, `frontend/src/dials.css`, holds its content's: the analogue dials
+for every scheme, the sun map's marks and Neon's glow on the digits and hands. Each half states a
+scheme's token once as `light-dark(light, dark)`; no token is stated in both.
 A scheme's hue lives in the tokens the ribbon paints, because the accent reaches only Settings and the
 tab.
 

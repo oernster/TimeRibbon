@@ -3,7 +3,7 @@ package structural
 // Label, time, date and zone mark text meets a contrast ratio of at least 4.5:1 in both themes, on
 // every colour scheme the menus offer (NFR-U-1, FR-606, FR-611).
 //
-// The colours are read from the very files the page loads: theme.css holds Classic, light in :root
+// The colours are read from the very files the page loads: ribbonkit's theme.css holds Classic, light in :root
 // and dark under [data-theme='dark']; colours.css holds the other schemes, each token written as
 // light-dark(light, dark). A scheme that leaves a token out draws it in Classic's value for the same
 // theme, so that is the value checked. The label, time and date draw in --text and the zone mark in
@@ -14,6 +14,7 @@ package structural
 
 import (
 	"fmt"
+	"maps"
 	"math"
 	"regexp"
 	"strconv"
@@ -130,16 +131,23 @@ type palette func(token string) (string, error)
 // to Classic's value for the same theme as the cascade does.
 func palettes(t *testing.T) map[ribbon.Colour]map[theme]palette {
 	t.Helper()
-	themeCss := readFrontend(t, "theme.css")
-	light := classicBlock.FindStringSubmatch(themeCss)
-	dark := darkBlock.FindStringSubmatch(themeCss)
-	if light == nil || dark == nil {
-		t.Fatal("theme.css lacks its :root or its [data-theme='dark'] block")
-	}
-	classic := map[theme]map[string]string{lightTheme: declarations(light[1]), darkTheme: declarations(dark[1])}
+	classic := map[theme]map[string]string{lightTheme: {}, darkTheme: {}}
 	stated := map[string]map[string]string{}
-	for _, match := range schemeBlock.FindAllStringSubmatch(readFrontend(t, "colours.css"), -1) {
-		stated[match[1]] = declarations(match[2])
+	for _, half := range paletteHalves {
+		themeCss := readPage(t, half.classic)
+		light := classicBlock.FindStringSubmatch(themeCss)
+		dark := darkBlock.FindStringSubmatch(themeCss)
+		if light == nil || dark == nil {
+			t.Fatalf("%s lacks its :root or its [data-theme='dark'] block", half.classic)
+		}
+		maps.Copy(classic[lightTheme], declarations(light[1]))
+		maps.Copy(classic[darkTheme], declarations(dark[1]))
+		for _, match := range schemeBlock.FindAllStringSubmatch(readPage(t, half.schemes), -1) {
+			if stated[match[1]] == nil {
+				stated[match[1]] = map[string]string{}
+			}
+			maps.Copy(stated[match[1]], declarations(match[2]))
+		}
 	}
 	all := map[ribbon.Colour]map[theme]palette{}
 	for _, colour := range ribbon.Colours {
@@ -195,14 +203,16 @@ func TestContrastIsComputedAsTheStandardStatesIt(t *testing.T) {
 
 func TestClassicDarkIsTheSameUnderTheSystemAsWhenChosen(t *testing.T) {
 	// The test reads the chosen dark block; the page shows the system one under System (FR-606).
-	themeCss := readFrontend(t, "theme.css")
-	system := systemDark.FindStringSubmatch(themeCss)
-	chosen := darkBlock.FindStringSubmatch(themeCss)
-	if system == nil || chosen == nil {
-		t.Fatal("theme.css lacks a dark block")
-	}
-	if fmt.Sprint(declarations(system[1])) != fmt.Sprint(declarations(chosen[1])) {
-		t.Errorf("the system's dark block differs from the chosen one:\n%v\n%v", declarations(system[1]), declarations(chosen[1]))
+	for _, half := range paletteHalves {
+		themeCss := readPage(t, half.classic)
+		system := systemDark.FindStringSubmatch(themeCss)
+		chosen := darkBlock.FindStringSubmatch(themeCss)
+		if system == nil || chosen == nil {
+			t.Fatalf("%s lacks a dark block", half.classic)
+		}
+		if fmt.Sprint(declarations(system[1])) != fmt.Sprint(declarations(chosen[1])) {
+			t.Errorf("%s: the system's dark block differs from the chosen one:\n%v\n%v", half.classic, declarations(system[1]), declarations(chosen[1]))
+		}
 	}
 }
 

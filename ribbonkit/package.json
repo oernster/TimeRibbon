@@ -6,6 +6,8 @@
   "exports": {
     ".": "./web/index.ts",
     "./testing": "./web/testing/index.ts",
+    "./theme.css": "./web/theme.css",
+    "./colours.css": "./web/colours.css",
     "./controls.css": "./web/controls.css"
   },
   "peerDependencies": {

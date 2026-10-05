@@ -14,20 +14,8 @@
   --text-muted: light-dark(#aa0e90, #ff7ae6);
   --accent: light-dark(#148500, #39ff14);
   --problem: light-dark(#994700, #ffb454);
-  --dial-face: light-dark(#ffffff, #0d0d16);
-  --dial-tick: light-dark(#aa0e90, #ff7ae6);
-  --dial-hand: light-dark(#006675, #5ff5ff);
   --focus: light-dark(#148500, #39ff14);
   --glow: light-dark(transparent, rgb(95 245 255 / 70%));
-}
-
-/* Neon's glow: the digits and the dial's hands light the dark around them. */
-:root[data-colour='neon'] .time {
-  text-shadow: 0 0 6px var(--glow), 0 0 14px var(--glow);
-}
-
-:root[data-colour='neon'] .dial line {
-  filter: drop-shadow(0 0 3px var(--glow));
 }
 
 :root[data-colour='ocean'] {
@@ -37,9 +25,6 @@
   --text: light-dark(#063147, #c8f9f9);
   --text-muted: light-dark(#115a74, #64d8d4);
   --accent: light-dark(#087a91, #20dfd2);
-  --dial-face: light-dark(#eefafb, #0d3c4a);
-  --dial-tick: light-dark(#115a74, #64d8d4);
-  --dial-hand: light-dark(#063147, #c8f9f9);
   --focus: light-dark(#087a91, #20dfd2);
 }
 
@@ -50,9 +35,6 @@
   --text: light-dark(#3b1021, #ffe6d9);
   --text-muted: light-dark(#7a3144, #f5a38a);
   --accent: light-dark(#c2410c, #ff8c5a);
-  --dial-face: light-dark(#ffffff, #26121f);
-  --dial-tick: light-dark(#7a3144, #f5a38a);
-  --dial-hand: light-dark(#3b1021, #ffe6d9);
   --focus: light-dark(#c2410c, #ff8c5a);
 }
 
@@ -63,9 +45,6 @@
   --text: light-dark(#16261a, #e3f1dc);
   --text-muted: light-dark(#3f5a3a, #a4c29a);
   --accent: light-dark(#2f6b2a, #7cc46f);
-  --dial-face: light-dark(#ffffff, #132017);
-  --dial-tick: light-dark(#3f5a3a, #a4c29a);
-  --dial-hand: light-dark(#16261a, #e3f1dc);
   --focus: light-dark(#2f6b2a, #7cc46f);
 }
 
@@ -76,9 +55,6 @@
   --text: light-dark(#3f260d, #fde7a5);
   --text-muted: light-dark(#724a1d, #ebb447);
   --accent: light-dark(#aa690e, #f9b81f);
-  --dial-face: light-dark(#fefaeb, #2b2112);
-  --dial-tick: light-dark(#724a1d, #ebb447);
-  --dial-hand: light-dark(#3f260d, #fde7a5);
   --focus: light-dark(#aa690e, #f9b81f);
 }
 
@@ -89,9 +65,6 @@
   --text: light-dark(#620e11, #ffe0e0);
   --text-muted: light-dark(#931f1f, #ff938f);
   --accent: light-dark(#b3191f, #f76464);
-  --dial-face: light-dark(#fef4f4, #4e1214);
-  --dial-tick: light-dark(#931f1f, #ff938f);
-  --dial-hand: light-dark(#620e11, #ffe0e0);
   --focus: light-dark(#b3191f, #f76464);
 }
 
@@ -102,9 +75,6 @@
   --text: light-dark(#11195f, #dbe2ff);
   --text-muted: light-dark(#334199, #94a5f9);
   --accent: light-dark(#2232c3, #7486fb);
-  --dial-face: light-dark(#f4f5fe, #171d4f);
-  --dial-tick: light-dark(#334199, #94a5f9);
-  --dial-hand: light-dark(#11195f, #dbe2ff);
   --focus: light-dark(#2232c3, #7486fb);
 }
 
@@ -115,9 +85,6 @@
   --text: light-dark(#570f41, #ffdbf9);
   --text-muted: light-dark(#822b6c, #f391df);
   --accent: light-dark(#a51d83, #f764d9);
-  --dial-face: light-dark(#fdf4fb, #3f1835);
-  --dial-tick: light-dark(#822b6c, #f391df);
-  --dial-hand: light-dark(#570f41, #ffdbf9);
   --focus: light-dark(#a51d83, #f764d9);
 }
 
@@ -130,8 +97,5 @@
   --text: light-dark(#000000, #ffffff);
   --text-muted: light-dark(#303030, #ffe94d);
   --accent: light-dark(#0000c8, #ffe94d);
-  --dial-face: light-dark(#ffffff, #000000);
-  --dial-tick: light-dark(#303030, #ffe94d);
-  --dial-hand: light-dark(#000000, #ffffff);
   --focus: light-dark(#0000c8, #ffe94d);
 }

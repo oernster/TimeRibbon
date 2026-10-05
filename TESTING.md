@@ -62,13 +62,13 @@ before the move into the kit or since; that is the gap, recorded in `TECH_DEBT.m
 `installer` is its composition root, whose one test reads the pictures it carries, which runs no
 statement.
 
-Every figure is the Windows build's, which `test.ps1` measures. That build compiles 450 Go test
+Every figure is the Windows build's, which `test.ps1` measures. That build compiles 451 Go test
 functions, counted from the test files `go list` selects, each running once with no subtests, plus
 one `TestMain` in `ribbonkit/infrastructure/setup`. Thirty-seven are the structural tests, which read
 the source and are the same on every platform; [ARCHITECTURE.md](ARCHITECTURE.md) lists each against
 its rule. `TestA1Point0SettingsFileIsReadWhole` in `store` holds the settings file's promise
 (NFR-C-1); `contrast_test.go` holds NFR-U-1 in Go because Vitest hands a CSS import back empty. The
-macOS build compiles 419 and the Linux build 423 ([On macOS and Linux](#on-macos-and-linux)).
+macOS build compiles 420 and the Linux build 424 ([On macOS and Linux](#on-macos-and-linux)).
 
 ### The front end
 

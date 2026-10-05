@@ -52,6 +52,32 @@ func TestADragOfThePullOutMovesTheRibbonToo(t *testing.T) {
 	}
 }
 
+// FR-909, FR-910: a drop that changes the side the pull out goes on tells the page to draw again, so
+// it lays the two out as the window is now cut. Measured 2026-10-05: dragged onto a display at 250
+// percent and back, the window was cut for the map on the ribbon's left while the page still drew
+// it on the right.
+func TestADropThatMovesThePullOutTellsThePage(t *testing.T) {
+	t.Parallel()
+	app, service, seen, _ := newTestApp(t)
+	service.arrangement = withPullOut
+	if err := app.placeLaunched(); err != nil {
+		t.Fatal(err)
+	}
+	app.show()
+	above := withPullOut
+	above.PullOutSide = placement.Top
+	above.PullOut = placement.Rect{Left: -80, Top: -220, Right: 400, Bottom: 20}
+	service.arrangement = above
+	seen.events = nil
+	app.handleSafely(shell.Event{Kind: shell.EventMoveEnded})
+	if !seen.sawEvent(eventRefresh) {
+		t.Errorf("the drop sent %v, want the page told to draw again", seen.events)
+	}
+	if got := app.shown(); got.PullOutSide != placement.Top {
+		t.Errorf("the page would be told %+v, want the pull out on top", got)
+	}
+}
+
 // FR-910: the page is told where to draw the pull out only while the full ribbon shows, never with a
 // tab.
 func TestThePullOutHidesWithTheTab(t *testing.T) {

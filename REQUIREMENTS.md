@@ -927,8 +927,8 @@ Verified by: `TestEveryPlaceHasItsZonesCoordinate` (zones); `TestAZoneWithNoPlac
 
 **FR-909 The map goes with the ribbon** (Should). The map moves with the ribbon, adjoined; a drag on the
 map moves both. The ribbon's own edge alone decides flushness (FR-619).
-Verified by: `TestTheWindowHoldsTheRibbonAndItsPullOut`, `TestADragOfThePullOutMovesTheRibbonToo` (window); by
-hand.
+Verified by: `TestTheWindowHoldsTheRibbonAndItsPullOut`, `TestADragOfThePullOutMovesTheRibbonToo`,
+`TestADropThatMovesThePullOutTellsThePage` (window); by hand.
 
 **FR-910 When the map is not shown** (Should; OQ-18). Collapsed, hidden or showing a panel, no map;
 it returns with the full ribbon. A pointer on the map counts as on the ribbon (FR-616).

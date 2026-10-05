@@ -192,7 +192,9 @@ func (a *Window) moved() {
 		return
 	}
 	a.scrolls.Store(arranged.Scrolls)
-	a.report("placing the ribbon", a.arrangeWindow(arranged))
+	// A drop can move the pull out to the ribbon's other side or change the ribbon's size, so the
+	// page draws again for the window as it is now cut (measured 2026-10-05).
+	a.report("placing the ribbon", a.redrawn(a.arrangeWindow(arranged)))
 }
 
 // rearrange fits the ribbon where it stands (FR-104, FR-406).

@@ -40,7 +40,7 @@ figure with the fraction dropped, so it fails once cover is lost.
 | `internal/domain/clock`, `settings`, `sun` | 100% | 100% |
 | `internal/application` | 100% | 100% |
 | `internal/infrastructure/store`, `zones` | 100% | 100% |
-| the root package (the Wails facade) | 66.2% | 66% |
+| the root package (the Wails facade) | 65.1% | 65% |
 | `tools/genplaces` | 58.6% | 58% |
 | `internal/product` | 100% | not gated |
 | `installer` | 0% | not gated |
@@ -84,7 +84,7 @@ Apps list** and **no test reaches the network**.
 
 ## What is not tested and why
 
-- **The root package (66.2%).** TimeRibbon's own half of the facade is tested over a scripted service
+- **The root package (65.1%).** TimeRibbon's own half of the facade is tested over a scripted service
   and a stand-in window: every change to the clocks fits the ribbon once, the Snapshot carries the
   window's reading, TimeRibbon's menu actions, the measurements, the product handed to the window, the
   adapter reading the ribbon's choices out of the settings; every method the page's `Bridge` calls is

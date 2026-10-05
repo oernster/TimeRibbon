@@ -84,7 +84,7 @@ try {
 # shortfall is: error returns that only a failing disk can produce; in the root package, the
 # composition root. ribbonkit's packages are held by the kit's own gate.
 $measured = [ordered]@{
-    '.'                                  = 66
+    '.'                                  = 65
     './internal/infrastructure/store'    = 100
     './internal/infrastructure/zones'    = 100
     './tools/genplaces'                  = 58

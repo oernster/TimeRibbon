@@ -6,7 +6,6 @@ package main
 // TypeScript and the marshaller sees only these.
 
 import (
-	"github.com/oernster/ribbonkit/application/menus"
 	"github.com/oernster/ribbonkit/domain/placement"
 	"github.com/oernster/ribbonkit/ui/window"
 	"github.com/oernster/timeribbon/internal/application"
@@ -83,31 +82,7 @@ type snapshotDTO struct {
 	Collapsed bool      `json:"collapsed"`
 	SunMap    sunMapDTO `json:"sunMap"`
 	// Choices are the menus' choices, which Settings offers as well (FR-624).
-	Choices []choiceDTO `json:"choices"`
-}
-
-// choiceDTO is one of the menus' choices as Settings draws it (FR-624): either a group of Children
-// or one item whose Action the page hands back to Choose; greyed while Disabled, as a Position item
-// that would not move the ribbon is (FR-408).
-type choiceDTO struct {
-	Action    string      `json:"action"`
-	Label     string      `json:"label"`
-	Checkable bool        `json:"checkable"`
-	Checked   bool        `json:"checked"`
-	Disabled  bool        `json:"disabled"`
-	Children  []choiceDTO `json:"children"`
-}
-
-// choicesOf answers the wire form of menu items, every list present so the page never meets null.
-func choicesOf(items []menus.Item) []choiceDTO {
-	out := make([]choiceDTO, 0, len(items))
-	for _, item := range items {
-		out = append(out, choiceDTO{
-			Action: string(item.Action), Label: item.Label, Checkable: item.Checkable, Checked: item.Checked,
-			Disabled: item.Disabled, Children: choicesOf(item.Children),
-		})
-	}
-	return out
+	Choices []window.ChoiceDTO `json:"choices"`
 }
 
 // markDTO is one clock's place on the sun map (FR-908).

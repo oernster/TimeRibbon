@@ -40,8 +40,8 @@ func TestEveryChangeFitsTheRibbonAndAnswersTheServicesError(t *testing.T) {
 			if !slices.Contains(service.calls, name) {
 				t.Errorf("%s never reached the service", name)
 			}
-			if control.fitted() != 1 {
-				t.Errorf("%s (service answered %v) fitted the ribbon %d times, want once", name, failure, control.fitted())
+			if fitted(control) != 1 {
+				t.Errorf("%s (service answered %v) fitted the ribbon %d times, want once", name, failure, fitted(control))
 			}
 		}
 	}
@@ -51,8 +51,8 @@ func TestEveryChangeFitsTheRibbonAndAnswersTheServicesError(t *testing.T) {
 func TestTheSunMapIsRedrawnOnceFitted(t *testing.T) {
 	app, _, control := newTestApp(t)
 	_ = app.SetSunMap(true)
-	if !slices.Equal(control.calls, []string{"Refitted", "Redrawn"}) {
-		t.Errorf("the window was asked %v, want the ribbon fitted then redrawn", control.calls)
+	if !slices.Equal(control.Calls, []string{"Refitted", "Redrawn"}) {
+		t.Errorf("the window was asked %v, want the ribbon fitted then redrawn", control.Calls)
 	}
 }
 
@@ -65,7 +65,7 @@ func TestTheSnapshotCarriesEveryCellAndTheWindowsReading(t *testing.T) {
 		SunMap: application.SunMap{On: true, Marks: []application.Mark{{Label: "London", At: sun.Point{Latitude: 51.5, Longitude: -0.1}}}},
 	}
 	service.choices = []menus.Item{{Action: menus.Pin, Label: "Pin ribbon", Checkable: true}}
-	control.shown = window.Shown{
+	control.Showing = window.Shown{
 		Collapsed: true, Scrolls: true, DragThreshold: placement.Size{Width: 4, Height: 4},
 		PullOutSide: placement.Left, PullOutShown: true,
 		Ribbon: window.Box{X: 1, Y: 2, Width: 3, Height: 4}, PullOut: window.Box{Width: 480, Height: 240},
@@ -115,8 +115,8 @@ func TestSearchPlacesPassesThrough(t *testing.T) {
 func TestTimeRibbonsMenuActions(t *testing.T) {
 	app, service, control := newTestApp(t)
 	app.actOn(application.ActionAddClock)
-	if !slices.Equal(control.panels, []string{openAtAddClock}) {
-		t.Errorf("Add clock opened %v, want the place search", control.panels)
+	if !slices.Equal(control.Panels, []string{openAtAddClock}) {
+		t.Errorf("Add clock opened %v, want the place search", control.Panels)
 	}
 	app.actOn(application.ActionSunMap)
 	if !service.settings.SunMap {
@@ -125,11 +125,11 @@ func TestTimeRibbonsMenuActions(t *testing.T) {
 	app.actOn(application.ActionAnalogue)
 	app.actOn(menus.Action("colour-neon"))
 	app.actOn(menus.OrientHorizontal)
-	if !slices.Contains(service.calls, "SetStyle") || !slices.Equal(control.colours, []string{"neon"}) || !slices.Equal(control.turned, []string{"horizontal"}) {
-		t.Errorf("style %v, colours %v, orientations %v; want each choice made", service.calls, control.colours, control.turned)
+	if !slices.Contains(service.calls, "SetStyle") || !slices.Equal(control.Colours, []string{"neon"}) || !slices.Equal(control.Turned, []string{"horizontal"}) {
+		t.Errorf("style %v, colours %v, orientations %v; want each choice made", service.calls, control.Colours, control.Turned)
 	}
 	redraws := 0
-	for _, call := range control.calls {
+	for _, call := range control.Calls {
 		if call == "Redraw" {
 			redraws++
 		}
@@ -141,13 +141,13 @@ func TestTimeRibbonsMenuActions(t *testing.T) {
 
 func TestAMenuChoiceThatFailedIsReported(t *testing.T) {
 	app, service, control := newTestApp(t)
-	service.changeErr, control.choiceErr = errPlanted, errPlanted
+	service.changeErr, control.ChoiceErr = errPlanted, errPlanted
 	for _, action := range []menus.Action{application.ActionSunMap, application.ActionDigital, "colour-ocean", menus.OrientVertical} {
 		app.actOn(action)
 	}
 	want := []string{"turning the sun map on or off", "changing the style", "changing the colour", "changing the orientation"}
-	if !slices.Equal(control.reported, want) {
-		t.Errorf("reported %v, want %v", control.reported, want)
+	if !slices.Equal(control.Reported, want) {
+		t.Errorf("reported %v, want %v", control.Reported, want)
 	}
 }
 
@@ -155,8 +155,8 @@ func TestAMenuChoiceThatFailedIsReported(t *testing.T) {
 func TestAnUnknownActionChangesNothing(t *testing.T) {
 	app, service, control := newTestApp(t)
 	app.actOn("no-such-action")
-	if len(service.calls) != 0 || len(control.calls) != 0 || len(control.panels) != 0 {
-		t.Errorf("service %v, window %v, panels %v; want nothing", service.calls, control.calls, control.panels)
+	if len(service.calls) != 0 || len(control.Calls) != 0 || len(control.Panels) != 0 {
+		t.Errorf("service %v, window %v, panels %v; want nothing", service.calls, control.Calls, control.Panels)
 	}
 }
 

@@ -6,7 +6,7 @@ import (
 
 	"github.com/oernster/ribbonkit/application/menus"
 	"github.com/oernster/ribbonkit/domain/localtime"
-	"github.com/oernster/ribbonkit/ui/window"
+	"github.com/oernster/ribbonkit/ui/window/windowtest"
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
@@ -82,82 +82,15 @@ func (s *scriptedService) SetMeasured(measured application.Measured) error {
 
 func (s *scriptedService) SettingsChoices() []menus.Item { return s.choices }
 
-// recordingControl stands in for the window, recording what TimeRibbon's half asked of it in order.
-type recordingControl struct {
-	calls []string
-	// reported is each failure reported, as its doing; panels each panel shown.
-	reported []string
-	panels   []string
-	colours  []string
-	turned   []string
-	shown    window.Shown
-	// choiceErr answers SetColour and SetOrientation.
-	choiceErr error
-}
-
-func (c *recordingControl) record(call string) { c.calls = append(c.calls, call) }
-
-func (c *recordingControl) Refitted(err error) error {
-	c.record("Refitted")
-	return err
-}
-
-func (c *recordingControl) ContentChanged() { c.record("ContentChanged") }
-
-func (c *recordingControl) Redraw() { c.record("Redraw") }
-
-func (c *recordingControl) Redrawn(err error) error {
-	c.record("Redrawn")
-	return err
-}
-
-func (c *recordingControl) Report(doing string, err error) {
-	if err != nil {
-		c.reported = append(c.reported, doing)
-	}
-}
-
-func (c *recordingControl) ShowPanel(panel string) { c.panels = append(c.panels, panel) }
-
-func (c *recordingControl) PageMeasured() { c.record("PageMeasured") }
-
-func (c *recordingControl) Shown() window.Shown { return c.shown }
-
-// Offered greys every item, so a test reads which menu passed through it.
-func (c *recordingControl) Offered(items []menus.Item) []menus.Item {
-	greyed := make([]menus.Item, len(items))
-	for index, item := range items {
-		item.Disabled = true
-		greyed[index] = item
-	}
-	return greyed
-}
-
-func (c *recordingControl) SetColour(colour string) error {
-	c.colours = append(c.colours, colour)
-	return c.choiceErr
-}
-
-func (c *recordingControl) SetOrientation(orientation string) error {
-	c.turned = append(c.turned, orientation)
-	return c.choiceErr
-}
-
 // fitted counts how often the facade had the window fit the ribbon.
-func (c *recordingControl) fitted() int {
-	count := 0
-	for _, call := range c.calls {
-		if call == "Refitted" || call == "ContentChanged" {
-			count++
-		}
-	}
-	return count
+func fitted(control *windowtest.Control) int {
+	return control.Count("Refitted") + control.Count("ContentChanged")
 }
 
 // newTestApp answers TimeRibbon's half of the facade over a scripted service, its window the
 // recording stand-in answered with it.
-func newTestApp(t *testing.T) (*App, *scriptedService, *recordingControl) {
+func newTestApp(t *testing.T) (*App, *scriptedService, *windowtest.Control) {
 	t.Helper()
-	service, control := &scriptedService{}, &recordingControl{}
+	service, control := &scriptedService{}, &windowtest.Control{}
 	return &App{service: service, control: control}, service, control
 }

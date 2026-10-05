@@ -88,7 +88,7 @@ func (a *App) Snapshot() snapshotDTO {
 	shown.Collapsed = seen.Collapsed
 	shown.SunMap.Side, shown.SunMap.Shown = string(seen.PullOutSide), seen.PullOutShown
 	shown.SunMap.Ribbon, shown.SunMap.Map = seen.Ribbon, seen.PullOut
-	shown.Choices = choicesOf(a.control.Offered(a.service.SettingsChoices()))
+	shown.Choices = window.ChoicesOf(a.control.Offered(a.service.SettingsChoices()))
 	return shown
 }
 

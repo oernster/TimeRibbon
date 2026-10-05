@@ -1,9 +1,10 @@
 // A stand-in for the Go facade in tests: every call is recorded, every answer is canned. The window's
 // half is ribbonkit's own stand-in; TimeRibbon's methods are added to it here.
 
-import { install, windowBridge } from '@oernster/ribbonkit/testing'
+import { choiceGroup, choiceItem, install, windowBridge } from '@oernster/ribbonkit/testing'
 import { vi } from 'vitest'
-import type { Cell, MenuChoice, Place, Snapshot } from './wire'
+import type { Cell, Place, Snapshot } from './wire'
+import type { MenuChoice } from '@oernster/ribbonkit'
 
 export { about } from '@oernster/ribbonkit/testing'
 
@@ -14,23 +15,15 @@ export function cell(overrides: Partial<Cell> = {}): Cell {
   }
 }
 
-function item(action: string, label: string, checked?: boolean): MenuChoice {
-  return { action, label, checkable: checked != null, checked: checked === true, disabled: false, children: [] }
-}
-
-function group(label: string, children: MenuChoice[]): MenuChoice {
-  return { action: '', label, checkable: false, checked: false, disabled: false, children }
-}
-
 /** The menus' choices as Go sends them, in their order; Colour cut to two schemes. */
 export const choices: MenuChoice[] = [
-  group('Style', [item('digital', 'Digital', true), item('analogue', 'Analogue', false)]),
-  group('Colour', [item('colour-classic', 'Classic', true), item('colour-neon', 'Neon', false)]),
-  group('Orientation', [item('horizontal', 'Horizontal', true), item('vertical', 'Vertical', false)]),
-  group('Position', [item('top-edge', 'Centre on top edge'), item('bottom-edge', 'Centre on bottom edge')]),
-  item('always-on-top', 'Always on top', false),
-  item('pin', 'Pin ribbon', true),
-  item('sun-map', 'Sun map', false),
+  choiceGroup('Style', [choiceItem('digital', 'Digital', true), choiceItem('analogue', 'Analogue', false)]),
+  choiceGroup('Colour', [choiceItem('colour-classic', 'Classic', true), choiceItem('colour-neon', 'Neon', false)]),
+  choiceGroup('Orientation', [choiceItem('horizontal', 'Horizontal', true), choiceItem('vertical', 'Vertical', false)]),
+  choiceGroup('Position', [choiceItem('top-edge', 'Centre on top edge'), choiceItem('bottom-edge', 'Centre on bottom edge')]),
+  choiceItem('always-on-top', 'Always on top', false),
+  choiceItem('pin', 'Pin ribbon', true),
+  choiceItem('sun-map', 'Sun map', false),
 ]
 
 export function snapshot(overrides: Partial<Snapshot> = {}): Snapshot {

@@ -182,7 +182,7 @@ its sign-in entry and the build outputs, so the next build's first launch is a t
 
 All committed, so a clone builds without regenerating them.
 
-- **Icons**, after changing an image in `assets/`: `python tools/genicons.py` writes
+- **Icons**, after changing an image in `assets/`: `python tools/genicons.py` (the work is ribbonkit's `tools/genicons.py`, read where Go builds the kit from) writes
   `build/windows/icon.ico` (both executables, shortcuts and tray), `build/appicon.png`, the setup
   page's mark and toggles and the page's artwork, each rendered large enough to stay sharp when scaled.
 - **The place catalogue**, after a new tz release, from a folder holding `zone.tab`, `iso3166.tab` and

@@ -77,8 +77,11 @@ The kit's half of the page is `ribbonkit/web`, an npm package (`@oernster/ribbon
 a guarded call, which answers null where Go refused and tells a refusal handler why; the application
 adds its own over the same call), the window's half of the wire (`wire.ts`) and the page's machinery for the
 window: the drag and the right-click menu (`drag.ts`), the opacity, the `devicePixelRatio` watch, the
-scroll bar's measure, the background colour reported to Go and a panel fitting its content
-(`panelFit.ts`). A module that reaches Go is handed the calls it needs rather than holding them.
+scroll bar's measure, the background colour reported to Go, a panel fitting its content
+(`panelFit.ts`), plus two controls: the corner grip (`ScaleGrip.tsx`, its tooltip in the
+application's words) and the opacity slider (`OpacitySlider.tsx`), styled by `controls.css`, which the
+package exports beside its entry. Each component takes only the values it draws, never the
+application's snapshot. A module that reaches Go is handed the calls it needs rather than holding them.
 `web/testing` is its stand-in bridge, which TimeRibbon's `fakeBridge.ts` builds on. The front end
 reads the kit through the link: tsconfig's `preserveSymlinks` and Vite's `resolve.preserveSymlinks`
 make what it imports resolve from `frontend/node_modules`. The front end's lint runs from the

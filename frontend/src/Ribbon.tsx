@@ -3,8 +3,10 @@ import { api, type Refused, type Snapshot } from './api'
 import { ArtButton, addClockTip } from './ArtButton'
 import addClockArt from './assets/add-clock.png'
 import { Cell } from './Cell'
-import { percentOfWhole, showsTheMenu, useDrag } from '@oernster/ribbonkit'
-import { ScaleGrip } from './ScaleGrip'
+import { percentOfWhole, ScaleGrip, showsTheMenu, useDrag } from '@oernster/ribbonkit'
+
+/** The grip's words, one home: what dragging and double-clicking it do (NFR-U-4). */
+export const scaleGripTip = 'Drag to resize the clocks; double-click for their own size'
 
 interface Props {
   snapshot: Snapshot
@@ -90,7 +92,7 @@ export function Ribbon({ snapshot, onAddClock, refused }: Props) {
         <Cell key={each.id} cell={each} analogue={analogue} />
       ))}
     </div>
-    <ScaleGrip snapshot={snapshot} refused={refused} />
+    <ScaleGrip vertical={vertical} calls={api} refused={refused} tip={scaleGripTip} />
     </>
   )
 }

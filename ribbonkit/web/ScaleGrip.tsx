@@ -1,31 +1,31 @@
 import { useRef, type PointerEvent } from 'react'
-import { api, type Refused, type Snapshot } from './api'
-import { percentOfWhole } from '@oernster/ribbonkit'
-
-/** The grip's words, one home: what dragging and double-clicking it do (NFR-U-4). */
-export const scaleGripTip = 'Drag to resize the clocks; double-click for their own size'
+import type { Refused, WindowCalls } from './bridge'
+import { percentOfWhole } from './opacity'
 
 interface Props {
-  snapshot: Snapshot
+  /** Whether the ribbon runs top to bottom, so its thickness is its width. */
+  vertical: boolean
+  calls: Pick<WindowCalls, 'beginScale' | 'dragScale' | 'endScale' | 'setScale'>
   refused: Refused
+  /** tip says what dragging and double-clicking the grip do, in the application's words (NFR-U-4). */
+  tip: string
 }
 
 /**
- * ScaleGrip is the ribbon's corner grip (FR-623). Dragging it draws the clocks larger or smaller,
- * everything in them together, with the window following as it moves; the scale is kept once it is
- * let go. Double-clicking it draws them at their own size again. It is a control, so pressing it
- * starts no window drag (FR-402).
+ * ScaleGrip is the ribbon's corner grip (FR-623). Dragging it draws the ribbon's content larger or
+ * smaller, everything in it together, with the window following as it moves; the scale is kept once
+ * it is let go. Double-clicking it draws the content at its own size again. It is a control, so
+ * pressing it starts no window drag (FR-402).
  *
  * Go works out the scale: it reads the pointer from the desktop where it can, since the page's own
  * reading was measured jumping backwards while the window was resized under it; the page's reading
  * is sent along for where the desktop cannot give one.
  */
-export function ScaleGrip({ snapshot, refused }: Props) {
+export function ScaleGrip({ vertical, calls, refused, tip }: Props) {
   const dragging = useRef(false)
   const sending = useRef(false)
   const waiting = useRef(false)
   const pointer = useRef({ x: 0, y: 0 })
-  const vertical = snapshot.orientation === 'vertical'
 
   // One move on its way at a time; the newest pointer follows it.
   const send = () => {
@@ -34,7 +34,7 @@ export function ScaleGrip({ snapshot, refused }: Props) {
       return
     }
     sending.current = true
-    void api.dragScale(pointer.current.x, pointer.current.y, refused).then(() => {
+    void calls.dragScale(pointer.current.x, pointer.current.y, refused).then(() => {
       sending.current = false
       if (waiting.current && dragging.current) {
         waiting.current = false
@@ -53,7 +53,7 @@ export function ScaleGrip({ snapshot, refused }: Props) {
     pointer.current = { x: event.screenX, y: event.screenY }
     dragging.current = true
     waiting.current = false
-    void api.beginScale(thickness, event.screenX, event.screenY, refused)
+    void calls.beginScale(thickness, event.screenX, event.screenY, refused)
   }
 
   const move = (event: PointerEvent<HTMLDivElement>) => {
@@ -66,7 +66,7 @@ export function ScaleGrip({ snapshot, refused }: Props) {
   const up = (event: PointerEvent<HTMLDivElement>) => {
     if (dragging.current) {
       dragging.current = false
-      void api.endScale(event.screenX, event.screenY, refused)
+      void calls.endScale(event.screenX, event.screenY, refused)
     }
   }
 
@@ -75,13 +75,13 @@ export function ScaleGrip({ snapshot, refused }: Props) {
       className="scale-grip"
       data-control
       role="separator"
-      aria-label={scaleGripTip}
-      title={scaleGripTip}
+      aria-label={tip}
+      title={tip}
       onPointerDown={down}
       onPointerMove={move}
       onPointerUp={up}
       onPointerCancel={up}
-      onDoubleClick={() => void api.setScale(percentOfWhole, refused)}
+      onDoubleClick={() => void calls.setScale(percentOfWhole, refused)}
     />
   )
 }

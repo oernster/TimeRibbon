@@ -64,13 +64,13 @@ macOS build compiles 391 and the Linux build 395 ([On macOS and Linux](#on-macos
 
 ### The front end
 
-134 tests in 20 files under Vitest with jsdom, run from `frontend`; four of the files are ribbonkit's
+136 tests in 21 files under Vitest with jsdom, run from `frontend`; six of the files are ribbonkit's
 own (`ribbonkit/web`), reached through the front end's link to the kit's package. They cover the ribbon, Settings, About, Licence and the update
 panel; an accessible name and tooltip on every icon-only control (`a11y.test.tsx`, NFR-U-4); the sun
 map, its blend and its labels (FR-914); the page's background colour; the self-reading cycle; the
 `devicePixelRatio` watch; measuring a cell's widest text (FR-620); Settings fitting its content
-(`panelFit.test.tsx`, FR-621); the opacity and its slider and opaque panels (`opacity.test.ts`, `opacity.test.tsx`,
-`panelOpacity.test.tsx`, FR-622); the corner grip (`scaleGrip.test.tsx`, FR-623); every timer the
+(`panelFit.test.tsx`, FR-621); the opacity and its slider and opaque panels (`opacity.test.ts`, `OpacitySlider.test.tsx`,
+`panelOpacity.test.tsx`, FR-622); the corner grip (`ScaleGrip.test.tsx`, `scaleGrip.test.tsx`, FR-623); every timer the
 ribbon schedules against a reasoned allow-list (`timers.test.ts`, NFR-P-4); the setup page's screens,
 keyboard ring and unreachable-program cases. No coverage provider is installed, so no figure is
 claimed.

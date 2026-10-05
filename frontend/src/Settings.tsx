@@ -5,8 +5,7 @@ import { PlaceSearch } from './PlaceSearch'
 import { ArtButton, addClockTip } from './ArtButton'
 import addClockArt from './assets/add-clock.png'
 import donateMark from './assets/donate.png'
-import { OpacitySlider } from './OpacitySlider'
-import { usePanelFit } from '@oernster/ribbonkit'
+import { OpacitySlider, usePanelFit } from '@oernster/ribbonkit'
 
 /** The picture alone does not say pressing it leaves the application, so the tip does. */
 export const donateTip = 'Buy the author a drink (opens your browser)'
@@ -194,7 +193,7 @@ export function Settings({ snapshot, startAdding, reload, onClose, ready = true 
           <MenuGroup key={choice.label} choice={choice} choose={choose} />
         ))}
 
-        <OpacitySlider snapshot={snapshot} refused={refused} then={then} />
+        <OpacitySlider opacity={snapshot.opacity} minOpacity={snapshot.minOpacity} calls={api} refused={refused} then={then} />
 
         <fieldset>
           <legend>Window</legend>

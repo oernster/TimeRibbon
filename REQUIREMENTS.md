@@ -695,7 +695,7 @@ a restart keeps it; closed, the clocks are solid while the desktop shows through
 holding 5 draws the background at 20.
 Verified by: `TestOpacityIsHeldWithinItsBounds` (ribbon); `TestOpacityIsChosenSavedAndShown`
 (application); `TestSettingsRoundTrip` (store); `TestThePagesBackgroundReachesTheWindow`,
-`TestTheWindowIsPaintedClearBelowFullOpacity` (window); `opacity.test.tsx`, `opacity.test.ts` (ribbonkit),
+`TestTheWindowIsPaintedClearBelowFullOpacity` (window); `opacity.test.ts`, `OpacitySlider.test.tsx` (ribbonkit),
 `panelOpacity.test.tsx`, `background.test.ts` (ribbonkit); by hand.
 
 **FR-623 Resizing the clocks** (Should; Amendments 27, 31; OQ-27, OQ-28). A grip in the ribbon's
@@ -723,7 +723,7 @@ Verified by: `TestScaleIsHeldWithinItsBounds`, `TestScaleAfterFollowsTheFarSide`
 `TestAChangeOfScaleTellsThePageToDrawAgain`, `TestEveryChangeFitsTheRibbonAndAnswersTheServicesError`,
 `TestTheGripFollowsTheDesktopsPointerOverThePages`,
 `TestTheGripFollowsThePagesPointerWhereTheDesktopCannotReadIt`, `TestAPressThatMovesNothingKeepsNothing` (window); `TestTheCursorIsWhereWindowsSaysItIs` (desktop, Windows); `TestThePointerIsReadWhereTheRibbonIsPlaced`
-(desktop, macOS and Linux); `scaleGrip.test.tsx`; by hand.
+(desktop, macOS and Linux); `ScaleGrip.test.tsx` (ribbonkit); `scaleGrip.test.tsx`; by hand.
 
 **FR-624 Settings offers every menu choice** (Should; Amendment 28; OQ-29). Settings offers Style,
 Colour, Orientation, Position, Always on top, Pin ribbon and Sun map from the menus' own items, words

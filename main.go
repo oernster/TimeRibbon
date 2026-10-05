@@ -153,7 +153,7 @@ func run(log io.Writer) error {
 		fmt.Fprintf(log, "loading settings: %v\n", err)
 	}
 	var control *window.Control
-	desk := desktop.New(product.App(), func() []menus.Item { return service.TrayMenu(control.Visible()) }, log)
+	desk := desktop.New(product.App(), func() []menus.Item { return control.Offered(service.TrayMenu(control.Visible())) }, log)
 	app, control := newApp(service, window.Config{Service: kitService{service}, Desktop: desk, Log: log, Panels: panels})
 	platform.Prepare(desk, trayIcon, control.ExitWhen)
 	if err := desk.Start(); err != nil {

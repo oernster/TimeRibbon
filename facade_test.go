@@ -84,8 +84,8 @@ func TestTheSnapshotCarriesEveryCellAndTheWindowsReading(t *testing.T) {
 	if got.SunMap.Side != "left" || !got.SunMap.Shown || got.SunMap.Ribbon != wantRibbon || got.SunMap.Map.Width != 480 {
 		t.Errorf("sun map %+v, want the window's layout", got.SunMap)
 	}
-	if len(got.Choices) != 1 || got.Choices[0].Action != string(menus.Pin) || got.Choices[0].Children == nil {
-		t.Errorf("choices %+v, want the service's with never a null list of children", got.Choices)
+	if len(got.Choices) != 1 || got.Choices[0].Action != string(menus.Pin) || got.Choices[0].Children == nil || !got.Choices[0].Disabled {
+		t.Errorf("choices %+v, want the service's as the window offers them, never a null list of children", got.Choices)
 	}
 	if want := (markDTO{Label: "London", Latitude: 51.5, Longitude: -0.1}); !got.SunMap.On || len(got.SunMap.Marks) != 1 || got.SunMap.Marks[0] != want {
 		t.Errorf("sun map %v with marks %+v, want it on with London's", got.SunMap.On, got.SunMap.Marks)

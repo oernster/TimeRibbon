@@ -221,8 +221,11 @@ Both menus are the kit's native popups. Their items have one home,
 `internal/application/menus.go` and `menu_choices.go`, built from the kit's `menus` package (the
 `Item` type and the actions every ribbon offers). Settings offers every menu choice from the same
 items: `Service.SettingsChoices` answers them; `TestEveryMenuChoiceIsOfferedBySettings` fails for a
-menu choice Settings lacks. The window carries out every ribbon's actions itself and hands any other,
-such as Add clock, Style or Sun map, to TimeRibbon's `actOn`.
+menu choice Settings lacks. The tray menu (in `main.go`) and the Settings choices (in the snapshot)
+pass through the kit's `Control.Offered` as the right-click menu does, so a Position item that would
+leave the ribbon where it stands is greyed in all three (FR-408). The window carries out every
+ribbon's actions itself and hands any other, such as Add clock, Style or Sun map, to TimeRibbon's
+`actOn`.
 
 ## Help, About and Licence
 

@@ -52,6 +52,7 @@ type windowControl interface {
 	ShowPanel(panel string)
 	PageMeasured()
 	Shown() window.Shown
+	Offered(items []menus.Item) []menus.Item
 	SetColour(colour string) error
 	SetOrientation(orientation string) error
 }
@@ -87,7 +88,7 @@ func (a *App) Snapshot() snapshotDTO {
 	shown.Collapsed = seen.Collapsed
 	shown.SunMap.Side, shown.SunMap.Shown = string(seen.PullOutSide), seen.PullOutShown
 	shown.SunMap.Ribbon, shown.SunMap.Map = seen.Ribbon, seen.PullOut
-	shown.Choices = choicesOf(a.service.SettingsChoices())
+	shown.Choices = choicesOf(a.control.Offered(a.service.SettingsChoices()))
 	return shown
 }
 

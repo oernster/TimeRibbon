@@ -61,7 +61,7 @@ interface ChoiceProps {
 
 /**
  * MenuGroup draws one of the menus' submenus (FR-624): one choice among ticked items as radio
- * buttons, a set of moves such as Position as plain buttons.
+ * buttons, a set of moves such as Position as plain buttons; a disabled item greyed (FR-408).
  */
 function MenuGroup({ choice, choose }: ChoiceProps) {
   return (
@@ -70,11 +70,11 @@ function MenuGroup({ choice, choose }: ChoiceProps) {
       {choice.children.map((item) =>
         item.checkable ? (
           <label key={item.action}>
-            <input type="radio" name={choice.label} value={item.action} checked={item.checked} onChange={() => choose(item.action)} />
+            <input type="radio" name={choice.label} value={item.action} checked={item.checked} disabled={item.disabled} onChange={() => choose(item.action)} />
             {item.label}
           </label>
         ) : (
-          <button key={item.action} type="button" onClick={() => choose(item.action)}>
+          <button key={item.action} type="button" disabled={item.disabled} onClick={() => choose(item.action)}>
             {item.label}
           </button>
         ),

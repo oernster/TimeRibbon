@@ -47,6 +47,22 @@ describe('Settings', () => {
     }
   })
 
+  it('greys a Position choice that would leave the ribbon where it stands, so pressing it does nothing (FR-408)', async () => {
+    const bridge = installBridge()
+    const shown = snapshot()
+    shown.choices = shown.choices.map((choice) =>
+      choice.label !== 'Position' ? choice : { ...choice, children: choice.children.map((item) => ({ ...item, disabled: item.action === 'top-edge' })) },
+    )
+    await act(async () => {
+      render(<Settings snapshot={shown} startAdding={false} reload={vi.fn()} onClose={vi.fn()} />)
+    })
+    const top = screen.getByText('Centre on top edge') as HTMLButtonElement
+    expect(top.disabled).toBe(true)
+    expect((screen.getByText('Centre on bottom edge') as HTMLButtonElement).disabled).toBe(false)
+    await act(async () => fireEvent.click(top))
+    expect(bridge.Choose).not.toHaveBeenCalled()
+  })
+
   it('offers every date format with the current one chosen, applying one at once (FR-612)', async () => {
     const { bridge } = await open()
     const group = screen.getByText('Date format').closest('fieldset') as HTMLElement

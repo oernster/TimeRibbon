@@ -44,6 +44,7 @@ where they apply.
 | 34 | 2026-10-05 | Ribbons of different products running together never land on each other: a shared occupancy folder of locked entries, the ribbon being placed yields along its edge, then the opposite edge (FR-412). Oliver's rulings of the same day. |
 | 35 | 2026-10-05 | A ribbon against no edge keeps the side its map is on, across drags, displays and restarts, rather than taking the side with more room each time; Oliver found the clocks swapping sides as the ribbon crossed displays (FR-902, FR-903). |
 | 36 | 2026-10-05 | On macOS TimeRibbon keeps its Dock icon: Wails makes the application a regular one as it launches; switching it to an accessory afterwards never removed the icon on a real Mac (FR-101). Oliver's ruling. |
+| 37 | 2026-10-05 | A Position item that would leave the ribbon where it stands is greyed in both menus and in Settings (FR-408). Oliver found Centre on right edge doing nothing beside another ribbon; his ruling: grey only a press that would not move it, not every edge whose centre is taken. |
 
 Source: the initial product specification of 2026-09-27, written under the product's former name,
 plus Oliver's rulings of 2026-09-27: Go with Wails; both orientations in the first release; a setup
@@ -404,18 +405,31 @@ Verified by: by hand; `TestTheRibbonIsSizedByTheScaleThePageIsDrawnAt`,
 `TestTheWindowTakesThePagesRatioOverGTKsScale`, `TestGTKsWindowScaleIsRead` (desktop, Linux);
 `pixelRatio.test.ts` (ribbonkit).
 
-**FR-408 Centre on an edge** (Must; Amendment 8). Both menus shall hold a `Position` submenu offering
-the two edges the ribbon runs along (`Centre on left edge`, `Centre on right edge` when vertical; top
-and bottom when horizontal). Choosing one puts the ribbon flush against that edge of its monitor's
-work area, centred along it, shown and stored (FR-404); while a panel is open it goes there when the
-panel closes. A ribbon kept against its edge while it grows or shrinks across has that place stored
-too.
+**FR-408 Centre on an edge** (Must; Amendments 8, 37). Both menus shall hold a `Position` submenu
+offering the two edges the ribbon runs along (`Centre on left edge`, `Centre on right edge` when
+vertical; top and bottom when horizontal). Choosing one puts the ribbon flush against that edge of its
+monitor's work area, centred along it, shown and stored (FR-404); while a panel is open it goes there
+when the panel closes. A ribbon kept against its edge while it grows or shrinks across has that place
+stored too. An item whose press would leave the ribbon where it was last placed, after FR-412 has kept
+it clear of other ribbons, is greyed in both menus and in Settings and cannot be chosen; an item that
+would move it is offered, even where the centre itself is taken. Every item is offered before the ribbon has
+been placed and while the displays cannot be read.
 Acceptance: a vertical ribbon 196 DIP long on a work area 1032 DIP tall, sent to the left edge, stands
-at the work area's left edge 418 DIP down; it opens there next time.
+at the work area's left edge 418 DIP down; it opens there next time. With another ribbon held at
+(1744, 418) to (1920, 614), a vertical ribbon 286 tall standing above it at (1744, 132) has
+`Centre on right edge` greyed and `Centre on left edge` offered.
 Verified by: `TestAgainstEdgeIsFlushAndCentredAlongTheEdge` (domain);
 `TestToEdgePutsAVerticalRibbonFlushAndKeepsIt`, `TestToEdgeUsesTheDisplayTheRibbonIsOn`,
-`TestToEdgeThatCannotBeSavedMakesRoomForItsNotice`, `TestAPlaceKeptAgainstTheEdgeIsSaved` (arranger);
-`TestPositionOffersTheEdgesAlongTheOrientation` (application); `TestAPositionItemPutsTheRibbonAgainstItsEdge` (window); by hand.
+`TestToEdgeThatCannotBeSavedMakesRoomForItsNotice`, `TestAPlaceKeptAgainstTheEdgeIsSaved`,
+`TestAnEdgeWhoseCentreIsTakenDoesNotMoveARibbonAlreadyBesideIt`,
+`TestAnEdgeMovesARibbonOnlyWhereItStandsElsewhere`,
+`TestAnEdgeIsOfferedWhereItCannotBeKnownWhetherItMoves` (arranger), the first proved by planting a
+check that skips FR-412; `TestOfferedGreysOnlyThePositionItemsThatWouldNotMove` (menus);
+`TestPositionOffersTheEdgesAlongTheOrientation` (application); `TestAPositionItemPutsTheRibbonAgainstItsEdge`,
+`TestEveryMenuGreysAPositionItemThatWouldNotMoveTheRibbon` (window); `TestADisabledItemIsGreyedByWindows`
+(desktop, read back from Windows, proved by planting); `TestADisabledTrayItemIsGreyedByTheHost`
+(desktop, Linux); `TestTheSnapshotCarriesEveryCellAndTheWindowsReading` (facade); `settings.test.tsx`
+(page, proved by planting); by hand.
 
 **FR-409 An orientation's home edge** (Must; Amendment 9). Choosing an orientation puts the ribbon
 against its home edge as FR-408 does: top for horizontal, right for vertical. A choice whose save

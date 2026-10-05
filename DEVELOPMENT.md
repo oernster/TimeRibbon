@@ -216,7 +216,7 @@ check compares it with GitHub's latest release tag, so a development placeholder
 | `main.go` | the composition root; cell sizes, the handle's lane and the panel sizes |
 | `app.go`, `measure.go` | the facade Wails binds: the kit's window embedded, plus TimeRibbon's own calls (the clocks, the sun map, the measured cell width, FR-620) and its menu actions |
 | `kit.go`, `dto.go` | the page and the LICENSE embedded, the service adapted to the window's port; TimeRibbon's half of the wire |
-| `platform_*.go`, `bindings_*.go` | what each platform needs before Wails opens; keeping the bindings run quiet |
+| `trayicon_*.go` | where the tray icon lies on macOS and Linux; none on Windows, whose tray reads the executable's |
 | `*_test.go` in the root | TimeRibbon's half tested over a scripted service and a stand-in window (`fakes_test.go`); the page's calls checked against what is bound (`page_api_test.go`) |
 | `internal/domain`, `internal/application` | TimeRibbon's pure rules (clocks, settings, the sun); its use cases over their ports |
 | `internal/infrastructure` | TimeRibbon's own adapters: the settings store and the time zones |

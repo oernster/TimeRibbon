@@ -111,7 +111,7 @@ says, with the page built. The kit's own macOS and Linux checks are in its TESTI
 | What | macOS | Linux |
 |---|---|---|
 | Tags | `desktop,production` | `desktop,production,webkit2_41` |
-| Go test functions | 148 | 148 |
+| Go test functions | 134 | 134 |
 
 With the platform's tags in `TAGS`, run each and read its exit code:
 

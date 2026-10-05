@@ -17,15 +17,8 @@ const (
 // vertical one. Against no edge it is the side facing the more room in work; at an equal room, below
 // a horizontal ribbon and left of a vertical one, the side away from each home edge.
 func InnerSide(ribbon Rect, work Rect, vertical bool, edge Edge) Edge {
-	switch edge {
-	case Top:
-		return Bottom
-	case Bottom:
-		return Top
-	case Left:
-		return Right
-	case Right:
-		return Left
+	if inner := Opposite(edge); inner != "" {
+		return inner
 	}
 	if vertical {
 		if work.Right-ribbon.Right > ribbon.Left-work.Left {

@@ -33,8 +33,9 @@ anywhere on any monitor.
   Manchester can wear London's clock.
 - **Stays out of the way.** No title bar, border or taskbar button; its icon sits in the notification
   area, menu bar or tray. The icon's menu and the ribbon's right-click menu offer Add clock,
-  Settings, style, colour, orientation, Position, Always on top, Pin ribbon, Sun map, Help and Exit.
-  Hiding the ribbon leaves TimeRibbon running. Launching it again shows or hides the ribbon, so one
+  Settings, style, colour, orientation, Position, Always on top, Pin ribbon, Sun map, Help, Hide and
+  Exit; while the ribbon is hidden the icon offers Show in place of Hide. Hiding the ribbon leaves
+  TimeRibbon running. Launching it again shows or hides the ribbon, so one
   launcher button (a Stream Deck's, say) does both.
 - **Unpinned, it waits as a thin tab** against the edge it stands on, opening when the pointer rests
   on it without taking the keyboard. Dragged away from every edge it stays in full; dropped near one

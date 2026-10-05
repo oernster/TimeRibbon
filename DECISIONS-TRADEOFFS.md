@@ -31,9 +31,9 @@ second product built on it.
 - **Rather than:** copying TimeRibbon's desktop code into each new ribbon.
 - **Gains:** a desktop fix lands once for every ribbon; two ribbons running together keep off each
   other through a folder they share (FR-412).
-- **Costs:** a boundary to keep clean (structural tests hold the kit free of TimeRibbon), names chosen
-  for any product rather than this one and an npm link for the page's half. It is carved inside this
-  repository first, under TimeRibbon's own gate, then lifted into its own.
+- **Costs:** names chosen for any product rather than this one; a change to the ribbon is made and
+  tagged in the kit before TimeRibbon can ship it, with both halves of the kit (Go and the page) held
+  to one tag by a test.
 
 ### Requirements before code
 
@@ -257,7 +257,7 @@ value; hardware acceleration is off as Wails would choose.
 
 - **Rather than:** a tray library that could not rebuild its menu as it opens and kept global state.
 - **Gains:** the menu always shows the current ticks, with no sandbox permission of its own.
-- **Costs:** the tray code is TimeRibbon's own to maintain.
+- **Costs:** the tray code is the kit's own to maintain.
 
 ## The unpinned ribbon
 

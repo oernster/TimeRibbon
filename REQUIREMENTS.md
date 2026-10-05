@@ -466,8 +466,8 @@ module (TimeRibbon, WeatherRibbon) running for the same user keeps out of the ot
 - Only the ribbon being placed moves. A placed ribbon never moves because another arrives, moves or
   grows; nothing is checked while a drag lasts, only where it ends.
 - An entry whose lock is no longer held is ignored, since its ribbon has gone however it ended; it is
-  removed by whichever ribbon next finds it so. A missing file means no other ribbon; an unreadable one means the same,
-  with a line in the log.
+  removed by whichever ribbon next finds it so. A missing folder means no other ribbon; a folder or
+  an entry that cannot be read is passed over the same way, with a line in the log.
 Acceptance, on a work area 1920 by 1032 with TimeRibbon vertical, 176 by 196, at the right edge from
 (1744, 418) to (1920, 614):
 - WeatherRibbon vertical, 176 by 300, launched with no place stored, would centre from 366 to 666;
@@ -547,7 +547,7 @@ Verified by: `TestIsNewerVersionComparesDottedIntegers`, `TestEachSystemDownload
 `TestANewerReleaseIsOffered`, `TestAnUnreachableSourceOffersNothing`,
 `TestTheRunningVersionIsNotOffered`, `TestASkippedReleaseIsOfferedOnlyWhenAskedFor` (release);
 `TestSkippingKeepsTheVersion` (application); `TestTheLatestReleaseIsReadWithOnlyWholeAssets`,
-`TestEveryUnusableAnswerIsAnError`, `TestTheProductionSourceAsksThisRepositoryAndGivesUp` (update);
+`TestEveryUnusableAnswerIsAnError`, `TestTheProductionSourceAsksTheNamedRepositoryAndGivesUp` (update);
 `TestAnAutomaticCheckSpeaksOnlyOfANewRelease`, `TestAManualCheckAlwaysAnswers`,
 `TestTheWatchChecksAfterTheStartThenAtEachIntervalUntilTheEnd`, `TestDownloadOpensWhatWasOffered`,
 `TestSkipKeepsTheOfferedVersion` (window); `TestSettingsRoundTrip` (store); `Help.test.tsx` (ribbonkit); the real
@@ -986,7 +986,7 @@ with `wails build`, then the setup program embedding it (OQ-3): a second Wails a
 Setup and FR-801 to FR-811 are Windows only (Amendment 13). macOS ships as a DMG signed with a
 Developer ID and notarised (`builddmg.sh`); Linux as a Flatpak for the user (`build_flatpak.sh`),
 granted X11 with IPC, the GPU, the tray host's and single-instance lock's bus names, the autostart
-folder and the network for FR-509.
+folder, the occupancy folder of FR-412 and the network for FR-509.
 
 **FR-801 The screen the machine calls for** (Must). With `-uninstall` setup opens on Uninstall;
 otherwise Install where nothing is installed, Installed (Repair, Reinstall, Uninstall) over the same
@@ -1170,7 +1170,7 @@ None is open. OQ-1 to OQ-5 were ruled on 2026-09-27, OQ-6 to OQ-9 on 2026-09-28 
 | OQ-29 | Which menu items does Settings offer? | Every choice; commands stay on the menus | FR-624 |
 | OQ-30 | How wide is Settings? | 900 DIP, capped; the others 560 | FR-625 |
 | OQ-31 | Where does the Add clock picture go? | Beside the place search, which stays open | FR-626 |
-| OQ-32 | How does one ribbon learn where another is? | A per-user occupancy file the module owns | FR-412 |
+| OQ-32 | How does one ribbon learn where another is? | A per-user occupancy folder the module owns | FR-412 |
 | OQ-33 | Where does a ribbon go when its place is taken? | The nearest free place along the same edge | FR-412 |
 | OQ-34 | Which ribbon moves? | Only the one being placed; a placed ribbon never | FR-412 |
 | OQ-35 | And with no room on that edge? | The opposite edge, by the same rule | FR-412 |

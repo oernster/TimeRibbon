@@ -43,6 +43,7 @@ where they apply.
 | 33 | 2026-10-04 | On macOS and Linux the spare area of the window beside a ribbon shorter than its map answers a right-click and a drag as the ribbon does (FR-913); Oliver found it answering neither. |
 | 34 | 2026-10-05 | Ribbons of different products running together never land on each other: a shared occupancy folder of locked entries, the ribbon being placed yields along its edge, then the opposite edge (FR-412). Oliver's rulings of the same day. |
 | 35 | 2026-10-05 | A ribbon against no edge keeps the side its map is on, across drags, displays and restarts, rather than taking the side with more room each time; Oliver found the clocks swapping sides as the ribbon crossed displays (FR-902, FR-903). |
+| 36 | 2026-10-05 | On macOS TimeRibbon keeps its Dock icon: Wails makes the application a regular one as it launches; switching it to an accessory afterwards never removed the icon on a real Mac (FR-101). Oliver's ruling. |
 
 Source: the initial product specification of 2026-09-27, written under the product's former name,
 plus Oliver's rulings of 2026-09-27: Go with Wails; both orientations in the first release; a setup
@@ -221,8 +222,9 @@ build.
 
 ### 3.1 The ribbon
 
-**FR-101 Frameless ribbon** (Must). The ribbon shall be a window with no title bar, no system border
-and no taskbar or Dock button. Verified by: by hand.
+**FR-101 Frameless ribbon** (Must; Amendment 36). The ribbon shall be a window with no title bar, no
+system border and no taskbar button on Windows or Linux. On macOS TimeRibbon keeps its Dock icon.
+Verified by: `TestTheRibbonIsKeptOffTheTaskbar` (desktop, Linux); by hand.
 
 **FR-102 Cells in time order** (Must; Amendment 6). The ribbon shall show one cell per clock, left to
 right or top to bottom, running east from Greenwich: places level with or ahead of UTC by ascending

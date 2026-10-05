@@ -6,8 +6,6 @@ package desktop
 #include <stdlib.h>
 #include <stdint.h>
 void *ribbon_find(const char *title);
-void ribbon_hide_from_dock(void);
-int ribbon_skips_dock(void);
 void ribbon_place(void *ribbon, int x, int y, int width, int height);
 void ribbon_frame(void *ribbon, int *x, int *y, int *width, int *height);
 int ribbon_pointer_inside(void *ribbon);
@@ -42,12 +40,10 @@ func FindRibbon(_, name string) (Window, error) {
 	})
 }
 
-// HideFromTaskbar takes TimeRibbon off the Dock and out of the application switcher (FR-101).
-// macOS decides that for the application rather than for one window, which suits a program whose
-// only window is the ribbon.
-func HideFromTaskbar(ribbon Window) error {
-	return onWindow(ribbon, func(unsafe.Pointer) { C.ribbon_hide_from_dock() })
-}
+// HideFromTaskbar does nothing on macOS, where TimeRibbon keeps its Dock icon (FR-101, Amendment
+// 36): Wails makes the application a regular one as it launches; making it an accessory after that
+// never took the icon away on a real Mac.
+func HideFromTaskbar(Window) error { return nil }
 
 // KeepOnDisplays does nothing on macOS, where AppKit carries a drag through and offers no say in
 // it while it lasts. A ribbon dragged partly off every display is put back when the move ends,
@@ -99,13 +95,6 @@ func onWindow(ribbon Window, act func(unsafe.Pointer)) error {
 	}
 	cocoamain.Do(func() { act(window) })
 	return nil
-}
-
-// skipsTaskbar answers whether TimeRibbon is kept off the Dock and the application switcher.
-func skipsTaskbar(ribbon Window) (bool, error) {
-	var skips bool
-	err := onWindow(ribbon, func(unsafe.Pointer) { skips = C.ribbon_skips_dock() != 0 })
-	return skips, err
 }
 
 // size answers the ribbon's size in points.

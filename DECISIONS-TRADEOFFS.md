@@ -177,14 +177,15 @@ What macOS and Linux share is written once for both.
 - **Gains:** the ribbon goes exactly where it is put; the two platforms cannot drift apart.
 - **Costs:** three platforms' worth of desktop code; cgo on macOS and Linux.
 
-### No taskbar or Dock button; native menus
+### No taskbar button; native menus
 
-The window's taskbar or Dock button is removed before it is first shown. Both menus are the system's
-own, built from one shared list.
+On Windows and Linux the window's taskbar button is removed before it is first shown; on macOS the
+Dock icon stays (Amendment 36). Both menus are the system's own, built from one shared list.
 
 - **Rather than:** accepting the button; a menu drawn in the page.
 - **Gains:** the ribbon stays out of the way; its small window never clips a menu.
-- **Costs:** it rests on Wails' internals, so it is checked by hand on any Wails upgrade.
+- **Costs:** it rests on Wails' internals, so it is checked by hand on any Wails upgrade. On macOS
+  Wails makes the application a regular one as it launches, which nothing afterwards undid.
 
 ### A home edge per orientation; vertical on the right at first
 

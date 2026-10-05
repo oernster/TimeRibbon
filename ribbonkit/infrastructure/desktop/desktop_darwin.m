@@ -36,29 +36,6 @@ void *ribbon_find(const char *title)
     return NULL;
 }
 
-// ribbon_hide_from_dock makes TimeRibbon an accessory: no Dock icon and no place in the application
-// switcher. Wails makes it a regular application in applicationWillFinishLaunching, and nothing
-// orders this call after that, so where launching has not finished it is made an accessory again
-// once it has (measured 2026-10-05: the Dock icon showed with nothing in the log).
-void ribbon_hide_from_dock(void)
-{
-    [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory];
-    if ([[NSRunningApplication currentApplication] isFinishedLaunching]) {
-        return;
-    }
-    [[NSNotificationCenter defaultCenter] addObserverForName:NSApplicationDidFinishLaunchingNotification
-                                                      object:nil
-                                                       queue:[NSOperationQueue mainQueue]
-                                                  usingBlock:^(NSNotification *note) {
-        [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory];
-    }];
-}
-
-int ribbon_skips_dock(void)
-{
-    return [NSApp activationPolicy] == NSApplicationActivationPolicyAccessory;
-}
-
 // ribbon_place stands the window with its top-left corner at x, y at width by height.
 void ribbon_place(void *ribbon, int x, int y, int width, int height)
 {

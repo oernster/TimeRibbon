@@ -95,18 +95,6 @@ func settled(ribbon Window, at placement.Point, want placement.Size) (placement.
 	return stands, got
 }
 
-// FR-101.
-func TestTheRibbonIsKeptOffTheTaskbar(t *testing.T) {
-	ribbon := newTestWindow(testApp.Name)
-	defer closeTestWindow(ribbon)
-	if err := HideFromTaskbar(ribbon); err != nil {
-		t.Fatal(err)
-	}
-	if skips, err := skipsTaskbar(ribbon); err != nil || !skips {
-		t.Errorf("skips the taskbar %v (%v)", skips, err)
-	}
-}
-
 // FR-401: the threshold is the desktop's own, which is never zero.
 func TestTheDragThresholdIsTheDesktopsOwn(t *testing.T) {
 	got := DragThreshold()

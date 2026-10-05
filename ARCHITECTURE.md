@@ -350,7 +350,8 @@ native menus and the broadcasts (a message-only window would not hear them). It 
 than blocking Windows' thread; the window's `listen` loop acts on it. Both recover a panic and log it.
 
 Both menus are native popups, so the small window never clips them. Their items have one home,
-`internal/application/menus.go` and `menu_choices.go`; identifiers are numbered depth first
+`internal/application/menus.go` and `menu_choices.go`, built from the kit's `ribbonkit/application/menus`
+(the `Item` type and the actions every ribbon offers); identifiers are numbered depth first
 (`desktop/menu.go`). Settings offers every menu choice from the same items: `Service.SettingsChoices`
 answers them, the page hands the chosen action to `Choose` (the window's `choices.go`), which refuses anything not
 offered (FR-624). The window carries out every ribbon's actions itself and hands any other, such as

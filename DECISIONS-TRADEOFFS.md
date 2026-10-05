@@ -21,6 +21,19 @@ Each clock is a time zone with a label. TimeRibbon shows the time and date there
 - **Costs:** Wails offers one window and falls short at placing it, so the desktop is reached
   directly on every platform.
 
+### The ribbon's desktop behaviour is a module of its own
+
+Everything about being a ribbon on a desktop (placing, dragging, snapping, the tab, the grip, opacity,
+the tray, scaling, one copy at a time, sign-in, the update check, setup) lives in `ribbonkit`, which
+names no product; TimeRibbon holds the clocks, the sun map and the composition. WeatherRibbon is the
+second product built on it.
+
+- **Rather than:** copying TimeRibbon's desktop code into each new ribbon.
+- **Gains:** a desktop fix lands once for every ribbon.
+- **Costs:** a boundary to keep clean (structural tests hold the kit free of TimeRibbon), names chosen
+  for any product rather than this one and an npm link for the page's half. It is carved inside this
+  repository first, under TimeRibbon's own gate, then lifted into its own.
+
 ### Requirements before code
 
 Every requirement was agreed before the first line of code, each naming its test; a later change

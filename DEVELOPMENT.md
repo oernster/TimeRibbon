@@ -198,9 +198,11 @@ check compares it with GitHub's latest release tag, so a development placeholder
 | `kit.go`, `dto.go` | the page and the LICENSE embedded, the service adapted to the window's port; TimeRibbon's half of the wire |
 | `platform_*.go`, `bindings_*.go` | what each platform needs before Wails opens; keeping the bindings run quiet |
 | `*_test.go` in the root | TimeRibbon's half tested over a scripted service and a stand-in window (`fakes_test.go`); the page's calls checked against what is bound (`page_api_test.go`) |
-| `ribbonkit/ui/window` | the ribbon's window: its life and the desktop's events, the tab, the map beside it, panels, the grip, opacity, menu choices, the update check, Help, the first showing and the Wails options (`run.go`), each with its tests |
-| `internal/domain`, `internal/application` | the pure rules; the use cases over their ports |
-| `internal/infrastructure` | the adapters; a file's platform is in its name (`_windows`, `_linux`, `_darwin`, `_unix`) |
+| `ribbonkit/ui/window` | the ribbon's window: its life and the desktop's events, the tab, the pull out beside it, panels, the grip, opacity, menu choices, the update check, Help, the first showing and the Wails options (`run.go`), each with its tests |
+| `internal/domain`, `internal/application` | TimeRibbon's pure rules (clocks, settings, the sun); its use cases over their ports |
+| `internal/infrastructure` | TimeRibbon's own adapters: the settings store and the time zones |
+| `ribbonkit/domain`, `ribbonkit/application` | ribbonkit's pure rules (placement, the ribbon's choices, hovering) and its use cases (arranging the ribbon, the menus, the update check, the desktop's port) |
+| `ribbonkit/infrastructure` | ribbonkit's adapters: the desktop, displays, sign-in start, the log, the data folder, the update check and the install policy; a file's platform is in its name (`_windows`, `_linux`, `_darwin`, `_unix`) |
 | `internal/product` | names, version, donation address, author, sign-in label, credits |
 | `build.ps1`, `test.ps1`, `VERSION`, `stamp_version.py` | the Windows build; the gate; the version; the site stamp |
 | `builddmg.sh`, `build_flatpak.sh`, `cleanup_flatpak.sh` | the macOS DMG; the Flatpak and its removal |

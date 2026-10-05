@@ -41,6 +41,7 @@ where they apply.
 | 31 | 2026-10-04 | A change of scale grows and shrinks the ribbon from its top-left corner; a change of clocks still re-centres it (FR-104, FR-623). |
 | 32 | 2026-10-04 | The document's wording is consolidated (Oliver: "Make the docs concise"). Each requirement now states what holds after its amendments and cites them by number; the measurements behind section 2.3 are summarised. No requirement, acceptance or verifying test was removed or changed in meaning. |
 | 33 | 2026-10-04 | On macOS and Linux the spare area of the window beside a ribbon shorter than its map answers a right-click and a drag as the ribbon does (FR-913); Oliver found it answering neither. |
+| 34 | 2026-10-05 | Ribbons of different products running together never land on each other: a shared occupancy file, the ribbon being placed yields along its edge, then the opposite edge (FR-412). Oliver's rulings of the same day. |
 
 Source: the initial product specification of 2026-09-27, written under the product's former name,
 plus Oliver's rulings of 2026-09-27: Go with Wails; both orientations in the first release; a setup
@@ -441,6 +442,36 @@ Acceptance: a vertical ribbon flush against the left edge of `\\.\DISPLAY2`, dra
 Verified by: `TestAnUnknownRememberedEdgeIsForgotten` (ribbon); `TestTheLastEdgeIsRemembered`,
 `TestRearrangingClampsAndSavesNothing` (arranger); `TestSettingsRoundTrip`,
 `TestAnUnreadableLastEdgeIsNone` (store).
+
+**FR-412 Ribbons never land on each other** (Must; Amendment 34). Every product built on the shared
+module (TimeRibbon, WeatherRibbon) running for the same user keeps out of the others' way:
+- Each running ribbon shall keep its entry in one occupancy file per user, shared by every such
+  product and owned by the module: its product, its process, its display and the rectangles it
+  occupies in physical pixels, being the full ribbon (whose tab lies inside it) and its pull out
+  while shown. A hidden ribbon keeps its entry, since it returns where it was. The entry is replaced
+  whenever the ribbon is placed and removed when it exits.
+- When a ribbon is placed (at launch, by default or restored, by a drop, a snap, a Position item, a
+  choice of orientation or a change of size) and its rectangle would overlap one held by another
+  running ribbon, it shall stand instead at the nearest place along the edge it stands against (along
+  its own length where it stands against none) at which it overlaps none, still flush; touching is
+  not overlapping. Of two places equally near, the one towards the top or left wins. Where that edge
+  has no such place, the opposite edge along its orientation is tried by the same rule.
+- Only the ribbon being placed moves. A placed ribbon never moves because another arrives, moves or
+  grows; nothing is checked while a drag lasts, only where it ends.
+- An entry is ignored and dropped at the next write once its process has gone or is no longer that
+  product. A missing file means no other ribbon; an unreadable one means the same,
+  with a line in the log.
+Acceptance, on a work area 1920 by 1032 with TimeRibbon vertical, 176 by 196, at the right edge from
+(1744, 418) to (1920, 614):
+- WeatherRibbon vertical, 176 by 300, launched with no place stored, would centre from 366 to 666;
+  it stands from (1744, 118) to (1920, 418), above, which ties with below at 248 and wins as the top.
+- WeatherRibbon dropped against the right edge with its top at 500 stands from 614 to 914 (114 away
+  rather than 382 above); that place is stored.
+- WeatherRibbon 900 tall finds no free 900 on the right edge (418 above, 418 below), so it stands
+  against the left edge from (0, 66) to (176, 966).
+- With TimeRibbon's sun map shown from (1264, 396) to (1744, 636), WeatherRibbon, 176 by 300, dropped
+  against no edge at (1400, 300) stands at (1400, 96), 204 up rather than 336 down.
+Verified by: to be written with the module's occupancy (A10); by hand with both products running.
 
 ### 3.5 Tray and window behaviour
 
@@ -992,7 +1023,7 @@ Verified by: `setupScreens.test.ts`.
 
 The packages as built, their layering and the tests that hold it are in ARCHITECTURE.md, Layers. The
 sketch drawn before the first build had one `internal/infrastructure/windows` package, built as
-`desktop`, `monitors` and `startup`.
+`desktop`, `monitors` and `startup`, which now live in `ribbonkit/infrastructure`.
 
 ---
 
@@ -1045,7 +1076,7 @@ hand on real hardware, then artwork and polish.
 
 | Priority | Content |
 |---|---|
-| **Must** | FR-101 to FR-107, FR-201 to FR-209, FR-301 to FR-305, FR-401 to FR-409, FR-501, FR-502, FR-504 to FR-508, FR-601 to FR-604, FR-607 to FR-610, FR-620, FR-701 to FR-707, FR-801 to FR-811, NFR-P-1 to NFR-P-4, NFR-U-1 to NFR-U-5, NFR-S-1 to NFR-S-3, NFR-M-1, NFR-M-2, NFR-C-1, NFR-O-1 |
+| **Must** | FR-101 to FR-107, FR-201 to FR-209, FR-301 to FR-305, FR-401 to FR-409, FR-412, FR-501, FR-502, FR-504 to FR-508, FR-601 to FR-604, FR-607 to FR-610, FR-620, FR-701 to FR-707, FR-801 to FR-811, NFR-P-1 to NFR-P-4, NFR-U-1 to NFR-U-5, NFR-S-1 to NFR-S-3, NFR-M-1, NFR-M-2, NFR-C-1, NFR-O-1 |
 | **Should** | FR-108, FR-307, FR-410, FR-411, FR-503, FR-509, FR-605, FR-606, FR-611 to FR-619, FR-621 to FR-626, FR-901 to FR-914, NFR-P-5, NFR-C-2 |
 | **Could** | FR-308 |
 | **Withdrawn** | FR-306 (Amendment 6) |
@@ -1081,7 +1112,7 @@ where no test can hold it, its `Verified by:` line says it is checked by hand.
 ## 11. Open questions
 
 None is open. OQ-1 to OQ-5 were ruled on 2026-09-27, OQ-6 to OQ-9 on 2026-09-28 and OQ-10 to OQ-31 on
-2026-09-29, when OQ-6 was also reversed.
+2026-09-29, when OQ-6 was also reversed; OQ-32 to OQ-36 on 2026-10-05.
 
 | ID | Question | Ruling | Held by |
 |---|---|---|---|
@@ -1116,3 +1147,8 @@ None is open. OQ-1 to OQ-5 were ruled on 2026-09-27, OQ-6 to OQ-9 on 2026-09-28 
 | OQ-29 | Which menu items does Settings offer? | Every choice; commands stay on the menus | FR-624 |
 | OQ-30 | How wide is Settings? | 900 DIP, capped; the others 560 | FR-625 |
 | OQ-31 | Where does the Add clock picture go? | Beside the place search, which stays open | FR-626 |
+| OQ-32 | How does one ribbon learn where another is? | A per-user occupancy file the module owns | FR-412 |
+| OQ-33 | Where does a ribbon go when its place is taken? | The nearest free place along the same edge | FR-412 |
+| OQ-34 | Which ribbon moves? | Only the one being placed; a placed ribbon never | FR-412 |
+| OQ-35 | And with no room on that edge? | The opposite edge, by the same rule | FR-412 |
+| OQ-36 | Is a shown pull out occupied? | Yes, while shown | FR-412 |

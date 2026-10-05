@@ -5,6 +5,7 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/oernster/ribbonkit/domain/localtime"
 	"github.com/oernster/ribbonkit/domain/ribbon"
 	"github.com/oernster/timeribbon/internal/domain/clock"
 )
@@ -33,7 +34,7 @@ func TestDefaultsAreDigitalTwentyFourHourVerticalAndNotOnTop(t *testing.T) {
 	if got.Choices != ribbon.Defaults() {
 		t.Errorf("the ribbon's choices are %+v, want the kit's defaults", got.Choices)
 	}
-	if got.Style != Digital || got.Size != Large || got.Format != clock.TwentyFourHour ||
+	if got.Style != Digital || got.Size != Large || got.Format != localtime.TwentyFourHour ||
 		got.DateFormat != clock.DayMonth || got.SunMap || got.PullOut || len(got.Clocks) != 0 {
 		t.Errorf("got %+v", got)
 	}
@@ -53,8 +54,8 @@ func TestUnknownChoicesAreNormalisedToDefaults(t *testing.T) {
 	if got.Orientation != want.Orientation || got.Opacity != ribbon.MinOpacity {
 		t.Errorf("the ribbon's choices were not normalised: %+v", got.Choices)
 	}
-	known := Settings{Style: Analogue, Size: Small, Format: clock.TwelveHour, DateFormat: clock.YearMonthDay}
-	if kept := known.Normalised(); kept.Style != Analogue || kept.Size != Small || kept.Format != clock.TwelveHour ||
+	known := Settings{Style: Analogue, Size: Small, Format: localtime.TwelveHour, DateFormat: clock.YearMonthDay}
+	if kept := known.Normalised(); kept.Style != Analogue || kept.Size != Small || kept.Format != localtime.TwelveHour ||
 		kept.DateFormat != clock.YearMonthDay {
 		t.Errorf("known choices were changed: %+v", kept)
 	}

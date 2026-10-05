@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/oernster/ribbonkit/domain/localtime"
 	"github.com/oernster/ribbonkit/domain/placement"
 	"github.com/oernster/ribbonkit/domain/ribbon"
 	"github.com/oernster/timeribbon/internal/domain/clock"
@@ -46,7 +47,7 @@ func full() settings.Settings {
 			Opacity:  55, Scale: 150,
 			PullOutSide: placement.Right,
 		},
-		Style: settings.Analogue, Size: settings.Small, Format: clock.TwelveHour, DateFormat: clock.MonthDayYear,
+		Style: settings.Analogue, Size: settings.Small, Format: localtime.TwelveHour, DateFormat: clock.MonthDayYear,
 		SunMap: true, PullOut: true,
 	}
 	s = s.WithClockAdded(settings.Entry{ID: "a1", Zone: "America/New_York", Label: "New York"})

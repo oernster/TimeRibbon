@@ -303,14 +303,14 @@ Verified by: `TestYearBoundaryDiffersByZone` (domain).
 
 **FR-206 Time format** (Must). 24-hour times have two-digit hours (`06:37`); 12-hour times unpadded
 hours with `AM` or `PM` (`6:37 AM`, `12:00 AM` at midnight, `12:00 PM` at noon).
-Verified by: `TestTwelveAndTwentyFourHourFormats` (domain).
+Verified by: `TestTwelveAndTwentyFourHourFormats` (ribbonkit's localtime).
 
 **FR-207 Injected instant** (Must). No domain or application code shall read the wall clock.
 Verified by: `TestDomainIsPure` (structural), proved by a planted `time.Now()`.
 
 **FR-208 Minute-aligned updates** (Must). While shown, every cell shall refresh at each minute
 boundary, each refresh scheduled from the current time.
-Verified by: `TestNextRefreshIsTheNextMinuteBoundary` (domain); NFR-P-2.
+Verified by: `TestNextRefreshIsTheNextMinuteBoundary` (ribbonkit's localtime); NFR-P-2.
 
 **FR-209 Clock change and resume** (Must). When the system's time or zone changes or it resumes from
 sleep, every cell shall refresh and the next boundary be rescheduled.
@@ -347,7 +347,7 @@ Verified by: `TestRemovingAClockClosesTheGap` (domain); `settings.test.tsx`.
 
 **FR-307 Label length** (Should). A label holds at most 32 characters; a cell too narrow ends it with
 an ellipsis and shows it whole as a tooltip.
-Verified by: `TestLabelIsCappedAt32Characters` (domain); no test yet for the ellipsis and tooltip.
+Verified by: `TestLabelIsCappedAt32Characters` (ribbonkit's ribbon); no test yet for the ellipsis and tooltip.
 
 **FR-308 Duplicate zones** (Could). A zone may be used by more than one clock (`London`, `Brighton`).
 Verified by: `TestTheSameZoneMayBeAddedTwice` (application).

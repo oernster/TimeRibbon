@@ -4,6 +4,7 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/oernster/ribbonkit/domain/localtime"
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
@@ -20,7 +21,7 @@ func TestTheMeasurementRoundTrip(t *testing.T) {
 	if err := app.SetMeasured(measuredDTO{Size: "small", Style: "analogue", Format: "12h", DateFormat: "ymd", CellWidth: 181}); err != nil {
 		t.Fatal(err)
 	}
-	want := application.Measured{Size: settings.Small, Style: settings.Analogue, Format: clock.TwelveHour, DateFormat: clock.YearMonthDay, CellWidth: 181}
+	want := application.Measured{Size: settings.Small, Style: settings.Analogue, Format: localtime.TwelveHour, DateFormat: clock.YearMonthDay, CellWidth: 181}
 	if service.measured != want {
 		t.Errorf("service was handed %+v, want %+v", service.measured, want)
 	}

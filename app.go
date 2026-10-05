@@ -8,6 +8,7 @@ package main
 
 import (
 	"github.com/oernster/ribbonkit/application/menus"
+	"github.com/oernster/ribbonkit/domain/localtime"
 	"github.com/oernster/ribbonkit/ui/window"
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/internal/domain/clock"
@@ -31,7 +32,7 @@ type ribbonService interface {
 	SearchPlaces(query string) []application.Place
 	SetStyle(style settings.Style) error
 	SetSize(size settings.Size) error
-	SetFormat(format clock.Format) error
+	SetFormat(format localtime.Format) error
 	SetDateFormat(dateFormat clock.DateFormat) error
 	SetSunMap(on bool) error
 	DismissNotices()
@@ -133,7 +134,7 @@ func (a *App) SetSize(size string) error {
 
 // SetFormat chooses 12-hour or 24-hour (FR-206).
 func (a *App) SetFormat(format string) error {
-	return a.control.Refitted(a.service.SetFormat(clock.Format(format)))
+	return a.control.Refitted(a.service.SetFormat(localtime.Format(format)))
 }
 
 // SetDateFormat chooses how every date is written (FR-612).

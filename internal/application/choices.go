@@ -3,6 +3,7 @@ package application
 import (
 	"fmt"
 
+	"github.com/oernster/ribbonkit/domain/localtime"
 	"github.com/oernster/ribbonkit/domain/ribbon"
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
@@ -30,8 +31,8 @@ func (s *Service) SetColour(colour ribbon.Colour) error {
 }
 
 // SetFormat chooses 12-hour or 24-hour time (FR-206).
-func (s *Service) SetFormat(format clock.Format) error {
-	return choose(s, format, func(c *settings.Settings) *clock.Format { return &c.Format })
+func (s *Service) SetFormat(format localtime.Format) error {
+	return choose(s, format, func(c *settings.Settings) *localtime.Format { return &c.Format })
 }
 
 // SetDateFormat chooses how every date is written (FR-612).

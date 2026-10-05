@@ -9,6 +9,7 @@ import (
 	"errors"
 	"slices"
 
+	"github.com/oernster/ribbonkit/domain/localtime"
 	"github.com/oernster/ribbonkit/domain/ribbon"
 	"github.com/oernster/timeribbon/internal/domain/clock"
 )
@@ -55,7 +56,7 @@ type Settings struct {
 	ribbon.Choices
 	Style      Style
 	Size       Size
-	Format     clock.Format
+	Format     localtime.Format
 	DateFormat clock.DateFormat
 	// SunMap shows the world map lit by day beside the ribbon (FR-901); PullOut keeps a vertical
 	// ribbon's map pulled out (FR-903). Both are off on a first run.
@@ -72,7 +73,7 @@ func Defaults() Settings {
 		Choices:    ribbon.Defaults(),
 		Style:      Digital,
 		Size:       Large,
-		Format:     clock.TwentyFourHour,
+		Format:     localtime.TwentyFourHour,
 		DateFormat: clock.DayMonth,
 	}
 }
@@ -88,7 +89,7 @@ func (s Settings) Normalised() Settings {
 	if s.Size != Large && s.Size != Small {
 		s.Size = defaults.Size
 	}
-	if s.Format != clock.TwentyFourHour && s.Format != clock.TwelveHour {
+	if !slices.Contains(localtime.Formats, s.Format) {
 		s.Format = defaults.Format
 	}
 	if !slices.Contains(clock.DateFormats, s.DateFormat) {

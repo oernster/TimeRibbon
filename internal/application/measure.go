@@ -3,6 +3,7 @@ package application
 import (
 	"fmt"
 
+	"github.com/oernster/ribbonkit/domain/localtime"
 	"github.com/oernster/ribbonkit/domain/placement"
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
@@ -14,7 +15,7 @@ import (
 type Measured struct {
 	Size       settings.Size
 	Style      settings.Style
-	Format     clock.Format
+	Format     localtime.Format
 	DateFormat clock.DateFormat
 	CellWidth  int
 }

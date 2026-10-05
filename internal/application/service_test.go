@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/oernster/ribbonkit/domain/localtime"
 	"github.com/oernster/ribbonkit/domain/ribbon"
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
@@ -49,18 +50,18 @@ func TestWriteFailureIsReportedAndCleared(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, settings.Defaults())
 	r.store.saveErr = errPlanted
-	if err := r.service.SetFormat(clock.TwelveHour); !errors.Is(err, errPlanted) {
+	if err := r.service.SetFormat(localtime.TwelveHour); !errors.Is(err, errPlanted) {
 		t.Errorf("got %v", err)
 	}
 	snapshot := r.service.Snapshot()
-	if snapshot.Format != clock.TwelveHour {
+	if snapshot.Format != localtime.TwelveHour {
 		t.Error("the change was not kept in effect")
 	}
 	if len(snapshot.Notices) != 1 || snapshot.Notices[0] != saveFailedPrefix+errPlanted.Error() {
 		t.Errorf("notices %v", snapshot.Notices)
 	}
 	r.store.saveErr = nil
-	if err := r.service.SetFormat(clock.TwentyFourHour); err != nil {
+	if err := r.service.SetFormat(localtime.TwentyFourHour); err != nil {
 		t.Fatal(err)
 	}
 	if got := r.service.Snapshot().Notices; len(got) != 0 {
@@ -74,7 +75,7 @@ func TestChangingASettingPersistsIt(t *testing.T) {
 	r := newRig(t, settings.Defaults())
 	steps := []error{
 		r.service.SetStyle(settings.Analogue),
-		r.service.SetFormat(clock.TwelveHour),
+		r.service.SetFormat(localtime.TwelveHour),
 		r.service.SetDateFormat(clock.DayMonthYear),
 		r.service.SetOrientation(ribbon.Vertical),
 		r.service.SetTheme(ribbon.Dark),
@@ -86,7 +87,7 @@ func TestChangingASettingPersistsIt(t *testing.T) {
 		}
 	}
 	saved := r.store.last(t)
-	if saved.Style != settings.Analogue || saved.Format != clock.TwelveHour || saved.DateFormat != clock.DayMonthYear ||
+	if saved.Style != settings.Analogue || saved.Format != localtime.TwelveHour || saved.DateFormat != clock.DayMonthYear ||
 		saved.Orientation != ribbon.Vertical || saved.Theme != ribbon.Dark || !saved.AlwaysOnTop {
 		t.Errorf("saved %+v", saved)
 	}

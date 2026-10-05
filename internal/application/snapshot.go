@@ -1,10 +1,10 @@
 package application
 
 import (
-	"cmp"
 	"slices"
 	"time"
 
+	"github.com/oernster/ribbonkit/domain/localtime"
 	"github.com/oernster/ribbonkit/domain/ribbon"
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
@@ -39,7 +39,7 @@ type Snapshot struct {
 	Style       settings.Style
 	Size        settings.Size
 	Colour      ribbon.Colour
-	Format      clock.Format
+	Format      localtime.Format
 	DateFormat  clock.DateFormat
 	Orientation ribbon.Orientation
 	Theme       ribbon.Theme
@@ -71,15 +71,9 @@ type timedCell struct {
 	shown         bool
 }
 
-// behindGreenwich answers whether a zone's clock is behind UTC, which going east from Greenwich
-// reaches last.
-func behindGreenwich(offsetSeconds int) bool { return offsetSeconds < 0 }
-
 // eastFromGreenwich orders cells starting at Greenwich and going east round the world: London,
-// then Berlin, Tokyo, Melbourne, with New York last. Every place level with or ahead of UTC comes
-// before every place behind it, each group by ascending offset, so UTC-10 never comes before UTC+14
-// although the two keep the same time of day (FR-102). A cell that cannot be shown goes after every one
-// that can.
+// then Berlin, Tokyo, Melbourne, with New York last, by ribbonkit's rule for every ribbon of places
+// (FR-102). A cell that cannot be shown goes after every one that can.
 func eastFromGreenwich(a, b timedCell) int {
 	if a.shown != b.shown {
 		if a.shown {
@@ -87,13 +81,7 @@ func eastFromGreenwich(a, b timedCell) int {
 		}
 		return 1
 	}
-	if behind := behindGreenwich(a.offsetSeconds); behind != behindGreenwich(b.offsetSeconds) {
-		if behind {
-			return 1
-		}
-		return -1
-	}
-	return cmp.Compare(a.offsetSeconds, b.offsetSeconds)
+	return localtime.EastFromGreenwich(a.offsetSeconds, b.offsetSeconds)
 }
 
 // Snapshot answers what the ribbon shows now, one cell per clock ordered east from Greenwich, the
@@ -131,14 +119,14 @@ func (s *Service) Snapshot() Snapshot {
 		MaxScale:    ribbon.MaxScale,
 		Layout:      s.layoutFor(current),
 		Now:         now,
-		NextRefresh: clock.NextRefresh(now),
+		NextRefresh: localtime.NextRefresh(now),
 		Notices:     s.notices(),
 		SunMap:      s.sunMap(current, cells, now),
 	}
 }
 
 // cell answers one clock's cell at now, with the offset it is ordered by.
-func (s *Service) cell(entry settings.Entry, now time.Time, format clock.Format, dateFormat clock.DateFormat) timedCell {
+func (s *Service) cell(entry settings.Entry, now time.Time, format localtime.Format, dateFormat clock.DateFormat) timedCell {
 	label := entry.Label
 	if label == "" {
 		label = entry.Zone

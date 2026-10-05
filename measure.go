@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/oernster/ribbonkit/domain/localtime"
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
@@ -18,7 +19,7 @@ func (a *App) SetMeasured(measured measuredDTO) error {
 	err := a.control.Refitted(a.service.SetMeasured(application.Measured{
 		Size:       settings.Size(measured.Size),
 		Style:      settings.Style(measured.Style),
-		Format:     clock.Format(measured.Format),
+		Format:     localtime.Format(measured.Format),
 		DateFormat: clock.DateFormat(measured.DateFormat),
 		CellWidth:  measured.CellWidth,
 	}))

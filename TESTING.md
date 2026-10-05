@@ -53,7 +53,7 @@ figure with the fraction dropped, so it fails once cover is lost.
 `installer` is the setup program's composition root; its one test reads the pictures it carries,
 which runs no statement.
 
-Every figure is the Windows build's, which `test.ps1` measures. That build compiles 157 Go test
+Every figure is the Windows build's, which `test.ps1` measures. That build compiles 153 Go test
 functions, counted from the test files `go list` selects, each running once with no subtests.
 Twenty-five are the structural tests, which read the source and are the same on every platform;
 [ARCHITECTURE.md](ARCHITECTURE.md) lists each against its rule. `TestA1Point0SettingsFileIsReadWhole`
@@ -115,7 +115,7 @@ says, with the page built. The kit's own macOS and Linux checks are in its TESTI
 | What | macOS | Linux |
 |---|---|---|
 | Tags | `desktop,production` | `desktop,production,webkit2_41` |
-| Go test functions | 152 | 152 |
+| Go test functions | 148 | 148 |
 
 With the platform's tags in `TAGS`, run each and read its exit code:
 

@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/oernster/ribbonkit/application/menus"
+	"github.com/oernster/ribbonkit/domain/localtime"
 	"github.com/oernster/ribbonkit/ui/window"
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/internal/domain/clock"
@@ -56,7 +57,7 @@ func (s *scriptedService) SetStyle(settings.Style) error { return s.change("SetS
 
 func (s *scriptedService) SetSize(settings.Size) error { return s.change("SetSize") }
 
-func (s *scriptedService) SetFormat(clock.Format) error { return s.change("SetFormat") }
+func (s *scriptedService) SetFormat(localtime.Format) error { return s.change("SetFormat") }
 
 func (s *scriptedService) SetDateFormat(clock.DateFormat) error { return s.change("SetDateFormat") }
 

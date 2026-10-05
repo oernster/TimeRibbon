@@ -64,9 +64,11 @@ page) read the kit Go builds against, through `go list -m`; `page_api_test.go` r
 ## Layers
 
 - **Domain** (`internal/domain`), pure Go: time arrives as an argument and a zone already resolved.
-  - `clock`: an instant and a zone become what a cell shows (time in either format, the date in the
-    chosen `DateFormat`, the zone mark, the hand angles); `NextRefresh` names the next minute;
-    `Samples` writes every time and date a cell can show, for the page to measure (FR-620).
+  - `clock`: an instant and a zone become what a cell shows (the time and the zone mark as the
+    kit's `localtime` writes them, the date in the chosen `DateFormat`, the hand angles); a label's
+    default from its zone, capped by the kit's `ribbon.Label`; `Samples` writes every time and date a
+    cell can show, for the page to measure (FR-620). The next minute boundary and the order east from
+    Greenwich are `localtime`'s too.
   - `settings`: the user's choices as one value, every operation answering a new one: the kit's
     `ribbon.Choices` embedded, so they read as its own fields, then the clocks' style, size, formats,
     sun map, pull out and the clocks themselves. The settings file is written exactly as before the

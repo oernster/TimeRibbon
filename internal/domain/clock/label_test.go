@@ -1,9 +1,6 @@
 package clock
 
-import (
-	"strings"
-	"testing"
-)
+import "testing"
 
 func TestDefaultLabelIsTheLastSegmentWithSpaces(t *testing.T) {
 	t.Parallel()
@@ -28,18 +25,5 @@ func TestEmptyLabelFallsBackToDefault(t *testing.T) {
 	}
 	if got := Label("  Brighton ", "Europe/London"); got != "Brighton" {
 		t.Errorf("a typed label is kept trimmed: got %q", got)
-	}
-}
-
-// FR-307.
-func TestLabelIsCappedAt32Characters(t *testing.T) {
-	t.Parallel()
-	long := strings.Repeat("é", MaxLabelLength+5)
-	if got := []rune(Label(long, "Europe/Paris")); len(got) != MaxLabelLength {
-		t.Errorf("got %d characters, want %d", len(got), MaxLabelLength)
-	}
-	exact := strings.Repeat("a", MaxLabelLength)
-	if got := Label(exact, "Europe/Paris"); got != exact {
-		t.Errorf("a label of exactly the limit is kept whole: got %q", got)
 	}
 }

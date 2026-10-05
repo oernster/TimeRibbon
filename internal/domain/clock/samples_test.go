@@ -4,6 +4,8 @@ import (
 	"slices"
 	"testing"
 	"time"
+
+	"github.com/oernster/ribbonkit/domain/localtime"
 )
 
 // sampledFrom is any instant: the samples depend only on its year.
@@ -12,9 +14,9 @@ var sampledFrom = time.Date(2026, time.September, 29, 15, 4, 0, 0, time.UTC)
 // FR-620: every minute of the day once, in the chosen time format.
 func TestSamplesHoldEveryTimeOnce(t *testing.T) {
 	t.Parallel()
-	for format, want := range map[Format][]string{
-		TwentyFourHour: {"00:00", "09:05", "12:30", "23:59"},
-		TwelveHour:     {"12:00 AM", "9:05 AM", "12:30 PM", "11:59 PM"},
+	for format, want := range map[localtime.Format][]string{
+		localtime.TwentyFourHour: {"00:00", "09:05", "12:30", "23:59"},
+		localtime.TwelveHour:     {"12:00 AM", "9:05 AM", "12:30 PM", "11:59 PM"},
 	} {
 		times, _ := Samples(sampledFrom, format, DayMonth)
 		if len(times) != hoursPerDay*minutesPerHour {
@@ -33,7 +35,7 @@ func TestSamplesHoldEveryTimeOnce(t *testing.T) {
 func TestSamplesHoldEveryPairingOfWeekdayDayAndMonth(t *testing.T) {
 	t.Parallel()
 	const realMonthDays, weekdays, commonYearDays, leapYears = 366, 7, 365, weekdayCycleYears / 4
-	_, words := Samples(sampledFrom, TwentyFourHour, DayMonth)
+	_, words := Samples(sampledFrom, localtime.TwentyFourHour, DayMonth)
 	if len(words) != realMonthDays*weekdays {
 		t.Errorf("day-month: %d dates, want %d", len(words), realMonthDays*weekdays)
 	}
@@ -45,7 +47,7 @@ func TestSamplesHoldEveryPairingOfWeekdayDayAndMonth(t *testing.T) {
 	if slices.Contains(words, "Monday, 31 September") {
 		t.Error("day-month: a day September does not have")
 	}
-	_, numbers := Samples(sampledFrom, TwentyFourHour, DayMonthYear)
+	_, numbers := Samples(sampledFrom, localtime.TwentyFourHour, DayMonthYear)
 	if want := weekdayCycleYears*commonYearDays + leapYears; len(numbers) != want || numbers[0] != "Thu 01/01/2026" {
 		t.Errorf("dmy: %d dates from %q, want %d from Thu 01/01/2026", len(numbers), numbers[0], want)
 	}

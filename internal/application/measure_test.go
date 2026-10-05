@@ -5,6 +5,7 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/oernster/ribbonkit/domain/localtime"
 	"github.com/oernster/ribbonkit/domain/placement"
 	"github.com/oernster/ribbonkit/domain/ribbon"
 	"github.com/oernster/timeribbon/internal/domain/clock"
@@ -21,7 +22,7 @@ func measuredFor(current settings.Settings, width int) Measured {
 func TestTheTextSamplesFollowTheFormats(t *testing.T) {
 	t.Parallel()
 	chosen := clocks(1)
-	chosen.Format, chosen.DateFormat = clock.TwelveHour, clock.DayMonthYear
+	chosen.Format, chosen.DateFormat = localtime.TwelveHour, clock.DayMonthYear
 	times, dates := newRig(t, chosen).service.TextSamples()
 	if !slices.Contains(times, "11:59 PM") || !slices.Contains(dates, "Wed 30/09/2026") {
 		t.Errorf("got %d times, %d dates, starting %q and %q", len(times), len(dates), times[0], dates[0])
@@ -73,7 +74,7 @@ func TestAMeasurementCountsOnlyForItsOwnChoices(t *testing.T) {
 	for _, other := range []func(*Measured){
 		func(m *Measured) { m.Size = settings.Small },
 		func(m *Measured) { m.Style = settings.Analogue },
-		func(m *Measured) { m.Format = clock.TwelveHour },
+		func(m *Measured) { m.Format = localtime.TwelveHour },
 		func(m *Measured) { m.DateFormat = clock.YearMonthDay },
 	} {
 		measured := measuredFor(initial, wider)

@@ -4,20 +4,14 @@
 //
 // It is a second Wails application in the module, carrying the built application as an embedded
 // payload. It installs, updates, goes back a version, repairs, reinstalls and uninstalls, all per
-// user with no administrator rights. The window, its page and the install policy are ribbonkit's
-// (ribbonkit/installer over ribbonkit/infrastructure/setup), which name no product; this is the
-// composition root that names it and carries what is TimeRibbon's own.
+// user with no administrator rights. The window, its page, its wiring and the install policy are
+// ribbonkit's (ribbonkit/installer over ribbonkit/infrastructure/setup), which name no product; this
+// is the composition root that names it and carries what is TimeRibbon's own.
 package main
 
 import (
 	"embed"
-	"errors"
-	"fmt"
-	"io/fs"
 	"os"
-	"path/filepath"
-
-	"golang.org/x/sys/windows"
 
 	"github.com/oernster/ribbonkit/infrastructure/setup"
 	"github.com/oernster/ribbonkit/installer"
@@ -40,48 +34,18 @@ const picturesRoot = "frontend/dist"
 //go:embed payload.zip
 var payload string
 
-// setupID names what is setup's own: its window class, its web view cache and its step log.
-const setupID = product.SetupName
-
 // App is what Wails binds, so the page reaches the kit's setup facade as main.App.
 type App struct{ *installer.Setup }
 
 func main() {
-	log, logErr := setup.OpenStepLog(filepath.Join(os.TempDir(), setupID+".log"))
-	log.Record("setup " + product.Version + " started")
-	installs := setup.Product{App: product.App(), Publisher: product.Author}
-	places, placesErr := setup.ResolvePlaces(installs, os.LookupEnv, windows.KnownFolderPath)
-	self, selfErr := os.Executable()
-	problem := errors.Join(placesErr, selfErr)
-	if problem != nil {
-		log.Record("reading the machine: " + problem.Error())
-	}
-	facade := installer.New(installer.Config{
-		Product:     installs,
-		SetupID:     setupID,
-		RibbonClass: product.RibbonClass,
-		Machine:     setup.NewMachine(installs, places, setup.AppsList(installs), setup.StartWithWindows(installs.App), setup.DeleteAfterExit),
-		Processes:   setup.AppProcesses(installs),
-		Log:         log,
-		Carried:     setup.Carried{Payload: payload, Self: self, Version: product.Version},
-		Args:        os.Args[1:],
-		PrefersDark: setup.SystemPrefersDark(),
-		Problem:     problem,
-	})
-	if err := run(facade); err != nil {
-		log.Record(err.Error())
-		if logErr != nil {
-			fmt.Fprintln(os.Stderr, err)
-		}
-		os.Exit(1)
-	}
-}
-
-// run shows the setup window with TimeRibbon's title and pictures.
-func run(facade *installer.Setup) error {
-	shown, err := fs.Sub(pictures, picturesRoot)
-	if err != nil {
-		return fmt.Errorf("reading the setup pictures: %w", err)
-	}
-	return installer.Run(&App{facade}, facade, installer.Window{Title: product.Name + " Setup", Pictures: shown})
+	os.Exit(installer.Main(installer.Program{
+		Product:      setup.Product{App: product.App(), Publisher: product.Author},
+		SetupID:      product.SetupName,
+		RibbonClass:  product.RibbonClass,
+		Version:      product.Version,
+		Payload:      payload,
+		Pictures:     pictures,
+		PicturesRoot: picturesRoot,
+		Bind:         func(facade *installer.Setup) any { return &App{facade} },
+	}))
 }

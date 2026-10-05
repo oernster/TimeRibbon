@@ -40,24 +40,22 @@ figure with the fraction dropped, so it fails once cover is lost.
 | `internal/domain/clock`, `settings`, `sun` | 100% | 100% |
 | `internal/application` | 100% | 100% |
 | `internal/infrastructure/store`, `zones` | 100% | 100% |
-| `tools/versioninfo` | 86.7% | 86% |
-| `tools/payload` | 82.8% | 82% |
-| `tools/identity` | 75% | 75% |
-| `tools/linuxicons` | 67.7% | 67% |
 | the root package (the Wails facade) | 66.2% | 66% |
 | `tools/genplaces` | 58.6% | 58% |
 | `internal/product` | 100% | not gated |
 | `installer` | 0% | not gated |
+| `tools/versioninfo`, `payload`, `identity`, `linuxicons` | no tests | not gated |
 
 `installer` is the setup program's composition root; its one test reads the pictures it carries,
-which runs no statement.
+which runs no statement. The four tools are mains that hand `internal/product` to the kit's
+`delivery` package, where their work and its tests live.
 
-Every figure is the Windows build's, which `test.ps1` measures. That build compiles 138 Go test
+Every figure is the Windows build's, which `test.ps1` measures. That build compiles 127 Go test
 functions, counted from the test files `go list` selects, each running once with no subtests.
 Twenty-five are the structural tests, which read the source and are the same on every platform;
 [ARCHITECTURE.md](ARCHITECTURE.md) lists each against its rule. `TestA1Point0SettingsFileIsReadWhole`
 in `store` holds the settings file's promise (NFR-C-1); `contrast_test.go` holds NFR-U-1 in Go because
-Vitest hands a CSS import back empty. The macOS and Linux builds compile 134
+Vitest hands a CSS import back empty. The macOS and Linux builds compile 126
 ([On macOS and Linux](#on-macos-and-linux)).
 
 ### The front end
@@ -94,10 +92,11 @@ Apps list** and **no test reaches the network**.
   `settingsDir`, `run`).
 - **`installer` (0%).** Only the composition root; the setup window and its policy are tested in the
   kit.
-- **The tools:** each `main` handing `run` its real arguments; folders and archives refusing to be
-  made or closed. `genplaces` (58.6%) also reads the tz database's own files, which a test machine need
-  not have; its parsing and writing are tested. What `versioninfo` writes was read back from both
-  released executables through Windows' version API.
+- **`genplaces` (58.6%):** its `main` handing `run` its real arguments; folders refusing to be made.
+  It also reads the tz database's own files, which a test machine need not have; its parsing and
+  writing are tested. The other tools' work is the kit's and tested there; what `versioninfo` writes
+  was read back from both released executables through Windows' version API. Moving the work into
+  the kit left every tool's output byte for byte as it was.
 
 What the window, the tray, focus, paint and the install do on a real desktop is checked by hand in a
 real build of each platform.
@@ -111,7 +110,7 @@ says, with the page built. The kit's own macOS and Linux checks are in its TESTI
 | What | macOS | Linux |
 |---|---|---|
 | Tags | `desktop,production` | `desktop,production,webkit2_41` |
-| Go test functions | 134 | 134 |
+| Go test functions | 126 | 126 |
 
 With the platform's tags in `TAGS`, run each and read its exit code:
 

@@ -98,9 +98,10 @@ page) read the kit Go builds against, through `go list -m`; `page_api_test.go` r
   window class, donation address, version, author, copyright line, sign-in label and credits. The
   domain and application never read it. `installer/main.go` is the setup program's composition root
   over the kit's setup window.
-- **Tools**, never shipped: `genplaces` (the place catalogue), `payload` (the setup program's
-  payload), `versioninfo` (each executable's version resource), `identity` (names for the Linux and
-  macOS scripts), `linuxicons` (the Flatpak's icons) and `genicons.py` (every committed icon).
+- **Tools**, never shipped: `genplaces` (the place catalogue) and `genicons.py` (every committed
+  icon); `payload` (the setup program's payload), `versioninfo` (each executable's version resource),
+  `identity` (names for the Linux and macOS scripts) and `linuxicons` (the Flatpak's icons) are mains
+  handing `internal/product` to the kit's `delivery`, which does the work.
 
 ## Composition root
 
@@ -252,9 +253,10 @@ what ships is the kit tag `go.mod` requires.
 **The setup program** (Windows) is a second Wails application in `installer/`, embedding the built
 application as a zip. `build.ps1` packs it through `tools/payload`, builds setup, then writes the
 empty placeholder back whatever happened. The install policy and the setup window are the kit's;
-`installer/main.go` is the composition root: it carries the payload, names the product (a
-`setup.Product` from `internal/product`), binds the kit's facade by embedding it and hands in the
-page's pictures, which `tools/genicons.py` writes to `installer/frontend/dist`.
+`installer/main.go` is the composition root, its wiring the kit's `installer.Main`: it carries the
+payload, names the product (a `setup.Product` from `internal/product`), binds the kit's facade by
+embedding it in its own `App` and hands in the page's pictures, which `tools/genicons.py` writes to
+`installer/frontend/dist`.
 
 ## Data locations
 

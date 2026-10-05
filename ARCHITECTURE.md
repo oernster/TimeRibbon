@@ -374,8 +374,9 @@ window registry, the browser opener, the sign-in file, the icon and signal handl
 - **One thread.** `gtkmain.Do` and `cocoamain.Do` run a function on the toolkit's loop and wait,
   raising a panic again on the caller.
 - **Finding and hiding (FR-101).** The ribbon is the top-level window titled with the product's name.
-  Linux marks it to skip the taskbar and switcher; macOS makes the application an accessory after
-  Wails has made it regular (measured by `lsappinfo` reporting `UIElement`).
+  Linux marks it to skip the taskbar and switcher; macOS makes the application an accessory at once
+  and again once launching has finished, since Wails makes it regular as launching ends and nothing
+  orders the two (a Dock icon was seen 2026-10-05 with the earlier single call).
 - **Coordinates.** Both count in DIP, every display reported at `placement.BaseDPI`; AppKit's
   bottom-left origin is turned over into the domain's top-left reckoning (CON-7).
 - **Placing.** macOS uses one `setFrame`. Linux sets the size and awaits it (up to 500 ms) before

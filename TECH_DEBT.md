@@ -39,8 +39,8 @@ message Wails' own drag regions send: the one way to hand a press to the platfor
 The Wails version in `go.mod` pins it; check dragging by hand on every platform on any Wails upgrade.
 
 **macOS hides the Dock icon after Wails shows it.** Wails 2.12.0 makes TimeRibbon a regular
-application as it finishes launching, so the switch to an accessory goes through the main queue
-afterwards. Check `lsappinfo` reports `UIElement` on any Wails upgrade.
+application as it finishes launching, so the switch to an accessory is made at once and again when
+launching has finished. Check `lsappinfo` reports `UIElement` on any Wails upgrade.
 
 **macOS borrows Windows' drag distance** of 4 DIP, since macOS publishes none (ruled by Oliver,
 2026-09-28).

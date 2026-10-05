@@ -93,6 +93,7 @@ $measured = [ordered]@{
     './ribbonkit/infrastructure/iconscale' = 100
     './ribbonkit/infrastructure/runlog'   = 77
     './ribbonkit/infrastructure/monitors' = 82
+    './ribbonkit/infrastructure/occupancy' = 90
     './ribbonkit/infrastructure/setup'   = 84
     './ribbonkit/installer'              = 11
     './ribbonkit/infrastructure/startup'  = 80

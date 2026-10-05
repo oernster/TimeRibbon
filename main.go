@@ -23,6 +23,7 @@ import (
 	"github.com/oernster/timeribbon/ribbonkit/infrastructure/appdata"
 	"github.com/oernster/timeribbon/ribbonkit/infrastructure/desktop"
 	"github.com/oernster/timeribbon/ribbonkit/infrastructure/monitors"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/occupancy"
 	"github.com/oernster/timeribbon/ribbonkit/infrastructure/runlog"
 	"github.com/oernster/timeribbon/ribbonkit/infrastructure/startup"
 	"github.com/oernster/timeribbon/ribbonkit/infrastructure/system"
@@ -109,6 +110,16 @@ func settingsDir() (string, error) {
 	return dir, nil
 }
 
+// openNeighbours takes TimeRibbon's place in the folder every running ribbon shares, read from the
+// environment through lookup (FR-412); where the environment names none it says so and is alone.
+func openNeighbours(lookup func(string) (string, bool), log io.Writer) *occupancy.Folder {
+	shared, err := occupancy.Dir(lookup)
+	if err != nil {
+		fmt.Fprintf(log, "%v: keeping off no other ribbon\n", err)
+	}
+	return occupancy.Open(shared, product.App(), log)
+}
+
 // run wires everything together and hands the facade to Wails. Only a failure to run the window at
 // all ends it; every other fault is carried to the ribbon or the log (FR-704, FR-707).
 func run(log io.Writer) error {
@@ -124,15 +135,18 @@ func run(log io.Writer) error {
 	if err != nil {
 		fmt.Fprintf(log, "finding this program's path: %v\n", err)
 	}
+	neighbours := openNeighbours(os.LookupEnv, log)
+	defer neighbours.Close()
 	service := application.New(application.Ports{
-		Store:    store.New(dir),
-		Zones:    zoneCatalogue,
-		Clock:    system.Clock{},
-		IDs:      system.IDs{},
-		Monitors: monitors.Monitors{},
-		Startup:  startup.New(product.App(), program),
-		Releases: update.New(),
-		Build:    release.Build{Version: product.Version, Platform: release.PlatformKeyFor(runtime.GOOS)},
+		Store:      store.New(dir),
+		Zones:      zoneCatalogue,
+		Clock:      system.Clock{},
+		IDs:        system.IDs{},
+		Monitors:   monitors.Monitors{},
+		Neighbours: neighbours,
+		Startup:    startup.New(product.App(), program),
+		Releases:   update.New(),
+		Build:      release.Build{Version: product.Version, Platform: release.PlatformKeyFor(runtime.GOOS)},
 	}, layouts)
 	if err := service.Start(); err != nil {
 		fmt.Fprintf(log, "loading settings: %v\n", err)

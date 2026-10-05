@@ -29,7 +29,8 @@ names no product; TimeRibbon holds the clocks, the sun map and the composition. 
 second product built on it.
 
 - **Rather than:** copying TimeRibbon's desktop code into each new ribbon.
-- **Gains:** a desktop fix lands once for every ribbon.
+- **Gains:** a desktop fix lands once for every ribbon; two ribbons running together keep off each
+  other through a folder they share (FR-412).
 - **Costs:** a boundary to keep clean (structural tests hold the kit free of TimeRibbon), names chosen
   for any product rather than this one and an npm link for the page's half. It is carved inside this
   repository first, under TimeRibbon's own gate, then lifted into its own.

@@ -70,7 +70,7 @@ same layers (`ribbonkit/domain`, `ribbonkit/application`, `ribbonkit/infrastruct
 It holds `placement`, `hover`, `ribbon` and `identity` in its domain; `menus` (the menu model and
 every ribbon's actions), `release`, `arranger` and `shell` (the desktop port, which `desktop`
 implements) in its application; `gtkmain`, `cocoamain`, `iconscale`, `system`, `monitors`, `appdata`,
-`runlog`, `startup`, `update`, `desktop` and `setup` (the install policy) in its infrastructure;
+`runlog`, `startup`, `update`, `desktop`, `occupancy` and `setup` (the install policy) in its infrastructure;
 `window` (the ribbon's window as the page and the desktop see it) in its UI. Beside the layers it
 holds `web` (the page's half) plus `installer` (the setup program's window); no other folder
 (`TestTheKitHoldsOnlyItsLayersThePageAndTheSetupProgram`). It names no
@@ -146,7 +146,8 @@ repository root so the kit is linted with it; its Vitest run includes the kit's 
 - **Infrastructure** (`internal/infrastructure` and the kit's): on every platform `store`, `zones`,
   `system` (wall clock, ids), `update` and `iconscale`; per platform `monitors`, `startup`,
   `appdata`, `runlog` and `desktop` (tray, native menus, the ribbon's window, the end of a move, the desktop's broadcasts, the
-  pointer, the browser opener). Windows only: `setup`. Linux only: `gtkmain`. macOS only: `cocoamain`.
+  pointer, the browser opener) and `occupancy` (the folder every running ribbon shares, an entry per
+  product held by a lock, FR-412). Windows only: `setup`. Linux only: `gtkmain`. macOS only: `cocoamain`.
 - **UI**: the React front end with the kit's half of it (`ribbonkit/web`), the kit's `window` and the Wails facade in package `main`, which
   embeds the window and maps the service's answers about the clocks into `dto.go`.
 - **Outside the layers**: `internal/product` holds the name, app id, setup program's name, window

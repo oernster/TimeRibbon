@@ -446,8 +446,8 @@ Verified by: `TestAnUnknownRememberedEdgeIsForgotten` (ribbon); `TestTheLastEdge
 **FR-412 Ribbons never land on each other** (Must; Amendment 34). Every product built on the shared
 module (TimeRibbon, WeatherRibbon) running for the same user keeps out of the others' way:
 - Each running ribbon shall keep an entry of its own in one occupancy folder per user, shared by
-  every such product and owned by the module, holding a lock on it while it runs: its product, its
-  display and the rectangles it occupies in physical pixels, being the full ribbon (whose tab lies
+  every such product and owned by the module, holding a lock on it while it runs: its product and the
+  rectangles it occupies in the desktop's physical pixels, being the full ribbon (whose tab lies
   inside it) and its pull out while shown. A hidden ribbon keeps its entry, since it returns where it
   was. The entry is replaced whenever the ribbon is placed and removed when it exits. The folder is
   `%LOCALAPPDATA%\ribbonkit` on Windows, `~/Library/Application Support/ribbonkit` on macOS and
@@ -481,8 +481,12 @@ Verified by: `TestARibbonStandsAtTheNearestClearPlaceAlongItsEdge`, `TestTouchin
 `TestADroppedRibbonKeepsOffAnotherAndIsStoredThere`, `TestWithNoRoomOnItsEdgeARibbonTakesTheOpposite`,
 `TestWithNoRoomOnEitherEdgeARibbonStaysWhereItWasPut`, `TestTheRibbonsOwnPullOutKeepsOffAnother`,
 `TestARibbonIsClearedOnlyOnceTheGripIsLetGo`, `TestTheRibbonHoldsWhatItOccupies`,
-`TestNoNeighboursIsARibbonAlone` (arranger); the occupancy folder's own tests (A10c); by hand with both
-products running.
+`TestNoNeighboursIsARibbonAlone` (arranger); `TestARibbonSeesWhatAnotherHolds`, `TestAClosedRibbonIsGone`,
+`TestAGoneRibbonsEntryIsIgnoredAndRemoved`, `TestAnEntryThatCannotBeBelievedIsPassedOver`,
+`TestASecondCopyHoldsNothing`, `TestWithoutAFolderARibbonIsAlone`, `TestAnEntryThatCannotBeWrittenIsSaid`,
+`TestAnEntryThatVanishesIsNoFault`, `TestAFolderThatIsNotThereIsNoOtherRibbon` and the folder on each
+platform (occupancy); `TestTimeRibbonTakesItsPlaceAmongTheRibbons` (facade); a lock held in one Flatpak seen from another, measured on Linux 2026-10-05; by
+hand with both products running.
 
 ### 3.5 Tray and window behaviour
 

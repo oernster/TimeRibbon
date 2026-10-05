@@ -202,7 +202,7 @@ check compares it with GitHub's latest release tag, so a development placeholder
 | `internal/domain`, `internal/application` | TimeRibbon's pure rules (clocks, settings, the sun); its use cases over their ports |
 | `internal/infrastructure` | TimeRibbon's own adapters: the settings store and the time zones |
 | `ribbonkit/domain`, `ribbonkit/application` | ribbonkit's pure rules (placement, the ribbon's choices, hovering) and its use cases (arranging the ribbon, the menus, the update check, the desktop's port) |
-| `ribbonkit/infrastructure` | ribbonkit's adapters: the desktop, displays, sign-in start, the log, the data folder, the update check and the install policy; a file's platform is in its name (`_windows`, `_linux`, `_darwin`, `_unix`) |
+| `ribbonkit/infrastructure` | ribbonkit's adapters: the desktop, displays, sign-in start, the log, the data folder, the folder every running ribbon shares (`occupancy`), the update check and the install policy; a file's platform is in its name (`_windows`, `_linux`, `_darwin`, `_unix`) |
 | `internal/product` | names, version, donation address, author, sign-in label, credits |
 | `build.ps1`, `test.ps1`, `VERSION`, `stamp_version.py` | the Windows build; the gate; the version; the site stamp |
 | `builddmg.sh`, `build_flatpak.sh`, `cleanup_flatpak.sh` | the macOS DMG; the Flatpak and its removal |

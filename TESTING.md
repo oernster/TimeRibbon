@@ -43,12 +43,13 @@ figure with the fraction dropped, so it fails once cover is lost.
 | `tools/versioninfo` | 86.7% | 86% |
 | `ribbonkit/infrastructure/setup` | 84.5% | 84% |
 | `tools/payload` | 82.8% | 82% |
+| `ribbonkit/infrastructure/occupancy` | 90.5% | 90% |
 | `ribbonkit/infrastructure/monitors` | 82.6% | 82% |
 | `ribbonkit/infrastructure/startup` | 80.6% | 80% |
 | `ribbonkit/infrastructure/runlog` | 77.8% | 77% |
 | `tools/identity` | 75% | 75% |
 | `tools/linuxicons` | 67.7% | 67% |
-| the root package (the Wails facade) | 66.1% | 66% |
+| the root package (the Wails facade) | 66.2% | 66% |
 | `tools/genplaces` | 58.6% | 58% |
 | `ribbonkit/infrastructure/desktop` | 46.8% | 46% |
 | `ribbonkit/installer` | 11.8% | 11% |
@@ -61,13 +62,13 @@ before the move into the kit or since; that is the gap, recorded in `TECH_DEBT.m
 `installer` is its composition root, whose one test reads the pictures it carries, which runs no
 statement.
 
-Every figure is the Windows build's, which `test.ps1` measures. That build compiles 425 Go test
+Every figure is the Windows build's, which `test.ps1` measures. That build compiles 450 Go test
 functions, counted from the test files `go list` selects, each running once with no subtests, plus
 one `TestMain` in `ribbonkit/infrastructure/setup`. Thirty-seven are the structural tests, which read
 the source and are the same on every platform; [ARCHITECTURE.md](ARCHITECTURE.md) lists each against
 its rule. `TestA1Point0SettingsFileIsReadWhole` in `store` holds the settings file's promise
 (NFR-C-1); `contrast_test.go` holds NFR-U-1 in Go because Vitest hands a CSS import back empty. The
-macOS build compiles 394 and the Linux build 398 ([On macOS and Linux](#on-macos-and-linux)).
+macOS build compiles 419 and the Linux build 423 ([On macOS and Linux](#on-macos-and-linux)).
 
 ### The front end
 
@@ -114,16 +115,22 @@ so GitHub is asked only by the running application, which is checked by hand.
   window that is never shown. The loop itself, the menus as drawn, the broadcasts, a browser opening and the desktop
   showing through are checked by hand in a real build.
 - **`monitors` (82.6%):** Windows refusing to enumerate or describe a display.
+- **`occupancy` (90.5%).** Tested over a temporary folder with two products' places in it, each lock
+  a real one: what one holds the other sees, a closed or crashed ribbon's entry passed over and
+  removed, an entry that cannot be believed (not JSON, too large, too many rectangles, no area) said
+  once, a second copy holding nothing, no folder at all. Not reached: the system refusing to open or
+  lock a lock file, list the folder or remove an entry. Whether a lock held in one Flatpak is seen
+  from another was measured by hand on Linux (2026-10-05).
 - **`runlog` (77.8%):** the log refusing to open, its first line failing and `SetStdHandle` refusing.
 - **`ribbonkit/ui/window` (93.8%).** The window's decisions are tested across its seventeen test
   files over a scripted service: which calls refit the ribbon, panels and Settings' fit, the tab, the
-  window holding and cut to the map, the menu actions and the hand-over of those the kit does not know,
+  window holding and cut to the pull out, the menu actions and the hand-over of those the kit does not know,
   closing, a signal ending the run, the recover round each event and update check, the update watch's
   timing, the grip's drag (following the desktop's pointer where it can read it, else the page's),
   the window's paint below full opacity, the first showing, Help, the Control's calls and every call
   into the desktop going through the `shell.Desktop` port with the ribbon's window. Not reached:
   `run.go`, the one-line calls into Wails, `startup`, `listen` and `shutdown`, which only Wails runs.
-- **The root package (66.1%).** TimeRibbon's own half of the facade is tested over a scripted service
+- **The root package (66.2%).** TimeRibbon's own half of the facade is tested over a scripted service
   and a stand-in window: every change to the clocks fits the ribbon once, the Snapshot carries the
   window's reading, TimeRibbon's menu actions, the measurements, the product handed to the window, the
   adapter reading the ribbon's choices out of the settings; every method the page's `Bridge` calls is
@@ -135,9 +142,11 @@ stylesheets: at 100% and 250% a scrolling ribbon shows one scroll bar with no cl
 
 ### It would change the machine
 
-- **`installer` (0%).** Every method reads or acts on the machine; the policy beneath it is tested in
-  `setup` and the page in `setupScreens.test.ts`, `setupRing.test.ts` and `setupUnreachable.test.ts`.
-- **`setup` (84.0%).** Tested over temporary folders, a scratch key and real stand-in processes. Not
+- **`ribbonkit/installer` (11.8%) and `installer` (0%).** The kit's setup window is tested for the
+  pictures it asks for; its facade has no tests (`TECH_DEBT.md`). TimeRibbon's `installer` is only the
+  composition root. The policy beneath both is tested in `setup` and the page in
+  `setupScreens.test.ts`, `setupRing.test.ts` and `setupUnreachable.test.ts`.
+- **`setup` (84.5%).** Tested over temporary folders, a scratch key and real stand-in processes. Not
   reached: the real Apps list record, deleting the install folder after setup exits, COM or a shortcut
   refusing, a copy failing part way, `TakeFocus`, finding the launched ribbon and `Places`.
 - **`startup` (80.6%):** the registry refusing to open, read, write or delete.

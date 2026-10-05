@@ -14,8 +14,9 @@
 #
 # The sandbox's permissions are only what TimeRibbon uses: X11 and no Wayland, since the ribbon
 # must place its own window; the tray host's bus name; the bus name of Wails' single-instance lock;
-# the session's autostart folder for Start at sign-in; the network, for the update check alone
-# (FR-509), which asks GitHub for the latest release. No files.
+# the session's autostart folder for Start at sign-in; the runtime folder's ribbonkit, which every
+# ribbon running shares (FR-412); the network, for the update check alone (FR-509), which asks
+# GitHub for the latest release. No other files.
 #
 # Outputs: timeribbon.flatpak (installable anywhere) and a user install of the app.
 set -euo pipefail
@@ -124,6 +125,8 @@ finish-args:
   - --talk-name=org.kde.StatusNotifierWatcher
   - --own-name=${SINGLE_INSTANCE_NAME}
   - --filesystem=xdg-config/autostart:create
+  # The folder every ribbon on ribbonkit shares, so two products never land on each other (FR-412).
+  - --filesystem=xdg-run/ribbonkit:create
   # The update check asks GitHub for the latest release (FR-509); without this it never reaches it.
   - --share=network
 build-options:

@@ -1,4 +1,4 @@
-package main
+package window
 
 // The window stand-in: what the facade asked of Wails and the desktop, kept apart from the scripted
 // service it is used beside.
@@ -47,6 +47,8 @@ type window struct {
 	toolkitScale int
 	// sizePending is the launch's fallback for a page that never sizes the ribbon.
 	sizePending func()
+	// acted is each menu action the window handed the application as one of its own.
+	acted []menus.Action
 }
 
 // sawEvent reports whether the facade sent event with data first, when data is given.

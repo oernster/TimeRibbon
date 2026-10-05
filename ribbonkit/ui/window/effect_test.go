@@ -1,4 +1,4 @@
-package main
+package window
 
 import (
 	"slices"
@@ -12,13 +12,13 @@ import (
 )
 
 // openUnpinnedApp answers an unpinned ribbon opened from its tab and shown in full.
-func openUnpinnedApp(t *testing.T) (*App, *scriptedService, *window) {
+func openUnpinnedApp(t *testing.T) (*Window, *scriptedService, *window) {
 	t.Helper()
 	app, service, seen := unpinnedApp(t)
 	app.handleSafely(shell.Event{Kind: shell.EventPointerArrived})
 	fire(t, seen)
 	app.RibbonDrawn()
-	if app.Snapshot().Collapsed {
+	if app.collapsed() {
 		t.Fatal("the ribbon did not open")
 	}
 	return app, service, seen
@@ -34,7 +34,7 @@ func lastOnTop(t *testing.T, seen *window) bool {
 }
 
 // dropAt ends a drag with the ribbon arranged as arranged.
-func dropAt(app *App, service *scriptedService, arranged arranger.Arrangement) {
+func dropAt(app *Window, service *scriptedService, arranged arranger.Arrangement) {
 	service.arrangement = arranged
 	app.handleSafely(shell.Event{Kind: shell.EventMoveEnded})
 }
@@ -49,11 +49,11 @@ func TestAnUnpinnedRibbonOffAnEdgeShowsInFull(t *testing.T) {
 	if seen.pending != nil {
 		fire(t, seen)
 	}
-	if app.Snapshot().Collapsed || lastPlaced(t, seen).Size != testAway.Size {
-		t.Errorf("collapsed %v, placed %+v; want the full ribbon", app.Snapshot().Collapsed, lastPlaced(t, seen))
+	if app.collapsed() || lastPlaced(t, seen).Size != testAway.Size {
+		t.Errorf("collapsed %v, placed %+v; want the full ribbon", app.collapsed(), lastPlaced(t, seen))
 	}
-	if service.settings.Pinned || lastOnTop(t, seen) {
-		t.Errorf("pinned %v, on top %v; want the choice kept and the ribbon not kept on top", service.settings.Pinned, seen.onTop)
+	if service.choices.Pinned || lastOnTop(t, seen) {
+		t.Errorf("pinned %v, on top %v; want the choice kept and the ribbon not kept on top", service.choices.Pinned, seen.onTop)
 	}
 	if seen.tabFrames[len(seen.tabFrames)-1] {
 		t.Error("a ribbon pinned in effect wears the tab's frame")
@@ -72,15 +72,15 @@ func TestDraggingBackOntoAnEdgeCollapsesAgain(t *testing.T) {
 	}
 	app.handleSafely(shell.Event{Kind: shell.EventPointerArrived})
 	dropAt(app, service, testArrange)
-	if app.Snapshot().Collapsed || !lastOnTop(t, seen) {
-		t.Fatalf("dropped on an edge: collapsed %v, on top %v; want full and on top", app.Snapshot().Collapsed, seen.onTop)
+	if app.collapsed() || !lastOnTop(t, seen) {
+		t.Fatalf("dropped on an edge: collapsed %v, on top %v; want full and on top", app.collapsed(), seen.onTop)
 	}
 	app.handleSafely(shell.Event{Kind: shell.EventPointerLeft})
 	if seen.waited != hover.Away {
 		t.Fatalf("waiting %v, want the second away", seen.waited)
 	}
 	fire(t, seen)
-	if got := lastPlaced(t, seen); got.Size.Width != placement.TabThickness || !app.Snapshot().Collapsed {
+	if got := lastPlaced(t, seen); got.Size.Width != placement.TabThickness || !app.collapsed() {
 		t.Errorf("placed %+v, want the tab", got)
 	}
 }
@@ -104,7 +104,7 @@ func TestUnpinningAwayFromAnEdgeMovesItToTheLastEdge(t *testing.T) {
 		t.Fatalf("waiting %v, want the second away", seen.waited)
 	}
 	fire(t, seen)
-	if !app.Snapshot().Collapsed {
+	if !app.collapsed() {
 		t.Error("the ribbon did not collapse on its edge")
 	}
 }
@@ -122,7 +122,7 @@ func TestUnpinningOnAnEdgeMovesNothingAndRecentringKeepsThePin(t *testing.T) {
 		t.Error("unpinning a flush ribbon moved it")
 	}
 	app.toEdge(placement.Left)
-	if service.settings.Pinned || !slices.Contains(service.calls, "ToEdge") {
-		t.Errorf("after a Position choice: pinned %v, calls %v", service.settings.Pinned, service.calls)
+	if service.choices.Pinned || !slices.Contains(service.calls, "ToEdge") {
+		t.Errorf("after a Position choice: pinned %v, calls %v", service.choices.Pinned, service.calls)
 	}
 }

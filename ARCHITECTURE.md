@@ -27,7 +27,7 @@ here does not exist.
 | Domain is pure: no network, filesystem, process, random or tz package; no wall clock read, no zone loaded (FR-207, CON-5) | `TestDomainIsPure` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | Application never imports infrastructure or Wails | `TestApplicationDoesNotImportInfrastructure` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | Infrastructure never imports Wails | `TestWailsStaysOutOfInfrastructure` | [`boundary_test.go`](tests/structural/boundary_test.go) |
-| Only `main.go` imports both application and infrastructure; the facade reaches the desktop through `shell.Desktop` | `TestCompositionRootIsWhitelisted` | [`boundary_test.go`](tests/structural/boundary_test.go) |
+| Only `main.go` imports both application and infrastructure; the window reaches the desktop through `shell.Desktop` | `TestCompositionRootIsWhitelisted` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | No source file exceeds 400 lines: Go, the front end's TypeScript and CSS, the setup page | `TestNoFileExceedsLineLimit` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | No source file sits in the danger band of 381 to 400 lines | `TestNoFileInDangerBand` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | Every exported type carries a doc comment | `TestEveryExportedTypeIsDocumented` | [`boundary_test.go`](tests/structural/boundary_test.go) |
@@ -43,8 +43,9 @@ here does not exist.
 | No setup page file spells the product's name | `TestTheSetupPageNeverWritesTheProductsName` | [`setup_test.go`](tests/structural/setup_test.go) |
 | Each platform's About credits exactly the modules its build links (FR-607) | `TestEveryLinkedModuleIsCredited` | [`credits_test.go`](tests/structural/credits_test.go) |
 | No platform credits a module twice | `TestAModuleIsCreditedOncePerPlatform` | [`credits_test.go`](tests/structural/credits_test.go) |
-| The wire is stated alike in `dto.go` and `frontend/src/wire.ts` | `TestTheWireIsStatedAlikeOnBothSides` | [`wire_test.go`](tests/structural/wire_test.go) |
-| The page listens for every event `app.go` emits and keys every panel it names | `TestThePageNamesEveryEventGoEmits` | [`wire_test.go`](tests/structural/wire_test.go) |
+| The wire is stated alike in `dto.go` with the window's `wire.go` and in `frontend/src/wire.ts` | `TestTheWireIsStatedAlikeOnBothSides` | [`wire_test.go`](tests/structural/wire_test.go) |
+| The page listens for every event the window and `app.go` emit and keys every panel they name | `TestThePageNamesEveryEventGoEmits` | [`wire_test.go`](tests/structural/wire_test.go) |
+| Every method the page's `Bridge` calls is bound on `App`; none of the window's `Control` is | `TestEveryMethodThePageCallsIsBound`, `TestNothingOfTheControlIsBound` | [`page_api_test.go`](page_api_test.go) |
 | The setup page listens for every event `installer/app.go` emits | `TestTheSetupPageNamesEveryEventSetupEmits` | [`wire_test.go`](tests/structural/wire_test.go) |
 | Each `wails.json` names its executable as `internal/product` does | `TestEachWailsConfigNamesItsExecutableAsTheProductDoes` | [`names_test.go`](tests/structural/names_test.go) |
 | Every offered scheme has a block in `colours.css` stating each of Classic's tokens (the problem colour aside); every block is offered (FR-611) | `TestEveryOfferedSchemeHasItsOwnCompleteBlock` | [`colours_test.go`](tests/structural/colours_test.go) |
@@ -58,12 +59,13 @@ here does not exist.
 ## Layers
 
 The desktop behaviour shared with WeatherRibbon is being carved into `ribbonkit/`, which has the
-same layers (`ribbonkit/domain`, `ribbonkit/application`, `ribbonkit/infrastructure`), is held to
-every rule above and will leave this repository as a module of its own. It holds `placement`, `hover`,
-`ribbon` and `identity` in its domain; `menus` (the menu model and every ribbon's actions),
-`release`, `arranger` and `shell` (the desktop port, which `desktop` implements) in its
-application; `gtkmain`, `cocoamain`, `iconscale`, `system`, `monitors`, `appdata`,
-`runlog`, `startup`, `update` and `desktop` in its infrastructure. It names no
+same layers (`ribbonkit/domain`, `ribbonkit/application`, `ribbonkit/infrastructure`) plus
+`ribbonkit/ui`, is held to every rule above and will leave this repository as a module of its own.
+It holds `placement`, `hover`, `ribbon` and `identity` in its domain; `menus` (the menu model and
+every ribbon's actions), `release`, `arranger` and `shell` (the desktop port, which `desktop`
+implements) in its application; `gtkmain`, `cocoamain`, `iconscale`, `system`, `monitors`, `appdata`,
+`runlog`, `startup`, `update` and `desktop` in its infrastructure; `window` (the ribbon's window as
+the page and the desktop see it) in its UI. It names no
 product: `identity.App` carries the name and app id, built once by `product.App()` and handed in by
 the composition root and setup. Each package is described below where it sits in the layering.
 
@@ -109,8 +111,8 @@ the composition root and setup. Each package is described below where it sits in
   `system` (wall clock, ids), `update` and `iconscale`; per platform `monitors`, `startup`,
   `appdata`, `runlog` and `desktop` (tray, native menus, the ribbon's window, the end of a move, the desktop's broadcasts, the
   pointer, the browser opener). Windows only: `setup`. Linux only: `gtkmain`. macOS only: `cocoamain`.
-- **UI**: the React front end and the Wails facade in package `main`, which maps the service's
-  answers into `dto.go`.
+- **UI**: the React front end, the kit's `window` and the Wails facade in package `main`, which
+  embeds the window and maps the service's answers about the clocks into `dto.go`.
 - **Outside the layers**: `internal/product` holds the name, app id, setup program's name, window
   class, donation address, version, author, copyright line, sign-in label and credits. The domain and
   application never read it.
@@ -123,21 +125,30 @@ the composition root and setup. Each package is described below where it sits in
 `main.go` points standard error at the run log before anything can fail, builds the adapters,
 injects them into the service, prepares the platform, starts the tray and hands the facade to Wails.
 `preparePlatform` does nothing on Windows; on Linux and macOS it hands the desktop the icon and ends
-the run on SIGTERM or SIGINT (`quit_signal.go`). `platform_linux.go` sends GTK through X11 and turns
-off the DMABUF renderer; `platform_darwin.go` links UniformTypeIdentifiers. The cell sizes (`layouts`)
-and panel sizes (`panels`) live there. No service is held in a global.
+the run on SIGTERM or SIGINT (the window's `Control.ExitWhen`). `platform_linux.go` sends GTK through
+X11 and turns off the DMABUF renderer; `platform_darwin.go` links UniformTypeIdentifiers. The cell
+sizes (`layouts`) and panel sizes (`panels`) live there. No service is held in a global.
 
-The facade is `app.go` and `window_life.go`, split for size. It holds the service through the
-`ribbonService` interface and the desktop through the kit's `shell.Desktop` port, which `main.go`
-hands it; each call into Wails and the desktop is a field, so its tests can stand in for all three. Beside it: `identity.go` (About, Licence), `updates.go`, `measure.go`,
-`clockscale.go`, `opacity.go`, `panel.go`, `choices.go`, `unpinned.go`, `sunmap.go`, `dto.go`,
-`launch.go` (window options), `launch_show.go` (the first showing) and `bindings_on.go` /
-`bindings_off.go`, which keep the binding-generation run from writing the log or showing a tray icon.
+The facade Wails binds is `App` in `app.go`, in two halves. The window is the kit's: `ribbonkit/ui/window`
+holds everything about the ribbon itself (its life and the desktop's events in `window_life.go`,
+placing, the tab and the map in `unpinned.go` and `map.go`, the grip, opacity, panels, menu choices,
+the update check, the first showing, Help and the Wails options in `run.go`). It asks the application
+through its own `window.Service` port and the desktop through `shell.Desktop`; each call into Wails and
+the desktop is a field, so its tests stand in for both. `App` embeds the `*window.Window`, so every
+exported method of the window is page API: Wails binds the exported methods of what it is handed,
+those promoted from an embedded struct included. What is TimeRibbon's own stays in `app.go` (the
+clocks, their style, size and formats, the sun map, the Snapshot) and `measure.go`, over the
+`ribbonService` interface. TimeRibbon reaches its window through the `window.Control`, a named field
+that is never embedded and so never bound; menu actions the kit does not know reach TimeRibbon through
+the `Act` hook it hands the window. `kit.go` embeds the page and the LICENSE and adapts the service to
+the window's port; `dto.go` is TimeRibbon's half of the wire, the window's `wire.go` the other.
+`bindings_on.go` / `bindings_off.go` keep the binding-generation run from writing the log or showing a
+tray icon.
 
 ```
-             +------------------------------+
-   Wails/UI  | app.go, window_life.go       |
-             +--------------+---------------+
+             +-----------------------------------+
+   Wails/UI  | app.go (App) embeds window.Window |
+             +--------------+--------------------+
                             | calls
              +--------------v---------------+
              |  application: Service, ports |
@@ -165,10 +176,10 @@ before the window became the panel took the ribbon's narrower window and could o
 
 **Opacity (FR-622).** On Windows the web view is transparent and the window translucent, since Wails
 otherwise paints the window solid behind the page; on macOS the web view is transparent; on Linux the
-window is translucent (`launch.go`). Everything is drawn inside `#root`. `app.css` mixes
+window is translucent (the window's `run.go`). Everything is drawn inside `#root`. `app.css` mixes
 `--window-opacity` into the surface, the dial's face and the tab's accent, so only backgrounds fade
 and the clocks stay solid; `App` sets it to 1 while the window is a panel. The window's own paint
-shows behind anything less than opaque, so `opacity.go` paints it the page's colour at full opacity
+shows behind anything less than opaque, so the window's `opacity.go` paints it the page's colour at full opacity
 (a window catching up with a new size then shows that colour, not white) and clear below it. The page
 reports that colour from a hidden `#surface-swatch`, since `#root`'s faded background is no colour to
 paint a window in.
@@ -197,7 +208,7 @@ recorded by every placement) and places it again if they differ: GNOME may place
 window by its own rule; its move, left to settle, was stored as the user's drag (measured
 2026-10-04). Placed again at once, that move cancels as a placement rather than a drag.
 
-**The unpinned ribbon.** The facade owns `hover`'s timer (`unpinned.go`). Opening tells the page first
+**The unpinned ribbon.** The kit's window owns `hover`'s timer (`unpinned.go`). Opening tells the page first
 and grows the window once the page reports `RibbonDrawn` (else after `drawWait`); the open ribbon keeps
 the tab's frame; the window wears the page's colour (`SetBackground`). Each removed a flicker measured
 on Windows (REQUIREMENTS section 2.3). The pointer is read every 50 ms on Windows (against the
@@ -298,13 +309,14 @@ tab.
 On Windows `desktop` owns a hidden top-level window on its own locked thread for the tray icon, the
 native menus and the broadcasts (a message-only window would not hear them). It re-adds the icon on
 `TaskbarCreated`. The desktop reports on a buffered channel, dropping an event with a log line rather
-than blocking Windows' thread; the facade's `listen` loop acts on it. Both recover a panic and log it.
+than blocking Windows' thread; the window's `listen` loop acts on it. Both recover a panic and log it.
 
 Both menus are native popups, so the small window never clips them. Their items have one home,
 `internal/application/menus.go` and `menu_choices.go`; identifiers are numbered depth first
 (`desktop/menu.go`). Settings offers every menu choice from the same items: `Service.SettingsChoices`
-answers them, the page hands the chosen action to `Choose` (`choices.go`), which refuses anything not
-offered (FR-624). `TestEveryMenuChoiceIsOfferedBySettings` fails for a menu choice Settings lacks. On
+answers them, the page hands the chosen action to `Choose` (the window's `choices.go`), which refuses anything not
+offered (FR-624). The window carries out every ribbon's actions itself and hands any other, such as
+Add clock, Style or Sun map, to TimeRibbon's `actOn`. `TestEveryMenuChoiceIsOfferedBySettings` fails for a menu choice Settings lacks. On
 Windows a left click on the tray icon toggles the ribbon; on Linux the tray host's activation does;
 on macOS a click opens the menu. A tray icon that cannot be made is not fatal; closing then quits.
 
@@ -354,7 +366,7 @@ release, never a draft or prerelease. It is unauthenticated, times out after 5 s
 and reads at most a megabyte. The service compares the tag with the stamped version as dotted
 integers (anything else is never newer), picks this platform's asset by its ending and honours the
 skipped release except on a manual check. Addresses are taken only as `https` on `github.com` with no
-user or port (`onGitHub`). `updates.go` checks 3 seconds after start, then every 24 hours, recovering
+user or port (`onGitHub`). The window's `updates.go` checks 3 seconds after start, then every 24 hours, recovering
 any panic; a check with something to say shows the update panel. The addresses stay in Go: Download
 and Skip ask Go to act on what it offered.
 
@@ -400,7 +412,7 @@ its state. Its keyboard ring (`setup-ring.js`) is the window's model written aga
 |---|---|
 | Settings | `settings.json`: `%APPDATA%\TimeRibbon` on Windows, `~/Library/Application Support/TimeRibbon` on macOS, `~/.var/app/uk.codecrafter.TimeRibbon/config/TimeRibbon` for the Flatpak, `$XDG_CONFIG_HOME/TimeRibbon` else `~/.config/TimeRibbon` outside it; kept-aside copies beside it |
 | Run log | `TimeRibbon.log` beside the settings, started afresh over 1 MiB |
-| Web view data on Windows | `%APPDATA%\TimeRibbon\WebView2`, named in `launch.go` so forgetting the settings removes it |
+| Web view data on Windows | `%APPDATA%\TimeRibbon\WebView2`, named in the window's `run.go` so forgetting the settings removes it |
 | Time zone rules, place catalogue | built in; macOS and Linux read their own zone files first |
 | Installed files | Windows: `%LOCALAPPDATA%\Programs\TimeRibbon` with `uninstall.exe`; macOS: where the user drags the app; Linux: the user's Flatpak installation |
 | Start at sign-in | Windows: `TimeRibbon` under `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`, the quoted path and no arguments. macOS: `~/Library/LaunchAgents/uk.codecrafter.TimeRibbon.plist`. Linux: `~/.config/autostart/uk.codecrafter.TimeRibbon.desktop` |

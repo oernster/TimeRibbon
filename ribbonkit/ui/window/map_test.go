@@ -1,11 +1,10 @@
-package main
+package window
 
 import (
 	"slices"
 	"strings"
 	"testing"
 
-	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/ribbonkit/application/arranger"
 	"github.com/oernster/timeribbon/ribbonkit/application/shell"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
@@ -61,15 +60,15 @@ func TestTheMapHidesWithTheTab(t *testing.T) {
 	if err := app.placeLaunched(); err != nil {
 		t.Fatal(err)
 	}
-	if shown := app.Snapshot().SunMap; shown.Shown || !app.Snapshot().Collapsed {
+	if shown := app.shown(); shown.MapShown || !app.collapsed() {
 		t.Errorf("collapsed: %+v", shown)
 	}
-	app.service.(*scriptedService).settings.Pinned = true
+	service.choices.Pinned = true
 	if err := app.placeLaunched(); err != nil {
 		t.Fatal(err)
 	}
-	got := app.Snapshot().SunMap
-	if !got.Shown || got.Side != "bottom" || got.Map != (boxDTO{X: 0, Y: 90, Width: 480, Height: 240}) || got.Ribbon != (boxDTO{X: 90, Y: 0, Width: 300, Height: 90}) {
+	got := app.shown()
+	if !got.MapShown || got.MapSide != placement.Bottom || got.Map != (Box{X: 0, Y: 90, Width: 480, Height: 240}) || got.Ribbon != (Box{X: 90, Y: 0, Width: 300, Height: 90}) {
 		t.Errorf("shown: %+v", got)
 	}
 }
@@ -81,7 +80,7 @@ func TestTheMapsPartsReachThePageInItsOwnUnits(t *testing.T) {
 	t.Parallel()
 	app, service, _ := unpinnedApp(t)
 	service.arrangement = withMap
-	service.settings.Pinned = true
+	service.choices.Pinned = true
 	const ratio = 1.25
 	if err := app.SetPixelRatio(ratio); err != nil {
 		t.Fatal(err)
@@ -90,13 +89,13 @@ func TestTheMapsPartsReachThePageInItsOwnUnits(t *testing.T) {
 		t.Fatal(err)
 	}
 	perDIP := desktop.PixelsPerDIP(ratio, testUnscaled)
-	want := boxDTO{X: 90 / perDIP, Y: 0, Width: 300 / perDIP, Height: 90 / perDIP}
-	if got := app.Snapshot().SunMap; got.Ribbon != want || got.Map.Width != 480/perDIP {
+	want := Box{X: 90 / perDIP, Y: 0, Width: 300 / perDIP, Height: 90 / perDIP}
+	if got := app.shown(); got.Ribbon != want || got.Map.Width != 480/perDIP {
 		t.Errorf("at %v pixels to a unit the page was told %+v, want the ribbon at %+v", perDIP, got, want)
 	}
 	service.changeErr = errPlanted
 	_ = app.SetPixelRatio(2 * ratio)
-	if got := app.Snapshot().SunMap.Ribbon; got != want {
+	if got := app.shown().Ribbon; got != want {
 		t.Errorf("a refused ratio moved the ribbon to %+v", got)
 	}
 }
@@ -107,7 +106,7 @@ func TestTheMapsPartsReachThePageInItsOwnUnits(t *testing.T) {
 func TestAnOpeningRibbonIsDrawnWithItsMap(t *testing.T) {
 	t.Parallel()
 	app, service, seen, _ := newTestApp(t)
-	service.settings.Pinned = false
+	service.choices.Pinned = false
 	service.arrangement = withMap
 	if err := app.placeLaunched(); err != nil {
 		t.Fatal(err)
@@ -118,9 +117,9 @@ func TestAnOpeningRibbonIsDrawnWithItsMap(t *testing.T) {
 	if seen.drawPending == nil {
 		t.Fatal("opening did not wait for the page")
 	}
-	got := app.Snapshot()
-	if got.Collapsed || !got.SunMap.Shown || got.SunMap.Map != (boxDTO{X: 0, Y: 90, Width: 480, Height: 240}) {
-		t.Errorf("while drawing the page was told %+v, collapsed %v; want the ribbon with its map", got.SunMap, got.Collapsed)
+	got := app.shown()
+	if got.Collapsed || !got.MapShown || got.Map != (Box{X: 0, Y: 90, Width: 480, Height: 240}) {
+		t.Errorf("while drawing the page was told %+v; want the ribbon with its map", got)
 	}
 }
 
@@ -184,27 +183,25 @@ func TestTheTabIsNeverCut(t *testing.T) {
 	if err := app.placeLaunched(); err != nil {
 		t.Fatal(err)
 	}
-	if got := seen.shapes[len(seen.shapes)-1]; !app.Snapshot().Collapsed || !slices.Equal(got, []placement.Rect{{Right: lastPlaced(t, seen).Size.Width, Bottom: lastPlaced(t, seen).Size.Height}}) {
+	if got := seen.shapes[len(seen.shapes)-1]; !app.collapsed() || !slices.Equal(got, []placement.Rect{{Right: lastPlaced(t, seen).Size.Width, Bottom: lastPlaced(t, seen).Size.Height}}) {
 		t.Errorf("tab cut to %+v", got)
 	}
 }
 
-// FR-901, FR-903: the menu item and the handle each flip their choice, then refit the window.
-func TestTheSunMapItemAndTheHandleFlipTheirChoices(t *testing.T) {
+// FR-903: the handle flips the pull out, then refits the window and has the page draw it again.
+func TestTheHandleFlipsThePullOut(t *testing.T) {
 	t.Parallel()
 	app, service, seen, _ := newTestApp(t)
-	app.act(application.ActionSunMap)
-	seen.events = nil
 	if err := app.TogglePullOut(); err != nil {
 		t.Fatal(err)
 	}
-	if !seen.sawEvent(eventRefresh) {
-		t.Error("the handle changed the window but the page was not told to draw it again")
+	if !seen.sawEvent(eventRefresh) || !slices.Contains(service.calls, "Rearrange") {
+		t.Errorf("the handle changed the window but it was not refitted (%v) or the page not told", service.calls)
 	}
-	if !service.settings.SunMap || !service.settings.PullOut {
-		t.Errorf("sun map %v, pull out %v; want both on", service.settings.SunMap, service.settings.PullOut)
+	if !service.pullOut {
+		t.Error("the first click left the pull out closed")
 	}
-	if err := app.TogglePullOut(); err != nil || service.settings.PullOut {
-		t.Errorf("the second click left the pull out %v (%v)", service.settings.PullOut, err)
+	if err := app.TogglePullOut(); err != nil || service.pullOut {
+		t.Errorf("the second click left the pull out %v (%v)", service.pullOut, err)
 	}
 }

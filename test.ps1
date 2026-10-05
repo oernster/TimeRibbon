@@ -82,9 +82,11 @@ try {
 
 # The rest of the tree, each package held at the number it reaches. TESTING.md names what each
 # shortfall is: error returns that only a failing disk, registry or display driver can produce. In
-# the root package it is the composition root and the calls that reach Wails and Win32 themselves.
+# the root package it is the composition root; in the kit's window, the calls that reach Wails and
+# the start, listening and stop that only Wails runs.
 $measured = [ordered]@{
-    '.'                                  = 88
+    '.'                                  = 66
+    './ribbonkit/ui/window'               = 93
     './ribbonkit/infrastructure/appdata'  = 100
     './ribbonkit/infrastructure/desktop'  = 46
     './ribbonkit/infrastructure/iconscale' = 100

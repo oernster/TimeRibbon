@@ -1,4 +1,4 @@
-package main
+package window
 
 // The update check's place in the window's life (FR-509): once shortly after the start, then once a
 // day while it runs, plus whenever Help asks. An automatic check says nothing unless a release the
@@ -46,7 +46,7 @@ func (w *updateWatch) current() release.Status {
 }
 
 // watchForUpdates checks after the start has settled, then once a day, until ctx ends.
-func (a *App) watchForUpdates(ctx context.Context) {
+func (a *Window) watchForUpdates(ctx context.Context) {
 	first := time.NewTimer(a.updates.delay)
 	defer first.Stop()
 	select {
@@ -69,7 +69,7 @@ func (a *App) watchForUpdates(ctx context.Context) {
 
 // checkForUpdate runs one check. Where it has something to say, it shows the ribbon as the update
 // panel. It runs on a goroutine of its own, so a panic is logged here rather than ending the run.
-func (a *App) checkForUpdate(ctx context.Context, manual bool) {
+func (a *Window) checkForUpdate(ctx context.Context, manual bool) {
 	defer func() {
 		if failure := recover(); failure != nil {
 			fmt.Fprintf(a.log, "recovered from %v while checking for an update\n", failure)
@@ -89,7 +89,7 @@ func (a *App) checkForUpdate(ctx context.Context, manual bool) {
 
 // OpenUpdate hands the offered release to the browser: this platform's download, else the release
 // page (FR-509). Where the browser cannot be opened, the refusal gives the address.
-func (a *App) OpenUpdate() error {
+func (a *Window) OpenUpdate() error {
 	status := a.updates.current()
 	address := status.DownloadURL
 	if address == "" {
@@ -105,7 +105,7 @@ func (a *App) OpenUpdate() error {
 }
 
 // SkipUpdate keeps the offered release as one the automatic check never offers again (FR-509).
-func (a *App) SkipUpdate() error {
+func (a *Window) SkipUpdate() error {
 	status := a.updates.current()
 	if status.Latest == "" {
 		return errNothingOffered

@@ -1,4 +1,4 @@
-package main
+package window
 
 import (
 	"errors"
@@ -18,37 +18,25 @@ var testChoices = []menus.Item{
 	{Action: menus.Pin, Label: "Pin ribbon", Checkable: true, Checked: true},
 }
 
-// FR-624: the snapshot carries the menus' choices whole with their ticks; never a null list.
-func TestTheSnapshotCarriesTheMenusChoices(t *testing.T) {
-	app, service, _, _ := newTestApp(t)
-	service.choices = testChoices
-	got := app.Snapshot().Choices
-	if len(got) != len(testChoices) || got[0].Label != "Colour" || len(got[0].Children) != 2 {
-		t.Fatalf("choices %+v, want the service's", got)
-	}
-	if neon := got[0].Children[1]; neon.Action != "colour-neon" || !neon.Checkable || !neon.Checked {
-		t.Errorf("Neon went out as %+v", neon)
-	}
-	if pin := got[1]; pin.Children == nil || pin.Action != string(menus.Pin) || !pin.Checked {
-		t.Errorf("Pin ribbon went out as %+v, with a null list of children or without its tick", pin)
-	}
-}
-
-// FR-624: a choice made in Settings is carried out as its menu item is; anything else is refused and
-// changes nothing, a group's own label included, since it chooses nothing.
+// FR-624: a choice made in Settings is carried out as its menu item is: one of the kit's by the
+// window, one of the application's handed to it. Anything else is refused and changes nothing, a
+// group's own label included, since it chooses nothing.
 func TestChooseCarriesOutOnlyTheChoicesSettingsOffers(t *testing.T) {
 	app, service, seen, _ := newTestApp(t)
-	service.choices = testChoices
-	if err := app.Choose("colour-classic"); err != nil {
+	service.settingsFor = testChoices
+	if err := app.Choose(string(menus.Pin)); err != nil {
 		t.Fatal(err)
 	}
-	if !slices.Contains(service.calls, "SetColour") || !seen.sawEvent(eventRefresh) {
-		t.Errorf("calls %v; want the colour set and the page told", service.calls)
+	if !slices.Contains(service.calls, "SetPinned") || !seen.sawEvent(eventRefresh) {
+		t.Errorf("calls %v; want the pin changed and the page told", service.calls)
+	}
+	if err := app.Choose("colour-classic"); err != nil || !slices.Equal(seen.acted, []menus.Action{"colour-classic"}) {
+		t.Errorf("Choose answered %v, handing over %v; want the application's choice handed to it", err, seen.acted)
 	}
 	for _, refused := range []string{"", "exit", "colour-sunset"} {
-		app, service, _, _ := newTestApp(t)
-		service.choices = testChoices
-		if err := app.Choose(refused); !errors.Is(err, ribbon.ErrUnknownChoice) || len(service.calls) != 0 {
+		app, service, seen, _ := newTestApp(t)
+		service.settingsFor = testChoices
+		if err := app.Choose(refused); !errors.Is(err, ribbon.ErrUnknownChoice) || len(service.calls) != 0 || len(seen.acted) != 0 {
 			t.Errorf("Choose(%q) answered %v with calls %v; want it refused and nothing done", refused, err, service.calls)
 		}
 	}

@@ -1,4 +1,4 @@
-package main
+package window
 
 import (
 	"math"
@@ -17,7 +17,7 @@ type paintState struct {
 
 // SetOpacity chooses how opaque the window is drawn (FR-622), then paints the window's own
 // background again for it. The page draws itself at the opacity from the snapshot.
-func (a *App) SetOpacity(percent int) error {
+func (a *Window) SetOpacity(percent int) error {
 	err := a.service.SetOpacity(percent)
 	a.repaint()
 	return err
@@ -27,14 +27,14 @@ func (a *App) SetOpacity(percent int) error {
 // wholly opaque, so a window catching up with a new size shows the page's colour rather than
 // white; clear otherwise, since the window's own paint shows behind the page wherever the page is
 // less than opaque and would hide the desktop the chosen opacity lets through.
-func (a *App) repaint() {
+func (a *Window) repaint() {
 	a.paint.guard.Lock()
 	defer a.paint.guard.Unlock()
 	if !a.paint.known {
 		return
 	}
 	var alpha uint8
-	if a.service.Settings().Opacity >= ribbon.MaxOpacity {
+	if a.service.Choices().Opacity >= ribbon.MaxOpacity {
 		alpha = math.MaxUint8
 	}
 	a.background(a.paint.colour[0], a.paint.colour[1], a.paint.colour[2], alpha)

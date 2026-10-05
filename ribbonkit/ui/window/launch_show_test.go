@@ -1,13 +1,10 @@
-package main
+package window
 
 import (
 	"context"
 	"strings"
 	"testing"
 )
-
-// testMeasured is a measurement the page hands over at launch.
-var testMeasured = measuredDTO{Size: "large", Style: "digital", Format: "24h", DateFormat: "day-month"}
 
 // The page's sizing may land before it is ready: the ribbon is then shown the moment it is, with no
 // fallback waited for.
@@ -16,9 +13,7 @@ func TestARibbonSizedBeforeItIsReadyShowsWhenReady(t *testing.T) {
 	if err := app.SetPixelRatio(1); err != nil {
 		t.Fatal(err)
 	}
-	if err := app.SetMeasured(testMeasured); err != nil {
-		t.Fatal(err)
-	}
+	app.pageMeasured()
 	if seen.shown != 0 {
 		t.Fatalf("shown %d times before the page was ready", seen.shown)
 	}
@@ -43,9 +38,7 @@ func TestARibbonThePageNeverSizesIsShownByTheFallbackOnce(t *testing.T) {
 	if err := app.SetPixelRatio(1); err != nil {
 		t.Fatal(err)
 	}
-	if err := app.SetMeasured(testMeasured); err != nil {
-		t.Fatal(err)
-	}
+	app.pageMeasured()
 	if seen.shown != 1 {
 		t.Errorf("a late report showed the ribbon again: %d times", seen.shown)
 	}
@@ -53,7 +46,7 @@ func TestARibbonThePageNeverSizesIsShownByTheFallbackOnce(t *testing.T) {
 
 // showLaunchedRibbon places the ribbon as a launch does, then has the page make it ready and size
 // it, which shows it.
-func showLaunchedRibbon(t *testing.T, app *App) {
+func showLaunchedRibbon(t *testing.T, app *Window) {
 	t.Helper()
 	if err := app.placeLaunched(); err != nil {
 		t.Fatal(err)
@@ -62,9 +55,7 @@ func showLaunchedRibbon(t *testing.T, app *App) {
 	if err := app.SetPixelRatio(1); err != nil {
 		t.Fatal(err)
 	}
-	if err := app.SetMeasured(testMeasured); err != nil {
-		t.Fatal(err)
-	}
+	app.pageMeasured()
 }
 
 // FR-403, FR-405: a desktop that shows the launched window somewhere else (GNOME, measured
@@ -93,13 +84,14 @@ func TestALaunchedRibbonShownElsewhereIsPlacedAgain(t *testing.T) {
 	}
 }
 
-// A report the service refuses does not count as sizing the ribbon.
+// A scale the service refuses does not count as sizing the ribbon, measured or not; a refused
+// measurement never reaches the window as measured (the application's own test).
 func TestARefusedReportDoesNotShowTheRibbon(t *testing.T) {
 	app, service, seen, _ := newTestApp(t)
 	app.domReady(context.Background())
 	service.changeErr = errPlanted
 	_ = app.SetPixelRatio(1)
-	_ = app.SetMeasured(testMeasured)
+	app.pageMeasured()
 	if seen.shown != 0 {
 		t.Errorf("refused reports showed the ribbon %d times", seen.shown)
 	}

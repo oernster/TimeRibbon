@@ -1,4 +1,4 @@
-package main
+package window
 
 import (
 	"math"
@@ -13,9 +13,9 @@ import (
 // scale each tell it to draw again, as well as fitting the window (the fit is proved in
 // TestEveryChangeFitsTheRibbonAndAnswersTheServicesError).
 func TestAChangeOfScaleTellsThePageToDrawAgain(t *testing.T) {
-	for name, change := range map[string]func(*App) error{
-		"PreviewScale": func(app *App) error { return app.PreviewScale(150) },
-		"SetScale":     func(app *App) error { return app.SetScale(150) },
+	for name, change := range map[string]func(*Window) error{
+		"PreviewScale": func(app *Window) error { return app.PreviewScale(150) },
+		"SetScale":     func(app *Window) error { return app.SetScale(150) },
 	} {
 		app, _, seen, _ := newTestApp(t)
 		if err := change(app); err != nil || !seen.sawEvent(eventRefresh) {
@@ -31,7 +31,7 @@ const gripThickness = 200.0
 // never the page's own reading, which was measured jumping backwards mid-drag (2026-10-04).
 func TestTheGripFollowsTheDesktopsPointerOverThePages(t *testing.T) {
 	app, service, _, _ := newTestApp(t)
-	service.settings.Scale, service.settings.Orientation = ribbon.WholeScale, ribbon.Vertical
+	service.choices.Scale, service.choices.Orientation = ribbon.WholeScale, ribbon.Vertical
 	const perDIP = 2.0
 	app.pixelsPerDIP.Store(math.Float64bits(perDIP))
 	cursor := placement.Point{X: 1000, Y: 300}
@@ -54,7 +54,7 @@ func TestTheGripFollowsTheDesktopsPointerOverThePages(t *testing.T) {
 // for a horizontal ribbon; the same scale twice is previewed once.
 func TestTheGripFollowsThePagesPointerWhereTheDesktopCannotReadIt(t *testing.T) {
 	app, service, _, _ := newTestApp(t)
-	service.settings.Scale, service.settings.Orientation = ribbon.WholeScale, ribbon.Horizontal
+	service.choices.Scale, service.choices.Orientation = ribbon.WholeScale, ribbon.Horizontal
 	app.BeginScale(gripThickness, 0, 0)
 	for range 2 {
 		if err := app.DragScale(gripThickness, gripThickness/2); err != nil {
@@ -71,7 +71,7 @@ func TestTheGripFollowsThePagesPointerWhereTheDesktopCannotReadIt(t *testing.T) 
 // after the drag has ended does nothing.
 func TestAPressThatMovesNothingKeepsNothing(t *testing.T) {
 	app, service, _, _ := newTestApp(t)
-	service.settings.Scale = ribbon.WholeScale
+	service.choices.Scale = ribbon.WholeScale
 	app.BeginScale(gripThickness, 0, 0)
 	if err := app.DragScale(0, 0); err != nil {
 		t.Fatal(err)

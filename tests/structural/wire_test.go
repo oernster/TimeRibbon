@@ -1,9 +1,9 @@
 package structural
 
-// The wire is stated twice: Go structs with json tags in dto.go and TypeScript interfaces in
+// The wire is stated twice: Go structs with json tags in wireFiles and TypeScript interfaces in
 // frontend/src/wire.ts. The type checker sees only the TypeScript and the marshaller sees only the
 // Go, so this test compares them, field for field in both directions. It also holds the event words
-// app.go and installer/app.go emit to their pages, which each page must name exactly.
+// the window, app.go and installer/app.go emit to their pages, which each page must name exactly.
 
 import (
 	"fmt"
@@ -28,20 +28,27 @@ var wirePairs = map[string]string{
 	"textSamplesDTO": "TextSamples", "measuredDTO": "Measured", "choiceDTO": "MenuChoice",
 }
 
-// windowWords names each constant app.go sends the page with the shape the page must state its value
-// in: a listener for an event and a key of panelFor for a panel. setupWords does the same for
-// installer/app.go and the setup page. The shape rather than the bare quoted word, since a view, a
-// panel or a test may share the word and would hide a listener or a key that no longer matches.
+// wireFiles are the Go halves of the wire: TimeRibbon's own and the kit window's.
+var wireFiles = []string{"dto.go", filepath.Join("ribbonkit", "ui", "window", "wire.go")}
+
+// windowFile is where the kit's window states the words it sends the page.
+var windowFile = filepath.Join("ribbonkit", "ui", "window", "facade.go")
+
+// windowWords names each constant the window sends the page with the shape the page must state its
+// value in: a listener for an event and a key of panelFor for a panel. appWords does the same for
+// app.go, setupWords for installer/app.go and the setup page. The shape rather than the bare quoted
+// word, since a view, a panel or a test may share the word and would hide a listener or a key that
+// no longer matches.
 var (
 	windowWords = map[string]string{
 		"eventRefresh":   heardByTheWindow,
 		"eventOpenPanel": heardByTheWindow,
 		"openAtSettings": panelKey,
-		"openAtAddClock": "const addClock = '%s'",
 		"openAtAbout":    panelKey,
 		"openAtLicence":  panelKey,
 		"openAtUpdate":   panelKey,
 	}
+	appWords   = map[string]string{"openAtAddClock": "const addClock = '%s'"}
 	setupWords = map[string]string{"progressEvent": "EventsOn('%s'"}
 )
 
@@ -55,14 +62,23 @@ var (
 	tsField     = regexp.MustCompile(`(?m)^\s+(\w+)\??:`)
 )
 
-// goWire answers each struct in dto.go with its json names, sorted.
+// goWire answers each struct in wireFiles with its json names, sorted.
 func goWire(t *testing.T) map[string][]string {
 	t.Helper()
-	parsed, err := parser.ParseFile(token.NewFileSet(), filepath.Join(repoRoot(t), "dto.go"), nil, 0)
+	out := map[string][]string{}
+	for _, file := range wireFiles {
+		goWireOf(t, file, out)
+	}
+	return out
+}
+
+// goWireOf adds each struct in file to out with its json names, sorted.
+func goWireOf(t *testing.T, file string, out map[string][]string) {
+	t.Helper()
+	parsed, err := parser.ParseFile(token.NewFileSet(), filepath.Join(repoRoot(t), file), nil, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
-	out := map[string][]string{}
 	ast.Inspect(parsed, func(node ast.Node) bool {
 		spec, ok := node.(*ast.TypeSpec)
 		if !ok {
@@ -82,7 +98,6 @@ func goWire(t *testing.T) map[string][]string {
 		out[spec.Name.Name] = names
 		return true
 	})
-	return out
 }
 
 // tsWire answers each interface in wire.ts with its field names, sorted.
@@ -107,7 +122,7 @@ func tsWire(t *testing.T) map[string][]string {
 func TestTheWireIsStatedAlikeOnBothSides(t *testing.T) {
 	goSide, tsSide := goWire(t), tsWire(t)
 	if len(goSide) != len(wirePairs) || len(tsSide) != len(wirePairs) {
-		t.Errorf("dto.go states %d types and wire.ts %d; the pairs name %d", len(goSide), len(tsSide), len(wirePairs))
+		t.Errorf("the Go wire states %d types and wire.ts %d; the pairs name %d", len(goSide), len(tsSide), len(wirePairs))
 	}
 	for goName, tsName := range wirePairs {
 		if !slices.Equal(goSide[goName], tsSide[tsName]) {
@@ -117,7 +132,8 @@ func TestTheWireIsStatedAlikeOnBothSides(t *testing.T) {
 }
 
 func TestThePageNamesEveryEventGoEmits(t *testing.T) {
-	requirePageNamesEveryWord(t, "app.go", windowWords, frontendFiles(t))
+	requirePageNamesEveryWord(t, windowFile, windowWords, frontendFiles(t))
+	requirePageNamesEveryWord(t, "app.go", appWords, frontendFiles(t))
 }
 
 // The setup program's progress bar moves only on the word installer/app.go emits.

@@ -1,4 +1,4 @@
-package main
+package window
 
 import (
 	"fmt"
@@ -29,7 +29,7 @@ type launchShow struct {
 
 // pageReady records that the page can be shown, then shows the ribbon if it is sized; else it waits
 // sizeWait for that.
-func (a *App) pageReady() {
+func (a *Window) pageReady() {
 	a.launch.ready.Store(true)
 	if !a.showLaunched() {
 		a.after(sizeWait, a.sizeDue)
@@ -37,19 +37,19 @@ func (a *App) pageReady() {
 }
 
 // pageScaled records that the page's scale has been applied to the window.
-func (a *App) pageScaled() {
+func (a *Window) pageScaled() {
 	a.launch.scaled.Store(true)
 	a.showLaunched()
 }
 
 // pageMeasured records that the page's widest text has been applied to the window.
-func (a *App) pageMeasured() {
+func (a *Window) pageMeasured() {
 	a.launch.measured.Store(true)
 	a.showLaunched()
 }
 
 // sizeDue shows a ready ribbon whose page has not finished sizing it within sizeWait.
-func (a *App) sizeDue() {
+func (a *Window) sizeDue() {
 	a.launch.scaled.Store(true)
 	a.launch.measured.Store(true)
 	a.showLaunched()
@@ -57,7 +57,7 @@ func (a *App) sizeDue() {
 
 // showLaunched shows the launched ribbon once, when the page is ready and has sized it; it answers
 // whether it has been shown.
-func (a *App) showLaunched() bool {
+func (a *Window) showLaunched() bool {
 	if !a.launch.ready.Load() || !a.launch.scaled.Load() || !a.launch.measured.Load() {
 		return false
 	}
@@ -73,7 +73,7 @@ func (a *App) showLaunched() bool {
 // put while hidden: measured 2026-10-04 on Ubuntu, placed at 1252,358 and shown at 248,72, whose
 // settling was then stored as the user's drag. Placed again at once, before that move settles, the
 // move is not taken for one.
-func (a *App) keepLaunchedPlace() {
+func (a *Window) keepLaunchedPlace() {
 	at, err := a.position()
 	if err != nil {
 		a.report("reading where the ribbon was shown", err)

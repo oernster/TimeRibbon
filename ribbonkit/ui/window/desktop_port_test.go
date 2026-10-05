@@ -1,4 +1,4 @@
-package main
+package window
 
 import (
 	"errors"
@@ -78,12 +78,12 @@ func (d *recordingDesktop) OpenInBrowser(string) error {
 // errPortTest is what the recording desktop's FindRibbon answers, so a test can tell it was asked.
 var errPortTest = errors.New("the recording desktop finds no window")
 
-// Every call the facade makes into the desktop goes through the port it was built with, carrying the
+// Every call the window makes into the desktop goes through the port it was built with, carrying the
 // ribbon's own window where the call is about it.
-func TestTheFacadeReachesTheDesktopThroughItsPort(t *testing.T) {
+func TestTheWindowReachesTheDesktopThroughItsPort(t *testing.T) {
 	t.Parallel()
 	desk := &recordingDesktop{}
-	app := newApp(&scriptedService{arrangement: testArrange}, desk, io.Discard, panelSizes{})
+	app, _ := New(Config{Service: &scriptedService{arrangement: testArrange}, Desktop: desk, Log: io.Discard})
 	app.ribbon = testRibbon
 	_ = app.browse("https://example.invalid")
 	app.showMenu(nil)
@@ -101,7 +101,7 @@ func TestTheFacadeReachesTheDesktopThroughItsPort(t *testing.T) {
 		"ToolkitScale", "PixelsPerDIP", "DragThreshold", "Cursor",
 	}
 	if !slices.Equal(desk.calls, want) {
-		t.Fatalf("the facade called %v, want %v", desk.calls, want)
+		t.Fatalf("the window called %v, want %v", desk.calls, want)
 	}
 	for index, call := range desk.calls {
 		about := slices.Contains([]string{"Position", "Place", "Shape", "SetTabFrame", "TrackPointer"}, call)

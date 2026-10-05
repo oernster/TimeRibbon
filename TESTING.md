@@ -39,7 +39,7 @@ figure with the fraction dropped, so it fails once cover is lost.
 | `internal/application`; `ribbonkit/application/arranger`, `menus`, `release` | 100% | 100% |
 | `internal/infrastructure/zones`; `ribbonkit/infrastructure/appdata`, `iconscale`, `system`, `update` | 100% | 100% |
 | `internal/infrastructure/store` | 94.0% | 94% |
-| the root package (the Wails facade) | 88.4% | 88% |
+| `ribbonkit/ui/window` | 93.8% | 93% |
 | `tools/versioninfo` | 86.7% | 86% |
 | `internal/infrastructure/setup` | 84.0% | 84% |
 | `tools/payload` | 82.8% | 82% |
@@ -48,18 +48,19 @@ figure with the fraction dropped, so it fails once cover is lost.
 | `ribbonkit/infrastructure/runlog` | 77.8% | 77% |
 | `tools/identity` | 75% | 75% |
 | `tools/linuxicons` | 67.7% | 67% |
+| the root package (the Wails facade) | 66.1% | 66% |
 | `tools/genplaces` | 58.6% | 58% |
 | `ribbonkit/infrastructure/desktop` | 46.8% | 46% |
 | `internal/product` | 100% | not gated |
 | `installer` | 0%, no tests | not gated |
 
-Every figure is the Windows build's, which `test.ps1` measures. That build compiles 402 Go test
+Every figure is the Windows build's, which `test.ps1` measures. That build compiles 416 Go test
 functions, counted from the test files `go list` selects, each running once with no subtests, plus
 one `TestMain` in `internal/infrastructure/setup`. Thirty-two are the structural tests, which read
 the source and are the same on every platform; [ARCHITECTURE.md](ARCHITECTURE.md) lists each against
 its rule. `TestA1Point0SettingsFileIsReadWhole` in `store` holds the settings file's promise
 (NFR-C-1); `contrast_test.go` holds NFR-U-1 in Go because Vitest hands a CSS import back empty. The
-macOS build compiles 375 and the Linux build 379 ([On macOS and Linux](#on-macos-and-linux)).
+macOS build compiles 389 and the Linux build 393 ([On macOS and Linux](#on-macos-and-linux)).
 
 ### The front end
 
@@ -80,7 +81,8 @@ claimed.
 | `internal/domain` | pure unit over fixed instants and zones loaded with the tz database embedded | nothing |
 | `internal/application` | unit over hand-written fakes of the seven ports | nothing |
 | `internal/infrastructure` | integration over temporary folders and scratch registry keys | the filesystem, `HKCU` under a scratch key, child processes, the real displays |
-| the root package | unit over a scripted service, with Wails and the desktop stood in for | nothing |
+| `ribbonkit/ui/window` | unit over a scripted service, with Wails and the desktop stood in for | nothing |
+| the root package | unit over a scripted service and a stand-in window | reads `frontend/src/api.ts` |
 | `tests/structural` | source and AST scans, a `go list` per platform, one `git ls-files` | reads files |
 | the front end | component tests under jsdom over `fakeBridge.ts`, which records every call | nothing |
 
@@ -101,14 +103,20 @@ so GitHub is asked only by the running application, which is checked by hand.
   showing through are checked by hand in a real build.
 - **`monitors` (82.6%):** Windows refusing to enumerate or describe a display.
 - **`runlog` (77.8%):** the log refusing to open, its first line failing and `SetStdHandle` refusing.
-- **The root package (88.4%).** The facade's decisions are tested across its seventeen test files:
-  which calls refit the ribbon, panels and Settings' fit, the tab, the window holding and cut to the
-  map, the menu actions, closing, a signal ending the run, the recover round each event and update
-  check, the update watch's timing, the page's measurements, the grip's drag (following the desktop's
-  pointer where it can read it, else the page's), the window's paint below full opacity, the first
-  showing and every call into the desktop going through the `shell.Desktop` port with the ribbon's
-  window. Not reached: `main.go`, `launch.go`, `startup`, `listen`, `shutdown`, the one-line calls
-  into Wails; `preparePlatform` on Windows, which does nothing.
+- **`ribbonkit/ui/window` (93.8%).** The window's decisions are tested across its seventeen test
+  files over a scripted service: which calls refit the ribbon, panels and Settings' fit, the tab, the
+  window holding and cut to the map, the menu actions and the hand-over of those the kit does not know,
+  closing, a signal ending the run, the recover round each event and update check, the update watch's
+  timing, the grip's drag (following the desktop's pointer where it can read it, else the page's),
+  the window's paint below full opacity, the first showing, Help, the Control's calls and every call
+  into the desktop going through the `shell.Desktop` port with the ribbon's window. Not reached:
+  `run.go`, the one-line calls into Wails, `startup`, `listen` and `shutdown`, which only Wails runs.
+- **The root package (66.1%).** TimeRibbon's own half of the facade is tested over a scripted service
+  and a stand-in window: every change to the clocks fits the ribbon once, the Snapshot carries the
+  window's reading, TimeRibbon's menu actions, the measurements, the product handed to the window, the
+  adapter reading the ribbon's choices out of the settings; every method the page's `Bridge` calls is
+  bound, with nothing of the `Control`. Not reached: the composition root (`main`, `keepLog`,
+  `settingsDir`, `run`) and `preparePlatform` on Windows, which does nothing.
 
 The ribbon's layout at full size was measured in headless Edge 154.0.4258.37 with the application's
 stylesheets: at 100% and 250% a scrolling ribbon shows one scroll bar with no clock cut off.
@@ -138,7 +146,7 @@ that platform, set up as [DEVELOPMENT.md](DEVELOPMENT.md) says, with the page bu
 | What | macOS | Linux |
 |---|---|---|
 | Tags | `desktop,production` | `desktop,production,webkit2_41` |
-| Go test functions | 375, plus 3 `TestMain` | 379, plus 3 `TestMain` |
+| Go test functions | 389, plus 3 `TestMain` | 393, plus 3 `TestMain` |
 | Tests that need cgo | `cocoamain` 3, `monitors` 3, `desktop` 17 | `gtkmain` 5, `monitors` 2, `desktop` 20 |
 | Needs | a signed-in desktop | a signed-in desktop with a display and a tray host |
 

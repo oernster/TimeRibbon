@@ -1,7 +1,7 @@
 // Command TimeRibbon shows a ribbon of clocks, one per chosen place in the world.
 //
 // This file is the composition root, the only file permitted to import both the application layer
-// and concrete infrastructure (TestCompositionRootIsWhitelisted). The facade reaches the desktop
+// and concrete infrastructure (TestCompositionRootIsWhitelisted). The window reaches the desktop
 // through the shell.Desktop port it is handed here.
 package main
 
@@ -27,6 +27,7 @@ import (
 	"github.com/oernster/timeribbon/ribbonkit/infrastructure/startup"
 	"github.com/oernster/timeribbon/ribbonkit/infrastructure/system"
 	"github.com/oernster/timeribbon/ribbonkit/infrastructure/update"
+	"github.com/oernster/timeribbon/ribbonkit/ui/window"
 )
 
 // The empty ribbon's one cell, the padding round the cells and the pull out handle's lane, in DIP,
@@ -61,14 +62,15 @@ var layouts = application.Layouts{
 
 // panels are the window's sizes in DIP while it shows a panel (CON-6): Settings wide enough for its
 // choices to sit side by side (FR-625); About, Licence and the update panel narrower, for their text.
-var panels = panelSizes{
-	settings: placement.Size{Width: 900, Height: 760},
-	other:    placement.Size{Width: 560, Height: 760},
+var panels = window.PanelSizes{
+	Settings: placement.Size{Width: 900, Height: 760},
+	Other:    placement.Size{Width: 560, Height: 760},
 }
 
 func main() {
 	if generatingBindings {
-		if err := launch(&App{}, ""); err != nil {
+		app, control := newApp(nil, window.Config{Log: io.Discard, Panels: panels})
+		if err := control.Run(app, assets, ""); err != nil {
 			os.Exit(1)
 		}
 		return
@@ -135,14 +137,14 @@ func run(log io.Writer) error {
 	if err := service.Start(); err != nil {
 		fmt.Fprintf(log, "loading settings: %v\n", err)
 	}
-	var app *App
-	desk := desktop.New(product.App(), func() []menus.Item { return service.TrayMenu(app.visible.Load()) }, log)
-	app = newApp(service, desk, log, panels)
-	preparePlatform(app, desk)
+	var control *window.Control
+	desk := desktop.New(product.App(), func() []menus.Item { return service.TrayMenu(control.Visible()) }, log)
+	app, control := newApp(service, window.Config{Service: kitService{service}, Desktop: desk, Log: log, Panels: panels})
+	preparePlatform(control, desk)
 	if err := desk.Start(); err != nil {
 		fmt.Fprintf(log, "starting the tray icon: %v; closing the ribbon will exit\n", err)
 	} else {
-		app.trayUp.Store(true)
+		control.TrayStarted()
 	}
-	return launch(app, dir)
+	return control.Run(app, assets, dir)
 }

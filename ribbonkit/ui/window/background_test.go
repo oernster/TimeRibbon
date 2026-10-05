@@ -1,4 +1,4 @@
-package main
+package window
 
 import (
 	"math"
@@ -13,7 +13,7 @@ import (
 func TestThePagesBackgroundReachesTheWindow(t *testing.T) {
 	t.Parallel()
 	app, service, seen, _ := newTestApp(t)
-	service.settings.Opacity = ribbon.MaxOpacity
+	service.choices.Opacity = ribbon.MaxOpacity
 	if err := app.SetBackground(7, 36, math.MaxUint8); err != nil {
 		t.Fatal(err)
 	}
@@ -27,7 +27,7 @@ func TestThePagesBackgroundReachesTheWindow(t *testing.T) {
 func TestTheWindowIsPaintedClearBelowFullOpacity(t *testing.T) {
 	t.Parallel()
 	app, service, seen, _ := newTestApp(t)
-	service.settings.Opacity = ribbon.MaxOpacity
+	service.choices.Opacity = ribbon.MaxOpacity
 	if err := app.SetOpacity(ribbon.MinOpacity); err != nil || len(seen.backgrounds) != 0 {
 		t.Fatalf("before the page reported a colour: %v, painted %v", err, seen.backgrounds)
 	}

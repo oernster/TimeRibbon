@@ -1,4 +1,4 @@
-package main
+package window
 
 // The unpinned ribbon (FR-613 to FR-618): the facade's half of collapsing to the tab and opening
 // from it. When is hover's to decide; this file carries the decision out on the window.
@@ -40,23 +40,23 @@ type unpinned struct {
 const drawWait = 250 * time.Millisecond
 
 // pinned answers whether Pin ribbon is ticked: the choice, kept wherever the ribbon stands (FR-613).
-func (a *App) pinned() bool { return a.service.Settings().Pinned }
+func (a *Window) pinned() bool { return a.service.Choices().Pinned }
 
 // pinnedAt answers whether a ribbon arranged as full behaves as pinned: chosen so; else standing
 // flush against no edge along its orientation (FR-619). Pinned in effect, it shows in full.
-func (a *App) pinnedAt(full arranger.Arrangement) bool {
-	return a.service.Settings().PinnedInEffect(full.Edge != "")
+func (a *Window) pinnedAt(full arranger.Arrangement) bool {
+	return a.service.Choices().PinnedInEffect(full.Edge != "")
 }
 
 // collapsed answers whether the window is the ribbon's tab, which the page draws as a band (FR-614).
-func (a *App) collapsed() bool {
+func (a *Window) collapsed() bool {
 	a.unpin.guard.Lock()
 	defer a.unpin.guard.Unlock()
 	return !a.unpin.shownOpen && !a.unpin.drawing && !a.panelOpen.Load()
 }
 
 // endDrawing forgets an opening that has not yet grown the window. The caller holds the guard.
-func (a *App) endDrawing() {
+func (a *Window) endDrawing() {
 	a.unpin.drawing = false
 	if a.unpin.stopDraw != nil {
 		a.unpin.stopDraw()
@@ -69,7 +69,7 @@ func (a *App) endDrawing() {
 // in effect is read afresh after each (FR-619). A ribbon that has just become unpinned in effect, as
 // one dragged back onto an edge, starts from full: it collapses once the pointer has been off it for
 // hover.Away rather than under the pointer.
-func (a *App) arrangeWindow(full arranger.Arrangement) error {
+func (a *Window) arrangeWindow(full arranger.Arrangement) error {
 	a.unpin.guard.Lock()
 	becameUnpinned := a.unpin.placed && a.pinnedAt(a.unpin.full) && !a.pinnedAt(full)
 	// Standing onto or off an edge changes whether an unpinned ribbon is kept on top (FR-617).
@@ -96,7 +96,7 @@ func (a *App) arrangeWindow(full arranger.Arrangement) error {
 // keeps the tab's frame when full as well: giving Wails' frame back as it opened had Windows paint a
 // caption and a close button over it for a frame or two (measured 2026-09-29), so only a ribbon
 // pinned in effect and a panel wear Wails' frame.
-func (a *App) showArranged(full arranger.Arrangement, open bool) error {
+func (a *Window) showArranged(full arranger.Arrangement, open bool) error {
 	if open {
 		a.report("framing the full ribbon", a.tabFrame(!a.pinnedAt(full)))
 		at, size, _ := windowOf(full)
@@ -113,7 +113,7 @@ func (a *App) showArranged(full arranger.Arrangement, open bool) error {
 
 // ribbonAt answers where the full ribbon stands: where it was last arranged while the window is its
 // tab, so a change made while collapsed is fitted from the ribbon's place rather than the tab's.
-func (a *App) ribbonAt() (placement.Point, error) {
+func (a *Window) ribbonAt() (placement.Point, error) {
 	a.unpin.guard.Lock()
 	collapsed, at := !a.unpin.shownOpen, a.unpin.full.At
 	a.unpin.guard.Unlock()
@@ -125,7 +125,7 @@ func (a *App) ribbonAt() (placement.Point, error) {
 }
 
 // pointerMoved hears the pointer come onto the ribbon or go off it (FR-615, FR-616).
-func (a *App) pointerMoved(arrived bool) {
+func (a *Window) pointerMoved(arrived bool) {
 	if a.pinned() {
 		return
 	}
@@ -138,7 +138,7 @@ func (a *App) pointerMoved(arrived bool) {
 }
 
 // hold keeps the ribbon as it is until the matching release (FR-616); holds nest.
-func (a *App) hold(expand bool) {
+func (a *Window) hold(expand bool) {
 	a.changeHover(func(state hover.State, now time.Time) hover.State {
 		a.unpin.holds++
 		if expand {
@@ -149,7 +149,7 @@ func (a *App) hold(expand bool) {
 }
 
 // release ends one hold; the last one lets the ribbon collapse again.
-func (a *App) release() {
+func (a *Window) release() {
 	a.changeHover(func(state hover.State, now time.Time) hover.State {
 		if a.unpin.holds == 0 {
 			return state
@@ -163,7 +163,7 @@ func (a *App) release() {
 }
 
 // menuShown holds the ribbon while its own menu is open; menuClosed releases it (FR-616).
-func (a *App) menuShown() {
+func (a *Window) menuShown() {
 	a.unpin.guard.Lock()
 	already := a.unpin.menuHeld
 	a.unpin.menuHeld = true
@@ -173,7 +173,7 @@ func (a *App) menuShown() {
 	}
 }
 
-func (a *App) menuClosed() {
+func (a *Window) menuClosed() {
 	a.unpin.guard.Lock()
 	held := a.unpin.menuHeld
 	a.unpin.menuHeld = false
@@ -190,7 +190,7 @@ func (a *App) menuClosed() {
 // Opening tells the page first and grows the window only once the page has drawn the full ribbon
 // (grow). Growing first showed the tab's band stretched over the whole window until the page caught
 // up (measured 2026-09-29). Collapsing shrinks the window first, which hides the change.
-func (a *App) changeHover(change func(hover.State, time.Time) hover.State) {
+func (a *Window) changeHover(change func(hover.State, time.Time) hover.State) {
 	a.unpin.guard.Lock()
 	now := a.now()
 	a.unpin.state = change(a.unpin.state, now)
@@ -224,11 +224,11 @@ func (a *App) changeHover(change func(hover.State, time.Time) hover.State) {
 
 // RibbonDrawn is the page saying it has drawn the full ribbon, so an opening ribbon's window grows
 // (FR-615). Said at any other time, it changes nothing.
-func (a *App) RibbonDrawn() { a.grow() }
+func (a *Window) RibbonDrawn() { a.grow() }
 
 // grow gives the window the full ribbon the page has drawn, once per opening. A panel opened
 // meanwhile is the window now; closing it places the ribbon.
-func (a *App) grow() {
+func (a *Window) grow() {
 	a.unpin.guard.Lock()
 	drawing := a.unpin.drawing && !a.panelOpen.Load()
 	a.endDrawing()
@@ -244,17 +244,17 @@ func (a *App) grow() {
 
 // hoverDue makes the hover change that has fallen due; drawDue grows a ribbon whose page has not
 // said it has drawn within drawWait. Each runs on its timer's own goroutine.
-func (a *App) hoverDue() {
+func (a *Window) hoverDue() {
 	a.onTimer(func() {
 		a.changeHover(func(state hover.State, now time.Time) hover.State { return state.At(now) })
 	})
 }
 
-func (a *App) drawDue() { a.onTimer(a.grow) }
+func (a *Window) drawDue() { a.onTimer(a.grow) }
 
 // onTimer runs do on a timer's goroutine, where a panic is caught and logged rather than ending
 // the application.
-func (a *App) onTimer(do func()) {
+func (a *Window) onTimer(do func()) {
 	defer func() {
 		if failure := recover(); failure != nil {
 			fmt.Fprintf(a.log, "recovered from %v while opening or collapsing the ribbon\n", failure)
@@ -266,7 +266,7 @@ func (a *App) onTimer(do func()) {
 // setPinned pins or unpins the ribbon (FR-613). Pinned, it is shown in full with nothing watching the
 // pointer; unpinned, it stays on top (FR-617) and collapses once the pointer has been away for
 // hover.Away.
-func (a *App) setPinned(on bool) error {
+func (a *Window) setPinned(on bool) error {
 	err := a.service.SetPinned(on)
 	a.applyAlwaysOnTop()
 	pinned := a.pinned()
@@ -296,7 +296,7 @@ func (a *App) setPinned(on bool) error {
 
 // trackPointer starts or stops the desktop reporting the pointer, which is wanted only while an
 // unpinned ribbon is shown.
-func (a *App) trackPointer(on bool) {
+func (a *Window) trackPointer(on bool) {
 	if a.ribbon != 0 {
 		a.watchPointer(on)
 	}

@@ -1,4 +1,4 @@
-package main
+package window
 
 import (
 	"math"
@@ -23,16 +23,16 @@ type gripDrag struct {
 
 // BeginScale starts a drag of the grip: thickness is the ribbon's across its orientation and x, y
 // where the page read the pointer, both in the page's units.
-func (a *App) BeginScale(thickness, x, y float64) {
+func (a *Window) BeginScale(thickness, x, y float64) {
 	a.grip.guard.Lock()
 	defer a.grip.guard.Unlock()
 	a.grip.active, a.grip.thickness, a.grip.reached = true, thickness, 0
-	a.grip.began = float64(a.service.Settings().Scale)
+	a.grip.began = float64(a.service.Choices().Scale)
 	a.grip.fromX, a.grip.fromY = a.pointerAt(x, y)
 }
 
 // DragScale previews the scale the grip has reached, where it differs from the last one previewed.
-func (a *App) DragScale(x, y float64) error {
+func (a *Window) DragScale(x, y float64) error {
 	a.grip.guard.Lock()
 	defer a.grip.guard.Unlock()
 	if !a.grip.active {
@@ -48,7 +48,7 @@ func (a *App) DragScale(x, y float64) error {
 
 // EndScale keeps the scale the grip was let go at, to the nearest whole percent; a press that
 // previewed nothing keeps nothing.
-func (a *App) EndScale(x, y float64) error {
+func (a *Window) EndScale(x, y float64) error {
 	a.grip.guard.Lock()
 	defer a.grip.guard.Unlock()
 	if !a.grip.active {
@@ -62,10 +62,10 @@ func (a *App) EndScale(x, y float64) error {
 }
 
 // gripScale answers the scale the pointer at x, y has drawn the ribbon at, moving its far side.
-func (a *App) gripScale(x, y float64) float64 {
+func (a *Window) gripScale(x, y float64) float64 {
 	atX, atY := a.pointerAt(x, y)
 	moved := atY - a.grip.fromY
-	if a.service.Settings().Orientation == ribbon.Vertical {
+	if a.service.Choices().Orientation == ribbon.Vertical {
 		moved = atX - a.grip.fromX
 	}
 	return ribbon.ScaleAfter(a.grip.began, a.grip.thickness, moved)
@@ -73,7 +73,7 @@ func (a *App) gripScale(x, y float64) float64 {
 
 // pointerAt answers where the pointer is in the page's units: the desktop's own reading wherever it
 // can give one and the page has reported its ratio, else x, y as the page read them.
-func (a *App) pointerAt(x, y float64) (float64, float64) {
+func (a *Window) pointerAt(x, y float64) (float64, float64) {
 	perDIP := math.Float64frombits(a.pixelsPerDIP.Load())
 	if at, ok := a.cursor(); ok && perDIP > 0 {
 		return float64(at.X) / perDIP, float64(at.Y) / perDIP
@@ -83,12 +83,12 @@ func (a *App) pointerAt(x, y float64) (float64, float64) {
 
 // PreviewScale draws the ribbon at percent while its grip is dragged, keeping nothing, then fits
 // the window to it and tells the page to draw again (FR-623).
-func (a *App) PreviewScale(percent float64) error {
+func (a *Window) PreviewScale(percent float64) error {
 	return a.redrawn(a.refitted(a.service.PreviewScale(percent)))
 }
 
 // SetScale keeps the scale the grip's drag ended at, then fits the window to it and tells the page
 // to draw again (FR-623).
-func (a *App) SetScale(percent int) error {
+func (a *Window) SetScale(percent int) error {
 	return a.redrawn(a.refitted(a.service.SetScale(percent)))
 }

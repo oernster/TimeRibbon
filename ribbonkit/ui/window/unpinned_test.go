@@ -1,4 +1,4 @@
-package main
+package window
 
 import (
 	"strings"
@@ -12,10 +12,10 @@ import (
 )
 
 // unpinnedApp answers a facade whose ribbon is unpinned, launched and shown: its tab.
-func unpinnedApp(t *testing.T) (*App, *scriptedService, *window) {
+func unpinnedApp(t *testing.T) (*Window, *scriptedService, *window) {
 	t.Helper()
 	app, service, seen, _ := newTestApp(t)
-	service.settings.Pinned = false
+	service.choices.Pinned = false
 	if err := app.placeLaunched(); err != nil {
 		t.Fatal(err)
 	}
@@ -53,7 +53,7 @@ func TestLaunchingUnpinnedShowsTheTab(t *testing.T) {
 	if len(seen.tabFrames) == 0 || !seen.tabFrames[len(seen.tabFrames)-1] {
 		t.Errorf("frames %v, want the tab's last", seen.tabFrames)
 	}
-	if !app.Snapshot().Collapsed {
+	if !app.collapsed() {
 		t.Error("the snapshot does not say the ribbon is collapsed")
 	}
 	if len(seen.watching) == 0 || !seen.watching[len(seen.watching)-1] {
@@ -70,7 +70,7 @@ func TestTheTabOpensAfterTheRestAndCollapsesOnceAway(t *testing.T) {
 		t.Fatalf("waiting %v, want the rest", seen.waited)
 	}
 	fire(t, seen)
-	if app.Snapshot().Collapsed || !seen.sawEvent(eventRefresh) {
+	if app.collapsed() || !seen.sawEvent(eventRefresh) {
 		t.Error("the page was not told the ribbon opened")
 	}
 	if got := lastPlaced(t, seen); got.Size.Width != placement.TabThickness {
@@ -121,8 +121,8 @@ func TestPinningAndUnpinning(t *testing.T) {
 	app, service, seen := unpinnedApp(t)
 	app.act(menus.Pin)
 	app.RibbonDrawn()
-	if !service.settings.Pinned || lastPlaced(t, seen).Size != testArrange.Size {
-		t.Errorf("pinning left pinned %v, placed %+v", service.settings.Pinned, lastPlaced(t, seen))
+	if !service.choices.Pinned || lastPlaced(t, seen).Size != testArrange.Size {
+		t.Errorf("pinning left pinned %v, placed %+v", service.choices.Pinned, lastPlaced(t, seen))
 	}
 	if seen.tabFrames[len(seen.tabFrames)-1] {
 		t.Error("pinned, the ribbon still wears the tab's frame")
@@ -135,8 +135,8 @@ func TestPinningAndUnpinning(t *testing.T) {
 		t.Error("a pinned ribbon heard the pointer")
 	}
 	app.act(menus.Pin)
-	if service.settings.Pinned || !seen.onTop[len(seen.onTop)-1] || seen.waited != hover.Away {
-		t.Errorf("unpinning: pinned %v, on top %v, waiting %v", service.settings.Pinned, seen.onTop, seen.waited)
+	if service.choices.Pinned || !seen.onTop[len(seen.onTop)-1] || seen.waited != hover.Away {
+		t.Errorf("unpinning: pinned %v, on top %v, waiting %v", service.choices.Pinned, seen.onTop, seen.waited)
 	}
 	if !seen.tabFrames[len(seen.tabFrames)-1] || lastPlaced(t, seen).Size != testArrange.Size {
 		t.Errorf("unpinned in full: frames %v, placed %+v; want the tab's frame on the full ribbon", seen.tabFrames, lastPlaced(t, seen))
@@ -144,7 +144,7 @@ func TestPinningAndUnpinning(t *testing.T) {
 }
 
 // openedToDrawing rests the pointer on the tab until the ribbon opens, leaving the page drawing it.
-func openedToDrawing(t *testing.T) (*App, *window) {
+func openedToDrawing(t *testing.T) (*Window, *window) {
 	t.Helper()
 	app, _, seen := unpinnedApp(t)
 	app.handleSafely(shell.Event{Kind: shell.EventPointerArrived})
@@ -179,7 +179,7 @@ func TestOpeningGrowsWhenThePageNeverAnswers(t *testing.T) {
 	t.Parallel()
 	app, seen := openedToDrawing(t)
 	seen.drawPending()
-	if lastPlaced(t, seen).Size != testArrange.Size || app.Snapshot().Collapsed {
+	if lastPlaced(t, seen).Size != testArrange.Size || app.collapsed() {
 		t.Errorf("after the wait: placed %+v", lastPlaced(t, seen))
 	}
 }
@@ -190,8 +190,8 @@ func TestLeavingWhileThePageDrawsCollapsesAgain(t *testing.T) {
 	app, seen := openedToDrawing(t)
 	app.handleSafely(shell.Event{Kind: shell.EventPointerLeft})
 	fire(t, seen)
-	if seen.drawPending != nil || !app.Snapshot().Collapsed {
-		t.Errorf("fallback pending %v, collapsed %v", seen.drawPending != nil, app.Snapshot().Collapsed)
+	if seen.drawPending != nil || !app.collapsed() {
+		t.Errorf("fallback pending %v, collapsed %v", seen.drawPending != nil, app.collapsed())
 	}
 	app.RibbonDrawn()
 	if got := lastPlaced(t, seen); got.Size.Width != placement.TabThickness {
@@ -249,7 +249,7 @@ func TestTheTrayMenuTreatsACollapsedRibbonAsShown(t *testing.T) {
 func TestAFailureWhileOpeningIsLogged(t *testing.T) {
 	t.Parallel()
 	app, _, seen, log := newTestApp(t)
-	app.service.(*scriptedService).settings.Pinned = false
+	app.service.(*scriptedService).choices.Pinned = false
 	app.handleSafely(shell.Event{Kind: shell.EventPointerArrived})
 	app.handleSafely(shell.Event{Kind: shell.EventPointerLeft})
 	app.handleSafely(shell.Event{Kind: shell.EventPointerArrived})

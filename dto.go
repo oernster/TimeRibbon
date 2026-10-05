@@ -1,6 +1,7 @@
 package main
 
-// The wire between Go and the page. Each type here is stated a second time in
+// TimeRibbon's half of the wire between Go and the page; ribbonkit's window states its own half
+// (ribbonkit/ui/window/wire.go). Each type here is stated a second time in
 // frontend/src/wire.ts; a structural test compares the two, since the type checker sees only the
 // TypeScript and the marshaller sees only these.
 
@@ -8,7 +9,6 @@ import (
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/internal/product"
 	"github.com/oernster/timeribbon/ribbonkit/application/menus"
-	"github.com/oernster/timeribbon/ribbonkit/application/release"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
@@ -137,20 +137,6 @@ type sunMapDTO struct {
 	Marks     []markDTO `json:"marks"`
 }
 
-// boxOf answers r, a rectangle in window pixels, in the page's units: divided by perDIP, the window
-// pixels to each of them. The page then draws the box as it is, whatever size the window has at that
-// moment; an opening ribbon is drawn while the window is still its tab (FR-615). Before the page has
-// reported its ratio perDIP is zero and r goes as it is, one pixel to a unit.
-func boxOf(r placement.Rect, perDIP float64) boxDTO {
-	if perDIP == 0 {
-		perDIP = 1
-	}
-	return boxDTO{
-		X: float64(r.Left) / perDIP, Y: float64(r.Top) / perDIP,
-		Width: float64(r.Width()) / perDIP, Height: float64(r.Height()) / perDIP,
-	}
-}
-
 // sunMapOf answers the wire form of the sun map's content; where it is drawn is the facade's.
 func sunMapOf(m application.SunMap) sunMapDTO {
 	marks := make([]markDTO, 0, len(m.Marks))
@@ -165,34 +151,6 @@ type placeDTO struct {
 	Zone    string `json:"zone"`
 	Label   string `json:"label"`
 	Country string `json:"country"`
-}
-
-// aboutDTO is what the About panel shows (FR-607).
-type aboutDTO struct {
-	Name      string      `json:"name"`
-	Version   string      `json:"version"`
-	Author    string      `json:"author"`
-	Copyright string      `json:"copyright"`
-	Credits   []creditDTO `json:"credits"`
-}
-
-// creditDTO is one component the application ships.
-type creditDTO struct {
-	Name    string `json:"name"`
-	Licence string `json:"licence"`
-	Role    string `json:"role"`
-}
-
-// updateDTO is what the update panel shows (FR-509). Latest is empty when GitHub could not be
-// reached. The addresses stay in Go: the page asks Go to open what it offered, never names one.
-type updateDTO struct {
-	Current         string `json:"current"`
-	Latest          string `json:"latest"`
-	UpdateAvailable bool   `json:"updateAvailable"`
-}
-
-func updateOf(status release.Status) updateDTO {
-	return updateDTO{Current: status.Current, Latest: status.Latest, UpdateAvailable: status.Available}
 }
 
 func sizeOf(size placement.Size) sizeDTO { return sizeDTO{Width: size.Width, Height: size.Height} }

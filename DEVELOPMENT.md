@@ -194,14 +194,11 @@ check compares it with GitHub's latest release tag, so a development placeholder
 | Path | What it holds |
 |---|---|
 | `main.go` | the composition root; cell sizes, the handle's lane and the panel sizes |
-| `app.go`, `window_life.go` | the facade: the page's calls; the window's life and the desktop's events |
-| `unpinned.go`, `sunmap.go` | the facade's side of the tab and of the sun map |
-| `panel.go`, `choices.go` | panels at their size (CON-6, FR-625); Settings making a menu choice (FR-624) |
-| `measure.go`, `clockscale.go`, `opacity.go` | the measured cell width (FR-620), the grip's drag (FR-623), the opacity and window paint (FR-622) |
-| `wails_calls.go`, `updates.go`, `quit_signal.go` | calls into Wails held as fields; the update check's timing and panel; ending on a signal |
-| `identity.go`, `dto.go`, `launch.go`, `launch_show.go` | About and Licence; the wire; the window's options; the first showing |
+| `app.go`, `measure.go` | the facade Wails binds: the kit's window embedded, plus TimeRibbon's own calls (the clocks, the sun map, the measured cell width, FR-620) and its menu actions |
+| `kit.go`, `dto.go` | the page and the LICENSE embedded, the service adapted to the window's port; TimeRibbon's half of the wire |
 | `platform_*.go`, `bindings_*.go` | what each platform needs before Wails opens; keeping the bindings run quiet |
-| `*_test.go` in the root | the facade's tests over a scripted service (`fakes_test.go`) |
+| `*_test.go` in the root | TimeRibbon's half tested over a scripted service and a stand-in window (`fakes_test.go`); the page's calls checked against what is bound (`page_api_test.go`) |
+| `ribbonkit/ui/window` | the ribbon's window: its life and the desktop's events, the tab, the map beside it, panels, the grip, opacity, menu choices, the update check, Help, the first showing and the Wails options (`run.go`), each with its tests |
 | `internal/domain`, `internal/application` | the pure rules; the use cases over their ports |
 | `internal/infrastructure` | the adapters; a file's platform is in its name (`_windows`, `_linux`, `_darwin`, `_unix`) |
 | `internal/product` | names, version, donation address, author, sign-in label, credits |
@@ -214,13 +211,17 @@ check compares it with GitHub's latest release tag, so a development placeholder
 
 - **The layer direction is enforced:** the domain imports nothing outside itself and reads no clock;
   the application imports neither infrastructure nor Wails; only `main.go` wires the two, handing
-  the facade the desktop through the `shell.Desktop` port.
+  the kit's window the desktop through the `shell.Desktop` port.
+- **Every exported method of `window.Window` is page API,** since `App` embeds it and Wails binds
+  promoted methods too. What TimeRibbon alone may call goes on `window.Control`, which is never
+  embedded.
 - **No file over 400 lines,** tests included; one between 381 and 400 goes down to 350 or fewer.
   Build scripts are exempt.
 - **No magic numbers:** a literal needing a comment is a named constant or derived from data.
 - **The product is named once,** in `internal/product/product.go`; the setup page is handed it. The
   former names stay retired (`retired_test.go`).
-- **The wire is written twice,** in `dto.go` and `frontend/src/wire.ts`; change both.
+- **The wire is written twice,** in `dto.go` with the window's `wire.go` and in
+  `frontend/src/wire.ts`; change both sides.
 - **The update check is the one network request** (`network_test.go`, `requests_test.go`).
 - **A page call Go can refuse takes a refusal handler** and answers null rather than rejecting.
 - **Every new guard is proved by planting a violation** ([TESTING.md](TESTING.md#keeping-this-honest)).

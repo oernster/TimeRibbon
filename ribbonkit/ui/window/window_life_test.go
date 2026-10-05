@@ -1,4 +1,4 @@
-package main
+package window
 
 import (
 	"context"
@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 	"github.com/oernster/timeribbon/ribbonkit/application/shell"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
@@ -110,10 +109,9 @@ func TestAPanicInOneEventIsLoggedAndSurvived(t *testing.T) {
 
 func TestEachMenuActionOpensWhatItNames(t *testing.T) {
 	panels := map[menus.Action]string{
-		application.ActionAddClock: openAtAddClock,
-		menus.Settings:             openAtSettings,
-		menus.About:                openAtAbout,
-		menus.Licence:              openAtLicence,
+		menus.Settings: openAtSettings,
+		menus.About:    openAtAbout,
+		menus.Licence:  openAtLicence,
 	}
 	for action, panel := range panels {
 		app, _, seen, _ := newTestApp(t)
@@ -138,7 +136,7 @@ func TestShowAndHideFromTheMenu(t *testing.T) {
 
 func TestAlwaysOnTopFromTheMenuTurnsTheSettingOver(t *testing.T) {
 	app, service, seen, _ := newTestApp(t)
-	service.settings.AlwaysOnTop = true
+	service.choices.AlwaysOnTop = true
 	app.act(menus.AlwaysOnTop)
 	if !slices.Equal(service.onTop, []bool{false}) || !slices.Equal(seen.onTop, []bool{false}) {
 		t.Errorf("the service was set %v and the window %v, want both turned off", service.onTop, seen.onTop)
@@ -192,28 +190,21 @@ func TestChoosingAnOrientationGoesToItsHomeEdge(t *testing.T) {
 	}
 }
 
-// FR-108: the Style and Orientation items choose through the facade and have the page redraw.
-func TestStyleAndOrientationItemsChooseAndRedraw(t *testing.T) {
+// FR-108: an action the kit does not know is the application's own, handed to it as it is, with
+// nothing done by the window.
+func TestAnActionTheKitDoesNotKnowIsHandedToTheApplication(t *testing.T) {
 	app, service, seen, _ := newTestApp(t)
-	app.act(application.ActionAnalogue)
-	if !slices.Equal(service.calls, []string{"SetStyle", "Rearrange"}) || !seen.sawEvent(eventRefresh) {
-		t.Errorf("Analogue reached %v and sent %v, want the style set, the ribbon fitted and a redraw", service.calls, seen.events)
-	}
-	app, service, seen, _ = newTestApp(t)
 	app.act("colour-neon")
-	if !slices.Equal(service.calls, []string{"SetColour", "Rearrange"}) || !seen.sawEvent(eventRefresh) {
-		t.Errorf("Neon reached %v and sent %v, want the colour set, the ribbon fitted and a redraw", service.calls, seen.events)
-	}
-	app, service, seen, _ = newTestApp(t)
-	app.act(application.ActionHorizontal)
-	if !slices.Equal(service.calls, []string{"SetOrientation", "ToEdge"}) || service.edges[0] != placement.Top || !seen.sawEvent(eventRefresh) {
-		t.Errorf("Horizontal reached %v for %v and sent %v, want it set and the ribbon at the top", service.calls, service.edges, seen.events)
-	}
-	app, service, _, _ = newTestApp(t)
 	app.act("no-such-action")
-	if len(service.calls) != 0 {
-		t.Errorf("an unknown action reached %v", service.calls)
+	if !slices.Equal(seen.acted, []menus.Action{"colour-neon", "no-such-action"}) || len(service.calls) != 0 || len(seen.events) != 0 {
+		t.Errorf("handed over %v; the service heard %v and the page %v; want both handed over and nothing else", seen.acted, service.calls, seen.events)
 	}
+}
+
+// A window built with no action of the application's ignores one it does not know.
+func TestAWindowWithNoApplicationActionsIgnoresAnUnknownOne(t *testing.T) {
+	app, _ := New(Config{Service: &scriptedService{}})
+	app.act("no-such-action")
 }
 
 // Before startup has found the ribbon there is nothing to put against an edge.
@@ -289,9 +280,7 @@ func TestDomReadyShowsTheRibbonOnceThePageHasSizedIt(t *testing.T) {
 	if seen.shown != 0 {
 		t.Fatalf("shown %d times before the page reported its widths", seen.shown)
 	}
-	if err := app.SetMeasured(testMeasured); err != nil {
-		t.Fatal(err)
-	}
+	app.pageMeasured()
 	if seen.shown != 1 {
 		t.Errorf("shown %d times, want once the page is ready and sized", seen.shown)
 	}

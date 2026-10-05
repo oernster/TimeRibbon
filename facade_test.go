@@ -2,41 +2,37 @@ package main
 
 import (
 	"errors"
-	"reflect"
 	"slices"
-	"strings"
 	"testing"
 
 	"github.com/oernster/timeribbon/internal/application"
+	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/internal/domain/sun"
 	"github.com/oernster/timeribbon/internal/product"
 	"github.com/oernster/timeribbon/ribbonkit/application/menus"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/ui/window"
 )
 
-// Every change the page can make is followed by fitting the ribbon, whether or not it saved: a
-// change whose save failed raises a notice, which is one more cell to fit (FR-707).
+// Every change to the clocks is followed by fitting the ribbon, whether or not it saved: a change
+// whose save failed raises a notice, which is one more cell to fit (FR-707).
 func TestEveryChangeFitsTheRibbonAndAnswersTheServicesError(t *testing.T) {
 	changes := map[string]func(app *App) error{
-		"AddClock":        func(app *App) error { _, err := app.AddClock("Europe/London"); return err },
-		"RenameClock":     func(app *App) error { return app.RenameClock("id-1", "Home") },
-		"RezoneClock":     func(app *App) error { return app.RezoneClock("id-1", "Asia/Kolkata") },
-		"RemoveClock":     func(app *App) error { return app.RemoveClock("id-1") },
-		"SetStyle":        func(app *App) error { return app.SetStyle("analogue") },
-		"SetSize":         func(app *App) error { return app.SetSize("small") },
-		"SetColour":       func(app *App) error { return app.SetColour("neon") },
-		"SetFormat":       func(app *App) error { return app.SetFormat("12h") },
-		"SetDateFormat":   func(app *App) error { return app.SetDateFormat("dmy") },
-		"SetTheme":        func(app *App) error { return app.SetTheme("dark") },
-		"SetAlwaysOnTop":  func(app *App) error { return app.SetAlwaysOnTop(true) },
-		"SetScrollbar":    func(app *App) error { return app.SetScrollbar(12) },
-		"SetMeasured":     func(app *App) error { return app.SetMeasured(measuredDTO{CellWidth: 180}) },
-		"PreviewScale":    func(app *App) error { return app.PreviewScale(150) },
-		"SetScale":        func(app *App) error { return app.SetScale(150) },
-		"SetPixelsPerDIP": func(app *App) error { return app.SetPixelRatio(1.25) },
-		"DismissNotices":  func(app *App) error { app.DismissNotices(); return nil },
+		"AddClock":       func(app *App) error { _, err := app.AddClock("Europe/London"); return err },
+		"RenameClock":    func(app *App) error { return app.RenameClock("id-1", "Home") },
+		"RezoneClock":    func(app *App) error { return app.RezoneClock("id-1", "Asia/Kolkata") },
+		"RemoveClock":    func(app *App) error { return app.RemoveClock("id-1") },
+		"SetStyle":       func(app *App) error { return app.SetStyle("analogue") },
+		"SetSize":        func(app *App) error { return app.SetSize("small") },
+		"SetFormat":      func(app *App) error { return app.SetFormat("12h") },
+		"SetDateFormat":  func(app *App) error { return app.SetDateFormat("dmy") },
+		"SetMeasured":    func(app *App) error { return app.SetMeasured(measuredDTO{CellWidth: 180}) },
+		"SetSunMap":      func(app *App) error { return app.SetSunMap(true) },
+		"DismissNotices": func(app *App) error { app.DismissNotices(); return nil },
 	}
 	for name, change := range changes {
 		for _, failure := range []error{nil, errPlanted} {
-			app, service, seen, _ := newTestApp(t)
+			app, service, control := newTestApp(t)
 			service.changeErr = failure
 			if err := change(app); name != "DismissNotices" && !errors.Is(err, failure) {
 				t.Errorf("%s answered %v, want the service's %v", name, err, failure)
@@ -44,46 +40,36 @@ func TestEveryChangeFitsTheRibbonAndAnswersTheServicesError(t *testing.T) {
 			if !slices.Contains(service.calls, name) {
 				t.Errorf("%s never reached the service", name)
 			}
-			if !slices.Contains(service.calls, "Rearrange") || len(seen.placed) != 1 {
-				t.Errorf("%s (service answered %v) placed the ribbon %d times, want it fitted once", name, failure, len(seen.placed))
+			if control.fitted() != 1 {
+				t.Errorf("%s (service answered %v) fitted the ribbon %d times, want once", name, failure, control.fitted())
 			}
 		}
 	}
 }
 
-// While a panel is open the window is that panel, so a change does not fit the ribbon; nor does one
-// made before startup has found it.
-func TestAChangeLeavesThePanelOrAnUnfoundRibbonAlone(t *testing.T) {
-	app, service, seen, _ := newTestApp(t)
-	app.panelOpen.Store(true)
-	_ = app.RenameClock("id-1", "Home")
-	app.panelOpen.Store(false)
-	app.ribbon = 0
-	_ = app.RenameClock("id-1", "Home")
-	if slices.Contains(service.calls, "Rearrange") || len(seen.placed) != 0 {
-		t.Errorf("the ribbon was fitted %d times, want none", len(seen.placed))
-	}
-}
-
-func TestFittingPlacesTheArrangementAndKeepsWhetherItScrolls(t *testing.T) {
-	app, service, seen, _ := newTestApp(t)
-	_ = app.SetScrollbar(12)
-	if service.at[0] != testRibbonAt {
-		t.Errorf("fitted from %v, want where the ribbon stands, %v", service.at[0], testRibbonAt)
-	}
-	if seen.placed[0].At != testArrange.At || seen.placed[0].Size != testArrange.Size {
-		t.Errorf("placed %+v, want the service's arrangement %+v", seen.placed[0], testArrange)
-	}
-	if !app.scrolls.Load() || !app.Snapshot().Scrolls {
-		t.Error("the arrangement scrolls but the facade does not say so")
+// Turning the sun map on or off changes the window's size, so the page is told to draw it again.
+func TestTheSunMapIsRedrawnOnceFitted(t *testing.T) {
+	app, _, control := newTestApp(t)
+	_ = app.SetSunMap(true)
+	if !slices.Equal(control.calls, []string{"Refitted", "Redrawn"}) {
+		t.Errorf("the window was asked %v, want the ribbon fitted then redrawn", control.calls)
 	}
 }
 
 // The snapshot reaches the page whole, with an empty list of notices rather than none, since the
-// page counts them.
-func TestTheSnapshotCarriesEveryCellAndNeverANullNoticeList(t *testing.T) {
-	app, service, _, _ := newTestApp(t)
-	service.snapshot = application.Snapshot{Cells: []application.Cell{{ID: "id-1", Label: "London", Time: "20:37"}}}
+// page counts them. It carries how the window shows the ribbon (FR-614, FR-910).
+func TestTheSnapshotCarriesEveryCellAndTheWindowsReading(t *testing.T) {
+	app, service, control := newTestApp(t)
+	service.snapshot = application.Snapshot{
+		Cells:  []application.Cell{{ID: "id-1", Label: "London", Time: "20:37"}},
+		SunMap: application.SunMap{On: true, Marks: []application.Mark{{Label: "London", At: sun.Point{Latitude: 51.5, Longitude: -0.1}}}},
+	}
+	service.choices = []menus.Item{{Action: menus.Pin, Label: "Pin ribbon", Checkable: true}}
+	control.shown = window.Shown{
+		Collapsed: true, Scrolls: true, DragThreshold: placement.Size{Width: 4, Height: 4},
+		MapSide: placement.Left, MapShown: true,
+		Ribbon: window.Box{X: 1, Y: 2, Width: 3, Height: 4}, Map: window.Box{Width: 480, Height: 240},
+	}
 	got := app.Snapshot()
 	if len(got.Cells) != 1 || got.Cells[0].ID != "id-1" || got.Cells[0].Time != "20:37" {
 		t.Errorf("cells %+v, want the one cell the service answered", got.Cells)
@@ -91,133 +77,99 @@ func TestTheSnapshotCarriesEveryCellAndNeverANullNoticeList(t *testing.T) {
 	if got.Notices == nil {
 		t.Error("the notices went out as null")
 	}
-}
-
-func TestAFitThatCannotBeWorkedOutIsLoggedAndNothingMoves(t *testing.T) {
-	for _, plant := range []func(*scriptedService, *window){
-		func(_ *scriptedService, seen *window) { seen.readErr = errPlanted },
-		func(service *scriptedService, _ *window) { service.arrangeErr = errPlanted },
-	} {
-		app, service, seen, log := newTestApp(t)
-		plant(service, seen)
-		_ = app.SetScrollbar(12)
-		if len(seen.placed) != 0 || log.Len() == 0 {
-			t.Errorf("placed %d times with log %q, want nothing placed and the failure logged", len(seen.placed), log)
-		}
+	if !got.Collapsed || !got.Scrolls || got.DragThreshold != (sizeDTO{Width: 4, Height: 4}) {
+		t.Errorf("collapsed %v, scrolls %v, threshold %v; want the window's", got.Collapsed, got.Scrolls, got.DragThreshold)
+	}
+	wantRibbon := boxDTO{X: 1, Y: 2, Width: 3, Height: 4}
+	if got.SunMap.Side != "left" || !got.SunMap.Shown || got.SunMap.Ribbon != wantRibbon || got.SunMap.Map.Width != 480 {
+		t.Errorf("sun map %+v, want the window's layout", got.SunMap)
+	}
+	if len(got.Choices) != 1 || got.Choices[0].Action != string(menus.Pin) || got.Choices[0].Children == nil {
+		t.Errorf("choices %+v, want the service's with never a null list of children", got.Choices)
+	}
+	if want := (markDTO{Label: "London", Latitude: 51.5, Longitude: -0.1}); !got.SunMap.On || len(got.SunMap.Marks) != 1 || got.SunMap.Marks[0] != want {
+		t.Errorf("sun map %v with marks %+v, want it on with London's", got.SunMap.On, got.SunMap.Marks)
 	}
 }
 
-func TestSetAlwaysOnTopAppliesTheSettingAtOnce(t *testing.T) {
-	app, _, seen, _ := newTestApp(t)
-	_ = app.SetAlwaysOnTop(true)
-	if !slices.Equal(seen.onTop, []bool{true}) {
-		t.Errorf("the window was set on top %v, want [true]", seen.onTop)
+// The window is handed TimeRibbon's service with the ribbon's own choices and the pull out read out
+// of its settings: on a first run, the first-run ones.
+func TestTheWindowReadsTheRibbonsChoicesOutOfTheSettings(t *testing.T) {
+	kit := kitService{application.New(application.Ports{}, application.Layouts{})}
+	first := settings.Defaults()
+	if kit.Choices() != first.Choices || kit.PullOut() != first.PullOut {
+		t.Errorf("choices %+v, pull out %v; want the first run's %+v, %v", kit.Choices(), kit.PullOut(), first.Choices, first.PullOut)
 	}
 }
 
-func TestOpenPanelCentresThePanelOnTheRibbonsDisplay(t *testing.T) {
-	app, service, seen, _ := newTestApp(t)
-	if err := app.OpenPanel(openAtAbout); err != nil {
-		t.Fatal(err)
-	}
-	if !app.panelOpen.Load() || service.at[0] != testRibbonAt || service.centred != testPanel {
-		t.Errorf("open %v, centred %v from %v; want open, the panel's size from the ribbon", app.panelOpen.Load(), service.centred, service.at)
-	}
-	if len(seen.placed) != 1 || seen.placed[0].At != testArrange.At {
-		t.Errorf("placed %+v, want the centred arrangement", seen.placed)
-	}
-}
-
-func TestOpenPanelAnswersWhatStoppedIt(t *testing.T) {
-	for _, plant := range []func(*scriptedService, *window){
-		func(_ *scriptedService, seen *window) { seen.readErr = errPlanted },
-		func(service *scriptedService, _ *window) { service.arrangeErr = errPlanted },
-		func(_ *scriptedService, seen *window) { seen.placeErr = errPlanted },
-	} {
-		app, service, seen, _ := newTestApp(t)
-		plant(service, seen)
-		if err := app.OpenPanel(openAtAbout); !errors.Is(err, errPlanted) {
-			t.Errorf("OpenPanel answered %v, want the failure", err)
-		}
-		if !app.panelOpen.Load() {
-			t.Error("a panel that failed to place is no longer counted open, so the ribbon would be fitted over it")
-		}
-	}
-}
-
-func TestClosePanelPutsTheRibbonWhereItWasLastLeft(t *testing.T) {
-	app, service, seen, _ := newTestApp(t)
-	app.panelOpen.Store(true)
-	if err := app.ClosePanel(); err != nil {
-		t.Fatal(err)
-	}
-	if app.panelOpen.Load() || !slices.Contains(service.calls, "Launch") || len(seen.placed) != 1 {
-		t.Errorf("open %v after %v, placed %d; want closed, launched and placed", app.panelOpen.Load(), service.calls, len(seen.placed))
-	}
-	service.arrangeErr = errPlanted
-	if err := app.ClosePanel(); !errors.Is(err, errPlanted) {
-		t.Errorf("ClosePanel answered %v, want the service's failure", err)
-	}
-}
-
-func TestShowContextMenuShowsTheServicesMenu(t *testing.T) {
-	app, service, seen, _ := newTestApp(t)
-	service.menu = []menus.Item{{Action: menus.Hide, Label: "Hide ribbon"}}
-	app.ShowContextMenu()
-	if len(seen.menus) != 1 || !reflect.DeepEqual(seen.menus[0], service.menu) {
-		t.Errorf("showed %v, want %v", seen.menus, service.menu)
-	}
-}
-
-func TestOpenDonationHandsTheAddressToTheBrowser(t *testing.T) {
-	app, _, seen, _ := newTestApp(t)
-	if err := app.OpenDonation(); err != nil {
-		t.Fatal(err)
-	}
-	if !slices.Equal(seen.browsed, []string{product.DonateURL}) {
-		t.Errorf("browsed %v, want the donation address once", seen.browsed)
-	}
-}
-
-// A browser the desktop could not open is reported with the reason and the address, so the page can
-// still be reached by hand rather than the button doing nothing. The words name no system.
-func TestADonationPageThatCouldNotBeOpenedIsReportedWithItsAddress(t *testing.T) {
-	app, _, seen, _ := newTestApp(t)
-	seen.browseErr = errPlanted
-	err := app.OpenDonation()
-	if !errors.Is(err, errPlanted) {
-		t.Fatalf("OpenDonation answered %v, want the desktop's refusal", err)
-	}
-	if !strings.Contains(err.Error(), product.DonateURL) {
-		t.Errorf("the refusal %q does not give the address", err)
-	}
-	for _, system := range []string{"Windows", "macOS", "Linux"} {
-		if strings.Contains(err.Error(), system) {
-			t.Errorf("the refusal %q names %s, though every platform can give it", err, system)
-		}
-	}
-}
-
-func TestTheReadingsPassThrough(t *testing.T) {
-	app, service, _, _ := newTestApp(t)
+func TestSearchPlacesPassesThrough(t *testing.T) {
+	app, service, _ := newTestApp(t)
 	service.places = []application.Place{{Zone: "Europe/London", Label: "London", Country: "Britain (UK)"}}
 	if got := app.SearchPlaces("lon"); len(got) != 1 || got[0].Zone != "Europe/London" {
 		t.Errorf("SearchPlaces answered %+v", got)
 	}
-	if on, err := app.StartWithWindows(); !on || err != nil {
-		t.Errorf("StartWithWindows answered %v, %v", on, err)
+}
+
+// TimeRibbon's own menu actions (FR-108, FR-301, FR-901): Add clock opens Settings on the place
+// search; every choice is made, a failure reported and the page told to redraw.
+func TestTimeRibbonsMenuActions(t *testing.T) {
+	app, service, control := newTestApp(t)
+	app.actOn(application.ActionAddClock)
+	if !slices.Equal(control.panels, []string{openAtAddClock}) {
+		t.Errorf("Add clock opened %v, want the place search", control.panels)
 	}
-	if err := app.SetStartWithWindows(true); err != nil || !slices.Contains(service.calls, "SetStartWithWindows") {
-		t.Errorf("SetStartWithWindows answered %v after %v", err, service.calls)
+	app.actOn(application.ActionSunMap)
+	if !service.settings.SunMap {
+		t.Error("the Sun map item left the sun map off")
 	}
-	if about := app.About(); about.Name != product.Name || len(about.Credits) != len(product.Credits) {
-		t.Errorf("About answered %+v", about)
+	app.actOn(application.ActionAnalogue)
+	app.actOn(menus.Action("colour-neon"))
+	app.actOn(application.ActionHorizontal)
+	if !slices.Contains(service.calls, "SetStyle") || !slices.Equal(control.colours, []string{"neon"}) || !slices.Equal(control.turned, []string{"horizontal"}) {
+		t.Errorf("style %v, colours %v, orientations %v; want each choice made", service.calls, control.colours, control.turned)
 	}
-	if app.Licence() != licenceText || licenceText == "" {
-		t.Error("Licence does not answer the embedded LICENSE")
+	redraws := 0
+	for _, call := range control.calls {
+		if call == "Redraw" {
+			redraws++
+		}
 	}
-	app.Hide()
-	if app.visible.Load() {
-		t.Error("Hide left the ribbon counted visible")
+	if redraws != 4 {
+		t.Errorf("the page was told to redraw %d times, want once for each of the four choices", redraws)
+	}
+}
+
+func TestAMenuChoiceThatFailedIsReported(t *testing.T) {
+	app, service, control := newTestApp(t)
+	service.changeErr, control.choiceErr = errPlanted, errPlanted
+	for _, action := range []menus.Action{application.ActionSunMap, application.ActionDigital, "colour-ocean", application.ActionVertical} {
+		app.actOn(action)
+	}
+	want := []string{"turning the sun map on or off", "changing the style", "changing the colour", "changing the orientation"}
+	if !slices.Equal(control.reported, want) {
+		t.Errorf("reported %v, want %v", control.reported, want)
+	}
+}
+
+// An action that is neither the kit's nor TimeRibbon's changes nothing.
+func TestAnUnknownActionChangesNothing(t *testing.T) {
+	app, service, control := newTestApp(t)
+	app.actOn("no-such-action")
+	if len(service.calls) != 0 || len(control.calls) != 0 || len(control.panels) != 0 {
+		t.Errorf("service %v, window %v, panels %v; want nothing", service.calls, control.calls, control.panels)
+	}
+}
+
+// What Help shows comes from internal/product and the LICENSE file (FR-607, FR-608).
+func TestTheWindowIsHandedTimeRibbonsProduct(t *testing.T) {
+	got := productOf()
+	if got.App != product.App() || got.WindowClass != product.RibbonClass || got.Version != product.Version {
+		t.Errorf("names %+v, %q, %q; want internal/product's", got.App, got.WindowClass, got.Version)
+	}
+	if len(got.Credits) != len(product.Credits) || got.DonateURL != product.DonateURL {
+		t.Errorf("credits %d, donation %q; want internal/product's", len(got.Credits), got.DonateURL)
+	}
+	if got.Licence != licenceText || licenceText == "" {
+		t.Error("the licence is not the embedded LICENSE")
 	}
 }

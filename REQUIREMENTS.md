@@ -369,7 +369,7 @@ where it was placed is now placed again at once (measured the same day after `cl
 and `build_flatpak.sh`: shown at 80,0, placed again at 1252,358, nothing stored).
 Verified by: `TestDefaultPlacementIsRightEdgeCentred` (domain);
 `TestLaunchWithNothingStoredGoesToTheDefaultPlace` (arranger);
-`TestALaunchedRibbonShownElsewhereIsPlacedAgain` (facade); by hand on GNOME.
+`TestALaunchedRibbonShownElsewhereIsPlacedAgain` (window); by hand on GNOME.
 
 **FR-404 Placement persisted** (Must). When a drag ends, the placement shall be stored: the monitor's
 device name, its work area, its DPI and the offset from the work area's top-left corner.
@@ -396,7 +396,7 @@ over GTK's window scale, since KDE hands an X11 program a fractional scale as fo
 Verified by: by hand; `TestTheRibbonIsSizedByTheScaleThePageIsDrawnAt`,
 `TestTheReportedScaleHoldsOnADisplayAtAnotherDPI`, `TestAPanelIsSizedByTheScaleThePageIsDrawnAt`,
 `TestAScaledRibbonFitsTheRoomTheDisplayOffersAtThatScale`, `TestAnUnusableScaleIsRefused`
-(arranger); `TestThePagesRatioIsTakenWithTheToolkitsScale` (facade);
+(arranger); `TestThePagesRatioIsTakenWithTheToolkitsScale` (window);
 `TestTheWindowTakesThePagesRatioOverGTKsScale`, `TestGTKsWindowScaleIsRead` (desktop, Linux);
 `pixelRatio.test.ts`.
 
@@ -411,16 +411,15 @@ at the work area's left edge 418 DIP down; it opens there next time.
 Verified by: `TestAgainstEdgeIsFlushAndCentredAlongTheEdge` (domain);
 `TestToEdgePutsAVerticalRibbonFlushAndKeepsIt`, `TestToEdgeUsesTheDisplayTheRibbonIsOn`,
 `TestToEdgeThatCannotBeSavedMakesRoomForItsNotice`, `TestAPlaceKeptAgainstTheEdgeIsSaved` (arranger);
-`TestPositionOffersTheEdgesAlongTheOrientation` (application); `TestAPositionItemPutsTheRibbonAgainstItsEdge`
-(facade); by hand.
+`TestPositionOffersTheEdgesAlongTheOrientation` (application); `TestAPositionItemPutsTheRibbonAgainstItsEdge` (window); by hand.
 
 **FR-409 An orientation's home edge** (Must; Amendment 9). Choosing an orientation puts the ribbon
 against its home edge as FR-408 does: top for horizontal, right for vertical. A choice whose save
 failed still moves it; a refused choice leaves it fitted where it stands.
 Acceptance: a vertical ribbon anywhere, when Horizontal is chosen, lies flush against the top of its
 display's work area, centred.
-Verified by: `TestEachOrientationHasAHomeEdge` (ribbon); `TestChoosingAnOrientationGoesToItsHomeEdge`,
-`TestStyleAndOrientationItemsChooseAndRedraw` (facade), each proved by planting the wrong edge; by hand.
+Verified by: `TestEachOrientationHasAHomeEdge` (ribbon); `TestChoosingAnOrientationGoesToItsHomeEdge`
+(window), proved by planting the wrong edge; `TestTimeRibbonsMenuActions` (facade); by hand.
 
 **FR-410 A drop near an edge snaps flush** (Should; Amendment 19; OQ-11, OQ-12). When a drag ends
 with the ribbon's side within 16 DIP, either side, of an edge running along its orientation of the
@@ -473,7 +472,7 @@ shall exit and toggle the running ribbon: hide it while shown (collapsed include
 Nothing is toggled before the running copy has finished starting. A ribbon covered by other windows
 counts as shown.
 Acceptance: launching again hides a shown ribbon; launching once more shows it.
-Verified by: `TestASecondLaunchTogglesTheRibbon` (facade); by hand.
+Verified by: `TestASecondLaunchTogglesTheRibbon` (window); by hand.
 
 **FR-507 Alt+F4 hides** (Must; OQ-4). Alt+F4 on the ribbon hides it and the application keeps running.
 Verified by: `TestCloseRequestHidesRatherThanQuits` (application); by hand.
@@ -502,7 +501,7 @@ Verified by: `TestIsNewerVersionComparesDottedIntegers`, `TestEachSystemDownload
 `TestEveryUnusableAnswerIsAnError`, `TestTheProductionSourceAsksThisRepositoryAndGivesUp` (update);
 `TestAnAutomaticCheckSpeaksOnlyOfANewRelease`, `TestAManualCheckAlwaysAnswers`,
 `TestTheWatchChecksAfterTheStartThenAtEachIntervalUntilTheEnd`, `TestDownloadOpensWhatWasOffered`,
-`TestSkipKeepsTheOfferedVersion` (facade); `TestSettingsRoundTrip` (store); `help.test.tsx`; the real
+`TestSkipKeepsTheOfferedVersion` (window); `TestSettingsRoundTrip` (store); `help.test.tsx`; the real
 request and browser by hand.
 
 ### 3.6 Settings and startup
@@ -575,7 +574,7 @@ Acceptance: Neon in Light gives white cells with deep cyan digits and magenta zo
 black cells with glowing cyan digits; Ocean is pale aqua in Light and deep teal in Dark.
 Verified by: `TestUnknownChoicesAreNormalisedToDefaults` (domain);
 `TestBothMenusOfferEveryColourWithTheCurrentTicked` (application);
-`TestStyleAndOrientationItemsChooseAndRedraw` (facade); `TestSettingsRoundTrip`,
+`TestTimeRibbonsMenuActions` (facade); `TestSettingsRoundTrip`,
 `TestA1Point0SettingsFileIsReadWhole` (store); `TestEveryOfferedSchemeHasItsOwnCompleteBlock`
 (structural); the colours by hand. Measured 2026-09-28: the weakest contrast 5.8:1; every pair of
 schemes at least 10 apart (mean CIEDE2000) on each side.
@@ -605,7 +604,7 @@ Verified by: `TestDefaultsAreDigitalTwentyFourHourVerticalAndNotOnTop` (domain);
 `TestBothMenusOfferPinAfterAlwaysOnTop` (application); `TestUnpinningAwayFromAnEdgeGoesToTheLastEdge`,
 `TestUnpinningGoesToTheRememberedDisplay` (arranger); `TestPinningAndUnpinning`,
 `TestUnpinningAwayFromAnEdgeMovesItToTheLastEdge`,
-`TestUnpinningOnAnEdgeMovesNothingAndRecentringKeepsThePin` (facade);
+`TestUnpinningOnAnEdgeMovesNothingAndRecentringKeepsThePin` (window);
 `TestA1Point0SettingsFileIsReadWhole`, `TestSettingsRoundTrip` (store); by hand.
 
 **FR-614 The tab** (Should; Amendments 18, 19; OQ-6). While collapsed, only the tab shows: an 8 DIP
@@ -624,7 +623,7 @@ while the window is still the tab.
 Acceptance: a 0.3 s rest opens it while the focused window keeps focus; a 0.1 s crossing does not.
 Verified by: `TestTheRibbonOpensAfterTheRest`, `TestAPassingPointerDoesNotOpenIt` (hover);
 `TestTheTabOpensAfterTheRestAndCollapsesOnceAway`, `TestAnOpeningRibbonIsDrawnWithItsMap`,
-`TestTheMapsPartsReachThePageInItsOwnUnits` (facade); `surface.test.tsx`; focus by hand.
+`TestTheMapsPartsReachThePageInItsOwnUnits` (window); `surface.test.tsx`; focus by hand.
 
 **FR-616 Collapses after the pointer leaves** (Should; Amendment 18). While unpinned in effect and
 expanded, with no drag, menu or panel open, the ribbon collapses once the pointer has been off it for
@@ -633,7 +632,7 @@ Acceptance: away 1 s, only the tab shows; back after 0.5 s it stays open; with i
 open.
 Verified by: `TestTheRibbonCollapsesASecondAfterThePointerLeaves`, `TestAReturningPointerKeepsItOpen`,
 `TestNothingCollapsesWhileHeld`, `TestAPanelHoldsTheRibbonOpen` (hover);
-`TestTheTabOpensAfterTheRestAndCollapsesOnceAway`, `TestAPanelAndTheMenuHoldTheRibbonOpen` (facade);
+`TestTheTabOpensAfterTheRestAndCollapsesOnceAway`, `TestAPanelAndTheMenuHoldTheRibbonOpen` (window);
 by hand.
 
 **FR-617 Unpinned stays on top** (Should; Amendments 18, 19; OQ-8). While unpinned in effect the
@@ -641,14 +640,13 @@ ribbon and tab stay above windows not themselves topmost, whatever Always on top
 stored value; pinned in effect, Always on top applies.
 Acceptance: with Always on top off, a maximised window does not cover the tab; once pinned the ribbon
 is no longer kept on top.
-Verified by: `TestAnUnpinnedRibbonIsAlwaysOnTop` (ribbon); `TestPinningAndUnpinning` (facade); by hand.
+Verified by: `TestAnUnpinnedRibbonIsAlwaysOnTop` (ribbon); `TestPinningAndUnpinning` (window); by hand.
 
 **FR-618 Collapsed counts as shown** (Should; Amendment 18; OQ-9). The tray menu, tray click and a
 second launch treat a collapsed ribbon as shown, so each hides it, tab included.
 Acceptance: a launch hides a collapsed ribbon and the tray offers `Show ribbon`; another brings the
 tab back.
-Verified by: `TestASecondLaunchHidesACollapsedRibbon`, `TestTheTrayMenuTreatsACollapsedRibbonAsShown`
-(facade); by hand.
+Verified by: `TestASecondLaunchHidesACollapsedRibbon`, `TestTheTrayMenuTreatsACollapsedRibbonAsShown` (window); by hand.
 
 **FR-619 The pin in effect** (Should; Amendment 19; OQ-6, OQ-11). The ribbon is unpinned in effect
 while `Pin ribbon` is unticked and it is flush against an edge along its orientation of its display's
@@ -662,7 +660,7 @@ edge sent to `Centre on left edge` stays unpinned and collapses there once the p
 Verified by: `TestFlushnessGivesThePinInEffect`, `TestAnUnpinnedRibbonIsAlwaysOnTop` (ribbon);
 `TestOnlyAnEdgeAlongTheOrientationIsFlush`, `TestAnInnerEdgeCounts` (placement);
 `TestAnUnpinnedRibbonOffAnEdgeShowsInFull`, `TestDraggingBackOntoAnEdgeCollapsesAgain`,
-`TestUnpinningOnAnEdgeMovesNothingAndRecentringKeepsThePin` (facade); by hand.
+`TestUnpinningOnAnEdgeMovesNothingAndRecentringKeepsThePin` (window); by hand.
 
 **FR-620 A cell fits its text** (Must; Amendment 24; OQ-24). Every cell is at least as wide as the
 widest time and date its size, style and formats can show in the font the page draws with, padding and
@@ -683,8 +681,7 @@ measures only once the window has become the panel.
 Acceptance: five clocks on a work area 1400 DIP tall give a Settings 1064 DIP tall that does not
 scroll; removing a clock shortens it; a shorter work area caps it and it scrolls.
 Verified by: `TestFitPanelMakesTheOpenPanelAsTallAsItsContent`,
-`TestFitPanelLeavesTheRibbonAloneAndRefusesANegativeHeight`, `TestFitPanelAnswersWhatStoppedIt`
-(facade); `TestSettingsOpenCentredOnTheRibbonsDisplay` (arranger); `panelFit.test.tsx`; by hand.
+`TestFitPanelLeavesTheRibbonAloneAndRefusesANegativeHeight`, `TestFitPanelAnswersWhatStoppedIt` (window); `TestSettingsOpenCentredOnTheRibbonsDisplay` (arranger); `panelFit.test.tsx`; by hand.
 
 **FR-622 Opacity** (Should; Amendments 26, 30; OQ-26). Settings offers an Opacity slider in steps of
 5 from 20 to 100 percent. Only the ribbon's backgrounds take it (the ribbon, each dial's face, the
@@ -698,7 +695,7 @@ a restart keeps it; closed, the clocks are solid while the desktop shows through
 holding 5 draws the background at 20.
 Verified by: `TestOpacityIsHeldWithinItsBounds` (ribbon); `TestOpacityIsChosenSavedAndShown`
 (application); `TestSettingsRoundTrip` (store); `TestThePagesBackgroundReachesTheWindow`,
-`TestTheWindowIsPaintedClearBelowFullOpacity` (facade); `opacity.test.tsx`,
+`TestTheWindowIsPaintedClearBelowFullOpacity` (window); `opacity.test.tsx`,
 `panelOpacity.test.tsx`, `background.test.ts`; by hand.
 
 **FR-623 Resizing the clocks** (Should; Amendments 27, 31; OQ-27, OQ-28). A grip in the ribbon's
@@ -725,8 +722,7 @@ Verified by: `TestScaleIsHeldWithinItsBounds`, `TestScaleAfterFollowsTheFarSide`
 (application); `TestSettingsRoundTrip` (store);
 `TestAChangeOfScaleTellsThePageToDrawAgain`, `TestEveryChangeFitsTheRibbonAndAnswersTheServicesError`,
 `TestTheGripFollowsTheDesktopsPointerOverThePages`,
-`TestTheGripFollowsThePagesPointerWhereTheDesktopCannotReadIt`, `TestAPressThatMovesNothingKeepsNothing`
-(facade); `TestTheCursorIsWhereWindowsSaysItIs` (desktop, Windows); `TestThePointerIsReadWhereTheRibbonIsPlaced`
+`TestTheGripFollowsThePagesPointerWhereTheDesktopCannotReadIt`, `TestAPressThatMovesNothingKeepsNothing` (window); `TestTheCursorIsWhereWindowsSaysItIs` (desktop, Windows); `TestThePointerIsReadWhereTheRibbonIsPlaced`
 (desktop, macOS and Linux); `scaleGrip.test.tsx`; by hand.
 
 **FR-624 Settings offers every menu choice** (Should; Amendment 28; OQ-29). Settings offers Style,
@@ -737,14 +733,14 @@ Settings, Help, Exit) stay on the menus.
 Acceptance: Neon chosen in Settings makes the ribbon Neon and both menus tick it; Centre on bottom edge
 sends the ribbon there.
 Verified by: `TestEveryMenuChoiceIsOfferedBySettings`, `TestSettingsChoicesAreTheMenusOwnItems`
-(application); `TestTheSnapshotCarriesTheMenusChoices`, `TestChooseCarriesOutOnlyTheChoicesSettingsOffers`
-(facade); `settings.test.tsx`; by hand.
+(application); `TestTheSnapshotCarriesEveryCellAndTheWindowsReading` (facade);
+`TestChooseCarriesOutOnlyTheChoicesSettingsOffers` (window); `settings.test.tsx`; by hand.
 
 **FR-625 Settings is wide** (Should; Amendment 28; OQ-30). Settings opens 900 DIP wide with its groups
 in as many columns as fit, folding where the work area is narrower; fitting its height keeps that
 width. About, Licence and the update panel stay 560 DIP wide.
 Acceptance: on 1920 by 1080 at 100 percent Settings is 900 wide with three columns; About is 560.
-Verified by: `TestSettingsOpensAndFitsAtItsOwnWidth` (facade); by hand.
+Verified by: `TestSettingsOpensAndFitsAtItsOwnWidth` (window); by hand.
 
 **FR-626 The place search stays open** (Should; Amendment 28; OQ-31). Settings shows the search
 beneath the clocks with the Add clock picture beside its box; places list once something is typed.
@@ -849,8 +845,8 @@ shows a downward arrow and no map until clicked; with the map on, either ribbon 
 alone and the handle overlaps no text.
 Verified by: `TestAVerticalRibbonsMapWaitsForThePullOut`, `TestAHorizontalRibbonsMapWaitsForThePullOut`,
 `TestTheHandlesLaneDeepensTheRibbon` (arranger); `TestTheServiceHandsTheArrangerItsContent`
-(application); `TestTheSunMapItemAndTheHandleFlipTheirChoices`
-(facade); `surface.test.tsx`; by hand.
+(application); `TestTheHandleFlipsThePullOut` (window); `TestTimeRibbonsMenuActions` (facade);
+`surface.test.tsx`; by hand.
 
 **FR-904 The map's size** (Should; OQ-15). The map is twice as long as deep, as long as the ribbon and
 centred on it, at least 480 by 240 DIP; with less room across, scaled down to fit, keeping its shape;
@@ -885,12 +881,12 @@ Verified by: `TestEveryPlaceHasItsZonesCoordinate` (zones); `TestAZoneWithNoPlac
 
 **FR-909 The map goes with the ribbon** (Should). The map moves with the ribbon, adjoined; a drag on the
 map moves both. The ribbon's own edge alone decides flushness (FR-619).
-Verified by: `TestTheWindowHoldsTheRibbonAndItsMap`, `TestADragOfTheMapMovesTheRibbonToo` (facade); by
+Verified by: `TestTheWindowHoldsTheRibbonAndItsMap`, `TestADragOfTheMapMovesTheRibbonToo` (window); by
 hand.
 
 **FR-910 When the map is not shown** (Should; OQ-18). Collapsed, hidden or showing a panel, no map;
 it returns with the full ribbon. A pointer on the map counts as on the ribbon (FR-616).
-Verified by: `TestTheMapHidesWithTheTab`, `TestAnOpeningRibbonIsDrawnWithItsMap` (facade);
+Verified by: `TestTheMapHidesWithTheTab`, `TestAnOpeningRibbonIsDrawnWithItsMap` (window);
 `surface.test.tsx`; by hand.
 
 **FR-911 The imagery is built in** (Should). Both images are carried inside and nothing is fetched
@@ -908,7 +904,7 @@ window is cut away is off the ribbon. On macOS and Linux it stays a rectangle, w
 neither answers a right-click and a drag as the ribbon does (Amendment 33).
 Acceptance: a vertical ribbon 708 DIP long flush right with a 708 by 354 map shows the desktop above
 and below the map, clickable; closing the pull out leaves the ribbon alone.
-Verified by: `TestTheShapeIsTheRibbonAndItsMap` (placement); `TestTheShapeFollowsEveryRefit` (facade);
+Verified by: `TestTheShapeIsTheRibbonAndItsMap` (placement); `TestTheShapeFollowsEveryRefit` (window);
 `TestThePointerIsReadAgainstTheWindowsShape` (desktop); `surface.test.tsx` for the spare area; by hand.
 
 **FR-914 Labels stand clear** (Should; Amendment 21; OQ-20). Each label, in clock order, takes the

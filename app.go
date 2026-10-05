@@ -1,47 +1,26 @@
 package main
 
-// The facade the page calls. Every method runs one use case, then does what the window needs
-// afterwards. Methods that can be refused answer an error, which rejects the page's promise.
+// The facade the page calls. The ribbon's window is ribbonkit's, embedded here so its methods are page
+// API alongside these; what is TimeRibbon's own (its clocks, their style, size and formats, the sun
+// map and the measuring of their text) is here. Every method runs one use case, then has the window
+// do what it needs afterwards. Methods that can be refused answer an error, which rejects the page's
+// promise.
 
 import (
-	"context"
-	"fmt"
-	"io"
-	"math"
-	"sync/atomic"
-	"time"
-
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
 	"github.com/oernster/timeribbon/internal/product"
-	"github.com/oernster/timeribbon/ribbonkit/application/arranger"
 	"github.com/oernster/timeribbon/ribbonkit/application/menus"
-	"github.com/oernster/timeribbon/ribbonkit/application/release"
-	"github.com/oernster/timeribbon/ribbonkit/application/shell"
-	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
-	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
+	"github.com/oernster/timeribbon/ribbonkit/ui/window"
 )
 
-// Events the page listens for.
-const (
-	eventRefresh   = "refresh"
-	eventOpenPanel = "open-panel"
-)
+// openAtAddClock asks the page to open Settings on the place search (FR-301).
+const openAtAddClock = "add-clock"
 
-// Which panel an open-panel event asks for: Settings, Settings opened on the place search, About,
-// Licence or an update check's outcome, which travels with it (CON-6, FR-508, FR-509).
-const (
-	openAtSettings = "settings"
-	openAtAddClock = "add-clock"
-	openAtAbout    = "about"
-	openAtLicence  = "licence"
-	openAtUpdate   = "update"
-)
-
-// ribbonService is what the facade asks of the application layer: application.Service in
-// production, a scripted stand-in in the facade's tests, which read what the facade decided with
-// each answer.
+// ribbonService is what TimeRibbon's own half of the facade asks of the application layer:
+// application.Service in production, a scripted stand-in in the facade's tests. The window asks for
+// the rest through window.Service.
 type ribbonService interface {
 	Snapshot() application.Snapshot
 	Settings() settings.Settings
@@ -52,143 +31,61 @@ type ribbonService interface {
 	SearchPlaces(query string) []application.Place
 	SetStyle(style settings.Style) error
 	SetSize(size settings.Size) error
-	SetColour(colour ribbon.Colour) error
 	SetFormat(format clock.Format) error
 	SetDateFormat(dateFormat clock.DateFormat) error
-	SetOrientation(orientation ribbon.Orientation) error
-	SetTheme(theme ribbon.Theme) error
-	SetAlwaysOnTop(on bool) error
-	SetPinned(on bool) error
 	SetSunMap(on bool) error
-	SetPullOut(open bool) error
-	StartWithWindows() (bool, error)
-	SetStartWithWindows(on bool) error
 	DismissNotices()
-	SetScrollbar(dip int) error
-	SetOpacity(percent int) error
-	PreviewScale(percent float64) error
-	SetScale(percent int) error
 	TextSamples() (times, dates []string)
 	SetMeasured(measured application.Measured) error
-	SetPixelsPerDIP(scale float64) error
-	ContextMenu() []menus.Item
 	SettingsChoices() []menus.Item
-	CloseRequested() menus.Action
-	Launch() (arranger.Arrangement, error)
-	Rearrange(at placement.Point) (arranger.Arrangement, error)
-	Moved(at placement.Point) (arranger.Arrangement, error)
-	ToEdge(at placement.Point, edge placement.Edge) (arranger.Arrangement, error)
-	ToLastEdge(at placement.Point) (arranger.Arrangement, error)
-	Centred(at placement.Point, size placement.Size) (arranger.Arrangement, error)
-	Collapsed(full arranger.Arrangement) (arranger.Arrangement, error)
-	CheckForUpdate(ctx context.Context, manual bool) release.Status
-	SkipUpdate(version string) error
+}
+
+// windowControl is what TimeRibbon's own half asks of the window: the Control's calls, plus the two
+// ribbon choices its menus carry. kitWindow is the real one; the facade's tests stand in for it.
+type windowControl interface {
+	Refitted(err error) error
+	ContentChanged()
+	Redraw()
+	Redrawn(err error) error
+	Report(doing string, err error)
+	ShowPanel(panel string)
+	PageMeasured()
+	Shown() window.Shown
+	SetColour(colour string) error
+	SetOrientation(orientation string) error
+}
+
+// kitWindow is the window's two halves together, as TimeRibbon's own half reaches them.
+type kitWindow struct {
+	*window.Window
+	*window.Control
 }
 
 // App is the facade Wails binds.
 type App struct {
+	*window.Window
 	service ribbonService
-	desktop shell.Desktop
-	log     io.Writer
-	panels  panelSizes
-
-	// The facade's calls into Wails and the desktop. Each is a field so a test can stand in for it
-	// and read what the facade did; newApp points them at the real calls in wails_calls.go and at
-	// the desktop port.
-	emit       func(event string, data ...any)
-	showWindow func()
-	hideWindow func()
-	quit       func()
-	setOnTop   func(on bool)
-	browse     func(address string) error
-	showMenu   func(items []menus.Item)
-	position   func() (placement.Point, error)
-	place      func(at placement.Point, size placement.Size) error
-	shape      func(parts []placement.Rect) error
-	background func(red, green, blue, alpha uint8)
-	paint      paintState
-	// The unpinned ribbon's calls (FR-613 to FR-618): the time, a timer that answers its own stop,
-	// the tab's frame and the desktop's reporting of the pointer.
-	now          func() time.Time
-	after        func(wait time.Duration, do func()) func() bool
-	tabFrame     func(tab bool) error
-	watchPointer func(on bool)
-	// toolkitScale answers the toolkit's own window scale, which the page's ratio is divided by;
-	// perDIPOf turns the page's ratio into window pixels with it. dragThreshold is how far the pointer
-	// moves before a press becomes a drag.
-	toolkitScale  func() int
-	perDIPOf      func(pageRatio float64, toolkitScale int) float64
-	dragThreshold func() placement.Size
-	// cursor answers the desktop's own reading of the pointer, which the grip's drag prefers.
-	cursor func() (placement.Point, bool)
-	grip   gripDrag
-	// launch is what the launched ribbon's first showing waits for (launch_show.go); lastPlaced is
-	// where the window was last put, to tell when the desktop showed it somewhere else.
-	launch     launchShow
-	lastPlaced placedWindow
-
-	ctx       context.Context
-	ribbon    shell.Window
-	trayUp    atomic.Bool
-	visible   atomic.Bool
-	quitting  atomic.Bool
-	panelOpen atomic.Bool
-	scrolls   atomic.Bool
-	// panelWidth is the open panel's width in DIP, which fitting its height keeps.
-	panelWidth atomic.Int64
-	// pixelsPerDIP is the window pixels to each of the page's units that the service sizes windows
-	// with, as math.Float64bits; zero until the page has reported its ratio (SetPixelRatio).
-	pixelsPerDIP atomic.Uint64
-
-	// updates holds the update check's timing and the outcome it last offered (FR-509).
-	updates updateWatch
-
-	// unpin is the unpinned ribbon's hover state and what the window shows of it (FR-613 to FR-618).
-	unpin unpinned
+	control windowControl
 }
 
-// newApp answers the facade over service, reporting on desktop, with each panel drawn at its size in
-// panels. Every call into the desktop goes through a closure rather than a method value, so a facade
-// built with no desktop, as the facade's tests build it, fails only if one is actually made.
-func newApp(service ribbonService, desk shell.Desktop, log io.Writer, panels panelSizes) *App {
-	built := &App{
-		service: service, desktop: desk, log: log, panels: panels,
-		updates: updateWatch{delay: updateCheckDelay, every: updateCheckEvery},
-	}
-	built.emit = built.emitToWails
-	built.showWindow = built.showInWails
-	built.hideWindow = built.hideInWails
-	built.quit = built.quitWails
-	built.setOnTop = built.setOnTopInWails
-	built.browse = func(address string) error { return desk.OpenInBrowser(address) }
-	built.showMenu = func(items []menus.Item) { desk.ShowMenu(items) }
-	built.position = func() (placement.Point, error) { return desk.Position(built.ribbon) }
-	built.place = func(at placement.Point, size placement.Size) error { return desk.Place(built.ribbon, at, size) }
-	built.shape = func(parts []placement.Rect) error { return desk.Shape(built.ribbon, parts) }
-	built.background = built.backgroundInWails
-	built.now = time.Now
-	built.after = func(wait time.Duration, do func()) func() bool { return time.AfterFunc(wait, do).Stop }
-	built.tabFrame = func(tab bool) error { return desk.SetTabFrame(built.ribbon, tab) }
-	built.watchPointer = func(on bool) { desk.TrackPointer(built.ribbon, on) }
-	built.toolkitScale = func() int { return desk.ToolkitScale() }
-	built.perDIPOf = func(pageRatio float64, toolkitScale int) float64 {
-		return desk.PixelsPerDIP(pageRatio, toolkitScale)
-	}
-	built.dragThreshold = func() placement.Size { return desk.DragThreshold() }
-	built.cursor = func() (placement.Point, bool) { return desk.Cursor() }
-	// The window opens as the full ribbon; it is collapsed only once it has been arranged.
-	built.unpin.shownOpen = true
-	return built
+// newApp answers the facade over service, its window built from config with TimeRibbon's product and
+// menu actions, plus the Control the composition root runs it with.
+func newApp(service ribbonService, config window.Config) (*App, *window.Control) {
+	app := &App{service: service}
+	config.Act = app.actOn
+	config.Product = productOf()
+	shown, control := window.New(config)
+	app.Window, app.control = shown, kitWindow{shown, control}
+	return app, control
 }
 
-// Snapshot answers what the ribbon shows now, the tab included (FR-614).
+// Snapshot answers what the ribbon shows now, the tab and the map's place included (FR-614, FR-910).
 func (a *App) Snapshot() snapshotDTO {
-	shown := snapshotOf(a.service.Snapshot(), a.scrolls.Load(), a.dragThreshold())
-	shown.Collapsed = a.collapsed()
-	side, ribbon, sunMap, drawn := a.mapLayout()
-	shown.SunMap.Side, shown.SunMap.Shown = string(side), drawn
-	perDIP := math.Float64frombits(a.pixelsPerDIP.Load())
-	shown.SunMap.Ribbon, shown.SunMap.Map = boxOf(ribbon, perDIP), boxOf(sunMap, perDIP)
+	seen := a.control.Shown()
+	shown := snapshotOf(a.service.Snapshot(), seen.Scrolls, seen.DragThreshold)
+	shown.Collapsed = seen.Collapsed
+	shown.SunMap.Side, shown.SunMap.Shown = string(seen.MapSide), seen.MapShown
+	shown.SunMap.Ribbon, shown.SunMap.Map = boxDTO(seen.Ribbon), boxDTO(seen.Map)
 	shown.Choices = choicesOf(a.service.SettingsChoices())
 	return shown
 }
@@ -196,22 +93,24 @@ func (a *App) Snapshot() snapshotDTO {
 // AddClock adds a clock for zone and answers its id (FR-301).
 func (a *App) AddClock(zone string) (string, error) {
 	id, err := a.service.AddClock(zone)
-	a.contentChanged()
+	a.control.ContentChanged()
 	return id, err
 }
 
 // RenameClock sets a clock's label (FR-303).
 func (a *App) RenameClock(id, label string) error {
-	return a.refitted(a.service.RenameClock(id, label))
+	return a.control.Refitted(a.service.RenameClock(id, label))
 }
 
 // RezoneClock sets a clock's zone (FR-304).
-func (a *App) RezoneClock(id, zone string) error { return a.refitted(a.service.RezoneClock(id, zone)) }
+func (a *App) RezoneClock(id, zone string) error {
+	return a.control.Refitted(a.service.RezoneClock(id, zone))
+}
 
 // RemoveClock removes a clock; the page has already asked (FR-305).
 func (a *App) RemoveClock(id string) error {
 	err := a.service.RemoveClock(id)
-	a.contentChanged()
+	a.control.ContentChanged()
 	return err
 }
 
@@ -221,142 +120,81 @@ func (a *App) SearchPlaces(query string) []placeDTO { return placesOf(a.service.
 // SetStyle chooses digital or analogue (FR-601).
 func (a *App) SetStyle(style string) error {
 	err := a.service.SetStyle(settings.Style(style))
-	a.contentChanged()
+	a.control.ContentChanged()
 	return err
 }
 
 // SetSize chooses large or small cells (FR-610).
 func (a *App) SetSize(size string) error {
 	err := a.service.SetSize(settings.Size(size))
-	a.contentChanged()
+	a.control.ContentChanged()
 	return err
-}
-
-// SetColour chooses the colour scheme (FR-611).
-func (a *App) SetColour(colour string) error {
-	return a.refitted(a.service.SetColour(ribbon.Colour(colour)))
 }
 
 // SetFormat chooses 12-hour or 24-hour (FR-206).
 func (a *App) SetFormat(format string) error {
-	return a.refitted(a.service.SetFormat(clock.Format(format)))
+	return a.control.Refitted(a.service.SetFormat(clock.Format(format)))
 }
 
 // SetDateFormat chooses how every date is written (FR-612).
 func (a *App) SetDateFormat(dateFormat string) error {
-	return a.refitted(a.service.SetDateFormat(clock.DateFormat(dateFormat)))
+	return a.control.Refitted(a.service.SetDateFormat(clock.DateFormat(dateFormat)))
 }
 
-// SetOrientation chooses horizontal or vertical (FR-103), then puts the ribbon against that
-// orientation's home edge (FR-409). A choice that did not take, as one the setting does not offer,
-// fits the ribbon where it stands. One whose save failed has still taken, so it moves.
-func (a *App) SetOrientation(orientation string) error {
-	chosen := ribbon.Orientation(orientation)
-	err := a.service.SetOrientation(chosen)
-	edge, known := ribbon.HomeEdge(chosen)
-	if !known || a.service.Settings().Orientation != chosen {
-		a.contentChanged()
-		return err
-	}
-	a.toEdge(edge)
-	return err
+// SetSunMap turns the sun map on or off (FR-901), then fits the window to the ribbon with or without
+// it and has the page draw what the window now holds.
+func (a *App) SetSunMap(on bool) error {
+	return a.control.Redrawn(a.control.Refitted(a.service.SetSunMap(on)))
 }
-
-// SetTheme chooses system, light or dark (FR-606).
-func (a *App) SetTheme(theme string) error {
-	return a.refitted(a.service.SetTheme(ribbon.Theme(theme)))
-}
-
-// SetAlwaysOnTop turns Always on Top on or off and applies it at once (FR-505).
-func (a *App) SetAlwaysOnTop(on bool) error {
-	err := a.service.SetAlwaysOnTop(on)
-	a.applyAlwaysOnTop()
-	return a.refitted(err)
-}
-
-// StartWithWindows answers whether the Start with Windows value is present (FR-605).
-func (a *App) StartWithWindows() (bool, error) { return a.service.StartWithWindows() }
-
-// SetStartWithWindows writes or removes the Start with Windows value (FR-605).
-func (a *App) SetStartWithWindows(on bool) error { return a.service.SetStartWithWindows(on) }
 
 // DismissNotices clears the notices the user has read, then fits the ribbon without their cells.
 func (a *App) DismissNotices() {
 	a.service.DismissNotices()
-	a.contentChanged()
+	a.control.ContentChanged()
 }
 
-// SetScrollbar takes the thickness in DIP of the scroll bar the page draws, which it measures once
-// it has loaded, then fits the ribbon with room for it (FR-106).
-func (a *App) SetScrollbar(dip int) error { return a.refitted(a.service.SetScrollbar(dip)) }
-
-// SetPixelRatio takes the page's devicePixelRatio, which it reports once it has loaded and again
-// whenever it changes, then fits the window to the page as it is really drawn. Windows' text size
-// enlarges the page without changing the display's DPI, so the DPI alone left the page cut off.
-func (a *App) SetPixelRatio(ratio float64) error {
-	perDIP := a.perDIPOf(ratio, a.toolkitScale())
-	err := a.service.SetPixelsPerDIP(perDIP)
-	if err == nil {
-		a.pixelsPerDIP.Store(math.Float64bits(perDIP))
-	}
-	err = a.refitted(err)
-	if err == nil {
-		a.pageScaled()
-	}
-	return err
-}
-
-// SetBackground takes the colour the page paints behind everything, which it reports once it has
-// loaded and again whenever the scheme or theme changes it, so the window shows that colour rather
-// than white while the page catches up with a new size (measured 2026-09-29). The colours live in the
-// page's CSS alone; Go only passes this one on. A channel outside a byte is refused.
-func (a *App) SetBackground(red, green, blue int) error {
-	for _, channel := range []int{red, green, blue} {
-		if channel < 0 || channel > math.MaxUint8 {
-			return fmt.Errorf("the page's background rgb(%d, %d, %d) is not a colour", red, green, blue)
-		}
-	}
-	a.paint.guard.Lock()
-	a.paint.colour, a.paint.known = [3]uint8{uint8(red), uint8(green), uint8(blue)}, true
-	a.paint.guard.Unlock()
-	a.repaint()
-	return nil
-}
-
-// ShowContextMenu shows the ribbon's right-click menu as a native menu at the cursor (FR-108). While
-// it is open the ribbon does not collapse (FR-616); the desktop reports it closed.
-func (a *App) ShowContextMenu() {
-	a.menuShown()
-	a.showMenu(a.service.ContextMenu())
-}
-
-// OpenDonation hands the donation page to the desktop's browser. The application never fetches it,
-// so the button adds no network request to the update check's one (NFR-S-1). Where the desktop
-// cannot open it, the refusal says why and gives the address, so it can still be reached by hand.
-// The words name no system, since every platform's desktop can refuse.
-func (a *App) OpenDonation() error {
-	if err := a.browse(product.DonateURL); err != nil {
-		return fmt.Errorf("your browser could not be opened on the donation page (%w). There may be no default browser set; the page is %s", err, product.DonateURL)
-	}
-	return nil
-}
-
-// Hide hides the ribbon (FR-504).
-func (a *App) Hide() { a.hide() }
-
-// refitted fits the ribbon after a change, then answers err. A change whose save failed raises a
-// notice, which is one more cell to fit (FR-707); one that saved may have ended an earlier notice.
-func (a *App) refitted(err error) error {
-	a.contentChanged()
-	return err
-}
-
-// contentChanged fits the ribbon to what it now holds where it stands; where its length changed it
-// is centred along that length again (FR-104, FR-105). While a panel is open the window is that
-// panel, so the ribbon is fitted when it closes instead.
-func (a *App) contentChanged() {
-	if a.panelOpen.Load() || a.ribbon == 0 {
+// actOn carries out a menu action of TimeRibbon's own (FR-108, FR-301, FR-901), then has the page
+// redraw, since a choice made from a menu is one the page did not make. The window hands over every
+// action it does not know; one that is not TimeRibbon's either changes nothing.
+func (a *App) actOn(action menus.Action) {
+	if action == application.ActionAddClock {
+		a.control.ShowPanel(openAtAddClock)
 		return
 	}
-	a.rearrange()
+	if choose, doing, ok := a.choiceOf(action); ok {
+		a.control.Report(doing, choose())
+		a.control.Redraw()
+	}
+}
+
+// choiceOf answers the choice action names with what making it is doing; false where action names
+// none of TimeRibbon's choices.
+func (a *App) choiceOf(action menus.Action) (choose func() error, doing string, ok bool) {
+	if action == application.ActionSunMap {
+		return func() error { return a.SetSunMap(!a.service.Settings().SunMap) }, "turning the sun map on or off", true
+	}
+	if style, ok := application.StyleOf(action); ok {
+		return func() error { return a.SetStyle(string(style)) }, "changing the style", true
+	}
+	if colour, ok := application.ColourOf(action); ok {
+		return func() error { return a.control.SetColour(string(colour)) }, "changing the colour", true
+	}
+	if orientation, ok := application.OrientationOf(action); ok {
+		return func() error { return a.control.SetOrientation(string(orientation)) }, "changing the orientation", true
+	}
+	return nil, "", false
+}
+
+// productOf answers what the window says about TimeRibbon, every word from internal/product and the
+// terms the LICENSE file itself (FR-607, FR-608).
+func productOf() window.Product {
+	credits := make([]window.Credit, 0, len(product.Credits))
+	for _, credit := range product.Credits {
+		credits = append(credits, window.Credit{Name: credit.Name, Licence: credit.Licence, Role: credit.Role})
+	}
+	return window.Product{
+		App: product.App(), WindowClass: product.RibbonClass, Version: product.Version,
+		Author: product.Author, Copyright: product.Copyright, Credits: credits,
+		Licence: licenceText, DonateURL: product.DonateURL,
+	}
 }

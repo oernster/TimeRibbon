@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oernster/timeribbon/internal/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // FR-623: the pointer is read in the units the ribbon is placed in, counted from the same corner, so

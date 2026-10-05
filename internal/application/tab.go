@@ -3,7 +3,7 @@ package application
 import (
 	"fmt"
 
-	"github.com/oernster/timeribbon/internal/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // Collapsed answers the arrangement of the tab an unpinned ribbon arranged as full shrinks to

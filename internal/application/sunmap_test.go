@@ -3,9 +3,9 @@ package application
 import (
 	"testing"
 
-	"github.com/oernster/timeribbon/internal/domain/placement"
 	"github.com/oernster/timeribbon/internal/domain/settings"
 	"github.com/oernster/timeribbon/internal/domain/sun"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // londonAt is Europe/London's city as the rig's catalogue gives it.

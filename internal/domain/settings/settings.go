@@ -10,7 +10,7 @@ import (
 	"slices"
 
 	"github.com/oernster/timeribbon/internal/domain/clock"
-	"github.com/oernster/timeribbon/internal/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // Style is how every cell presents its time (FR-603, FR-604).

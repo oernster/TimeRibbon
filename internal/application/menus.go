@@ -1,8 +1,8 @@
 package application
 
 import (
-	"github.com/oernster/timeribbon/internal/domain/placement"
 	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // MenuAction names what a menu item does. The window and the tray act on it; the words shown for

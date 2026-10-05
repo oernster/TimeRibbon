@@ -5,7 +5,7 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/oernster/timeribbon/internal/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // FindRibbon answers the window of class, the class name the ribbon's window is created with.

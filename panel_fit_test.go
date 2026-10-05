@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/oernster/timeribbon/internal/application"
-	"github.com/oernster/timeribbon/internal/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // fittedHeight is a content height taller than the panel opens at.

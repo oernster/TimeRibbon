@@ -17,7 +17,7 @@ Set-Location $root
 
 # Domain and application are the layers a test reaches with no filesystem, clock or display, so
 # anything short of 100 percent there is a decision nobody made (CON-3).
-$gated = './internal/domain/...', './internal/application/...'
+$gated = './internal/domain/...', './internal/application/...', './ribbonkit/domain/...'
 
 # The Go tools are pointed at this list rather than at ./..., which would reach into
 # frontend/node_modules once the front end exists.
@@ -87,13 +87,13 @@ $measured = [ordered]@{
     '.'                                  = 87
     './internal/infrastructure/appdata'  = 100
     './internal/infrastructure/desktop'  = 38
-    './internal/infrastructure/iconscale' = 100
+    './ribbonkit/infrastructure/iconscale' = 100
     './internal/infrastructure/runlog'   = 76
-    './internal/infrastructure/monitors' = 82
+    './ribbonkit/infrastructure/monitors' = 82
     './internal/infrastructure/setup'    = 84
     './internal/infrastructure/startup'  = 80
     './internal/infrastructure/store'    = 94
-    './internal/infrastructure/system'   = 100
+    './ribbonkit/infrastructure/system'   = 100
     './internal/infrastructure/update'   = 100
     './internal/infrastructure/zones'    = 100
     './tools/genplaces'                  = 58

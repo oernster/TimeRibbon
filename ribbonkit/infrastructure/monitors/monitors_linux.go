@@ -10,8 +10,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/oernster/timeribbon/internal/domain/placement"
-	"github.com/oernster/timeribbon/internal/infrastructure/gtkmain"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/gtkmain"
 )
 
 // On Linux the displays are read from GDK, whose coordinates are GTK's own units: device pixels

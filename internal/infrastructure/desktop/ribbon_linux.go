@@ -75,9 +75,9 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/oernster/timeribbon/internal/domain/placement"
-	"github.com/oernster/timeribbon/internal/infrastructure/gtkmain"
 	"github.com/oernster/timeribbon/internal/product"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/gtkmain"
 )
 
 // sizeLimit and sizePause bound the wait for a new size to take before the ribbon is moved.

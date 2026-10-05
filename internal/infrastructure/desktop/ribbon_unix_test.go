@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oernster/timeribbon/internal/domain/placement"
-	"github.com/oernster/timeribbon/internal/infrastructure/monitors"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/monitors"
 )
 
 // The window manager acts on a placement when it gets to it, so the result is polled for.

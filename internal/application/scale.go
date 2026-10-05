@@ -3,8 +3,8 @@ package application
 import (
 	"fmt"
 
-	"github.com/oernster/timeribbon/internal/domain/placement"
 	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // SetScale chooses how large the clocks are drawn on top of their size in percent, then keeps it;

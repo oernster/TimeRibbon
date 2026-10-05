@@ -23,6 +23,7 @@ here does not exist.
 | Invariant | Enforcing test | File |
 |---|---|---|
 | Domain imports nothing from this module outside `internal/domain` | `TestDomainHasNoOutwardImports` | [`boundary_test.go`](tests/structural/boundary_test.go) |
+| `ribbonkit` imports nothing of TimeRibbon's, so it can leave this repository whole | `TestTheKitImportsNothingOfTimeRibbon` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | Domain is pure: no network, filesystem, process, random or tz package; no wall clock read, no zone loaded (FR-207, CON-5) | `TestDomainIsPure` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | Application never imports infrastructure or Wails | `TestApplicationDoesNotImportInfrastructure` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | Infrastructure never imports Wails | `TestWailsStaysOutOfInfrastructure` | [`boundary_test.go`](tests/structural/boundary_test.go) |
@@ -55,6 +56,12 @@ here does not exist.
 | That word is found in any case and inside names while current names pass | `TestTheRetiredWordIsFoundInAnyCaseAndInsideNames` | [`retired_test.go`](tests/structural/retired_test.go) |
 
 ## Layers
+
+The desktop behaviour shared with WeatherRibbon is being carved into `ribbonkit/`, which has the
+same layers (`ribbonkit/domain`, `ribbonkit/infrastructure`), is held to every rule above and will
+leave this repository as a module of its own. It holds `placement` and `hover` in its domain;
+`gtkmain`, `cocoamain`, `iconscale`, `system` and `monitors` in its infrastructure. Each is described
+below where it sits in the layering.
 
 - **Domain** (`internal/domain`), pure Go: time arrives as an argument and a zone already resolved.
   - `clock`: an instant and a zone become what a cell shows (time in either format, the date in the

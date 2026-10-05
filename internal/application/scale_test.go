@@ -5,7 +5,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/oernster/timeribbon/internal/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // pageScale is the scale the page reported in the reproduction of 2026-09-28: Windows' text size

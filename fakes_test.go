@@ -9,8 +9,8 @@ import (
 
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/internal/domain/clock"
-	"github.com/oernster/timeribbon/internal/domain/placement"
 	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // errPlanted is the failure a stand-in answers when a test asks it to fail.

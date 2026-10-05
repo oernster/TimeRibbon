@@ -40,8 +40,8 @@ static void pointer_warp(int x, int y)
 import "C"
 
 import (
-	"github.com/oernster/timeribbon/internal/domain/placement"
-	"github.com/oernster/timeribbon/internal/infrastructure/gtkmain"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/gtkmain"
 )
 
 // Cursor answers where the pointer is in GTK's units, the units the ribbon is placed in; also

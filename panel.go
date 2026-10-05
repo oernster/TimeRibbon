@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/oernster/timeribbon/internal/application"
-	"github.com/oernster/timeribbon/internal/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // panelSizes are the sizes in DIP the window opens at as a panel: Settings wide enough to lay its

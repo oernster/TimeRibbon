@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	"github.com/oernster/timeribbon/internal/application"
-	"github.com/oernster/timeribbon/internal/domain/placement"
 	"github.com/oernster/timeribbon/internal/infrastructure/desktop"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // withMap is testArrange, a ribbon at (10, 20) 300 by 90, with a 480 by 240 map below it centred on

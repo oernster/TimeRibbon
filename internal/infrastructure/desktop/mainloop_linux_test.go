@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/oernster/timeribbon/internal/infrastructure/gtkmain"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/gtkmain"
 )
 
 // The tests run on X11 with GTK's loop running, as the application does.

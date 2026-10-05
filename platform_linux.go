@@ -1,6 +1,6 @@
 package main
 
-import "github.com/oernster/timeribbon/internal/infrastructure/gtkmain"
+import "github.com/oernster/timeribbon/ribbonkit/infrastructure/gtkmain"
 
 // On Linux GTK is sent through X11 before Wails opens it: the ribbon must choose where it stands,
 // which a window on Wayland may not. The web view's DMABUF renderer is turned off before it starts,

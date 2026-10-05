@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/oernster/timeribbon/internal/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // Reads the real displays. What it can hold on any machine: at least one display, exactly one

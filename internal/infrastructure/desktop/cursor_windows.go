@@ -3,7 +3,7 @@ package desktop
 import (
 	"unsafe"
 
-	"github.com/oernster/timeribbon/internal/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // Cursor answers where the pointer is on the virtual desktop in physical pixels; also whether

@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/oernster/timeribbon/internal/application"
-	"github.com/oernster/timeribbon/internal/domain/hover"
-	"github.com/oernster/timeribbon/internal/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/hover"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // unpinned is the hover state with what the window shows because of it.

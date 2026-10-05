@@ -6,7 +6,7 @@ package main
 
 import (
 	"github.com/oernster/timeribbon/internal/application"
-	"github.com/oernster/timeribbon/internal/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // windowOf answers the window's place and size for the ribbon arranged as full, shown in full: the

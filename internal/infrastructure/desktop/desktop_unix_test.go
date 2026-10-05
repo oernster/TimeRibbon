@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/oernster/timeribbon/internal/application"
-	"github.com/oernster/timeribbon/internal/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // quietFor is how long a test waits to be sure no event comes: well past the settling time.

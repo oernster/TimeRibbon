@@ -20,9 +20,9 @@ import (
 	"io"
 	"unsafe"
 
-	"github.com/oernster/timeribbon/internal/domain/placement"
-	"github.com/oernster/timeribbon/internal/infrastructure/cocoamain"
 	"github.com/oernster/timeribbon/internal/product"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/cocoamain"
 )
 
 // dragThreshold is how far the pointer must move, in DIP, before a press becomes a drag. macOS

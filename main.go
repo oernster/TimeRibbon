@@ -13,17 +13,17 @@ import (
 	"time"
 
 	"github.com/oernster/timeribbon/internal/application"
-	"github.com/oernster/timeribbon/internal/domain/placement"
 	"github.com/oernster/timeribbon/internal/infrastructure/appdata"
 	"github.com/oernster/timeribbon/internal/infrastructure/desktop"
-	"github.com/oernster/timeribbon/internal/infrastructure/monitors"
 	"github.com/oernster/timeribbon/internal/infrastructure/runlog"
 	"github.com/oernster/timeribbon/internal/infrastructure/startup"
 	"github.com/oernster/timeribbon/internal/infrastructure/store"
-	"github.com/oernster/timeribbon/internal/infrastructure/system"
 	"github.com/oernster/timeribbon/internal/infrastructure/update"
 	"github.com/oernster/timeribbon/internal/infrastructure/zones"
 	"github.com/oernster/timeribbon/internal/product"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/monitors"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/system"
 )
 
 // The empty ribbon's one cell, the padding round the cells and the pull out handle's lane, in DIP,

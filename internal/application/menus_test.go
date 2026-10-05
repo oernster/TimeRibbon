@@ -5,8 +5,8 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/oernster/timeribbon/internal/domain/placement"
 	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 func labels(items []MenuItem) []string {

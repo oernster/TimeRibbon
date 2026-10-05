@@ -35,15 +35,15 @@ figure with the fraction dropped, so it fails once cover is lost.
 
 | Package | Coverage | Floor |
 |---|---|---|
-| `internal/domain/clock`, `hover`, `placement`, `settings`, `sun` | 100% | 100% |
+| `internal/domain/clock`, `settings`, `sun`; `ribbonkit/domain/hover`, `placement` | 100% | 100% |
 | `internal/application` | 100% | 100% |
-| `internal/infrastructure/appdata`, `iconscale`, `system`, `update`, `zones` | 100% | 100% |
+| `internal/infrastructure/appdata`, `update`, `zones`; `ribbonkit/infrastructure/iconscale`, `system` | 100% | 100% |
 | `internal/infrastructure/store` | 94.0% | 94% |
 | the root package (the Wails facade) | 87.4% | 87% |
 | `tools/versioninfo` | 86.7% | 86% |
 | `internal/infrastructure/setup` | 84.0% | 84% |
 | `tools/payload` | 82.8% | 82% |
-| `internal/infrastructure/monitors` | 82.6% | 82% |
+| `ribbonkit/infrastructure/monitors` | 82.6% | 82% |
 | `internal/infrastructure/startup` | 80.6% | 80% |
 | `internal/infrastructure/runlog` | 76.5% | 76% |
 | `tools/identity` | 75% | 75% |

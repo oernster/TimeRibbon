@@ -18,8 +18,8 @@ import (
 	"runtime/cgo"
 	"unsafe"
 
-	"github.com/oernster/timeribbon/internal/infrastructure/cocoamain"
 	"github.com/oernster/timeribbon/internal/product"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/cocoamain"
 )
 
 // errNoIcon is answered when the desktop was given no image for the icon.

@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/oernster/timeribbon/internal/application"
-	"github.com/oernster/timeribbon/internal/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // moveSettle is how long the ribbon must stand still before a move counts as ended. The window

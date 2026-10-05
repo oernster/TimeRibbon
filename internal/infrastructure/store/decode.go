@@ -7,8 +7,8 @@ import (
 	"slices"
 	"strconv"
 
-	"github.com/oernster/timeribbon/internal/domain/placement"
 	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // Top-level keys, in the order they are written.

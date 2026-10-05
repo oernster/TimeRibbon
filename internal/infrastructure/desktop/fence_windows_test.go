@@ -3,7 +3,7 @@ package desktop
 import (
 	"testing"
 
-	"github.com/oernster/timeribbon/internal/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // A display 1920 by 1032 with a second to its right, as moves across them are proposed.

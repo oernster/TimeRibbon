@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/oernster/timeribbon/internal/domain/placement"
-	"github.com/oernster/timeribbon/internal/infrastructure/cocoamain"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/cocoamain"
 )
 
 func TestMain(m *testing.M) { os.Exit(cocoamain.Serve(m.Run)) }

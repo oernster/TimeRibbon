@@ -5,8 +5,8 @@ import (
 	"math"
 	"slices"
 
-	"github.com/oernster/timeribbon/internal/domain/placement"
 	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // Arrangement is where the window goes and how big it is, in physical pixels.

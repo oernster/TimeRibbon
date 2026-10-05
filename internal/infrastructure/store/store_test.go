@@ -10,8 +10,8 @@ import (
 	"testing"
 
 	"github.com/oernster/timeribbon/internal/domain/clock"
-	"github.com/oernster/timeribbon/internal/domain/placement"
 	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // write puts text in dir's settings file.

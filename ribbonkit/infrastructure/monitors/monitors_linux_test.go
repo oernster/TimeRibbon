@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/oernster/timeribbon/internal/domain/placement"
-	"github.com/oernster/timeribbon/internal/infrastructure/gtkmain"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/gtkmain"
 )
 
 func TestMain(m *testing.M) { os.Exit(gtkmain.ServeTests(m.Run)) }

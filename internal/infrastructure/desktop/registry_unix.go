@@ -9,8 +9,8 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/oernster/timeribbon/internal/domain/placement"
 	"github.com/oernster/timeribbon/internal/product"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // errUnknownWindow is answered for a Window this package never handed out.

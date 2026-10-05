@@ -3,7 +3,7 @@ package desktop
 import (
 	"image/color"
 
-	"github.com/oernster/timeribbon/internal/infrastructure/iconscale"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/iconscale"
 )
 
 // trayIconSize is the edge in pixels of the icon handed to the tray host. The host scales it to the

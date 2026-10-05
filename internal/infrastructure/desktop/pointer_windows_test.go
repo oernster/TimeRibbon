@@ -8,7 +8,7 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/oernster/timeribbon/internal/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // wailsStyle is the style Wails gives its frameless window (measured 2026-09-28).

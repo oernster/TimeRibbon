@@ -3,7 +3,7 @@ package desktop
 import (
 	"testing"
 
-	"github.com/oernster/timeribbon/internal/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // FR-913: the parts are joined into one region; no parts is no region, the whole window.

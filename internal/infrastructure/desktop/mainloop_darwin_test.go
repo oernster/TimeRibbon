@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/oernster/timeribbon/internal/infrastructure/cocoamain"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/cocoamain"
 )
 
 // The tests run with AppKit's loop running on the main thread, as the application does.

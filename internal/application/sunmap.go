@@ -3,9 +3,9 @@ package application
 import (
 	"time"
 
-	"github.com/oernster/timeribbon/internal/domain/placement"
 	"github.com/oernster/timeribbon/internal/domain/settings"
 	"github.com/oernster/timeribbon/internal/domain/sun"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // SunMap is what the sun map draws at one instant (FR-905 to FR-908).

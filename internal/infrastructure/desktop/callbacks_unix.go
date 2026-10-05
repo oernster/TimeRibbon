@@ -12,7 +12,7 @@ import (
 	"sync"
 
 	"github.com/oernster/timeribbon/internal/application"
-	"github.com/oernster/timeribbon/internal/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // shown is the menu on screen: the desktop its choice goes to and the items it was built from. One

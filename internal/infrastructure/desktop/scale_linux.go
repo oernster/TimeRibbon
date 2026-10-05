@@ -22,7 +22,7 @@ static int toolkit_scale(void)
 */
 import "C"
 
-import "github.com/oernster/timeribbon/internal/infrastructure/gtkmain"
+import "github.com/oernster/timeribbon/ribbonkit/infrastructure/gtkmain"
 
 // wholeScale is the toolkit scale of a window GTK does not scale itself.
 const wholeScale = 1

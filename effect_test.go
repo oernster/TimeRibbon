@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/oernster/timeribbon/internal/application"
-	"github.com/oernster/timeribbon/internal/domain/hover"
-	"github.com/oernster/timeribbon/internal/domain/placement"
 	"github.com/oernster/timeribbon/internal/infrastructure/desktop"
+	"github.com/oernster/timeribbon/ribbonkit/domain/hover"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // openUnpinnedApp answers an unpinned ribbon opened from its tab and shown in full.

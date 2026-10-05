@@ -4,8 +4,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/oernster/timeribbon/internal/domain/placement"
 	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // FR-614: the tab is the band on the side flush against the ribbon's edge, in that display's pixels.

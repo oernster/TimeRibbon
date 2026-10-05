@@ -102,17 +102,36 @@ func importsOf(t *testing.T, path string) []string {
 	return out
 }
 
-// layerOf returns the architectural layer a file belongs to; empty outside internal.
+// kitTree is the directory holding ribbonkit, the desktop behaviour shared with WeatherRibbon. It has
+// the same layers as internal and imports nothing outside itself.
+const kitTree = "ribbonkit"
+
+// layerOf returns the architectural layer a file belongs to; empty outside internal and the kit.
 func layerOf(root, path string) string {
 	relative, err := filepath.Rel(root, path)
 	if err != nil {
 		return ""
 	}
 	parts := strings.Split(filepath.ToSlash(relative), "/")
-	if len(parts) >= 2 && parts[0] == "internal" {
+	if len(parts) >= 2 && (parts[0] == "internal" || parts[0] == kitTree) {
 		return parts[1]
 	}
 	return ""
+}
+
+// treeOf returns the top directory of the module path imported names: internal, the kit or another.
+func treeOf(imported string) string {
+	inner, ok := strings.CutPrefix(imported, modulePath)
+	if !ok {
+		return ""
+	}
+	tree, _, _ := strings.Cut(inner, "/")
+	return tree
+}
+
+// inLayer answers whether imported is a package of layer, in internal or the kit.
+func inLayer(imported, layer string) bool {
+	return strings.Contains(imported, "internal/"+layer) || strings.Contains(imported, kitTree+"/"+layer)
 }
 
 func TestDomainHasNoOutwardImports(t *testing.T) {
@@ -122,9 +141,25 @@ func TestDomainHasNoOutwardImports(t *testing.T) {
 			continue
 		}
 		for _, imported := range importsOf(t, path) {
-			inner, internal := strings.CutPrefix(imported, modulePath)
-			if internal && !strings.HasPrefix(inner, "internal/domain") {
+			if treeOf(imported) != "" && !inLayer(imported, "domain") {
 				t.Errorf("%s imports %s: the domain depends on nothing", path, imported)
+			}
+		}
+	}
+}
+
+// TestTheKitImportsNothingOfTimeRibbon holds ribbonkit free of anything clock-specific, so it can
+// leave this repository whole (WeatherRibbon CON-10).
+func TestTheKitImportsNothingOfTimeRibbon(t *testing.T) {
+	root := repoRoot(t)
+	for _, path := range goFiles(t) {
+		relative, _ := filepath.Rel(root, path)
+		if !strings.HasPrefix(filepath.ToSlash(relative), kitTree+"/") {
+			continue
+		}
+		for _, imported := range importsOf(t, path) {
+			if tree := treeOf(imported); tree != "" && tree != kitTree {
+				t.Errorf("%s imports %s: the kit depends on nothing of TimeRibbon's", relative, imported)
 			}
 		}
 	}
@@ -162,7 +197,7 @@ func TestApplicationDoesNotImportInfrastructure(t *testing.T) {
 			continue
 		}
 		for _, imported := range importsOf(t, path) {
-			if strings.Contains(imported, "internal/infrastructure") || strings.Contains(imported, "wails") {
+			if inLayer(imported, "infrastructure") || strings.Contains(imported, "wails") {
 				t.Errorf("%s imports %s: the application depends on ports only", path, imported)
 			}
 		}
@@ -191,8 +226,8 @@ func TestCompositionRootIsWhitelisted(t *testing.T) {
 		}
 		var application, infrastructure bool
 		for _, imported := range importsOf(t, path) {
-			application = application || strings.Contains(imported, "internal/application")
-			infrastructure = infrastructure || strings.Contains(imported, "internal/infrastructure")
+			application = application || inLayer(imported, "application")
+			infrastructure = infrastructure || inLayer(imported, "infrastructure")
 		}
 		if !application || !infrastructure {
 			continue

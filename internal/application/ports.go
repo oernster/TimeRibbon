@@ -8,9 +8,9 @@ package application
 import (
 	"time"
 
-	"github.com/oernster/timeribbon/internal/domain/placement"
 	"github.com/oernster/timeribbon/internal/domain/settings"
 	"github.com/oernster/timeribbon/internal/domain/sun"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // Loaded is what the store answers at launch.

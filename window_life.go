@@ -7,9 +7,9 @@ import (
 	"fmt"
 
 	"github.com/oernster/timeribbon/internal/application"
-	"github.com/oernster/timeribbon/internal/domain/placement"
 	"github.com/oernster/timeribbon/internal/infrastructure/desktop"
 	"github.com/oernster/timeribbon/internal/product"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // startup takes the ribbon off the taskbar and puts it in place while it is still hidden, then

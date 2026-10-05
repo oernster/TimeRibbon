@@ -5,8 +5,8 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/oernster/timeribbon/internal/domain/placement"
 	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // FR-623: the grip's page cannot take a snapshot mid-drag by itself, so a preview and the kept

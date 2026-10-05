@@ -4,8 +4,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/oernster/timeribbon/internal/domain/placement"
 	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // doubled is a scale that draws everything twice as large, so every length is exact.

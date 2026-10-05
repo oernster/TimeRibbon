@@ -47,8 +47,8 @@ import (
 	"fmt"
 	"unsafe"
 
-	"github.com/oernster/timeribbon/internal/domain/placement"
-	"github.com/oernster/timeribbon/internal/infrastructure/cocoamain"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/cocoamain"
 )
 
 // On macOS the displays are read from AppKit, in points: device pixels divided by the display's

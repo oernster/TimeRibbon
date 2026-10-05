@@ -8,8 +8,8 @@ void test_warp(int x, int y);
 import "C"
 
 import (
-	"github.com/oernster/timeribbon/internal/domain/placement"
-	"github.com/oernster/timeribbon/internal/infrastructure/cocoamain"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/cocoamain"
 )
 
 // Cursor answers where the pointer is in points, counted from the menu-bar display's top-left corner

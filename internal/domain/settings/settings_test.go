@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/oernster/timeribbon/internal/domain/clock"
-	"github.com/oernster/timeribbon/internal/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 func withClocks(ids ...string) Settings {

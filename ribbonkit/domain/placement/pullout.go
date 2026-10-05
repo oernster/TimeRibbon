@@ -32,6 +32,20 @@ func InnerSide(ribbon Rect, work Rect, vertical bool, edge Edge) Edge {
 	return Bottom
 }
 
+// PullOutSideOf answers the side of a ribbon on work its pull out goes on (FR-902, FR-903, Amendment
+// 35): away from edge where it stands against one; else kept, the side it already has, while that
+// side has at least floor of room, so the side never changes as the ribbon is carried about; else the
+// side with more room. floor is in the display's pixels.
+func PullOutSideOf(ribbon Rect, work Rect, vertical bool, edge, kept Edge, floor int) Edge {
+	if inner := Opposite(edge); inner != "" {
+		return inner
+	}
+	if kept != "" && Along(kept, vertical) && roomBeside(ribbon, work, kept) >= floor {
+		return kept
+	}
+	return InnerSide(ribbon, work, vertical, edge)
+}
+
 // PullOutBeside answers the pull out's rectangle adjoining side of a ribbon on work (FR-904): as wide
 // as the ribbon is long, never narrower than minimumWidth, half as deep as it is wide; scaled down,
 // keeping its shape, to the room beside the ribbon; centred on the ribbon along it and kept inside

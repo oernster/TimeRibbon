@@ -66,6 +66,36 @@ func TestTheHandlesLaneDeepensTheRibbon(t *testing.T) {
 	}
 }
 
+// FR-902, Amendment 35, its acceptance: a vertical ribbon with its pull out on the left, dropped
+// away from every edge where the right has more room, keeps it on the left, as it would carried onto
+// another display; the side is kept for the next launch. Dropped where under 120 is left on its left,
+// it goes right. Measured 2026-10-05: carried from the 100 percent display onto one at 250 percent,
+// the clocks swapped sides.
+func TestThePullOutKeepsItsSideAcrossADrop(t *testing.T) {
+	t.Parallel()
+	r := newRig(vertical(), pulledOut(2))
+	if _, err := r.arranger.Launch(); err != nil {
+		t.Fatal(err)
+	}
+	if side := r.host.current().PullOutSide; side != placement.Left {
+		t.Fatalf("launched against the right edge the side kept is %q, want left", side)
+	}
+	got, err := r.arranger.Moved(placement.Point{X: 400, Y: 300})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.PullOutSide != placement.Left || got.PullOut.Right != got.At.X {
+		t.Errorf("dropped with more room on the right the pull out went %q at %+v, want it kept on the left", got.PullOutSide, got.PullOut)
+	}
+	got, err = r.arranger.Moved(placement.Point{X: 60, Y: 300})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.PullOutSide != placement.Right || r.host.current().PullOutSide != placement.Right {
+		t.Errorf("with 60 left on its left the pull out went %q, kept %q; want right", got.PullOutSide, r.host.current().PullOutSide)
+	}
+}
+
 // FR-903: a vertical ribbon at the right edge has its handle on the left; its pull out shows there
 // only while it is open.
 func TestAVerticalRibbonsPullOutWaitsUntilOpen(t *testing.T) {

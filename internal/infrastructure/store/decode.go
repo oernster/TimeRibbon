@@ -32,12 +32,13 @@ const (
 	keyPullOut       = "pullOut"
 	keyOpacity       = "opacity"
 	keyScale         = "scale"
+	keyPullOutSide   = "pullOutSide"
 )
 
 // knownKeys lists the keys this version reads, in writing order.
 var knownKeys = []string{
 	keyVersion, keyStyle, keySize, keyColour, keyFormat, keyOrientation, keyTheme, keyAlwaysOnTop, keyPlacement, keyClocks,
-	keySkippedUpdate, keyDateFormat, keyPinned, keyLastEdge, keySunMap, keyPullOut, keyOpacity, keyScale,
+	keySkippedUpdate, keyDateFormat, keyPinned, keyLastEdge, keySunMap, keyPullOut, keyOpacity, keyScale, keyPullOutSide,
 }
 
 // unreadableIDPrefix begins the id an unreadable clock is given for the session, so it can be
@@ -106,6 +107,7 @@ func decode(raw []byte) (settings.Settings, []pair, bool) {
 	readInto(object, keyPullOut, &decoded.PullOut)
 	readInto(object, keyOpacity, &decoded.Opacity)
 	readInto(object, keyScale, &decoded.Scale)
+	readInto(object, keyPullOutSide, &decoded.PullOutSide)
 	decoded.Placement = decodePlacement(object[keyPlacement])
 	decoded.LastEdge = decodeEdge(object[keyLastEdge])
 	decoded.Clocks = decodeClocks(entries)

@@ -36,6 +36,35 @@ func TestThePullOutAdjoinsTheSideAwayFromTheEdge(t *testing.T) {
 	}
 }
 
+// FR-902, Amendment 35: against no edge a ribbon keeps the side its pull out has, whichever side has
+// more room, until that side has less room than the floor; an edge still decides; a side that runs
+// across the ribbon (or none) falls back to the side with more room.
+func TestThePullOutKeepsItsSide(t *testing.T) {
+	t.Parallel()
+	middle := Rect{Left: 1500, Top: 400, Right: 1676, Bottom: 596}
+	leftish := Rect{Left: 300, Top: 400, Right: 476, Bottom: 596}
+	cases := []struct {
+		name   string
+		ribbon Rect
+		edge   Edge
+		kept   Edge
+		want   Edge
+	}{
+		{"kept left though the right has more room", leftish, "", Left, Left},
+		{"kept left with room there", middle, "", Left, Left},
+		{"kept right with room there", middle, "", Right, Right},
+		{"kept left with too little room", Rect{Left: 60, Top: 400, Right: 236, Bottom: 596}, "", Left, Right},
+		{"against the right edge", Rect{Left: 1744, Top: 400, Right: 1920, Bottom: 596}, Right, Right, Left},
+		{"a side across the ribbon", middle, "", Top, Left},
+		{"no side yet", middle, "", "", Left},
+	}
+	for _, each := range cases {
+		if got := PullOutSideOf(each.ribbon, work, true, each.edge, each.kept, PullOutFloor); got != each.want {
+			t.Errorf("%s: got %s, want %s", each.name, got, each.want)
+		}
+	}
+}
+
 // FR-904, its acceptance: a horizontal ribbon 1200 long at the top gets a 1200 by 600 pull out below
 // it; one 336 long gets the 480 by 240 minimum centred on it.
 func TestThePullOutMatchesTheRibbon(t *testing.T) {

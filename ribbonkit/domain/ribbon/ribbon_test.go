@@ -90,6 +90,24 @@ func TestAnUnknownRememberedEdgeIsForgotten(t *testing.T) {
 	}
 }
 
+// FR-902, Amendment 35: a kept side naming no side, as a hand edit might, is forgotten; a real one is
+// kept; a first run has none.
+func TestAnUnknownPullOutSideIsForgotten(t *testing.T) {
+	t.Parallel()
+	c := Defaults()
+	if c.PullOutSide != "" {
+		t.Errorf("a first run keeps the side %q", c.PullOutSide)
+	}
+	c.PullOutSide = "middle"
+	if got := c.Normalised(); got.PullOutSide != "" {
+		t.Errorf("kept %q", got.PullOutSide)
+	}
+	c.PullOutSide = placement.Left
+	if got := c.Normalised(); got.PullOutSide != placement.Left {
+		t.Errorf("lost the left side, got %q", got.PullOutSide)
+	}
+}
+
 // FR-409: a horizontal ribbon goes to the top edge, a vertical one to the right.
 func TestEachOrientationHasAHomeEdge(t *testing.T) {
 	t.Parallel()

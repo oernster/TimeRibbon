@@ -106,6 +106,9 @@ type Choices struct {
 	// LastEdge is the edge the ribbon last stood flush against, which unpinning away from every edge
 	// returns it to (FR-411, FR-613); nil until it has stood against one.
 	LastEdge *placement.Against
+	// PullOutSide is the ribbon's side its pull out was last on, which it keeps while it stands
+	// against no edge (FR-902, Amendment 35); empty until it has had one.
+	PullOutSide placement.Edge
 }
 
 // Defaults answers the choices of a first run: Classic, vertical (FR-103), the system's theme, not on
@@ -148,6 +151,9 @@ func (c Choices) Normalised() Choices {
 	c.Scale = min(max(c.Scale, MinScale), MaxScale)
 	if c.LastEdge != nil && !slices.Contains(edges, c.LastEdge.Edge) {
 		c.LastEdge = nil
+	}
+	if !slices.Contains(edges, c.PullOutSide) {
+		c.PullOutSide = ""
 	}
 	return c
 }

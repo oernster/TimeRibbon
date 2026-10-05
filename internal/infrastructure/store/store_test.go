@@ -44,6 +44,7 @@ func full() settings.Settings {
 			},
 			LastEdge: &placement.Against{Device: `\\.\DISPLAY2`, Edge: placement.Left},
 			Opacity:  55, Scale: 150,
+			PullOutSide: placement.Right,
 		},
 		Style: settings.Analogue, Size: settings.Small, Format: clock.TwelveHour, DateFormat: clock.MonthDayYear,
 		SunMap: true, PullOut: true,
@@ -84,6 +85,10 @@ func TestSettingsRoundTrip(t *testing.T) {
 	// FR-411: the remembered edge is written and read.
 	if got.LastEdge == nil || *got.LastEdge != *want.LastEdge {
 		t.Errorf("last edge read as %+v, want %+v", got.LastEdge, want.LastEdge)
+	}
+	// FR-902, Amendment 35: the side the pull out keeps is written and read.
+	if got.PullOutSide != want.PullOutSide {
+		t.Errorf("pull out side read as %q, want %q", got.PullOutSide, want.PullOutSide)
 	}
 }
 

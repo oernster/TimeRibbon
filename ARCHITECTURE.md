@@ -109,7 +109,8 @@ repository root so the kit is linted with it; its Vitest run includes the kit's 
     along a work area (`CentredAlong`) or against an edge (`AgainstEdge`), the tab (`Tab`, FR-614),
     the edge a ribbon stands flush against (`FlushAgainst`) and the snap of a drop within `SnapReach`
     (`Snapped`, FR-410). `pullout.go` puts the pull out, the sun map here, on the side away from the
-    ribbon's edge (`InnerSide`, `PullOutBeside`); `PullOutHeld` keeps it still while the grip is
+    ribbon's edge, else on the side it already has while that side has room (`PullOutSideOf`,
+    Amendment 35), else the side with more room (`InnerSide`); `PullOutBeside` sizes it; `PullOutHeld` keeps it still while the grip is
     dragged (FR-623).
   - `ribbon` (the kit's): the ribbon's own choices as one value, `Choices`: colour, orientation and
     its home edge (FR-409), theme, Always on top, the pin and the pin in effect (`PinnedInEffect`,

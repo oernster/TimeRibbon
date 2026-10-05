@@ -42,6 +42,7 @@ where they apply.
 | 32 | 2026-10-04 | The document's wording is consolidated (Oliver: "Make the docs concise"). Each requirement now states what holds after its amendments and cites them by number; the measurements behind section 2.3 are summarised. No requirement, acceptance or verifying test was removed or changed in meaning. |
 | 33 | 2026-10-04 | On macOS and Linux the spare area of the window beside a ribbon shorter than its map answers a right-click and a drag as the ribbon does (FR-913); Oliver found it answering neither. |
 | 34 | 2026-10-05 | Ribbons of different products running together never land on each other: a shared occupancy folder of locked entries, the ribbon being placed yields along its edge, then the opposite edge (FR-412). Oliver's rulings of the same day. |
+| 35 | 2026-10-05 | A ribbon against no edge keeps the side its map is on, across drags, displays and restarts, rather than taking the side with more room each time; Oliver found the clocks swapping sides as the ribbon crossed displays (FR-902, FR-903). |
 
 Source: the initial product specification of 2026-09-27, written under the product's former name,
 plus Oliver's rulings of 2026-09-27: Go with Wails; both orientations in the first release; a setup
@@ -873,16 +874,21 @@ Verified by: `TestA1Point0SettingsFileIsReadWhole`, `TestSettingsRoundTrip` (sto
 
 **FR-902 The map beside a horizontal ribbon** (Should; OQ-13; Amendment 22, OQ-21). While on, with
 the pull out open and a horizontal ribbon in full, the map adjoins the long side facing away from the
-ribbon's edge: below at the top, above at the bottom; against no edge, the side with more room, below
-when equal.
+ribbon's edge: below at the top, above at the bottom. Against no edge it keeps the side it has
+(Amendment 35, OQ-39): across drags, displays and restarts, the side is remembered and changes only
+when an edge decides it or when that side has too little room for the map (FR-904), when it takes the
+other. With no side yet, the side with more room, below when equal.
 Acceptance: flush against the top, the map's top meets the ribbon's bottom along its length; flush
-against the bottom, the map's bottom meets its top.
-Verified by: `TestThePullOutAdjoinsTheSideAwayFromTheEdge` (placement);
-`TestAHorizontalRibbonsPullOutGoesBelowIt` (arranger); by hand.
+against the bottom, the map's bottom meets its top. A vertical ribbon with its map on the left,
+dragged away from every edge to where the right has more room, keeps the map on the left; dragged so
+close to the left edge that under 120 DIP is left there, the map goes right.
+Verified by: `TestThePullOutAdjoinsTheSideAwayFromTheEdge`, `TestThePullOutKeepsItsSide` (placement);
+`TestAnUnknownPullOutSideIsForgotten` (ribbon); `TestAHorizontalRibbonsPullOutGoesBelowIt`,
+`TestThePullOutKeepsItsSideAcrossADrop` (arranger); `TestSettingsRoundTrip` (store); by hand.
 
 **FR-903 The pull out** (Should; OQ-14; Amendments 22, 23; OQ-21 to OQ-23). While on and in full, the
 ribbon shows a handle half way along its long side facing away from its edge (against no edge, the side
-with more room), its arrow pointing the way the map will move, in a lane of its own by which the ribbon
+FR-902 keeps), its arrow pointing the way the map will move, in a lane of its own by which the ribbon
 is deeper, so it covers no cell. Choosing it shows or hides the map; the file remembers it, one choice
 for both orientations. The handle is a control (FR-402).
 Acceptance: a vertical ribbon flush right with the pull out closed shows the map on its left when the
@@ -1127,7 +1133,7 @@ where no test can hold it, its `Verified by:` line says it is checked by hand.
 ## 11. Open questions
 
 None is open. OQ-1 to OQ-5 were ruled on 2026-09-27, OQ-6 to OQ-9 on 2026-09-28 and OQ-10 to OQ-31 on
-2026-09-29, when OQ-6 was also reversed; OQ-32 to OQ-38 on 2026-10-05.
+2026-09-29, when OQ-6 was also reversed; OQ-32 to OQ-39 on 2026-10-05.
 
 | ID | Question | Ruling | Held by |
 |---|---|---|---|
@@ -1169,3 +1175,4 @@ None is open. OQ-1 to OQ-5 were ruled on 2026-09-27, OQ-6 to OQ-9 on 2026-09-28 
 | OQ-36 | Is a shown pull out occupied? | Yes, while shown | FR-412 |
 | OQ-37 | How is a gone ribbon told from a running one? | A lock it holds on its own entry; process IDs mean nothing between two Flatpaks | FR-412 |
 | OQ-38 | Does the ribbon's own pull out avoid the other? | Yes: its whole footprint is tested | FR-412 |
+| OQ-39 | Which side is the map on against no edge? | The side it has, kept until an edge or too little room says otherwise | FR-902 |

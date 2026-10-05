@@ -171,6 +171,7 @@ func (a *Arranger) arrange(
 		if shown {
 			arranged.PullOut = rect
 		}
+		a.rememberSide(current, side)
 	}
 	a.remember(lastPlaced{known: true, device: placed.Monitor.Device, at: arranged.At, size: size, pullOut: arranged.PullOut})
 	a.neighbours.Hold(footprintOf(arranged.At, size, arranged.PullOut, arranged.PullOut != placement.Rect{}))
@@ -186,6 +187,19 @@ func (a *Arranger) rememberEdge(current ribbon.Choices, against placement.Agains
 	}
 	_ = a.host.ChangeRibbon(func(current ribbon.Choices) ribbon.Choices {
 		current.LastEdge = &against
+		return current
+	})
+}
+
+// rememberSide keeps side as the side the pull out is on, so the next arrangement keeps it (FR-902,
+// Amendment 35); saved only when it differs from current's. A failed save is the host's to raise
+// (FR-707), as rememberEdge's is.
+func (a *Arranger) rememberSide(current ribbon.Choices, side placement.Edge) {
+	if current.PullOutSide == side {
+		return
+	}
+	_ = a.host.ChangeRibbon(func(current ribbon.Choices) ribbon.Choices {
+		current.PullOutSide = side
 		return current
 	})
 }
@@ -270,7 +284,8 @@ func ribbonSize(current ribbon.Choices, content Content, sizing sizing, monitor 
 }
 
 // pullOutBeside answers where the pull out goes for a ribbon arranged at at of size on monitor, flush
-// against edge (none when empty): the side it adjoins (where its handle goes too) with its rectangle;
+// against edge (none when empty): the side it adjoins (where its handle goes too), kept from the last
+// arrangement while no edge decides it (FR-902, Amendment 35), with its rectangle;
 // false for the rectangle while none is shown, the pull out closed included (FR-902 to FR-904). The
 // side is empty while content has no pull out beside it.
 func (a *Arranger) pullOutBeside(current ribbon.Choices, content Content, at placement.Point, size placement.Size, monitor placement.Monitor, edge placement.Edge) (placement.Edge, placement.Rect, bool) {
@@ -279,13 +294,13 @@ func (a *Arranger) pullOutBeside(current ribbon.Choices, content Content, at pla
 	}
 	vertical := current.Orientation == ribbon.Vertical
 	ribbon := placement.Rect{Left: at.X, Top: at.Y, Right: at.X + size.Width, Bottom: at.Y + size.Height}
-	side := placement.InnerSide(ribbon, monitor.Work, vertical, edge)
+	perDIP := a.perDIP(monitor)
+	floor := placement.PixelsOf(placement.PullOutFloor, perDIP)
+	side := placement.PullOutSideOf(ribbon, monitor.Work, vertical, edge, current.PullOutSide, floor)
 	if !content.PullOut {
 		return side, placement.Rect{}, false
 	}
-	perDIP := a.perDIP(monitor)
 	minimum := placement.PixelsOf(placement.PullOutMinimumWidth, perDIP)
-	floor := placement.PixelsOf(placement.PullOutFloor, perDIP)
 	rect, shown := placement.PullOutBeside(ribbon, monitor.Work, side, minimum, floor)
 	if held := a.heldOf(); held.known && shown {
 		rect = placement.PullOutHeld(ribbon, side, held.pullOut, held.ribbon)

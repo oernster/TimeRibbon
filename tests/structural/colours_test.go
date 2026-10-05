@@ -25,24 +25,14 @@ func dialsHalf(t *testing.T) structure.Half {
 	return structure.Half{Classic: dials, Schemes: dials}
 }
 
-// kitHalf is ribbonkit's half, read from the kit Go builds against: theme.css and colours.css.
+// kitHalf is ribbonkit's half, read from the kit Go builds against.
 func kitHalf(t *testing.T) structure.Half {
 	t.Helper()
-	web := filepath.Join(kitDir(t), "web")
-	return structure.Half{Classic: filepath.Join(web, "theme.css"), Schemes: filepath.Join(web, "colours.css")}
-}
-
-// offered answers the schemes the menus offer, by name.
-func offered() []string {
-	names := make([]string, 0, len(ribbon.Colours))
-	for _, colour := range ribbon.Colours {
-		names = append(names, string(colour))
-	}
-	return names
+	return structure.KitHalf(kitDir(t))
 }
 
 func TestEveryOfferedSchemeHasItsOwnCompleteBlock(t *testing.T) {
-	structure.CheckEveryOfferedSchemeHasItsOwnCompleteBlock(t, dialsHalf(t), string(ribbon.Classic), offered(), optionalTokens)
+	structure.CheckEveryOfferedSchemeHasItsOwnCompleteBlock(t, dialsHalf(t), string(ribbon.Classic), structure.Offered(), optionalTokens)
 }
 
 // The page shows the system's dark under System and the chosen dark under Dark (FR-606).

@@ -60,13 +60,13 @@ Vitest hands a CSS import back empty. The macOS and Linux builds compile 126
 
 ### The front end
 
-53 tests in 10 files under Vitest with jsdom, run from `frontend`: the app around the clocks
+54 tests in 10 files under Vitest with jsdom, run from `frontend`: the app around the clocks
 (`app.test.tsx`), the clocks in the kit's band (`ribbon.test.tsx`), Settings (`settings.test.tsx`), an
 accessible name and tooltip on every icon-only control (`a11y.test.tsx`, NFR-U-4), measuring a cell's
 widest text (`measure.test.ts`, FR-620), the corner grip's use on the ribbon (`scaleGrip.test.tsx`,
 FR-623), the sun map, its blend and its labels (`surface.test.tsx`, `sunLight.test.ts`,
 `labels.test.ts`, FR-914) and every timer the page schedules, the kit's included, against a reasoned
-allow-list (`timers.test.ts`, NFR-P-4). No coverage provider is installed, so no figure is claimed.
+allow-list (`timers.test.ts`, NFR-P-4, through the kit's `describePageTimers`). No coverage provider is installed, so no figure is claimed.
 
 ## How each layer is tested
 

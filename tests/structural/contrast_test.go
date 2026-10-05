@@ -12,48 +12,12 @@ package structural
 // rather than in Vitest because Vitest hands a CSS import back empty.
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/oernster/ribbonkit/structure"
 )
 
-// minContrast is WCAG 2.x's AA floor for body text (success criterion 1.4.3).
-const minContrast = 4.5
-
-// textTokens are the colours the ribbon's words are drawn in; backgrounds are what they lie on.
-var (
-	textTokens  = []string{"text", "text-muted", "problem"}
-	backgrounds = []string{"cell", "surface"}
-)
-
 func TestTextMeetsTheContrastFloorOnEverySchemeAndTheme(t *testing.T) {
 	halves := []structure.Half{kitHalf(t), dialsHalf(t)}
-	for scheme, sides := range structure.Palettes(t, halves, offered()) {
-		for side, colourOf := range sides {
-			for _, token := range textTokens {
-				for _, background := range backgrounds {
-					name := fmt.Sprintf("%s %s --%s on --%s", scheme, side, token, background)
-					fore, err := colourOf(token)
-					if err != nil {
-						t.Errorf("%s: %v", name, err)
-						continue
-					}
-					back, err := colourOf(background)
-					if err != nil {
-						t.Errorf("%s: %v", name, err)
-						continue
-					}
-					ratio, err := structure.Contrast(fore, back)
-					if err != nil {
-						t.Errorf("%s: %v", name, err)
-						continue
-					}
-					if ratio < minContrast {
-						t.Errorf("%s: %s on %s is %.2f:1, under %.1f:1", name, fore, back, ratio, minContrast)
-					}
-				}
-			}
-		}
-	}
+	structure.CheckTextMeetsTheContrastFloor(t, halves, structure.Offered(), structure.TextTokens(), structure.Backgrounds())
 }

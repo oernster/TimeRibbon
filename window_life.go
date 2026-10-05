@@ -10,8 +10,8 @@ import (
 	"github.com/oernster/timeribbon/internal/product"
 	"github.com/oernster/timeribbon/ribbonkit/application/arranger"
 	"github.com/oernster/timeribbon/ribbonkit/application/menus"
+	"github.com/oernster/timeribbon/ribbonkit/application/shell"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
-	"github.com/oernster/timeribbon/ribbonkit/infrastructure/desktop"
 )
 
 // startup takes the ribbon off the taskbar and puts it in place while it is still hidden, then
@@ -20,14 +20,14 @@ import (
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 	go a.watchForUpdates(ctx)
-	ribbon, err := desktop.FindRibbon(product.RibbonClass, product.Name)
+	ribbon, err := a.desktop.FindRibbon(product.RibbonClass, product.Name)
 	if err != nil {
 		a.report("finding the ribbon", err)
 		return
 	}
 	a.ribbon = ribbon
-	a.report("hiding the taskbar button", desktop.HideFromTaskbar(ribbon))
-	a.report("keeping the ribbon on its displays", desktop.KeepOnDisplays(ribbon, a.log))
+	a.report("hiding the taskbar button", a.desktop.HideFromTaskbar(ribbon))
+	a.report("keeping the ribbon on its displays", a.desktop.KeepOnDisplays(ribbon, a.log))
 	a.desktop.Watch(ribbon)
 	a.report("placing the ribbon", a.placeLaunched())
 	a.applyAlwaysOnTop()
@@ -65,29 +65,29 @@ func (a *App) listen() {
 	}
 }
 
-func (a *App) handleSafely(event desktop.Event) {
+func (a *App) handleSafely(event shell.Event) {
 	defer func() {
 		if failure := recover(); failure != nil {
 			fmt.Fprintf(a.log, "recovered from %v while handling desktop event %d\n", failure, event.Kind)
 		}
 	}()
 	switch event.Kind {
-	case desktop.EventMenu:
+	case shell.EventMenu:
 		a.act(event.Action)
-	case desktop.EventIconClicked:
+	case shell.EventIconClicked:
 		a.toggle()
-	case desktop.EventMoveEnded:
+	case shell.EventMoveEnded:
 		a.moved()
-	case desktop.EventDisplayChanged:
+	case shell.EventDisplayChanged:
 		fmt.Fprintln(a.log, "the displays changed")
 		a.rearrange()
 		a.emit(eventRefresh)
-	case desktop.EventTimeChanged, desktop.EventResumed:
+	case shell.EventTimeChanged, shell.EventResumed:
 		fmt.Fprintf(a.log, "desktop event %d: refreshing\n", event.Kind)
 		a.emit(eventRefresh)
-	case desktop.EventPointerArrived, desktop.EventPointerLeft:
-		a.pointerMoved(event.Kind == desktop.EventPointerArrived)
-	case desktop.EventMenuClosed:
+	case shell.EventPointerArrived, shell.EventPointerLeft:
+		a.pointerMoved(event.Kind == shell.EventPointerArrived)
+	case shell.EventMenuClosed:
 		a.menuClosed()
 	}
 }
@@ -244,14 +244,6 @@ func (a *App) placeLaunched() error {
 	fmt.Fprintf(a.log, "launch: placing the ribbon at %v, %v, edge %q (NFR-O-1)\n", arranged.At, arranged.Size, arranged.Edge)
 	a.scrolls.Store(arranged.Scrolls)
 	return a.arrangeWindow(arranged)
-}
-
-// ribbonPosition and placeRibbon are the production position and place: the ribbon's window as the
-// desktop reports and moves it.
-func (a *App) ribbonPosition() (placement.Point, error) { return desktop.Position(a.ribbon) }
-
-func (a *App) placeRibbon(at placement.Point, size placement.Size) error {
-	return desktop.Place(a.ribbon, at, size)
 }
 
 // applyAlwaysOnTop keeps the ribbon above other windows where Always on top is on; always while

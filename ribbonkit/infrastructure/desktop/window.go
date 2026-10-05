@@ -7,12 +7,12 @@ package desktop
 import (
 	"errors"
 	"time"
+
+	"github.com/oernster/timeribbon/ribbonkit/application/shell"
 )
 
-// Window is the ribbon's window as the platform names it: a window handle on Windows, the ribbon's
-// place in the desktop's own list of windows on Linux. Zero is no window, which is what the facade
-// holds until startup has found it.
-type Window uintptr
+// Window is the shell port's, named here for the same reason as Event (events.go).
+type Window = shell.Window
 
 // findAttempts and findPause bound the wait for the ribbon's window to exist after Wails starts.
 const (

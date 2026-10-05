@@ -213,8 +213,8 @@ check compares it with GitHub's latest release tag, so a development placeholder
 ## House rules worth knowing before a first change
 
 - **The layer direction is enforced:** the domain imports nothing outside itself and reads no clock;
-  the application imports neither infrastructure nor Wails; only `main.go`, `app.go` and
-  `window_life.go` wire the two.
+  the application imports neither infrastructure nor Wails; only `main.go` wires the two, handing
+  the facade the desktop through the `shell.Desktop` port.
 - **No file over 400 lines,** tests included; one between 381 and 400 goes down to 350 or fewer.
   Build scripts are exempt.
 - **No magic numbers:** a literal needing a comment is a named constant or derived from data.

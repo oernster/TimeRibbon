@@ -15,6 +15,7 @@ import (
 	"github.com/oernster/timeribbon/ribbonkit/application/release"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/desktop"
 )
 
 // errPlanted is the failure a stand-in answers when a test asks it to fail.
@@ -328,6 +329,9 @@ func newTestApp(t *testing.T) (*App, *scriptedService, *window, *bytes.Buffer) {
 	app.watchPointer = func(on bool) { seen.watching = append(seen.watching, on) }
 	seen.toolkitScale = testUnscaled
 	app.toolkitScale = func() int { return seen.toolkitScale }
+	// The page's ratio and the drag threshold are pure readings, so the tests take the desktop's own.
+	app.perDIPOf = desktop.PixelsPerDIP
+	app.dragThreshold = desktop.DragThreshold
 	service.settings.Pinned = true
 	return app, service, seen, log
 }

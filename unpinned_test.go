@@ -6,9 +6,9 @@ import (
 
 	"github.com/oernster/timeribbon/ribbonkit/application/arranger"
 	"github.com/oernster/timeribbon/ribbonkit/application/menus"
+	"github.com/oernster/timeribbon/ribbonkit/application/shell"
 	"github.com/oernster/timeribbon/ribbonkit/domain/hover"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
-	"github.com/oernster/timeribbon/ribbonkit/infrastructure/desktop"
 )
 
 // unpinnedApp answers a facade whose ribbon is unpinned, launched and shown: its tab.
@@ -65,7 +65,7 @@ func TestLaunchingUnpinnedShowsTheTab(t *testing.T) {
 func TestTheTabOpensAfterTheRestAndCollapsesOnceAway(t *testing.T) {
 	t.Parallel()
 	app, _, seen := unpinnedApp(t)
-	app.handleSafely(desktop.Event{Kind: desktop.EventPointerArrived})
+	app.handleSafely(shell.Event{Kind: shell.EventPointerArrived})
 	if seen.waited != hover.Rest {
 		t.Fatalf("waiting %v, want the rest", seen.waited)
 	}
@@ -80,7 +80,7 @@ func TestTheTabOpensAfterTheRestAndCollapsesOnceAway(t *testing.T) {
 	if got := lastPlaced(t, seen); got != (arranger.Arrangement{At: testArrange.At, Size: testArrange.Size}) {
 		t.Errorf("opened at %+v, want the full ribbon", got)
 	}
-	app.handleSafely(desktop.Event{Kind: desktop.EventPointerLeft})
+	app.handleSafely(shell.Event{Kind: shell.EventPointerLeft})
 	if seen.waited != hover.Away {
 		t.Fatalf("waiting %v, want the second away", seen.waited)
 	}
@@ -98,8 +98,8 @@ func TestAPanelAndTheMenuHoldTheRibbonOpen(t *testing.T) {
 	if err := app.OpenPanel(openAtAbout); err != nil {
 		t.Fatal(err)
 	}
-	app.handleSafely(desktop.Event{Kind: desktop.EventPointerLeft})
-	app.handleSafely(desktop.Event{Kind: desktop.EventMenuClosed})
+	app.handleSafely(shell.Event{Kind: shell.EventPointerLeft})
+	app.handleSafely(shell.Event{Kind: shell.EventMenuClosed})
 	if seen.pending != nil {
 		t.Fatal("the ribbon would collapse while its panel stands")
 	}
@@ -130,7 +130,7 @@ func TestPinningAndUnpinning(t *testing.T) {
 	if seen.watching[len(seen.watching)-1] || seen.onTop[len(seen.onTop)-1] {
 		t.Error("pinned, the pointer is still watched or the ribbon kept on top")
 	}
-	app.handleSafely(desktop.Event{Kind: desktop.EventPointerLeft})
+	app.handleSafely(shell.Event{Kind: shell.EventPointerLeft})
 	if seen.pending != nil {
 		t.Error("a pinned ribbon heard the pointer")
 	}
@@ -147,7 +147,7 @@ func TestPinningAndUnpinning(t *testing.T) {
 func openedToDrawing(t *testing.T) (*App, *window) {
 	t.Helper()
 	app, _, seen := unpinnedApp(t)
-	app.handleSafely(desktop.Event{Kind: desktop.EventPointerArrived})
+	app.handleSafely(shell.Event{Kind: shell.EventPointerArrived})
 	fire(t, seen)
 	if seen.drawPending == nil {
 		t.Fatal("opening did not wait for the page")
@@ -188,7 +188,7 @@ func TestOpeningGrowsWhenThePageNeverAnswers(t *testing.T) {
 func TestLeavingWhileThePageDrawsCollapsesAgain(t *testing.T) {
 	t.Parallel()
 	app, seen := openedToDrawing(t)
-	app.handleSafely(desktop.Event{Kind: desktop.EventPointerLeft})
+	app.handleSafely(shell.Event{Kind: shell.EventPointerLeft})
 	fire(t, seen)
 	if seen.drawPending != nil || !app.Snapshot().Collapsed {
 		t.Errorf("fallback pending %v, collapsed %v", seen.drawPending != nil, app.Snapshot().Collapsed)
@@ -250,9 +250,9 @@ func TestAFailureWhileOpeningIsLogged(t *testing.T) {
 	t.Parallel()
 	app, _, seen, log := newTestApp(t)
 	app.service.(*scriptedService).settings.Pinned = false
-	app.handleSafely(desktop.Event{Kind: desktop.EventPointerArrived})
-	app.handleSafely(desktop.Event{Kind: desktop.EventPointerLeft})
-	app.handleSafely(desktop.Event{Kind: desktop.EventPointerArrived})
+	app.handleSafely(shell.Event{Kind: shell.EventPointerArrived})
+	app.handleSafely(shell.Event{Kind: shell.EventPointerLeft})
+	app.handleSafely(shell.Event{Kind: shell.EventPointerArrived})
 	app.place = func(placement.Point, placement.Size) error { panic("planted") }
 	app.unpin.shownOpen = false
 	fire(t, seen)

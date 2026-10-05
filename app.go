@@ -18,9 +18,9 @@ import (
 	"github.com/oernster/timeribbon/ribbonkit/application/arranger"
 	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 	"github.com/oernster/timeribbon/ribbonkit/application/release"
+	"github.com/oernster/timeribbon/ribbonkit/application/shell"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
-	"github.com/oernster/timeribbon/ribbonkit/infrastructure/desktop"
 )
 
 // Events the page listens for.
@@ -88,13 +88,13 @@ type ribbonService interface {
 // App is the facade Wails binds.
 type App struct {
 	service ribbonService
-	desktop *desktop.Desktop
+	desktop shell.Desktop
 	log     io.Writer
 	panels  panelSizes
 
 	// The facade's calls into Wails and the desktop. Each is a field so a test can stand in for it
-	// and read what the facade did; newApp points them at the real calls in wails_calls.go and
-	// window_life.go.
+	// and read what the facade did; newApp points them at the real calls in wails_calls.go and at
+	// the desktop port.
 	emit       func(event string, data ...any)
 	showWindow func()
 	hideWindow func()
@@ -113,8 +113,12 @@ type App struct {
 	after        func(wait time.Duration, do func()) func() bool
 	tabFrame     func(tab bool) error
 	watchPointer func(on bool)
-	// toolkitScale answers the toolkit's own window scale, which the page's ratio is divided by.
-	toolkitScale func() int
+	// toolkitScale answers the toolkit's own window scale, which the page's ratio is divided by;
+	// perDIPOf turns the page's ratio into window pixels with it. dragThreshold is how far the pointer
+	// moves before a press becomes a drag.
+	toolkitScale  func() int
+	perDIPOf      func(pageRatio float64, toolkitScale int) float64
+	dragThreshold func() placement.Size
 	// cursor answers the desktop's own reading of the pointer, which the grip's drag prefers.
 	cursor func() (placement.Point, bool)
 	grip   gripDrag
@@ -124,7 +128,7 @@ type App struct {
 	lastPlaced placedWindow
 
 	ctx       context.Context
-	ribbon    desktop.Window
+	ribbon    shell.Window
 	trayUp    atomic.Bool
 	visible   atomic.Bool
 	quitting  atomic.Bool
@@ -144,8 +148,9 @@ type App struct {
 }
 
 // newApp answers the facade over service, reporting on desktop, with each panel drawn at its size in
-// panels.
-func newApp(service ribbonService, desk *desktop.Desktop, log io.Writer, panels panelSizes) *App {
+// panels. Every call into the desktop goes through a closure rather than a method value, so a facade
+// built with no desktop, as the facade's tests build it, fails only if one is actually made.
+func newApp(service ribbonService, desk shell.Desktop, log io.Writer, panels panelSizes) *App {
 	built := &App{
 		service: service, desktop: desk, log: log, panels: panels,
 		updates: updateWatch{delay: updateCheckDelay, every: updateCheckEvery},
@@ -155,18 +160,22 @@ func newApp(service ribbonService, desk *desktop.Desktop, log io.Writer, panels 
 	built.hideWindow = built.hideInWails
 	built.quit = built.quitWails
 	built.setOnTop = built.setOnTopInWails
-	built.browse = desktop.OpenInBrowser
-	built.showMenu = desk.ShowMenu
-	built.position = built.ribbonPosition
-	built.place = built.placeRibbon
-	built.shape = func(parts []placement.Rect) error { return desktop.Shape(built.ribbon, parts) }
+	built.browse = func(address string) error { return desk.OpenInBrowser(address) }
+	built.showMenu = func(items []menus.Item) { desk.ShowMenu(items) }
+	built.position = func() (placement.Point, error) { return desk.Position(built.ribbon) }
+	built.place = func(at placement.Point, size placement.Size) error { return desk.Place(built.ribbon, at, size) }
+	built.shape = func(parts []placement.Rect) error { return desk.Shape(built.ribbon, parts) }
 	built.background = built.backgroundInWails
 	built.now = time.Now
 	built.after = func(wait time.Duration, do func()) func() bool { return time.AfterFunc(wait, do).Stop }
-	built.tabFrame = func(tab bool) error { return desktop.SetTabFrame(built.ribbon, tab) }
+	built.tabFrame = func(tab bool) error { return desk.SetTabFrame(built.ribbon, tab) }
 	built.watchPointer = func(on bool) { desk.TrackPointer(built.ribbon, on) }
-	built.toolkitScale = desktop.ToolkitScale
-	built.cursor = desktop.Cursor
+	built.toolkitScale = func() int { return desk.ToolkitScale() }
+	built.perDIPOf = func(pageRatio float64, toolkitScale int) float64 {
+		return desk.PixelsPerDIP(pageRatio, toolkitScale)
+	}
+	built.dragThreshold = func() placement.Size { return desk.DragThreshold() }
+	built.cursor = func() (placement.Point, bool) { return desk.Cursor() }
 	// The window opens as the full ribbon; it is collapsed only once it has been arranged.
 	built.unpin.shownOpen = true
 	return built
@@ -174,7 +183,7 @@ func newApp(service ribbonService, desk *desktop.Desktop, log io.Writer, panels 
 
 // Snapshot answers what the ribbon shows now, the tab included (FR-614).
 func (a *App) Snapshot() snapshotDTO {
-	shown := snapshotOf(a.service.Snapshot(), a.scrolls.Load(), desktop.DragThreshold())
+	shown := snapshotOf(a.service.Snapshot(), a.scrolls.Load(), a.dragThreshold())
 	shown.Collapsed = a.collapsed()
 	side, ribbon, sunMap, drawn := a.mapLayout()
 	shown.SunMap.Side, shown.SunMap.Shown = string(side), drawn
@@ -285,7 +294,7 @@ func (a *App) SetScrollbar(dip int) error { return a.refitted(a.service.SetScrol
 // whenever it changes, then fits the window to the page as it is really drawn. Windows' text size
 // enlarges the page without changing the display's DPI, so the DPI alone left the page cut off.
 func (a *App) SetPixelRatio(ratio float64) error {
-	perDIP := desktop.PixelsPerDIP(ratio, a.toolkitScale())
+	perDIP := a.perDIPOf(ratio, a.toolkitScale())
 	err := a.service.SetPixelsPerDIP(perDIP)
 	if err == nil {
 		a.pixelsPerDIP.Store(math.Float64bits(perDIP))

@@ -9,14 +9,14 @@ import (
 
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/ribbonkit/application/menus"
+	"github.com/oernster/timeribbon/ribbonkit/application/shell"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
-	"github.com/oernster/timeribbon/ribbonkit/infrastructure/desktop"
 )
 
 func TestADragIsRecordedAndTheRibbonPlacedWhereTheServiceSays(t *testing.T) {
 	app, service, seen, _ := newTestApp(t)
-	app.handleSafely(desktop.Event{Kind: desktop.EventMoveEnded})
+	app.handleSafely(shell.Event{Kind: shell.EventMoveEnded})
 	if !slices.Equal(service.calls, []string{"Moved"}) || service.at[0] != testRibbonAt {
 		t.Errorf("the service heard %v from %v, want Moved from where the drag let go", service.calls, service.at)
 	}
@@ -56,19 +56,19 @@ func TestADragIsIgnoredWhileAPanelIsOpenOrWhenTheRibbonCannotBeRead(t *testing.T
 
 func TestTheDesktopsEventsRefitOrRefresh(t *testing.T) {
 	app, service, seen, _ := newTestApp(t)
-	app.handleSafely(desktop.Event{Kind: desktop.EventDisplayChanged})
+	app.handleSafely(shell.Event{Kind: shell.EventDisplayChanged})
 	if !slices.Contains(service.calls, "Rearrange") || !seen.sawEvent(eventRefresh) {
 		t.Errorf("a display change reached %v and sent %v, want a fit and a refresh", service.calls, seen.events)
 	}
 	app, service, seen, _ = newTestApp(t)
 	app.panelOpen.Store(true)
-	app.handleSafely(desktop.Event{Kind: desktop.EventDisplayChanged})
+	app.handleSafely(shell.Event{Kind: shell.EventDisplayChanged})
 	if len(service.calls) != 0 || len(seen.placed) != 0 {
 		t.Errorf("a display change under an open panel reached %v, want the panel left alone", service.calls)
 	}
-	for _, kind := range []desktop.EventKind{desktop.EventTimeChanged, desktop.EventResumed} {
+	for _, kind := range []shell.EventKind{shell.EventTimeChanged, shell.EventResumed} {
 		app, _, seen, _ := newTestApp(t)
-		app.handleSafely(desktop.Event{Kind: kind})
+		app.handleSafely(shell.Event{Kind: kind})
 		if !seen.sawEvent(eventRefresh) {
 			t.Errorf("desktop event %d sent %v, want a refresh", kind, seen.events)
 		}
@@ -91,8 +91,8 @@ func TestASecondLaunchTogglesTheRibbon(t *testing.T) {
 
 func TestTheTrayIconTogglesTheRibbon(t *testing.T) {
 	app, _, seen, _ := newTestApp(t)
-	app.handleSafely(desktop.Event{Kind: desktop.EventIconClicked})
-	app.handleSafely(desktop.Event{Kind: desktop.EventIconClicked})
+	app.handleSafely(shell.Event{Kind: shell.EventIconClicked})
+	app.handleSafely(shell.Event{Kind: shell.EventIconClicked})
 	if seen.shown != 1 || seen.hidden != 1 || app.visible.Load() {
 		t.Errorf("shown %d, hidden %d, visible %v; want shown then hidden", seen.shown, seen.hidden, app.visible.Load())
 	}
@@ -102,7 +102,7 @@ func TestTheTrayIconTogglesTheRibbon(t *testing.T) {
 func TestAPanicInOneEventIsLoggedAndSurvived(t *testing.T) {
 	app, service, _, log := newTestApp(t)
 	service.panicOnRearrange = true
-	app.handleSafely(desktop.Event{Kind: desktop.EventDisplayChanged})
+	app.handleSafely(shell.Event{Kind: shell.EventDisplayChanged})
 	if !strings.Contains(log.String(), "recovered from planted panic") {
 		t.Errorf("the panic was not logged: %q", log)
 	}
@@ -117,7 +117,7 @@ func TestEachMenuActionOpensWhatItNames(t *testing.T) {
 	}
 	for action, panel := range panels {
 		app, _, seen, _ := newTestApp(t)
-		app.handleSafely(desktop.Event{Kind: desktop.EventMenu, Action: action})
+		app.handleSafely(shell.Event{Kind: shell.EventMenu, Action: action})
 		if seen.shown != 1 || !seen.sawEvent(eventOpenPanel, panel) {
 			t.Errorf("action %v showed %d times and sent %v, want the ribbon shown and %s opened", action, seen.shown, seen.events, panel)
 		}

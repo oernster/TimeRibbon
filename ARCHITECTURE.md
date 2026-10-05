@@ -27,7 +27,7 @@ here does not exist.
 | Domain is pure: no network, filesystem, process, random or tz package; no wall clock read, no zone loaded (FR-207, CON-5) | `TestDomainIsPure` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | Application never imports infrastructure or Wails | `TestApplicationDoesNotImportInfrastructure` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | Infrastructure never imports Wails | `TestWailsStaysOutOfInfrastructure` | [`boundary_test.go`](tests/structural/boundary_test.go) |
-| Only `main.go`, `app.go` and `window_life.go` import both application and infrastructure | `TestCompositionRootIsWhitelisted` | [`boundary_test.go`](tests/structural/boundary_test.go) |
+| Only `main.go` imports both application and infrastructure; the facade reaches the desktop through `shell.Desktop` | `TestCompositionRootIsWhitelisted` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | No source file exceeds 400 lines: Go, the front end's TypeScript and CSS, the setup page | `TestNoFileExceedsLineLimit` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | No source file sits in the danger band of 381 to 400 lines | `TestNoFileInDangerBand` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | Every exported type carries a doc comment | `TestEveryExportedTypeIsDocumented` | [`boundary_test.go`](tests/structural/boundary_test.go) |
@@ -61,7 +61,8 @@ The desktop behaviour shared with WeatherRibbon is being carved into `ribbonkit/
 same layers (`ribbonkit/domain`, `ribbonkit/application`, `ribbonkit/infrastructure`), is held to
 every rule above and will leave this repository as a module of its own. It holds `placement`, `hover`,
 `ribbon` and `identity` in its domain; `menus` (the menu model and every ribbon's actions),
-`release` and `arranger` in its application; `gtkmain`, `cocoamain`, `iconscale`, `system`, `monitors`, `appdata`,
+`release`, `arranger` and `shell` (the desktop port, which `desktop` implements) in its
+application; `gtkmain`, `cocoamain`, `iconscale`, `system`, `monitors`, `appdata`,
 `runlog`, `startup`, `update` and `desktop` in its infrastructure. It names no
 product: `identity.App` carries the name and app id, built once by `product.App()` and handed in by
 the composition root and setup. Each package is described below where it sits in the layering.
@@ -127,8 +128,8 @@ off the DMABUF renderer; `platform_darwin.go` links UniformTypeIdentifiers. The 
 and panel sizes (`panels`) live there. No service is held in a global.
 
 The facade is `app.go` and `window_life.go`, split for size. It holds the service through the
-`ribbonService` interface and each call into Wails and the desktop as a field, so its tests can stand
-in for all three. Beside it: `identity.go` (About, Licence), `updates.go`, `measure.go`,
+`ribbonService` interface and the desktop through the kit's `shell.Desktop` port, which `main.go`
+hands it; each call into Wails and the desktop is a field, so its tests can stand in for all three. Beside it: `identity.go` (About, Licence), `updates.go`, `measure.go`,
 `clockscale.go`, `opacity.go`, `panel.go`, `choices.go`, `unpinned.go`, `sunmap.go`, `dto.go`,
 `launch.go` (window options), `launch_show.go` (the first showing) and `bindings_on.go` /
 `bindings_off.go`, which keep the binding-generation run from writing the log or showing a tray icon.

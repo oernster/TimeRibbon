@@ -7,6 +7,7 @@ import (
 
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/ribbonkit/application/arranger"
+	"github.com/oernster/timeribbon/ribbonkit/application/shell"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 	"github.com/oernster/timeribbon/ribbonkit/infrastructure/desktop"
 )
@@ -46,7 +47,7 @@ func TestADragOfTheMapMovesTheRibbonToo(t *testing.T) {
 		t.Fatalf("placed %+v, want the window with its map", got)
 	}
 	seen.ribbonAt = placement.Point{X: 20, Y: 500}
-	app.handleSafely(desktop.Event{Kind: desktop.EventMoveEnded})
+	app.handleSafely(shell.Event{Kind: shell.EventMoveEnded})
 	if at := service.at[len(service.at)-1]; at != (placement.Point{X: 110, Y: 500}) {
 		t.Errorf("the drop was read as %+v, want the ribbon's corner 90 in", at)
 	}
@@ -112,7 +113,7 @@ func TestAnOpeningRibbonIsDrawnWithItsMap(t *testing.T) {
 		t.Fatal(err)
 	}
 	app.show()
-	app.handleSafely(desktop.Event{Kind: desktop.EventPointerArrived})
+	app.handleSafely(shell.Event{Kind: shell.EventPointerArrived})
 	fire(t, seen)
 	if seen.drawPending == nil {
 		t.Fatal("opening did not wait for the page")

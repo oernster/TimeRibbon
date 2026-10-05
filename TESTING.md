@@ -39,7 +39,7 @@ figure with the fraction dropped, so it fails once cover is lost.
 | `internal/application`; `ribbonkit/application/arranger`, `menus`, `release` | 100% | 100% |
 | `internal/infrastructure/zones`; `ribbonkit/infrastructure/appdata`, `iconscale`, `system`, `update` | 100% | 100% |
 | `internal/infrastructure/store` | 94.0% | 94% |
-| the root package (the Wails facade) | 87.5% | 87% |
+| the root package (the Wails facade) | 88.4% | 88% |
 | `tools/versioninfo` | 86.7% | 86% |
 | `internal/infrastructure/setup` | 84.0% | 84% |
 | `tools/payload` | 82.8% | 82% |
@@ -49,17 +49,17 @@ figure with the fraction dropped, so it fails once cover is lost.
 | `tools/identity` | 75% | 75% |
 | `tools/linuxicons` | 67.7% | 67% |
 | `tools/genplaces` | 58.6% | 58% |
-| `ribbonkit/infrastructure/desktop` | 38.0% | 38% |
+| `ribbonkit/infrastructure/desktop` | 46.8% | 46% |
 | `internal/product` | 100% | not gated |
 | `installer` | 0%, no tests | not gated |
 
-Every figure is the Windows build's, which `test.ps1` measures. That build compiles 400 Go test
+Every figure is the Windows build's, which `test.ps1` measures. That build compiles 402 Go test
 functions, counted from the test files `go list` selects, each running once with no subtests, plus
 one `TestMain` in `internal/infrastructure/setup`. Thirty-two are the structural tests, which read
 the source and are the same on every platform; [ARCHITECTURE.md](ARCHITECTURE.md) lists each against
 its rule. `TestA1Point0SettingsFileIsReadWhole` in `store` holds the settings file's promise
 (NFR-C-1); `contrast_test.go` holds NFR-U-1 in Go because Vitest hands a CSS import back empty. The
-macOS build compiles 374 and the Linux build 378 ([On macOS and Linux](#on-macos-and-linux)).
+macOS build compiles 375 and the Linux build 379 ([On macOS and Linux](#on-macos-and-linux)).
 
 ### The front end
 
@@ -92,22 +92,23 @@ so GitHub is asked only by the running application, which is checked by hand.
 
 ### The platform owns it
 
-- **`desktop` (38.0%).** The tray, native menus, move fence and broadcasts run on a hidden window's
+- **`desktop` (46.8%).** The tray, native menus, move fence and broadcasts run on a hidden window's
   message loop and act on the real ribbon window. Tested: menu identifier numbering, the fence's
   arithmetic, a work area at a point, the drag distance, an address Windows refuses, the clock watch,
-  the window's cut (FR-913) with the pointer read against it; the cursor read for the grip.
-  `PixelsPerDIP` on Windows is reached only from the root package's tests, which this figure does not
-  count. The loop itself, the menus as drawn, the broadcasts, a browser opening and the desktop
+  the window's cut (FR-913) with the pointer read against it; the cursor read for the grip; every
+  operation of the `shell.Desktop` port answering as the package's own function does, on a hidden
+  window that is never shown. The loop itself, the menus as drawn, the broadcasts, a browser opening and the desktop
   showing through are checked by hand in a real build.
 - **`monitors` (82.6%):** Windows refusing to enumerate or describe a display.
 - **`runlog` (77.8%):** the log refusing to open, its first line failing and `SetStdHandle` refusing.
-- **The root package (87.5%).** The facade's decisions are tested across its fifteen test files:
+- **The root package (88.4%).** The facade's decisions are tested across its seventeen test files:
   which calls refit the ribbon, panels and Settings' fit, the tab, the window holding and cut to the
   map, the menu actions, closing, a signal ending the run, the recover round each event and update
   check, the update watch's timing, the page's measurements, the grip's drag (following the desktop's
-  pointer where it can read it, else the page's), the window's paint below full opacity and the first
-  showing. Not reached: `main.go`, `launch.go`, `startup`, `listen`, `shutdown`, the one-line calls
-  into Wails and Win32; `preparePlatform` on Windows, which does nothing.
+  pointer where it can read it, else the page's), the window's paint below full opacity, the first
+  showing and every call into the desktop going through the `shell.Desktop` port with the ribbon's
+  window. Not reached: `main.go`, `launch.go`, `startup`, `listen`, `shutdown`, the one-line calls
+  into Wails; `preparePlatform` on Windows, which does nothing.
 
 The ribbon's layout at full size was measured in headless Edge 154.0.4258.37 with the application's
 stylesheets: at 100% and 250% a scrolling ribbon shows one scroll bar with no clock cut off.
@@ -137,7 +138,7 @@ that platform, set up as [DEVELOPMENT.md](DEVELOPMENT.md) says, with the page bu
 | What | macOS | Linux |
 |---|---|---|
 | Tags | `desktop,production` | `desktop,production,webkit2_41` |
-| Go test functions | 374, plus 3 `TestMain` | 378, plus 3 `TestMain` |
+| Go test functions | 375, plus 3 `TestMain` | 379, plus 3 `TestMain` |
 | Tests that need cgo | `cocoamain` 3, `monitors` 3, `desktop` 17 | `gtkmain` 5, `monitors` 2, `desktop` 20 |
 | Needs | a signed-in desktop | a signed-in desktop with a display and a tray host |
 

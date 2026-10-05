@@ -1,7 +1,8 @@
 // Command TimeRibbon shows a ribbon of clocks, one per chosen place in the world.
 //
-// This file is the composition root. It, app.go and window_life.go are the only files permitted to
-// import both the application layer and concrete infrastructure (TestCompositionRootIsWhitelisted).
+// This file is the composition root, the only file permitted to import both the application layer
+// and concrete infrastructure (TestCompositionRootIsWhitelisted). The facade reaches the desktop
+// through the shell.Desktop port it is handed here.
 package main
 
 import (

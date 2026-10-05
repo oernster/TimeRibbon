@@ -6,16 +6,16 @@ import (
 
 	"github.com/oernster/timeribbon/ribbonkit/application/arranger"
 	"github.com/oernster/timeribbon/ribbonkit/application/menus"
+	"github.com/oernster/timeribbon/ribbonkit/application/shell"
 	"github.com/oernster/timeribbon/ribbonkit/domain/hover"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
-	"github.com/oernster/timeribbon/ribbonkit/infrastructure/desktop"
 )
 
 // openUnpinnedApp answers an unpinned ribbon opened from its tab and shown in full.
 func openUnpinnedApp(t *testing.T) (*App, *scriptedService, *window) {
 	t.Helper()
 	app, service, seen := unpinnedApp(t)
-	app.handleSafely(desktop.Event{Kind: desktop.EventPointerArrived})
+	app.handleSafely(shell.Event{Kind: shell.EventPointerArrived})
 	fire(t, seen)
 	app.RibbonDrawn()
 	if app.Snapshot().Collapsed {
@@ -36,7 +36,7 @@ func lastOnTop(t *testing.T, seen *window) bool {
 // dropAt ends a drag with the ribbon arranged as arranged.
 func dropAt(app *App, service *scriptedService, arranged arranger.Arrangement) {
 	service.arrangement = arranged
-	app.handleSafely(desktop.Event{Kind: desktop.EventMoveEnded})
+	app.handleSafely(shell.Event{Kind: shell.EventMoveEnded})
 }
 
 // FR-619, its acceptance: an unpinned ribbon dragged away from every edge stays in full once the
@@ -45,7 +45,7 @@ func TestAnUnpinnedRibbonOffAnEdgeShowsInFull(t *testing.T) {
 	t.Parallel()
 	app, service, seen := openUnpinnedApp(t)
 	dropAt(app, service, testAway)
-	app.handleSafely(desktop.Event{Kind: desktop.EventPointerLeft})
+	app.handleSafely(shell.Event{Kind: shell.EventPointerLeft})
 	if seen.pending != nil {
 		fire(t, seen)
 	}
@@ -66,16 +66,16 @@ func TestDraggingBackOntoAnEdgeCollapsesAgain(t *testing.T) {
 	t.Parallel()
 	app, service, seen := openUnpinnedApp(t)
 	dropAt(app, service, testAway)
-	app.handleSafely(desktop.Event{Kind: desktop.EventPointerLeft})
+	app.handleSafely(shell.Event{Kind: shell.EventPointerLeft})
 	if seen.pending != nil {
 		fire(t, seen)
 	}
-	app.handleSafely(desktop.Event{Kind: desktop.EventPointerArrived})
+	app.handleSafely(shell.Event{Kind: shell.EventPointerArrived})
 	dropAt(app, service, testArrange)
 	if app.Snapshot().Collapsed || !lastOnTop(t, seen) {
 		t.Fatalf("dropped on an edge: collapsed %v, on top %v; want full and on top", app.Snapshot().Collapsed, seen.onTop)
 	}
-	app.handleSafely(desktop.Event{Kind: desktop.EventPointerLeft})
+	app.handleSafely(shell.Event{Kind: shell.EventPointerLeft})
 	if seen.waited != hover.Away {
 		t.Fatalf("waiting %v, want the second away", seen.waited)
 	}

@@ -203,6 +203,40 @@ func TestApplicationDoesNotImportInfrastructure(t *testing.T) {
 	}
 }
 
+// TestTheUIDependsOnTheApplicationOnly holds the kit's ui layer to the application's ports: it reaches
+// the desktop through shell.Desktop, never the desktop package itself. Its tests are held to it too,
+// since a test that borrows an adapter runs against whichever platform builds it.
+func TestTheUIDependsOnTheApplicationOnly(t *testing.T) {
+	root := repoRoot(t)
+	for _, path := range goFiles(t) {
+		if layerOf(root, path) != "ui" {
+			continue
+		}
+		for _, imported := range importsOf(t, path) {
+			if inLayer(imported, "infrastructure") {
+				t.Errorf("%s imports %s: the UI depends on the application's ports only", path, imported)
+			}
+		}
+	}
+}
+
+// TestNothingBelowTheUIImportsIt keeps the dependency pointing one way: the application and the
+// infrastructure never reach up into the UI.
+func TestNothingBelowTheUIImportsIt(t *testing.T) {
+	root := repoRoot(t)
+	for _, path := range goFiles(t) {
+		layer := layerOf(root, path)
+		if layer != "application" && layer != "infrastructure" {
+			continue
+		}
+		for _, imported := range importsOf(t, path) {
+			if inLayer(imported, "ui") {
+				t.Errorf("%s imports %s: nothing below the UI depends on it", path, imported)
+			}
+		}
+	}
+}
+
 func TestWailsStaysOutOfInfrastructure(t *testing.T) {
 	root := repoRoot(t)
 	for _, path := range goFiles(t) {

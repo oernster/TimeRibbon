@@ -13,7 +13,6 @@ import (
 	"github.com/oernster/timeribbon/ribbonkit/domain/identity/identitytest"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
-	"github.com/oernster/timeribbon/ribbonkit/infrastructure/desktop"
 )
 
 // errPlanted is the failure a stand-in answers when a test asks it to fail.
@@ -231,6 +230,9 @@ const testRibbon = 1
 // testUnscaled is the toolkit scale of a desktop that does not scale windows itself.
 const testUnscaled = 1
 
+// testThreshold is the stand-in desktop's drag distance.
+var testThreshold = placement.Size{Width: 4, Height: 4}
+
 // newTestApp answers a window over a scripted service, started and with its ribbon found, whose
 // Wails and desktop calls land in the stand-in answered with it. Menu actions the kit does not know
 // land in the stand-in's acted.
@@ -295,9 +297,11 @@ func newTestApp(t *testing.T) (*Window, *scriptedService, *window, *bytes.Buffer
 	app.watchPointer = func(on bool) { seen.watching = append(seen.watching, on) }
 	seen.toolkitScale = testUnscaled
 	app.toolkitScale = func() int { return seen.toolkitScale }
-	// The page's ratio and the drag threshold are pure readings, so the tests take the desktop's own.
-	app.perDIPOf = desktop.PixelsPerDIP
-	app.dragThreshold = desktop.DragThreshold
+	// The page's ratio and the drag threshold are the desktop's readings, which differ by platform;
+	// the stand-in answers what a test sets, so no test depends on the platform it runs on.
+	app.perDIPOf = seen.pixelsPerDIP
+	seen.threshold = testThreshold
+	app.dragThreshold = func() placement.Size { return seen.threshold }
 	service.choices.Pinned = true
 	return app, service, seen, log
 }

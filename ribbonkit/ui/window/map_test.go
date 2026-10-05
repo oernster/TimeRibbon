@@ -8,7 +8,6 @@ import (
 	"github.com/oernster/timeribbon/ribbonkit/application/arranger"
 	"github.com/oernster/timeribbon/ribbonkit/application/shell"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
-	"github.com/oernster/timeribbon/ribbonkit/infrastructure/desktop"
 )
 
 // withMap is testArrange, a ribbon at (10, 20) 300 by 90, with a 480 by 240 map below it centred on
@@ -88,7 +87,8 @@ func TestTheMapsPartsReachThePageInItsOwnUnits(t *testing.T) {
 	if err := app.placeLaunched(); err != nil {
 		t.Fatal(err)
 	}
-	perDIP := desktop.PixelsPerDIP(ratio, testUnscaled)
+	// The stand-in desktop answers the page's ratio as it is.
+	perDIP := float64(ratio)
 	want := Box{X: 90 / perDIP, Y: 0, Width: 300 / perDIP, Height: 90 / perDIP}
 	if got := app.shown(); got.Ribbon != want || got.Map.Width != 480/perDIP {
 		t.Errorf("at %v pixels to a unit the page was told %+v, want the ribbon at %+v", perDIP, got, want)

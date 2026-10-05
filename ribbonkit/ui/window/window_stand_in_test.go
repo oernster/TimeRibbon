@@ -45,10 +45,31 @@ type window struct {
 	drawPending func()
 	// toolkitScale is the toolkit's window scale the desktop reports; unscaled unless a test sets it.
 	toolkitScale int
+	// perDIP, when set, is what the desktop answers for the window pixels to each of the page's units;
+	// otherwise it answers the page's ratio as it is. perDIPAsked is each ratio and scale it was
+	// asked about. threshold is the desktop's drag distance.
+	perDIP      float64
+	perDIPAsked []perDIPAsk
+	threshold   placement.Size
 	// sizePending is the launch's fallback for a page that never sizes the ribbon.
 	sizePending func()
 	// acted is each menu action the window handed the application as one of its own.
 	acted []menus.Action
+}
+
+// perDIPAsk is one question put to the desktop about the page's ratio.
+type perDIPAsk struct {
+	ratio float64
+	scale int
+}
+
+// pixelsPerDIP answers as the desktop does for the page's ratio at the toolkit's scale, recording it.
+func (w *window) pixelsPerDIP(ratio float64, scale int) float64 {
+	w.perDIPAsked = append(w.perDIPAsked, perDIPAsk{ratio, scale})
+	if w.perDIP != 0 {
+		return w.perDIP
+	}
+	return ratio
 }
 
 // sawEvent reports whether the facade sent event with data first, when data is given.

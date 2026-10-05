@@ -210,8 +210,9 @@ check compares it with GitHub's latest release tag, so a development placeholder
 ## House rules worth knowing before a first change
 
 - **The layer direction is enforced:** the domain imports nothing outside itself and reads no clock;
-  the application imports neither infrastructure nor Wails; only `main.go` wires the two, handing
-  the kit's window the desktop through the `shell.Desktop` port.
+  the application imports neither infrastructure nor Wails; the kit's UI imports no infrastructure
+  (its tests included); nothing below the UI imports it; only `main.go` wires application to
+  infrastructure, handing the kit's window the desktop through the `shell.Desktop` port.
 - **Every exported method of `window.Window` is page API,** since `App` embeds it and Wails binds
   promoted methods too. What TimeRibbon alone may call goes on `window.Control`, which is never
   embedded.

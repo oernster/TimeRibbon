@@ -91,7 +91,7 @@ Apps list** and **no test reaches the network**.
   window's reading, TimeRibbon's menu actions, the measurements, the product handed to the window, the
   adapter reading the ribbon's choices out of the settings; every method the page's `Bridge` calls is
   bound, with nothing of the `Control`. Not reached: the composition root (`main`, `keepLog`,
-  `settingsDir`, `run`) and `preparePlatform` on Windows, which does nothing.
+  `settingsDir`, `run`).
 - **`installer` (0%).** Only the composition root; the setup window and its policy are tested in the
   kit.
 - **The tools:** each `main` handing `run` its real arguments; folders and archives refusing to be

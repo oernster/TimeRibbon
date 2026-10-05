@@ -177,10 +177,10 @@ func (a *App) choiceOf(action menus.Action) (choose func() error, doing string, 
 	if style, ok := application.StyleOf(action); ok {
 		return func() error { return a.SetStyle(string(style)) }, "changing the style", true
 	}
-	if colour, ok := application.ColourOf(action); ok {
+	if colour, ok := menus.ColourOf(action); ok {
 		return func() error { return a.control.SetColour(string(colour)) }, "changing the colour", true
 	}
-	if orientation, ok := application.OrientationOf(action); ok {
+	if orientation, ok := menus.OrientationOf(action); ok {
 		return func() error { return a.control.SetOrientation(string(orientation)) }, "changing the orientation", true
 	}
 	return nil, "", false

@@ -11,22 +11,13 @@ import (
 // sampledFrom is any instant: the samples depend only on its year.
 var sampledFrom = time.Date(2026, time.September, 29, 15, 4, 0, 0, time.UTC)
 
-// FR-620: every minute of the day once, in the chosen time format.
-func TestSamplesHoldEveryTimeOnce(t *testing.T) {
+// FR-620: the times are the kit's, every minute of the day once in the chosen format
+// (TestSamplesHoldEveryTimeOnce in ribbonkit's localtime).
+func TestSamplesHoldTheKitsTimes(t *testing.T) {
 	t.Parallel()
-	for format, want := range map[localtime.Format][]string{
-		localtime.TwentyFourHour: {"00:00", "09:05", "12:30", "23:59"},
-		localtime.TwelveHour:     {"12:00 AM", "9:05 AM", "12:30 PM", "11:59 PM"},
-	} {
-		times, _ := Samples(sampledFrom, format, DayMonth)
-		if len(times) != hoursPerDay*minutesPerHour {
-			t.Errorf("%s: %d times", format, len(times))
-		}
-		for _, each := range want {
-			if !slices.Contains(times, each) {
-				t.Errorf("%s: %q missing", format, each)
-			}
-		}
+	times, _ := Samples(sampledFrom, localtime.TwelveHour, DayMonth)
+	if !slices.Equal(times, localtime.TimeSamples(localtime.TwelveHour)) {
+		t.Errorf("%d times, not the kit's", len(times))
 	}
 }
 

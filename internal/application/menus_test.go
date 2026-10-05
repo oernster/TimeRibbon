@@ -83,15 +83,10 @@ func TestBothMenusOfferStyleAndOrientationWithTheCurrentTicked(t *testing.T) {
 			t.Errorf("%s: got %s, %v", action, got, ok)
 		}
 	}
-	for action, want := range orientationActions {
-		if got, ok := OrientationOf(action); !ok || got != want {
-			t.Errorf("%s: got %s, %v", action, got, ok)
-		}
-	}
-	if _, ok := StyleOf(ActionVertical); ok {
+	if _, ok := StyleOf(menus.OrientVertical); ok {
 		t.Error("Vertical was taken for a style")
 	}
-	if _, ok := OrientationOf(ActionDigital); ok {
+	if _, ok := menus.OrientationOf(ActionDigital); ok {
 		t.Error("Digital was taken for an orientation")
 	}
 }
@@ -170,14 +165,14 @@ func TestBothMenusOfferEveryColourWithTheCurrentTicked(t *testing.T) {
 			t.Fatalf("%s: %+v", name, colour)
 		}
 		for index, item := range colour.Children {
-			got, ok := ColourOf(item.Action)
+			got, ok := menus.ColourOf(item.Action)
 			if !ok || got != ribbon.Colours[index] || !item.Checkable || item.Checked != (got == ribbon.Ocean) {
 				t.Errorf("%s: %+v answered %s, %v", name, item, got, ok)
 			}
 		}
 	}
 	for _, other := range []menus.Action{ActionDigital, "colour-mauve", "colour-"} {
-		if _, ok := ColourOf(other); ok {
+		if _, ok := menus.ColourOf(other); ok {
 			t.Errorf("%q was taken for a colour", other)
 		}
 	}

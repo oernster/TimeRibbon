@@ -124,7 +124,7 @@ func TestTimeRibbonsMenuActions(t *testing.T) {
 	}
 	app.actOn(application.ActionAnalogue)
 	app.actOn(menus.Action("colour-neon"))
-	app.actOn(application.ActionHorizontal)
+	app.actOn(menus.OrientHorizontal)
 	if !slices.Contains(service.calls, "SetStyle") || !slices.Equal(control.colours, []string{"neon"}) || !slices.Equal(control.turned, []string{"horizontal"}) {
 		t.Errorf("style %v, colours %v, orientations %v; want each choice made", service.calls, control.colours, control.turned)
 	}
@@ -142,7 +142,7 @@ func TestTimeRibbonsMenuActions(t *testing.T) {
 func TestAMenuChoiceThatFailedIsReported(t *testing.T) {
 	app, service, control := newTestApp(t)
 	service.changeErr, control.choiceErr = errPlanted, errPlanted
-	for _, action := range []menus.Action{application.ActionSunMap, application.ActionDigital, "colour-ocean", application.ActionVertical} {
+	for _, action := range []menus.Action{application.ActionSunMap, application.ActionDigital, "colour-ocean", menus.OrientVertical} {
 		app.actOn(action)
 	}
 	want := []string{"turning the sun map on or off", "changing the style", "changing the colour", "changing the orientation"}

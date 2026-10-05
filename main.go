@@ -20,6 +20,7 @@ import (
 	"github.com/oernster/ribbonkit/infrastructure/desktop"
 	"github.com/oernster/ribbonkit/infrastructure/monitors"
 	"github.com/oernster/ribbonkit/infrastructure/occupancy"
+	"github.com/oernster/ribbonkit/infrastructure/platform"
 	"github.com/oernster/ribbonkit/infrastructure/runlog"
 	"github.com/oernster/ribbonkit/infrastructure/startup"
 	"github.com/oernster/ribbonkit/infrastructure/system"
@@ -69,7 +70,7 @@ var panels = window.PanelSizes{
 }
 
 func main() {
-	if generatingBindings {
+	if platform.GeneratingBindings {
 		app, control := newApp(nil, window.Config{Log: io.Discard, Panels: panels})
 		if err := control.Run(app, assets, ""); err != nil {
 			os.Exit(1)
@@ -154,7 +155,7 @@ func run(log io.Writer) error {
 	var control *window.Control
 	desk := desktop.New(product.App(), func() []menus.Item { return service.TrayMenu(control.Visible()) }, log)
 	app, control := newApp(service, window.Config{Service: kitService{service}, Desktop: desk, Log: log, Panels: panels})
-	preparePlatform(control, desk)
+	platform.Prepare(desk, trayIcon, control.ExitWhen)
 	if err := desk.Start(); err != nil {
 		fmt.Fprintf(log, "starting the tray icon: %v; closing the ribbon will exit\n", err)
 	} else {

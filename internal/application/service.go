@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/oernster/ribbonkit/application/arranger"
+	"github.com/oernster/ribbonkit/application/controls"
 	"github.com/oernster/ribbonkit/domain/placement"
 	"github.com/oernster/timeribbon/internal/domain/settings"
 )
@@ -46,10 +47,12 @@ func (l Layouts) For(size settings.Size) Layout {
 // Service runs every use case over the current settings. It is safe to call from several
 // goroutines: Wails, the tray and display events each call in on their own.
 //
-// The ribbon is arranged by the kit's Arranger, embedded so its use cases are the service's own;
-// the service is its host, answering the clocks as the ribbon's content (see host).
+// The ribbon is arranged by the kit's Arranger and its choices set by the kit's Controls, both
+// embedded so their use cases are the service's own; the service is their host, answering the
+// clocks as the ribbon's content and saving the choices with the rest (see host).
 type Service struct {
 	*arranger.Arranger
+	*controls.Controls
 
 	ports   Ports
 	layouts Layouts
@@ -67,6 +70,7 @@ type Service struct {
 func New(ports Ports, layouts Layouts) *Service {
 	s := &Service{ports: ports, layouts: layouts, current: settings.Defaults()}
 	s.Arranger = arranger.New(host{s}, ports.Monitors, ports.Neighbours)
+	s.Controls = controls.New(host{s}, ports.Startup, ports.Releases, ports.Build)
 	return s
 }
 

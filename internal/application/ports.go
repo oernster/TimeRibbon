@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/oernster/ribbonkit/application/arranger"
+	"github.com/oernster/ribbonkit/application/controls"
 	"github.com/oernster/ribbonkit/application/release"
 	"github.com/oernster/timeribbon/internal/domain/settings"
 	"github.com/oernster/timeribbon/internal/domain/sun"
@@ -60,13 +61,6 @@ type IDs interface {
 	NewID() string
 }
 
-// StartupEntry is the Start with Windows value (FR-605).
-type StartupEntry interface {
-	Enabled() (bool, error)
-	Enable() error
-	Disable() error
-}
-
 // Ports gathers the collaborators a Service is built from.
 type Ports struct {
 	Store    Store
@@ -76,8 +70,9 @@ type Ports struct {
 	Monitors arranger.Monitors
 	// Neighbours are the other ribbons running for the user (FR-412); nil is a ribbon alone.
 	Neighbours arranger.Neighbours
-	Startup    StartupEntry
-	Releases   release.Source
+	// Startup is the Start with Windows value (FR-605).
+	Startup  controls.Startup
+	Releases release.Source
 	// Build is not a collaborator but the facts about the running build the update check compares
 	// against, given here so the composition root states them once.
 	Build release.Build

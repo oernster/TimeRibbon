@@ -19,17 +19,6 @@ func (s *Service) SetSize(size settings.Size) error {
 	return choose(s, size, func(c *settings.Settings) *settings.Size { return &c.Size })
 }
 
-// SetOpacity chooses how opaque the window is drawn, in percent (FR-622). A value outside
-// ribbon.MinOpacity to ribbon.MaxOpacity is refused and changes nothing.
-func (s *Service) SetOpacity(percent int) error {
-	return choose(s, percent, func(c *settings.Settings) *int { return &c.Opacity })
-}
-
-// SetColour chooses the colour scheme every clock is drawn in (FR-611).
-func (s *Service) SetColour(colour ribbon.Colour) error {
-	return choose(s, colour, func(c *settings.Settings) *ribbon.Colour { return &c.Colour })
-}
-
 // SetFormat chooses 12-hour or 24-hour time (FR-206).
 func (s *Service) SetFormat(format localtime.Format) error {
 	return choose(s, format, func(c *settings.Settings) *localtime.Format { return &c.Format })
@@ -38,27 +27,6 @@ func (s *Service) SetFormat(format localtime.Format) error {
 // SetDateFormat chooses how every date is written (FR-612).
 func (s *Service) SetDateFormat(dateFormat clock.DateFormat) error {
 	return choose(s, dateFormat, func(c *settings.Settings) *clock.DateFormat { return &c.DateFormat })
-}
-
-// SetOrientation chooses horizontal or vertical (FR-103). The window then goes to the
-// orientation's home edge (FR-409).
-func (s *Service) SetOrientation(orientation ribbon.Orientation) error {
-	return choose(s, orientation, func(c *settings.Settings) *ribbon.Orientation { return &c.Orientation })
-}
-
-// SetTheme chooses system, light or dark (FR-606).
-func (s *Service) SetTheme(theme ribbon.Theme) error {
-	return choose(s, theme, func(c *settings.Settings) *ribbon.Theme { return &c.Theme })
-}
-
-// SetAlwaysOnTop turns Always on Top on or off (FR-505).
-func (s *Service) SetAlwaysOnTop(on bool) error {
-	return choose(s, on, func(c *settings.Settings) *bool { return &c.AlwaysOnTop })
-}
-
-// SetPinned pins or unpins the ribbon (FR-613).
-func (s *Service) SetPinned(on bool) error {
-	return choose(s, on, func(c *settings.Settings) *bool { return &c.Pinned })
 }
 
 // choose sets the field field picks to value and saves; a value the setting does not offer, which
@@ -73,18 +41,4 @@ func choose[T comparable](s *Service, value T, field func(*settings.Settings) *T
 		}
 		return next, nil
 	})
-}
-
-// StartWithWindows answers whether the Start with Windows value is present. Windows holds the
-// answer, not the settings file, so the setting and setup cannot disagree (FR-605, FR-805).
-func (s *Service) StartWithWindows() (bool, error) {
-	return s.ports.Startup.Enabled()
-}
-
-// SetStartWithWindows writes or removes the Start with Windows value (FR-605).
-func (s *Service) SetStartWithWindows(on bool) error {
-	if on {
-		return s.ports.Startup.Enable()
-	}
-	return s.ports.Startup.Disable()
 }

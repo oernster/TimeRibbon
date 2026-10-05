@@ -106,9 +106,11 @@ page) read the kit Go builds against, through `go list -m`; `page_api_test.go` r
 
 `main.go` points standard error at the run log before anything can fail, builds the adapters (the
 kit's among them), injects them into the service, prepares the platform, starts the tray and hands
-the facade to Wails. `preparePlatform` does nothing on Windows; on Linux and macOS it hands the
-desktop the icon and ends the run on SIGTERM or SIGINT. `platform_linux.go` sends GTK through X11
-and turns off the DMABUF renderer. The cell sizes (`layouts`) and panel sizes (`panels`) live there.
+the facade to Wails. What it does for the platform is the kit's `platform` package: on Linux and
+macOS `platform.Prepare` hands the desktop the icon and ends the run on SIGTERM or SIGINT; on Linux
+importing it sends GTK through X11 and turns off the DMABUF renderer. TimeRibbon says only where its
+tray icon lies (`trayicon_unix.go`; none on Windows, whose tray reads the executable's). The cell
+sizes (`layouts`) and panel sizes (`panels`) live there.
 No service is held in a global.
 
 The facade Wails binds is `App` in `app.go`, in two halves. The window is the kit's `window.Window`,
@@ -118,8 +120,8 @@ over the `ribbonService` interface. TimeRibbon reaches its window through the ki
 a named field that is never embedded and so never bound; menu actions the kit does not know reach
 TimeRibbon through the `Act` hook it hands the window. `kit.go` embeds the page and the LICENSE and
 adapts the service to the window's port; `dto.go` is TimeRibbon's half of the wire.
-`bindings_on.go` / `bindings_off.go` keep the binding-generation run from writing the log or showing a
-tray icon.
+The kit's `platform.GeneratingBindings` keeps the binding-generation run from writing the log or
+showing a tray icon.
 
 ```
              +-----------------------------------+

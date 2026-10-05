@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/oernster/timeribbon/internal/infrastructure/setup"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/setup"
 )
 
 // put writes body at path.
@@ -24,7 +24,7 @@ func put(t *testing.T, path, body string) {
 func TestThePayloadHoldsTheApplicationAndItsLicence(t *testing.T) {
 	t.Parallel()
 	app, dir := t.TempDir(), t.TempDir()
-	put(t, filepath.Join(app, setup.ExeName), "the program")
+	put(t, filepath.Join(app, packs.Exe()), "the program")
 	licence := filepath.Join(dir, "LICENSE")
 	put(t, licence, "terms")
 	archive := filepath.Join(dir, "payload.zip")
@@ -36,7 +36,7 @@ func TestThePayloadHoldsTheApplicationAndItsLicence(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer reader.Close()
-	if len(reader.File) != 2 || reader.File[0].Name != setup.ExeName || reader.File[1].Name != setup.LicenceFile {
+	if len(reader.File) != 2 || reader.File[0].Name != packs.Exe() || reader.File[1].Name != setup.LicenceFile {
 		t.Errorf("the archive holds %v", reader.File)
 	}
 	if _, err := os.Stat(archive + packingSuffix); err == nil {

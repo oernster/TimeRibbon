@@ -41,7 +41,7 @@ figure with the fraction dropped, so it fails once cover is lost.
 | `internal/infrastructure/store` | 94.0% | 94% |
 | `ribbonkit/ui/window` | 93.8% | 93% |
 | `tools/versioninfo` | 86.7% | 86% |
-| `internal/infrastructure/setup` | 84.0% | 84% |
+| `ribbonkit/infrastructure/setup` | 84.5% | 84% |
 | `tools/payload` | 82.8% | 82% |
 | `ribbonkit/infrastructure/monitors` | 82.6% | 82% |
 | `ribbonkit/infrastructure/startup` | 80.6% | 80% |
@@ -56,7 +56,7 @@ figure with the fraction dropped, so it fails once cover is lost.
 
 Every figure is the Windows build's, which `test.ps1` measures. That build compiles 419 Go test
 functions, counted from the test files `go list` selects, each running once with no subtests, plus
-one `TestMain` in `internal/infrastructure/setup`. Thirty-five are the structural tests, which read
+one `TestMain` in `ribbonkit/infrastructure/setup`. Thirty-five are the structural tests, which read
 the source and are the same on every platform; [ARCHITECTURE.md](ARCHITECTURE.md) lists each against
 its rule. `TestA1Point0SettingsFileIsReadWhole` in `store` holds the settings file's promise
 (NFR-C-1); `contrast_test.go` holds NFR-U-1 in Go because Vitest hands a CSS import back empty. The

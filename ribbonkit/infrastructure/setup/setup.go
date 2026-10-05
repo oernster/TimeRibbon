@@ -1,6 +1,6 @@
 //go:build windows
 
-// Package setup holds the install policy behind TimeRibbon's setup program (FR-801 to FR-810):
+// Package setup holds the install policy behind a ribbon's setup program (FR-801 to FR-810):
 // what the machine already holds, which conversation setup has with it and what installing,
 // repairing and removing actually do. The setup program's window is a thin shell over it.
 //
@@ -16,24 +16,14 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/oernster/timeribbon/internal/product"
 )
 
 const (
-	// AppName is the product's name as setup shows it and as the Apps list records it.
-	AppName = product.Name
-	// InstallFolder names the install folder and the Apps list key.
-	InstallFolder = product.Name
-	// ExeName is the installed application's executable, as wails build names it.
-	ExeName = product.Name + ".exe"
 	// UninstallExeName is the copy of setup left in the install folder, which the Apps list runs
 	// for Modify, Repair and Uninstall once the downloaded setup file is gone.
 	UninstallExeName = "uninstall.exe"
 	// LicenceFile is the licence the payload carries beside the application.
 	LicenceFile = "LICENSE"
-	// Publisher is recorded in the Apps list entry.
-	Publisher = "Oliver Ernster"
 	// UninstallFlag opens setup on the Uninstall screen (FR-801). The Apps list passes it back to
 	// the uninstaller copy, so the entry and the setup program both read it from here.
 	UninstallFlag = "-uninstall"

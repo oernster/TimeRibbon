@@ -4,8 +4,8 @@
 //
 // It is a second Wails application in the module, carrying the built application as an embedded
 // payload. It installs, updates, goes back a version, repairs, reinstalls and uninstalls, all per
-// user with no administrator rights. The install policy lives in internal/infrastructure/setup;
-// this is the window over it.
+// user with no administrator rights. The install policy lives in ribbonkit/infrastructure/setup,
+// which names no product; this is the window over it and the composition root that names it.
 package main
 
 import (
@@ -21,8 +21,8 @@ import (
 	windowsoptions "github.com/wailsapp/wails/v2/pkg/options/windows"
 	"golang.org/x/sys/windows"
 
-	"github.com/oernster/timeribbon/internal/infrastructure/setup"
 	"github.com/oernster/timeribbon/internal/product"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/setup"
 )
 
 //go:embed all:frontend/dist
@@ -57,15 +57,17 @@ const (
 func main() {
 	log, logErr := setup.OpenStepLog(filepath.Join(os.TempDir(), setupID+".log"))
 	log.Record("setup " + product.Version + " started")
-	places, placesErr := setup.ResolvePlaces(os.LookupEnv, windows.KnownFolderPath)
+	installs := setup.Product{App: product.App(), Publisher: product.Author}
+	places, placesErr := setup.ResolvePlaces(installs, os.LookupEnv, windows.KnownFolderPath)
 	self, selfErr := os.Executable()
 	problem := errors.Join(placesErr, selfErr)
 	if problem != nil {
 		log.Record("reading the machine: " + problem.Error())
 	}
 	app := NewApp(Config{
-		Machine:     setup.NewMachine(places, setup.AppsList(), setup.StartWithWindows, setup.DeleteAfterExit),
-		Processes:   setup.AppProcesses(),
+		Product:     installs,
+		Machine:     setup.NewMachine(installs, places, setup.AppsList(installs), setup.StartWithWindows(installs.App), setup.DeleteAfterExit),
+		Processes:   setup.AppProcesses(installs),
 		Log:         log,
 		Carried:     setup.Carried{Payload: payload, Self: self, Version: product.Version},
 		Args:        os.Args[1:],

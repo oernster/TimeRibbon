@@ -4,7 +4,7 @@ package setup
 
 // Shared fixtures. Nothing here reaches the real install folder, the real Start Menu or Desktop,
 // the real Apps list entry or the real Run value: folders are t.TempDir() and every registry key is
-// a scratch key under HKCU\Software\TimeRibbonTest, deleted when the test ends.
+// a scratch key under HKCU\Software\RibbonkitSetupTest, deleted when the test ends.
 
 import (
 	"archive/zip"
@@ -18,17 +18,20 @@ import (
 
 	"golang.org/x/sys/windows/registry"
 
-	"github.com/oernster/timeribbon/internal/product"
+	"github.com/oernster/timeribbon/ribbonkit/domain/identity/identitytest"
 	"github.com/oernster/timeribbon/ribbonkit/infrastructure/startup"
 )
 
+// sample is the product every test here installs: the kit's sample application.
+var sample = Product{App: identitytest.Sample, Publisher: "The Author"}
+
 // standInVariable turns the test binary into a stand-in process: one that runs until its input
-// closes, then exits. A copy of it plays TimeRibbon or setup where a test needs a process to find,
-// close or wait on.
-const standInVariable = "TIMERIBBON_SETUP_STAND_IN"
+// closes, then exits. A copy of it plays the application or setup where a test needs a process to
+// find, close or wait on.
+const standInVariable = "RIBBONKIT_SETUP_STAND_IN"
 
 // scratchParent holds every scratch key a test makes.
-const scratchParent = `Software\TimeRibbonTest`
+const scratchParent = `Software\RibbonkitSetupTest`
 
 func TestMain(m *testing.M) {
 	if os.Getenv(standInVariable) != "" {
@@ -38,7 +41,7 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-// scratchKey answers a key of its own beneath HKCU\Software\TimeRibbonTest, deleted at the end.
+// scratchKey answers a key of its own beneath HKCU\Software\RibbonkitSetupTest, deleted at the end.
 func scratchKey(t *testing.T) string {
 	t.Helper()
 	key := scratchParent + `\` + rand.Text()
@@ -63,14 +66,17 @@ func newFixture(t *testing.T) *fixture {
 	t.Helper()
 	root := t.TempDir()
 	places := Places{
-		InstallDir: filepath.Join(root, "Local", programsSubdir, InstallFolder),
+		InstallDir: filepath.Join(root, "Local", programsSubdir, sample.App.Name),
 		StartMenu:  filepath.Join(root, "Roaming", "Programs"),
 		Desktop:    filepath.Join(root, "Desktop"),
-		Settings:   filepath.Join(root, "Roaming", AppName),
+		Settings:   filepath.Join(root, "Roaming", sample.App.Name),
+		Exe:        sample.Exe(),
 	}
-	f := &fixture{places: places, startupKey: scratchKey(t), record: Record{key: scratchKey(t)}}
-	entryFor := func(program string) StartupEntry { return startup.At(product.App(), f.startupKey, program) }
-	f.machine = NewMachine(places, f.record, entryFor, func(dir string) error {
+	record := AppsList(sample)
+	record.key = scratchKey(t)
+	f := &fixture{places: places, startupKey: scratchKey(t), record: record}
+	entryFor := func(program string) StartupEntry { return startup.At(sample.App, f.startupKey, program) }
+	f.machine = NewMachine(sample, places, f.record, entryFor, func(dir string) error {
 		f.scheduled = append(f.scheduled, dir)
 		return nil
 	})

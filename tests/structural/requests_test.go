@@ -23,8 +23,8 @@ import (
 var processStarters = map[string]string{
 	"ribbonkit/infrastructure/desktop/browser_unix.go":    "hands an address to open or xdg-open",
 	"ribbonkit/infrastructure/desktop/browser_windows.go": "hands an address to ShellExecute",
-	"internal/infrastructure/setup/deletion.go":           "deletes the install folder after setup exits",
-	"internal/infrastructure/setup/process.go":            "starts the installed application",
+	"ribbonkit/infrastructure/setup/deletion.go":          "deletes the install folder after setup exits",
+	"ribbonkit/infrastructure/setup/process.go":           "starts the installed application",
 }
 
 // processImport and processCalls are how a Go file starts another program.

@@ -9,8 +9,8 @@ import (
 	"golang.org/x/sys/windows/registry"
 )
 
-// uninstallKeyPath is TimeRibbon's entry in the per-user Apps list.
-const uninstallKeyPath = `Software\Microsoft\Windows\CurrentVersion\Uninstall\` + InstallFolder
+// uninstallKeys is where the per-user Apps list keeps its entries, one key per application.
+const uninstallKeys = `Software\Microsoft\Windows\CurrentVersion\Uninstall\`
 
 // The Apps list entry's value names.
 const (
@@ -38,24 +38,30 @@ type UninstallInfo struct {
 	EstimatedKB  uint32
 }
 
-// Record is the Apps list entry: one key under HKCU.
-type Record struct{ key string }
+// Record is the Apps list entry: one key under HKCU, naming the product and its publisher.
+type Record struct {
+	key       string
+	name      string
+	publisher string
+}
 
-// AppsList answers TimeRibbon's entry in the per-user Apps list.
-func AppsList() Record { return Record{key: uninstallKeyPath} }
+// AppsList answers product's entry in the per-user Apps list.
+func AppsList(product Product) Record {
+	return Record{key: uninstallKeys + product.App.Name, name: product.App.Name, publisher: product.Publisher}
+}
 
-// uninstallValues is the text the entry holds, by value name. The uninstaller path is quoted the
-// way Windows reads a command line; Go's %q escapes the separators and would name nowhere.
-func uninstallValues(info UninstallInfo) map[string]string {
+// values is the text the entry holds, by value name. The uninstaller path is quoted the way
+// Windows reads a command line; Go's %q escapes the separators and would name nowhere.
+func (r Record) values(info UninstallInfo) map[string]string {
 	quoted := `"` + info.UninstallExe + `"`
 	return map[string]string{
-		valueDisplayName:     AppName,
+		valueDisplayName:     r.name,
 		valueDisplayVersion:  info.Version,
 		valueInstallLocation: info.InstallDir,
 		valueUninstallString: quoted + " " + UninstallFlag,
 		valueModifyPath:      quoted,
 		valueDisplayIcon:     info.IconPath,
-		valuePublisher:       Publisher,
+		valuePublisher:       r.publisher,
 	}
 }
 
@@ -67,7 +73,7 @@ func (r Record) Write(info UninstallInfo) error {
 		return fmt.Errorf("opening %s: %w", r.key, err)
 	}
 	defer key.Close()
-	for name, value := range uninstallValues(info) {
+	for name, value := range r.values(info) {
 		if err := key.SetStringValue(name, value); err != nil {
 			return fmt.Errorf("writing %s: %w", name, err)
 		}

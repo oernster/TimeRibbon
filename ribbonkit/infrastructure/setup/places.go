@@ -9,21 +9,23 @@ import (
 
 	"golang.org/x/sys/windows"
 
-	"github.com/oernster/timeribbon/internal/product"
 	"github.com/oernster/timeribbon/ribbonkit/infrastructure/appdata"
 )
 
 // Places are the folders setup writes, resolved once (FR-810): each is under the user's own
 // profile, so nothing asks for administrator rights.
 type Places struct {
-	// InstallDir is %LOCALAPPDATA%\Programs\TimeRibbon, where the files go (FR-802).
+	// InstallDir is %LOCALAPPDATA%\Programs\<name>, where the files go (FR-802).
 	InstallDir string
 	// StartMenu is the user's Start Menu Programs folder, under %APPDATA%.
 	StartMenu string
 	// Desktop is the user's Desktop, wherever Windows has it (a Desktop moved to OneDrive included).
 	Desktop string
-	// Settings is %APPDATA%\TimeRibbon, the one folder "Also forget my settings" deletes (FR-806).
+	// Settings is the application's own settings folder, the one folder "Also forget my settings"
+	// deletes (FR-806).
 	Settings string
+	// Exe is the application's executable in InstallDir.
+	Exe string
 }
 
 const (
@@ -39,13 +41,14 @@ var ErrNoLocalAppData = errors.New(localAppData + " is not set")
 // KnownFolder answers the path of a Windows known folder, as windows.KnownFolderPath does.
 type KnownFolder func(id *windows.KNOWNFOLDERID, flags uint32) (string, error)
 
-// ResolvePlaces reads the environment through lookup and the shell's known folders through known.
-func ResolvePlaces(lookup func(string) (string, bool), known KnownFolder) (Places, error) {
+// ResolvePlaces answers product's places, reading the environment through lookup and the shell's
+// known folders through known.
+func ResolvePlaces(product Product, lookup func(string) (string, bool), known KnownFolder) (Places, error) {
 	base, ok := lookup(localAppData)
 	if !ok || base == "" {
 		return Places{}, ErrNoLocalAppData
 	}
-	settings, err := appdata.Dir(product.App(), lookup)
+	settings, err := appdata.Dir(product.App, lookup)
 	if err != nil {
 		return Places{}, fmt.Errorf("finding the settings folder: %w", err)
 	}
@@ -58,15 +61,16 @@ func ResolvePlaces(lookup func(string) (string, bool), known KnownFolder) (Place
 		return Places{}, fmt.Errorf("finding the Desktop: %w", err)
 	}
 	return Places{
-		InstallDir: filepath.Join(base, programsSubdir, InstallFolder),
+		InstallDir: filepath.Join(base, programsSubdir, product.App.Name),
 		StartMenu:  startMenu,
 		Desktop:    desktop,
 		Settings:   settings,
+		Exe:        product.Exe(),
 	}, nil
 }
 
 // Program answers the installed application's path.
-func (p Places) Program() string { return filepath.Join(p.InstallDir, ExeName) }
+func (p Places) Program() string { return filepath.Join(p.InstallDir, p.Exe) }
 
 // Uninstaller answers the path of the setup copy left in the install folder.
 func (p Places) Uninstaller() string { return filepath.Join(p.InstallDir, UninstallExeName) }

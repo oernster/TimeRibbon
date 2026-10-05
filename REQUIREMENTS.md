@@ -928,7 +928,7 @@ DECISIONS-TRADEOFFS.md the decisions with their costs.
 
 `build.ps1` reads `VERSION`, runs `test.ps1` first with no switch to skip it, builds the application
 with `wails build`, then the setup program embedding it (OQ-3): a second Wails application in
-`installer/` whose policy lives in `internal/infrastructure/setup`, ported in shape from BridgeTalk's.
+`installer/` whose policy lives in `ribbonkit/infrastructure/setup`, ported in shape from BridgeTalk's.
 Setup and FR-801 to FR-811 are Windows only (Amendment 13). macOS ships as a DMG signed with a
 Developer ID and notarised (`builddmg.sh`); Linux as a Flatpak for the user (`build_flatpak.sh`),
 granted X11 with IPC, the GPU, the tray host's and single-instance lock's bus names, the autostart
@@ -980,7 +980,7 @@ Verified by: `setupRing.test.ts`, `setupScreens.test.ts`.
 
 **FR-810 Per user, no elevation** (Must). Setup writes only under `%LOCALAPPDATA%`, `%APPDATA%`, the
 user's Desktop and `HKCU` (CON-8).
-Verified by: inspection of `internal/infrastructure/setup`; by hand.
+Verified by: inspection of `ribbonkit/infrastructure/setup`; by hand.
 
 **FR-811 Setup's licence reads itself** (Must; Amendment 2). Setup's overflowing Licence reads itself
 in the cycle of FR-609, from the same script, afresh each time it opens.

@@ -3,7 +3,7 @@
 package setup
 
 // Processes are found and closed by image name (FR-807). Every process started here is a copy of
-// the test binary under a name nothing else carries, so no real TimeRibbon is ever found or ended.
+// the test binary under a name nothing else carries, so no real application is ever found or ended.
 
 import (
 	"crypto/rand"
@@ -24,7 +24,7 @@ const deletionDeadline = 30 * time.Second
 func TestARunningCopyIsFoundAndClosedByItsImageName(t *testing.T) {
 	program := standInCopy(t)
 	startStandIn(t, program)
-	copies := AppProcesses()
+	copies := AppProcesses(sample)
 	copies.image = strings.ToUpper(filepath.Base(program))
 	if !copies.Running() {
 		t.Fatal("the running stand-in was not found by its name in upper case")
@@ -38,8 +38,12 @@ func TestARunningCopyIsFoundAndClosedByItsImageName(t *testing.T) {
 	if (Processes{image: "no-process-is-named-" + rand.Text() + ".exe"}).Running() {
 		t.Error("a name nothing carries was found running")
 	}
-	if AppProcesses().image != ExeName || AppProcesses().wait != closeTimeout {
+	if AppProcesses(sample).image != sample.Exe() || AppProcesses(sample).wait != closeTimeout {
 		t.Error("setup looks for another program or gives it another wait")
+	}
+	refusal := AppProcesses(sample).Refusal()
+	if !errors.Is(refusal, ErrAppRunning) || refusal.Error() != sample.App.Name+" is running" {
+		t.Errorf("the refusal is %q, want ErrAppRunning reading %q", refusal, sample.App.Name+" is running")
 	}
 }
 
@@ -49,13 +53,18 @@ func TestARunningCopyIsFoundAndClosedByItsImageName(t *testing.T) {
 func TestACopyThatWillNotCloseIsReported(t *testing.T) {
 	program := standInCopy(t)
 	startStandIn(t, program)
-	copies := AppProcesses()
+	copies := AppProcesses(sample)
 	copies.image = filepath.Base(program)
 	copies.end = func(uint32) {}
 	copies.wait = pollStep
 	started := time.Now()
-	if err := copies.Close(); !errors.Is(err, ErrStillRunning) {
+	err := copies.Close()
+	if !errors.Is(err, ErrStillRunning) {
 		t.Fatalf("Close answered %v, want ErrStillRunning", err)
+	}
+	// The page shows the words as they come, so they read as a sentence about the application.
+	if want := sample.App.Name + " could not be closed; please close it by hand, then try again"; err.Error() != want {
+		t.Errorf("Close said %q, want %q", err, want)
 	}
 	if waited := time.Since(started); waited < copies.wait {
 		t.Errorf("reported after %v, before the wait of %v ran out", waited, copies.wait)
@@ -92,8 +101,8 @@ func TestLaunchStartsTheProgramAndBoundsTheWait(t *testing.T) {
 
 // FR-806: the install folder goes once setup has closed; not before.
 func TestTheInstallFolderGoesOnceSetupHasClosed(t *testing.T) {
-	dir := filepath.Join(t.TempDir(), "Awkward $name `n O'Brien", InstallFolder)
-	write(t, filepath.Join(dir, ExeName), "x")
+	dir := filepath.Join(t.TempDir(), "Awkward $name `n O'Brien", sample.App.Name)
+	write(t, filepath.Join(dir, sample.Exe()), "x")
 	pid, closeSetup := startStandIn(t, standInCopy(t))
 	if err := deleteAfter(pid, dir); err != nil {
 		t.Fatal(err)
@@ -118,12 +127,12 @@ func TestTheInstallFolderGoesOnceSetupHasClosed(t *testing.T) {
 // The folder reaches the removal as an environment value, never typed into the script.
 func TestTheRemovalIsToldTheFolderAsAValue(t *testing.T) {
 	t.Parallel()
-	args, env := dirDeletion(42, `C:\a $b\TimeRibbon`)
+	args, env := dirDeletion(42, `C:\a $b\SampleRibbon`)
 	script := args[len(args)-1]
 	if !strings.Contains(script, "Wait-Process -Id 42") || strings.Contains(script, `C:\a $b`) {
 		t.Errorf("script %q", script)
 	}
-	if len(env) != 1 || env[0] != deletionDirVariable+`=C:\a $b\TimeRibbon` {
+	if len(env) != 1 || env[0] != deletionDirVariable+`=C:\a $b\SampleRibbon` {
 		t.Errorf("env %v", env)
 	}
 }
@@ -173,24 +182,24 @@ func TestThePlacesComeFromTheEnvironmentAndTheShell(t *testing.T) {
 		}
 		return `C:\R\Programs`, nil
 	}
-	places, err := ResolvePlaces(lookup, known)
-	want := Places{InstallDir: `C:\L\Programs\TimeRibbon`, StartMenu: `C:\R\Programs`, Desktop: `C:\D`, Settings: `C:\R\TimeRibbon`}
+	places, err := ResolvePlaces(sample, lookup, known)
+	want := Places{InstallDir: `C:\L\Programs\SampleRibbon`, StartMenu: `C:\R\Programs`, Desktop: `C:\D`, Settings: `C:\R\SampleRibbon`, Exe: sample.Exe()}
 	if err != nil || places != want {
 		t.Errorf("got %+v (%v), want %+v", places, err, want)
 	}
 	refused := errors.New("refused")
 	for name, broken := range map[string]func() (Places, error){
 		"no LOCALAPPDATA": func() (Places, error) {
-			return ResolvePlaces(func(string) (string, bool) { return "", false }, known)
+			return ResolvePlaces(sample, func(string) (string, bool) { return "", false }, known)
 		},
 		"no APPDATA": func() (Places, error) {
-			return ResolvePlaces(func(n string) (string, bool) { return `C:\L`, n == localAppData }, known)
+			return ResolvePlaces(sample, func(n string) (string, bool) { return `C:\L`, n == localAppData }, known)
 		},
 		"no Start Menu": func() (Places, error) {
-			return ResolvePlaces(lookup, func(*windows.KNOWNFOLDERID, uint32) (string, error) { return "", refused })
+			return ResolvePlaces(sample, lookup, func(*windows.KNOWNFOLDERID, uint32) (string, error) { return "", refused })
 		},
 		"no Desktop": func() (Places, error) {
-			return ResolvePlaces(lookup, func(id *windows.KNOWNFOLDERID, f uint32) (string, error) {
+			return ResolvePlaces(sample, lookup, func(id *windows.KNOWNFOLDERID, f uint32) (string, error) {
 				if id == windows.FOLDERID_Desktop {
 					return "", refused
 				}
@@ -202,8 +211,8 @@ func TestThePlacesComeFromTheEnvironmentAndTheShell(t *testing.T) {
 			t.Errorf("%s was not refused", name)
 		}
 	}
-	real, err := ResolvePlaces(os.LookupEnv, windows.KnownFolderPath)
-	if err != nil || !strings.HasSuffix(real.InstallDir, filepath.Join(programsSubdir, InstallFolder)) {
+	real, err := ResolvePlaces(sample, os.LookupEnv, windows.KnownFolderPath)
+	if err != nil || !strings.HasSuffix(real.InstallDir, filepath.Join(programsSubdir, sample.App.Name)) {
 		t.Errorf("this machine resolved %+v (%v)", real, err)
 	}
 }

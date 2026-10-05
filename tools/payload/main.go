@@ -16,7 +16,8 @@ import (
 	"io"
 	"os"
 
-	"github.com/oernster/timeribbon/internal/infrastructure/setup"
+	"github.com/oernster/timeribbon/internal/product"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/setup"
 )
 
 const (
@@ -25,6 +26,9 @@ const (
 	// filePerm is how the archive is written: the owner writes, everyone reads.
 	filePerm = 0o644
 )
+
+// packs is the application the payload carries; setup finds its executable by the same name.
+var packs = setup.Product{App: product.App()}
 
 // errMissingFlag means the tool was not told where the application, the licence or the archive is.
 var errMissingFlag = errors.New("-app, -licence and -out are all needed")
@@ -49,7 +53,7 @@ func run(args []string, out io.Writer) error {
 	if *app == "" || *licence == "" || *archive == "" {
 		return errMissingFlag
 	}
-	if err := writeWhole(*archive, setup.Payload{App: *app, Licence: *licence}); err != nil {
+	if err := writeWhole(*archive, setup.Payload{App: *app, Exe: packs.Exe(), Licence: *licence}); err != nil {
 		return err
 	}
 	fmt.Fprintf(out, "%s holds the application and its licence\n", *archive)

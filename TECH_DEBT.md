@@ -43,7 +43,7 @@ step and can import nothing; `setupRing.test.ts` holds the shipped script to the
 self-reading cycle went the other way because the window's build can import from the setup page's
 folder.
 
-**The setup program holds no install logic.** Every act goes through `internal/infrastructure/setup`,
+**The setup program holds no install logic.** Every act goes through `ribbonkit/infrastructure/setup`,
 tested on Windows; `installer` has no tests, since every method on it acts on the machine.
 
 **The browser opens through the desktop, not Wails.** Wails' `BrowserOpenURL` reports no error, so a

@@ -15,12 +15,13 @@ import (
 	"golang.org/x/sys/windows"
 )
 
-// ErrAppRunning says TimeRibbon is open, so nothing that would write over or delete its files may
-// start (FR-807).
-var ErrAppRunning = errors.New(AppName + " is running")
+// ErrAppRunning says the application is open, so nothing that would write over or delete its files
+// may start (FR-807). Processes answers it after the application's name.
+var ErrAppRunning = errors.New("is running")
 
-// ErrStillRunning says TimeRibbon was asked to close and was still there when the wait ran out.
-var ErrStillRunning = errors.New(AppName + " could not be closed; please close it by hand, then try again")
+// ErrStillRunning says the application was asked to close and was still there when the wait ran
+// out. Processes answers it after the application's name.
+var ErrStillRunning = errors.New("could not be closed; please close it by hand, then try again")
 
 const (
 	// closeTimeout is how long a running copy is given to go once asked (FR-807).
@@ -36,17 +37,27 @@ const (
 // find itself counted a descendant and end itself.
 type Processes struct {
 	image string
+	// name is the application's name, which its errors begin with.
+	name string
 	// end ends one process; terminate, unless a test stands in for a copy that will not go.
 	end func(pid uint32)
 	// wait is how long a copy is given to go once asked; closeTimeout, unless a test shortens it.
 	wait time.Duration
 }
 
-// AppProcesses answers the running copies of TimeRibbon.
-func AppProcesses() Processes { return Processes{image: ExeName, end: terminate, wait: closeTimeout} }
+// AppProcesses answers the running copies of product.
+func AppProcesses(product Product) Processes {
+	return Processes{image: product.Exe(), name: product.App.Name, end: terminate, wait: closeTimeout}
+}
 
 // Running reports whether any copy is running.
 func (p Processes) Running() bool { return len(p.ids()) > 0 }
+
+// Refusal answers ErrAppRunning after the application's name, for work refused while it runs.
+func (p Processes) Refusal() error { return p.named(ErrAppRunning) }
+
+// named answers err after the application's name, so it reads as a sentence about it.
+func (p Processes) named(err error) error { return fmt.Errorf("%s %w", p.name, err) }
 
 // Close ends every running copy and waits for them to go, answering ErrStillRunning when one is
 // still there once its wait runs out (FR-807).
@@ -57,7 +68,7 @@ func (p Processes) Close() error {
 	deadline := time.Now().Add(p.wait)
 	for p.Running() {
 		if time.Now().After(deadline) {
-			return ErrStillRunning
+			return p.named(ErrStillRunning)
 		}
 		time.Sleep(pollStep)
 	}

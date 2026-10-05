@@ -415,10 +415,12 @@ and Skip ask Go to act on what it offered.
 
 **The setup program** (Windows) is a second Wails application in `installer/`, embedding the built
 application as a zip. `build.ps1` packs it through `tools/payload`, builds setup, then writes the empty
-placeholder back whatever happened. The install policy lives in `internal/infrastructure/setup`: the
+placeholder back whatever happened. The install policy lives in ribbonkit's `ribbonkit/infrastructure/setup`: the
 paths, the extraction with its fence against an entry leaving the install folder (every entry checked
 before any is written, FR-803), the version comparison, the Apps list record, the shortcuts (COM via
-go-ole), Start with Windows (through `startup`, the value Settings writes) and the step log.
+go-ole), Start with Windows (through `startup`, the value Settings writes) and the step log. It names
+no product: `installer/main.go` hands it a `setup.Product` (the kit's identity and the publisher),
+from which the install folder, the executable, the shortcuts and the Apps list entry take their name.
 `installer/app.go` is a facade over it. Steps are weighted by measured time.
 
 | Reading of the machine | Screen |

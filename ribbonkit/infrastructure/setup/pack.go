@@ -12,14 +12,17 @@ import (
 	"path/filepath"
 )
 
-// ErrNoApplication is answered when the folder named as the application holds no TimeRibbon.exe.
-var ErrNoApplication = errors.New("no " + ExeName + " to pack")
+// ErrNoApplication is answered when the folder named as the application holds no executable of
+// the name the payload states.
+var ErrNoApplication = errors.New("no application to pack")
 
 // Payload names what the setup program carries: every file under App at the root of the install
 // folder, then the licence beside them.
 type Payload struct {
 	// App is the folder holding the built application.
 	App string
+	// Exe is the application's executable, which App must hold (Product.Exe).
+	Exe string
 	// Licence is the licence file placed beside it as LicenceFile.
 	Licence string
 }
@@ -27,8 +30,8 @@ type Payload struct {
 // Pack writes the payload to out as a zip archive. An application folder with no application in it
 // is refused before anything is written; a file that cannot be read is refused naming it.
 func Pack(out io.Writer, payload Payload) error {
-	if _, err := os.Stat(filepath.Join(payload.App, ExeName)); err != nil {
-		return fmt.Errorf("%w in %s: %w", ErrNoApplication, payload.App, err)
+	if _, err := os.Stat(filepath.Join(payload.App, payload.Exe)); err != nil {
+		return fmt.Errorf("%w: %s is not in %s: %w", ErrNoApplication, payload.Exe, payload.App, err)
 	}
 	archive := zip.NewWriter(out)
 	err := filepath.WalkDir(payload.App, func(from string, entry fs.DirEntry, err error) error {

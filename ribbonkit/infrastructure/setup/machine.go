@@ -5,7 +5,7 @@ package setup
 import (
 	"fmt"
 
-	"github.com/oernster/timeribbon/internal/product"
+	"github.com/oernster/timeribbon/ribbonkit/domain/identity"
 	"github.com/oernster/timeribbon/ribbonkit/infrastructure/startup"
 )
 
@@ -16,9 +16,11 @@ type StartupEntry interface {
 	Disable() error
 }
 
-// StartWithWindows answers the Start with Windows value for program. It is the value Settings
+// StartWithWindows answers app's Start with Windows value for a program. It is the value Settings
 // writes through the same package, so setup's box and the application's switch cannot disagree.
-func StartWithWindows(program string) StartupEntry { return startup.New(product.App(), program) }
+func StartWithWindows(app identity.App) func(program string) StartupEntry {
+	return func(program string) StartupEntry { return startup.New(app, program) }
+}
 
 // Carried is what setup brings to an install: the payload, the version it carries and setup's own
 // path, which is copied in as the uninstaller.
@@ -31,16 +33,18 @@ type Carried struct {
 // Machine is the user's machine as setup acts on it: the places it writes, the Apps list entry,
 // the Start with Windows value and the removal of the install folder once setup has closed.
 type Machine struct {
+	product         Product
 	places          Places
 	record          Record
 	entryFor        func(program string) StartupEntry
 	deleteAfterExit func(dir string) error
 }
 
-// NewMachine answers the machine over its parts. The setup program passes the real ones; a test
-// passes temporary folders, a scratch registry key and a stand-in for the removal.
-func NewMachine(places Places, record Record, entryFor func(string) StartupEntry, deleteAfterExit func(string) error) Machine {
-	return Machine{places: places, record: record, entryFor: entryFor, deleteAfterExit: deleteAfterExit}
+// NewMachine answers the machine product is installed on, over its parts. The setup program passes
+// the real ones; a test passes temporary folders, a scratch registry key and a stand-in for the
+// removal.
+func NewMachine(product Product, places Places, record Record, entryFor func(string) StartupEntry, deleteAfterExit func(string) error) Machine {
+	return Machine{product: product, places: places, record: record, entryFor: entryFor, deleteAfterExit: deleteAfterExit}
 }
 
 // Places answers the folders this machine writes.
@@ -57,8 +61,8 @@ func (m Machine) Read() (Existing, error) {
 		Installed: installed,
 		Version:   version,
 		Choices: Choices{
-			StartMenu:        shortcutPresent(m.places.StartMenu),
-			Desktop:          shortcutPresent(m.places.Desktop),
+			StartMenu:        shortcutPresent(m.places.StartMenu, m.product.shortcut()),
+			Desktop:          shortcutPresent(m.places.Desktop, m.product.shortcut()),
 			StartWithWindows: startWithWindows,
 		},
 	}, nil
@@ -74,7 +78,7 @@ func (m Machine) InstallSteps(carried Carried, choices Choices) []Step {
 		{Name: "Leaving the uninstaller beside them", Weight: weightUninstaller, Do: func() error {
 			return CopyFile(carried.Self, m.places.Uninstaller())
 		}},
-		{Name: "Adding " + AppName + " to the Apps list", Weight: weightRecord, Do: func() error {
+		{Name: "Adding " + m.product.App.Name + " to the Apps list", Weight: weightRecord, Do: func() error {
 			return m.register(carried.Version)
 		}},
 	}
@@ -100,10 +104,10 @@ func (m Machine) ChoiceSteps(choices Choices) []Step { return m.choiceSteps(choi
 func (m Machine) UninstallSteps(forget bool) []Step {
 	program := m.places.Program()
 	steps := []Step{
-		shortcutStep(startMenuPlace, m.places.StartMenu, program, false),
-		shortcutStep(desktopPlace, m.places.Desktop, program, false),
+		m.shortcutStep(startMenuPlace, m.places.StartMenu, program, false),
+		m.shortcutStep(desktopPlace, m.places.Desktop, program, false),
 		{Name: "Removing Start with Windows", Weight: weightStartup, Do: m.entryFor(program).Disable},
-		{Name: "Removing " + AppName + " from the Apps list", Weight: weightRecord, Do: m.record.Remove},
+		{Name: "Removing " + m.product.App.Name + " from the Apps list", Weight: weightRecord, Do: m.record.Remove},
 	}
 	if forget {
 		steps = append(steps, Step{Name: "Forgetting your settings", Weight: weightForget, Do: func() error {
@@ -130,20 +134,21 @@ func (m Machine) choiceSteps(choices Choices) []Step {
 		startWithWindows.Do = entry.Enable
 	}
 	return []Step{
-		shortcutStep(startMenuPlace, m.places.StartMenu, program, choices.StartMenu),
-		shortcutStep(desktopPlace, m.places.Desktop, program, choices.Desktop),
+		m.shortcutStep(startMenuPlace, m.places.StartMenu, program, choices.StartMenu),
+		m.shortcutStep(desktopPlace, m.places.Desktop, program, choices.Desktop),
 		startWithWindows,
 	}
 }
 
 // shortcutStep places the shortcut in folder where it is wanted and clears it where not. Clearing is
 // weighted apart because it takes no shell object and was measured far quicker.
-func shortcutStep(place, folder, program string, wanted bool) Step {
+func (m Machine) shortcutStep(place, folder, program string, wanted bool) Step {
 	step := Step{Name: "Clearing the " + place + " shortcut", Weight: weightClearShortcut}
 	if wanted {
 		step = Step{Name: "Placing the " + place + " shortcut", Weight: weightShortcut}
 	}
-	step.Do = func() error { return placeShortcut(folder, program, wanted) }
+	link := m.product.shortcut()
+	step.Do = func() error { return placeShortcut(folder, link, program, wanted) }
 	return step
 }
 

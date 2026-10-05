@@ -15,12 +15,12 @@ import (
 // FR-802.
 func TestExtractZipWritesEveryEntry(t *testing.T) {
 	t.Parallel()
-	dest := filepath.Join(t.TempDir(), InstallFolder)
-	entries := map[string]string{ExeName: "the program", "folder/": "", "folder/nested/a.txt": "a note"}
+	dest := filepath.Join(t.TempDir(), sample.App.Name)
+	entries := map[string]string{sample.Exe(): "the program", "folder/": "", "folder/nested/a.txt": "a note"}
 	if err := ExtractZip(zipOf(t, entries), dest); err != nil {
 		t.Fatalf("extracting: %v", err)
 	}
-	for name, want := range map[string]string{ExeName: "the program", "folder/nested/a.txt": "a note"} {
+	for name, want := range map[string]string{sample.Exe(): "the program", "folder/nested/a.txt": "a note"} {
 		got, err := os.ReadFile(filepath.Join(dest, filepath.FromSlash(name)))
 		if err != nil || string(got) != want {
 			t.Errorf("%s holds %q (%v), want %q", name, got, err, want)
@@ -33,7 +33,7 @@ func TestExtractZipWritesEveryEntry(t *testing.T) {
 func TestExtractZipRejectsAPathThatEscapes(t *testing.T) {
 	t.Parallel()
 	for _, bad := range []string{"../escaped.txt", "folder/../../escaped.txt", "C:/Windows/escaped.txt", "/rooted.txt", "NUL"} {
-		dest := filepath.Join(t.TempDir(), InstallFolder)
+		dest := filepath.Join(t.TempDir(), sample.App.Name)
 		payload := zipOf(t, map[string]string{"a-good-one.txt": "fine", bad: "no"})
 		err := ExtractZip(payload, dest)
 		if !errors.Is(err, ErrUnsafePath) || !strings.Contains(err.Error(), "unsafe path in payload") ||
@@ -61,9 +61,9 @@ func TestAnEntryThatCannotBeWrittenStopsTheExtraction(t *testing.T) {
 	t.Parallel()
 	// A folder standing where the program must be written.
 	dest := t.TempDir()
-	write(t, filepath.Join(dest, ExeName, "in the way"), "x")
-	if err := ExtractZip(zipOf(t, map[string]string{ExeName: "x"}), dest); err == nil {
-		t.Errorf("%s was written over a folder", ExeName)
+	write(t, filepath.Join(dest, sample.Exe(), "in the way"), "x")
+	if err := ExtractZip(zipOf(t, map[string]string{sample.Exe(): "x"}), dest); err == nil {
+		t.Errorf("%s was written over a folder", sample.Exe())
 	}
 	// A file standing where an entry's folder must be made, then where a folder entry must be.
 	for _, name := range []string{"assets/a.txt", "assets/"} {
@@ -75,7 +75,7 @@ func TestAnEntryThatCannotBeWrittenStopsTheExtraction(t *testing.T) {
 	}
 	blocked := filepath.Join(t.TempDir(), "a file")
 	write(t, blocked, "x")
-	if err := ExtractZip(zipOf(t, map[string]string{"a.txt": "x"}), filepath.Join(blocked, InstallFolder)); err == nil {
+	if err := ExtractZip(zipOf(t, map[string]string{"a.txt": "x"}), filepath.Join(blocked, sample.App.Name)); err == nil {
 		t.Error("an install folder was made beneath a file")
 	}
 }
@@ -83,11 +83,11 @@ func TestAnEntryThatCannotBeWrittenStopsTheExtraction(t *testing.T) {
 // The payload's licence is what the Licence screen shows; a payload with none says so.
 func TestTheLicenceIsReadFromThePayload(t *testing.T) {
 	t.Parallel()
-	text, err := Licence(zipOf(t, map[string]string{LicenceFile: "the terms", ExeName: "x"}))
+	text, err := Licence(zipOf(t, map[string]string{LicenceFile: "the terms", sample.Exe(): "x"}))
 	if err != nil || text != "the terms" {
 		t.Errorf("got %q (%v)", text, err)
 	}
-	if _, err := Licence(zipOf(t, map[string]string{ExeName: "x"})); !errors.Is(err, ErrNoLicence) {
+	if _, err := Licence(zipOf(t, map[string]string{sample.Exe(): "x"})); !errors.Is(err, ErrNoLicence) {
 		t.Errorf("a payload with no licence answered %v", err)
 	}
 }
@@ -150,12 +150,12 @@ func TestRemoveTreeDeletesTheWholeTreeAndToleratesItsAbsence(t *testing.T) {
 func TestPackCarriesTheApplicationAndTheLicence(t *testing.T) {
 	t.Parallel()
 	app, dir := t.TempDir(), t.TempDir()
-	write(t, filepath.Join(app, ExeName), "the program")
+	write(t, filepath.Join(app, sample.Exe()), "the program")
 	write(t, filepath.Join(app, "sub", "extra.txt"), "extra")
 	licence := filepath.Join(dir, "LICENSE")
 	write(t, licence, "the terms")
 	var out bytes.Buffer
-	if err := Pack(&out, Payload{App: app, Licence: licence}); err != nil {
+	if err := Pack(&out, Payload{Exe: sample.Exe(), App: app, Licence: licence}); err != nil {
 		t.Fatal(err)
 	}
 	reader, err := zip.NewReader(bytes.NewReader(out.Bytes()), int64(out.Len()))
@@ -166,7 +166,7 @@ func TestPackCarriesTheApplicationAndTheLicence(t *testing.T) {
 	for _, file := range reader.File {
 		names = append(names, file.Name)
 	}
-	if strings.Join(names, ",") != ExeName+",sub/extra.txt,"+LicenceFile {
+	if strings.Join(names, ",") != sample.Exe()+",sub/extra.txt,"+LicenceFile {
 		t.Errorf("the payload holds %v", names)
 	}
 }
@@ -174,12 +174,12 @@ func TestPackCarriesTheApplicationAndTheLicence(t *testing.T) {
 func TestPackRefusesWhatItCannotCarry(t *testing.T) {
 	t.Parallel()
 	empty := t.TempDir()
-	if err := Pack(&bytes.Buffer{}, Payload{App: empty}); !errors.Is(err, ErrNoApplication) {
+	if err := Pack(&bytes.Buffer{}, Payload{Exe: sample.Exe(), App: empty}); !errors.Is(err, ErrNoApplication) {
 		t.Errorf("a folder with no application answered %v", err)
 	}
 	app := t.TempDir()
-	write(t, filepath.Join(app, ExeName), "x")
-	if err := Pack(&bytes.Buffer{}, Payload{App: app, Licence: filepath.Join(app, "absent")}); err == nil {
+	write(t, filepath.Join(app, sample.Exe()), "x")
+	if err := Pack(&bytes.Buffer{}, Payload{Exe: sample.Exe(), App: app, Licence: filepath.Join(app, "absent")}); err == nil {
 		t.Error("a missing licence was packed")
 	}
 }

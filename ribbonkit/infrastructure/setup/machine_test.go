@@ -12,16 +12,15 @@ import (
 	"github.com/go-ole/go-ole/oleutil"
 	"golang.org/x/sys/windows/registry"
 
-	"github.com/oernster/timeribbon/internal/product"
 	"github.com/oernster/timeribbon/ribbonkit/infrastructure/startup"
 )
 
 // carried is a payload holding a program and the licence, with a stand-in for setup itself.
 func carried(t *testing.T) Carried {
 	t.Helper()
-	self := filepath.Join(t.TempDir(), "TimeRibbonSetup.exe")
+	self := filepath.Join(t.TempDir(), "SampleRibbonSetup.exe")
 	write(t, self, "the setup program")
-	return Carried{Payload: zipOf(t, map[string]string{ExeName: "the program", LicenceFile: "terms"}), Self: self, Version: "0.1.0"}
+	return Carried{Payload: zipOf(t, map[string]string{sample.Exe(): "the program", LicenceFile: "terms"}), Self: self, Version: "0.1.0"}
 }
 
 // runAll runs steps with nowhere to report, failing the test on the first refusal.
@@ -95,13 +94,13 @@ func TestAnInstallWritesEveryPartInPlace(t *testing.T) {
 	if modifyErr != nil || repairErr != nil || noModify != offered || noRepair != offered {
 		t.Errorf("Modify and Repair are not offered: %d %d (%v %v)", noModify, noRepair, modifyErr, repairErr)
 	}
-	if got := shortcutTargetOf(t, shortcutIn(f.places.StartMenu)); got != f.places.Program() {
+	if got := shortcutTargetOf(t, filepath.Join(f.places.StartMenu, sample.shortcut())); got != f.places.Program() {
 		t.Errorf("the Start Menu shortcut targets %q", got)
 	}
-	if shortcutPresent(f.places.Desktop) {
+	if shortcutPresent(f.places.Desktop, sample.shortcut()) {
 		t.Error("a Desktop shortcut was placed with its box unticked")
 	}
-	if on, err := startup.At(product.App(), f.startupKey, f.places.Program()).Enabled(); err != nil || !on {
+	if on, err := startup.At(sample.App, f.startupKey, f.places.Program()).Enabled(); err != nil || !on {
 		t.Errorf("Start with Windows is %v (%v)", on, err)
 	}
 }
@@ -110,13 +109,14 @@ func TestAnInstallWritesEveryPartInPlace(t *testing.T) {
 // separators and name nowhere.
 func TestTheUninstallEntryNamesTheRealPath(t *testing.T) {
 	t.Parallel()
-	path := filepath.Join(`C:\Users\Someone\AppData\Local`, programsSubdir, InstallFolder, UninstallExeName)
-	values := uninstallValues(UninstallInfo{UninstallExe: path, Version: "0.1.0"})
+	path := filepath.Join(`C:\Users\Someone\AppData\Local`, programsSubdir, sample.App.Name, UninstallExeName)
+	values := AppsList(sample).values(UninstallInfo{UninstallExe: path, Version: "0.1.0"})
 	want := map[string]string{
 		valueUninstallString: `"` + path + `" ` + UninstallFlag,
 		valueModifyPath:      `"` + path + `"`,
-		valueDisplayName:     AppName,
+		valueDisplayName:     sample.App.Name,
 		valueDisplayVersion:  "0.1.0",
+		valuePublisher:       sample.Publisher,
 	}
 	for name, expected := range want {
 		if values[name] != expected {
@@ -159,10 +159,10 @@ func TestTheBoxesReflectWhatIsOnTheMachine(t *testing.T) {
 // FR-805: setup's box writes the very value Settings writes, through the same package.
 func TestStartWithWindowsIsTheSameValueSettingsWrites(t *testing.T) {
 	t.Parallel()
-	program := filepath.Join(`C:\Users\Someone\AppData\Local`, programsSubdir, InstallFolder, ExeName)
-	entry, ok := StartWithWindows(program).(startup.Entry)
-	if !ok || entry != startup.New(product.App(), program) {
-		t.Fatalf("setup's entry is %#v, want the one Settings writes, %#v", StartWithWindows(program), startup.New(product.App(), program))
+	program := filepath.Join(`C:\Users\Someone\AppData\Local`, programsSubdir, sample.App.Name, sample.Exe())
+	entry, ok := StartWithWindows(sample.App)(program).(startup.Entry)
+	if !ok || entry != startup.New(sample.App, program) {
+		t.Fatalf("setup's entry is %#v, want the one Settings writes, %#v", StartWithWindows(sample.App)(program), startup.New(sample.App, program))
 	}
 	if entry.Command() != `"`+program+`"` {
 		t.Errorf("the value holds %s", entry.Command())
@@ -182,10 +182,10 @@ func TestForgettingRemovesOnlyTheSettingsFolder(t *testing.T) {
 
 		runAll(t, f.machine.UninstallSteps(forget))
 
-		if shortcutPresent(f.places.StartMenu) || shortcutPresent(f.places.Desktop) {
+		if shortcutPresent(f.places.StartMenu, sample.shortcut()) || shortcutPresent(f.places.Desktop, sample.shortcut()) {
 			t.Errorf("forget %v: a shortcut survived", forget)
 		}
-		if on, _ := startup.At(product.App(), f.startupKey, f.places.Program()).Enabled(); on {
+		if on, _ := startup.At(sample.App, f.startupKey, f.places.Program()).Enabled(); on {
 			t.Errorf("forget %v: Start with Windows survived", forget)
 		}
 		if _, installed := f.record.Version(); installed {
@@ -217,7 +217,7 @@ func TestTheBoxesApplyAtOnce(t *testing.T) {
 func TestAReadingThatFailsIsReported(t *testing.T) {
 	t.Parallel()
 	refused := errors.New("refused")
-	broken := NewMachine(Places{}, Record{key: scratchKey(t)}, func(string) StartupEntry { return failingEntry{refused} }, nil)
+	broken := NewMachine(sample, Places{}, Record{key: scratchKey(t)}, func(string) StartupEntry { return failingEntry{refused} }, nil)
 	if _, err := broken.Read(); !errors.Is(err, refused) {
 		t.Errorf("got %v", err)
 	}

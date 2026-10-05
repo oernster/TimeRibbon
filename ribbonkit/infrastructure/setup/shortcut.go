@@ -18,9 +18,6 @@ import (
 // shellProgramID names the Windows shell automation object that reads and writes shortcuts.
 const shellProgramID = "WScript.Shell"
 
-// shortcutName is the file a shortcut is saved as, in the Start Menu and on the Desktop.
-const shortcutName = AppName + ".lnk"
-
 // The shortcut properties setup writes and a test reads back.
 const (
 	shortcutTarget     = "TargetPath"
@@ -28,19 +25,16 @@ const (
 	shortcutWorkingDir = "WorkingDirectory"
 )
 
-// shortcutIn answers where the shortcut in folder is.
-func shortcutIn(folder string) string { return filepath.Join(folder, shortcutName) }
-
-// shortcutPresent reports whether folder holds the shortcut.
-func shortcutPresent(folder string) bool {
-	_, err := os.Stat(shortcutIn(folder))
+// shortcutPresent reports whether folder holds the shortcut saved as name.
+func shortcutPresent(folder, name string) bool {
+	_, err := os.Stat(filepath.Join(folder, name))
 	return err == nil
 }
 
-// placeShortcut puts a shortcut to program in folder when wanted and takes it away when not, so
-// unticking a box on a reinstall removes the shortcut rather than leaving a stale one.
-func placeShortcut(folder, program string, wanted bool) error {
-	link := shortcutIn(folder)
+// placeShortcut puts a shortcut to program in folder, saved as name, when wanted and takes it away
+// when not, so unticking a box on a reinstall removes the shortcut rather than leaving a stale one.
+func placeShortcut(folder, name, program string, wanted bool) error {
+	link := filepath.Join(folder, name)
 	if !wanted {
 		if err := os.Remove(link); err != nil && !errors.Is(err, fs.ErrNotExist) {
 			return fmt.Errorf("removing %s: %w", link, err)

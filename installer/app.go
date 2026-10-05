@@ -9,8 +9,8 @@ import (
 
 	wailsruntime "github.com/wailsapp/wails/v2/pkg/runtime"
 
-	"github.com/oernster/timeribbon/internal/infrastructure/setup"
 	"github.com/oernster/timeribbon/internal/product"
+	"github.com/oernster/timeribbon/ribbonkit/infrastructure/setup"
 )
 
 const (
@@ -22,6 +22,8 @@ const (
 
 // Config is what the setup window is built over.
 type Config struct {
+	// Product is the application this setup program installs.
+	Product     setup.Product
 	Machine     setup.Machine
 	Processes   setup.Processes
 	Log         *setup.StepLog
@@ -36,6 +38,7 @@ type Config struct {
 // straight to the setup package, which owns the install policy.
 type App struct {
 	ctx         context.Context
+	product     setup.Product
 	machine     setup.Machine
 	processes   setup.Processes
 	log         *setup.StepLog
@@ -48,6 +51,7 @@ type App struct {
 // NewApp builds the facade. Started with -uninstall, setup opens on the Uninstall screen (FR-801).
 func NewApp(config Config) *App {
 	return &App{
+		product:     config.Product,
 		machine:     config.Machine,
 		processes:   config.Processes,
 		log:         config.Log,
@@ -108,7 +112,7 @@ type ProgressDTO struct {
 // DetectState reads the machine once and decides the route (FR-801).
 func (a *App) DetectState() StateDTO {
 	state := StateDTO{
-		AppName:     setup.AppName,
+		AppName:     a.product.App.Name,
 		Uninstall:   a.uninstall,
 		ThisVersion: a.carried.Version,
 		PrefersDark: a.prefersDark,
@@ -172,8 +176,9 @@ func (a *App) Apply(choices ChoicesDTO) error {
 func (a *App) perform(name string, steps func() ([]setup.Step, error)) error {
 	a.log.Record(name + " asked for")
 	if a.processes.Running() {
-		a.log.Record(setup.ErrAppRunning.Error())
-		return setup.ErrAppRunning
+		refusal := a.processes.Refusal()
+		a.log.Record(refusal.Error())
+		return refusal
 	}
 	list, err := steps()
 	if err != nil {
@@ -185,7 +190,7 @@ func (a *App) perform(name string, steps func() ([]setup.Step, error)) error {
 
 // LaunchApp starts TimeRibbon and waits for the ribbon to come forward, so setup closes behind it.
 func (a *App) LaunchApp() error {
-	a.log.Record("starting " + setup.AppName)
+	a.log.Record("starting " + a.product.App.Name)
 	err := setup.Launch(a.machine.Places().Program(), product.RibbonClass, launchWait)
 	if err != nil {
 		a.log.Record(err.Error())

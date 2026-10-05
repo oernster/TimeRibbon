@@ -5,12 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "lint": "eslint .",
+    "lint": "cd .. && eslint --config frontend/eslint.config.js frontend ribbonkit/web",
     "typecheck": "tsc --noEmit",
-    "build": "eslint . && tsc --noEmit && vite build",
+    "build": "npm run lint && tsc --noEmit && vite build",
     "test": "vitest run"
   },
   "dependencies": {
+    "@oernster/ribbonkit": "file:../ribbonkit",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

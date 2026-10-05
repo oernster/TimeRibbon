@@ -64,11 +64,12 @@ macOS build compiles 391 and the Linux build 395 ([On macOS and Linux](#on-macos
 
 ### The front end
 
-134 tests in 19 files under Vitest with jsdom: the ribbon, Settings, About, Licence and the update
+134 tests in 20 files under Vitest with jsdom, run from `frontend`; four of the files are ribbonkit's
+own (`ribbonkit/web`), reached through the front end's link to the kit's package. They cover the ribbon, Settings, About, Licence and the update
 panel; an accessible name and tooltip on every icon-only control (`a11y.test.tsx`, NFR-U-4); the sun
 map, its blend and its labels (FR-914); the page's background colour; the self-reading cycle; the
 `devicePixelRatio` watch; measuring a cell's widest text (FR-620); Settings fitting its content
-(`panelFit.test.tsx`, FR-621); the opacity slider and opaque panels (`opacity.test.tsx`,
+(`panelFit.test.tsx`, FR-621); the opacity and its slider and opaque panels (`opacity.test.ts`, `opacity.test.tsx`,
 `panelOpacity.test.tsx`, FR-622); the corner grip (`scaleGrip.test.tsx`, FR-623); every timer the
 ribbon schedules against a reasoned allow-list (`timers.test.ts`, NFR-P-4); the setup page's screens,
 keyboard ring and unreachable-program cases. No coverage provider is installed, so no figure is
@@ -82,9 +83,9 @@ claimed.
 | `internal/application` | unit over hand-written fakes of the seven ports | nothing |
 | `internal/infrastructure` | integration over temporary folders and scratch registry keys | the filesystem, `HKCU` under a scratch key, child processes, the real displays |
 | `ribbonkit/ui/window` | unit over a scripted service, with Wails and the desktop stood in for | nothing |
-| the root package | unit over a scripted service and a stand-in window | reads `frontend/src/api.ts` |
+| the root package | unit over a scripted service and a stand-in window | reads `frontend/src/api.ts` and `ribbonkit/web/bridge.ts` |
 | `tests/structural` | source and AST scans, a `go list` per platform, one `git ls-files` | reads files |
-| the front end | component tests under jsdom over `fakeBridge.ts`, which records every call | nothing |
+| the front end | component tests under jsdom over `fakeBridge.ts`, which records every call and builds on ribbonkit's own stand-in (`@oernster/ribbonkit/testing`) | nothing |
 
 No Go test uses a mocking library. **No test writes to the user's own settings, sign-in entry or
 Apps list** and **no test reaches the network**: the update adapter runs over a stand-in HTTP client,

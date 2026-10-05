@@ -1,6 +1,6 @@
 import { useRef, type PointerEvent } from 'react'
 import { api, type Refused, type Snapshot } from './api'
-import { percentOfWhole } from './opacity'
+import { percentOfWhole } from '@oernster/ribbonkit'
 
 /** The grip's words, one home: what dragging and double-clicking it do (NFR-U-4). */
 export const scaleGripTip = 'Drag to resize the clocks; double-click for their own size'

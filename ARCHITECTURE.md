@@ -30,7 +30,7 @@ here does not exist.
 | The kit's UI imports no infrastructure, its tests included: it reaches the desktop through `shell.Desktop` | `TestTheUIDependsOnTheApplicationOnly` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | Neither application nor infrastructure imports the UI | `TestNothingBelowTheUIImportsIt` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | Only `main.go` imports both application and infrastructure; the window reaches the desktop through `shell.Desktop` | `TestCompositionRootIsWhitelisted` | [`boundary_test.go`](tests/structural/boundary_test.go) |
-| No source file exceeds 400 lines: Go, the front end's TypeScript and CSS, the setup page | `TestNoFileExceedsLineLimit` | [`boundary_test.go`](tests/structural/boundary_test.go) |
+| No source file exceeds 400 lines: Go, the page's TypeScript and CSS (`frontend/src`, `ribbonkit/web`), the setup page | `TestNoFileExceedsLineLimit` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | No source file sits in the danger band of 381 to 400 lines | `TestNoFileInDangerBand` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | Every exported type carries a doc comment | `TestEveryExportedTypeIsDocumented` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | Lines are counted as an editor numbers them | `TestLineCountCountsTheLinesAnEditorShows` | [`linecount_test.go`](tests/structural/linecount_test.go) |
@@ -45,7 +45,7 @@ here does not exist.
 | No setup page file spells the product's name | `TestTheSetupPageNeverWritesTheProductsName` | [`setup_test.go`](tests/structural/setup_test.go) |
 | Each platform's About credits exactly the modules its build links (FR-607) | `TestEveryLinkedModuleIsCredited` | [`credits_test.go`](tests/structural/credits_test.go) |
 | No platform credits a module twice | `TestAModuleIsCreditedOncePerPlatform` | [`credits_test.go`](tests/structural/credits_test.go) |
-| The wire is stated alike in `dto.go` with the window's `wire.go` and in `frontend/src/wire.ts` | `TestTheWireIsStatedAlikeOnBothSides` | [`wire_test.go`](tests/structural/wire_test.go) |
+| The wire is stated alike in `dto.go` with the window's `wire.go` and in `frontend/src/wire.ts` with `ribbonkit/web/wire.ts` | `TestTheWireIsStatedAlikeOnBothSides` | [`wire_test.go`](tests/structural/wire_test.go) |
 | The page listens for every event the window and `app.go` emit and keys every panel they name | `TestThePageNamesEveryEventGoEmits` | [`wire_test.go`](tests/structural/wire_test.go) |
 | Every method the page's `Bridge` calls is bound on `App`; none of the window's `Control` is | `TestEveryMethodThePageCallsIsBound`, `TestNothingOfTheControlIsBound` | [`page_api_test.go`](page_api_test.go) |
 | The setup page listens for every event `installer/app.go` emits | `TestTheSetupPageNamesEveryEventSetupEmits` | [`wire_test.go`](tests/structural/wire_test.go) |
@@ -70,6 +70,19 @@ implements) in its application; `gtkmain`, `cocoamain`, `iconscale`, `system`, `
 the page and the desktop see it) in its UI. It names no
 product: `identity.App` carries the name and app id, built once by `product.App()` and handed in by
 the composition root and setup. Each package is described below where it sits in the layering.
+
+The kit's half of the page is `ribbonkit/web`, an npm package (`@oernster/ribbonkit`, beside
+`ribbonkit/package.json`) that the front end links as `file:../ribbonkit` and imports from one entry,
+`web/index.ts`. It holds the bridge to the window's methods (`bridge.ts`: the window's 24 calls over
+a guarded call, which answers null where Go refused and tells a refusal handler why; the application
+adds its own over the same call), the window's half of the wire (`wire.ts`) and the page's machinery for the
+window: the drag and the right-click menu (`drag.ts`), the opacity, the `devicePixelRatio` watch, the
+scroll bar's measure, the background colour reported to Go and a panel fitting its content
+(`panelFit.ts`). A module that reaches Go is handed the calls it needs rather than holding them.
+`web/testing` is its stand-in bridge, which TimeRibbon's `fakeBridge.ts` builds on. The front end
+reads the kit through the link: tsconfig's `preserveSymlinks` and Vite's `resolve.preserveSymlinks`
+make what it imports resolve from `frontend/node_modules`. The front end's lint runs from the
+repository root so the kit is linted with it; its Vitest run includes the kit's tests.
 
 - **Domain** (`internal/domain`), pure Go: time arrives as an argument and a zone already resolved.
   - `clock`: an instant and a zone become what a cell shows (time in either format, the date in the
@@ -113,7 +126,7 @@ the composition root and setup. Each package is described below where it sits in
   `system` (wall clock, ids), `update` and `iconscale`; per platform `monitors`, `startup`,
   `appdata`, `runlog` and `desktop` (tray, native menus, the ribbon's window, the end of a move, the desktop's broadcasts, the
   pointer, the browser opener). Windows only: `setup`. Linux only: `gtkmain`. macOS only: `cocoamain`.
-- **UI**: the React front end, the kit's `window` and the Wails facade in package `main`, which
+- **UI**: the React front end with the kit's half of it (`ribbonkit/web`), the kit's `window` and the Wails facade in package `main`, which
   embeds the window and maps the service's answers about the clocks into `dto.go`.
 - **Outside the layers**: `internal/product` holds the name, app id, setup program's name, window
   class, donation address, version, author, copyright line, sign-in label and credits. The domain and
@@ -171,7 +184,7 @@ Wails v2 offers one window, so the ribbon, Settings, About, Licence and the upda
 the others 560), centred on the ribbon's display within its work area; closing returns the ribbon to
 where it was. While a panel is open a move is not recorded and a change of length waits for the close.
 
-**Settings fits its content (FR-621).** Once `openPanel` has resolved, `panelFit.ts` measures the
+**Settings fits its content (FR-621).** Once `openPanel` has resolved, the kit's `panelFit.ts` measures the
 panel at its own width and hands the height to `FitPanel`, which centres it again at that height,
 capped by the work area. It measures again whenever the content or the panel's size changes. Measuring
 before the window became the panel took the ribbon's narrower window and could overtake the opening.

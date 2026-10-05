@@ -11,27 +11,36 @@ import (
 	"github.com/oernster/timeribbon/ribbonkit/ui/window"
 )
 
-// bridgeInterface finds the page's statement of the facade (interface Bridge in api.ts);
-// bridgeMethod finds each method named in it.
+// The page states the facade in two halves: TimeRibbon's Bridge in api.ts, which extends the
+// window's WindowBridge in ribbonkit's bridge.ts. bridgeMethod finds each method named in one.
 var (
-	bridgeInterface = regexp.MustCompile(`(?s)interface Bridge \{(.*?)\n\}`)
+	bridgeInterface = regexp.MustCompile(`(?s)interface Bridge extends WindowBridge \{(.*?)\n\}`)
+	windowInterface = regexp.MustCompile(`(?s)interface WindowBridge \{(.*?)\n\}`)
 	bridgeMethod    = regexp.MustCompile(`(?m)^\s+(\w+)\(`)
 )
 
-// pageCalls answers every method the page calls on the facade, as api.ts states them.
+// pageHalves names each file stating a half of the facade with the pattern that finds it.
+var pageHalves = map[string]*regexp.Regexp{
+	filepath.Join("frontend", "src", "api.ts"):     bridgeInterface,
+	filepath.Join("ribbonkit", "web", "bridge.ts"): windowInterface,
+}
+
+// pageCalls answers every method the page calls on the facade, as its two halves state them.
 func pageCalls(t *testing.T) []string {
 	t.Helper()
-	raw, err := os.ReadFile(filepath.Join("frontend", "src", "api.ts"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	found := bridgeInterface.FindSubmatch(raw)
-	if found == nil {
-		t.Fatal("api.ts states no interface Bridge")
-	}
 	var names []string
-	for _, method := range bridgeMethod.FindAllSubmatch(found[1], -1) {
-		names = append(names, string(method[1]))
+	for file, half := range pageHalves {
+		raw, err := os.ReadFile(file)
+		if err != nil {
+			t.Fatal(err)
+		}
+		found := half.FindSubmatch(raw)
+		if found == nil {
+			t.Fatalf("%s states no %s", file, half)
+		}
+		for _, method := range bridgeMethod.FindAllSubmatch(found[1], -1) {
+			names = append(names, string(method[1]))
+		}
 	}
 	return names
 }

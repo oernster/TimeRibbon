@@ -1,11 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { api, on, type Snapshot, type UpdateStatus } from './api'
-import { backgroundReporter } from './background'
+import { backgroundReporter, percentOfWhole, scrollbarThickness, showOpacity, watchPixelRatio } from '@oernster/ribbonkit'
 import { About, Licence, Update } from './Help'
 import { useMeasuredCells } from './measure'
-import { percentOfWhole, showOpacity } from './opacity'
-import { watchPixelRatio } from './pixelRatio'
-import { scrollbarThickness } from './scrollbar'
 import { Settings } from './Settings'
 import { Surface } from './Surface'
 

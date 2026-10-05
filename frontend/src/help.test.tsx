@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { about, installBridge } from './fakeBridge'
 import { About, Licence, Update } from './Help'
-import type { UpdateStatus } from './wire'
+import type { UpdateStatus } from './api'
 import { autoScroll } from './autoScroll'
 
 afterEach(() => vi.useRealTimers())

@@ -1,7 +1,6 @@
 import type { CSSProperties, MouseEvent, PointerEvent } from 'react'
 import { api, type Box, type Refused, type Snapshot } from './api'
-import { showsTheMenu, useDrag } from './drag'
-import { percentOfWhole } from './opacity'
+import { percentOfWhole, showsTheMenu, useDrag } from '@oernster/ribbonkit'
 import { Ribbon } from './Ribbon'
 import { SunMap } from './SunMap'
 
@@ -73,7 +72,7 @@ export function Surface({ snapshot, onAddClock, refused }: Props) {
   // the surface itself shows, painted as the ribbon is; it answers a right-click and a drag as the
   // ribbon does. A press on the ribbon or the map reaches here too, which they already answer, so
   // only one on the surface itself counts.
-  const menu = showsTheMenu(refused)
+  const menu = showsTheMenu(api, refused)
   const own = {
     ...drag,
     onPointerDown: (event: PointerEvent<HTMLElement>) => {

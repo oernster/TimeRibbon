@@ -1,5 +1,5 @@
-// The wire between Go and the page, stated a second time here. dto.go is the other statement; a
-// structural test compares the two.
+// TimeRibbon's half of the wire between Go and the page, stated a second time here. dto.go is the
+// other statement; ribbonkit states the window's half. A structural test compares each pair.
 
 export interface Size {
   width: number
@@ -116,24 +116,4 @@ export interface Place {
   zone: string
   label: string
   country: string
-}
-
-export interface About {
-  name: string
-  version: string
-  author: string
-  copyright: string
-  credits: Credit[]
-}
-
-export interface UpdateStatus {
-  current: string
-  latest: string
-  updateAvailable: boolean
-}
-
-export interface Credit {
-  name: string
-  licence: string
-  role: string
 }

@@ -1,0 +1,14 @@
+{
+  "name": "@oernster/ribbonkit",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./web/index.ts",
+    "./testing": "./web/testing/index.ts"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}

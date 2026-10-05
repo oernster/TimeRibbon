@@ -1,7 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { App } from './App'
-import { rootId } from './background'
+import { rootId } from '@oernster/ribbonkit'
 import './theme.css'
 import './colours.css'
 import './app.css'

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { api, type Refused, type Snapshot } from './api'
-import { percentOfWhole } from './opacity'
+import { percentOfWhole } from '@oernster/ribbonkit'
 
 /** The slider moves in whole steps of this many percent. */
 const step = 5

@@ -1,8 +1,8 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import type { Refused, Size, SunMap as SunMapWire } from './api'
+import { api, type Refused, type Size, type SunMap as SunMapWire } from './api'
 import dayArt from './assets/sun-day.jpg'
 import nightArt from './assets/sun-night.jpg'
-import { showsTheMenu, useDrag } from './drag'
+import { showsTheMenu, useDrag } from '@oernster/ribbonkit'
 import { placeLabels, spots, type Spot } from './labels'
 import { blend, project } from './sunLight'
 
@@ -97,7 +97,7 @@ export function SunMap({ sunMap, width, height, dragThreshold, refused }: Props)
   }, [images, width, height, sunMap.latitude, sunMap.longitude])
 
   return (
-    <div ref={root} className="sun-map" style={{ width, height }} {...drag} onContextMenu={showsTheMenu(refused)}>
+    <div ref={root} className="sun-map" style={{ width, height }} {...drag} onContextMenu={showsTheMenu(api, refused)}>
       {problem !== '' ? (
         <div className="problem" role="alert">{problem}</div>
       ) : (

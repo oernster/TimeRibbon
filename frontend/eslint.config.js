@@ -6,7 +6,9 @@ import tseslint from 'typescript-eslint'
 import reactHooks from 'eslint-plugin-react-hooks'
 
 export default tseslint.config(
-  { ignores: ['dist/**', 'wailsjs/**', 'node_modules/**'] },
+  // Run from the repository root (package.json's lint), so ribbonkit's half of the page is held to
+  // the same rules as this folder.
+  { ignores: ['**/dist/**', '**/wailsjs/**', '**/node_modules/**'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

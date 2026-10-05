@@ -100,21 +100,24 @@ func goWireOf(t *testing.T, file string, out map[string][]string) {
 	})
 }
 
-// tsWire answers each interface in wire.ts with its field names, sorted.
+// tsWire answers each interface in the page's wire.ts files, TimeRibbon's and the kit's, with its
+// field names, sorted.
 func tsWire(t *testing.T) map[string][]string {
 	t.Helper()
-	raw, err := os.ReadFile(filepath.Join(repoRoot(t), "frontend", "src", "wire.ts"))
-	if err != nil {
-		t.Fatal(err)
-	}
 	out := map[string][]string{}
-	for _, match := range tsInterface.FindAllStringSubmatch(string(raw), -1) {
-		var names []string
-		for _, field := range tsField.FindAllStringSubmatch(match[2], -1) {
-			names = append(names, field[1])
+	for _, source := range pageSources(t) {
+		raw, err := os.ReadFile(filepath.Join(source, "wire.ts"))
+		if err != nil {
+			t.Fatal(err)
 		}
-		slices.Sort(names)
-		out[match[1]] = names
+		for _, match := range tsInterface.FindAllStringSubmatch(string(raw), -1) {
+			var names []string
+			for _, field := range tsField.FindAllStringSubmatch(match[2], -1) {
+				names = append(names, field[1])
+			}
+			slices.Sort(names)
+			out[match[1]] = names
+		}
 	}
 	return out
 }

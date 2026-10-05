@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { api } from './api'
 import { addClockTip } from './ArtButton'
 import { cell, installBridge, snapshot } from './fakeBridge'
-import { scrollbarThickness } from './scrollbar'
+import { scrollbarThickness } from '@oernster/ribbonkit'
 import { Ribbon } from './Ribbon'
 
 describe('Ribbon', () => {

@@ -6,7 +6,7 @@ import { ArtButton, addClockTip } from './ArtButton'
 import addClockArt from './assets/add-clock.png'
 import donateMark from './assets/donate.png'
 import { OpacitySlider } from './OpacitySlider'
-import { usePanelFit } from './panelFit'
+import { usePanelFit } from '@oernster/ribbonkit'
 
 /** The picture alone does not say pressing it leaves the application, so the tip does. */
 export const donateTip = 'Buy the author a drink (opens your browser)'
@@ -102,7 +102,7 @@ export function Settings({ snapshot, startAdding, reload, onClose, ready = true 
   const [rezoning, setRezoning] = useState<Cell | null>(null)
   const [problem, setProblem] = useState('')
   const [startWithWindows, setStartWithWindows] = useState<boolean | null>(null)
-  const panel = usePanelFit<HTMLElement>(setProblem, ready)
+  const panel = usePanelFit<HTMLElement>(api, setProblem, ready)
 
   useEffect(() => {
     void api.startWithWindows(setProblem).then(setStartWithWindows)

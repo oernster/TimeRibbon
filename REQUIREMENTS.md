@@ -192,7 +192,7 @@ Measurements the design rests on, each taken on the date given:
 | ID | Constraint |
 |---|---|
 | CON-1 | The layering `UI to Application to Domain from Infrastructure` holds, enforced by `tests/structural`. |
-| CON-2 | Every Go source file and every TypeScript and CSS file under `frontend/src` stays at or below 400 lines; one between 381 and 400 is reduced to 350 or fewer. Build and packaging scripts are not counted. |
+| CON-2 | Every Go source file and every TypeScript and CSS file under `frontend/src` and `ribbonkit/web` stays at or below 400 lines; one between 381 and 400 is reduced to 350 or fewer. Build and packaging scripts are not counted. |
 | CON-3 | Coverage over `internal/domain` and `internal/application` stays at 100 percent. |
 | CON-4 | `VERSION` is the single source of the version; no version literal elsewhere. |
 | CON-5 | Zones resolve through `time.LoadLocation` with `time/tzdata` embedded. On Windows the embedded rules are read (unless `ZONEINFO` names others); macOS and Linux read the system's zone files first. Measured 2026-09-27 with `ZONEINFO` pointed nowhere: `America/New_York` answered EST in January and EDT in July; `Not/AZone` an error. No DST rule is written by hand. |
@@ -398,7 +398,7 @@ Verified by: by hand; `TestTheRibbonIsSizedByTheScaleThePageIsDrawnAt`,
 `TestAScaledRibbonFitsTheRoomTheDisplayOffersAtThatScale`, `TestAnUnusableScaleIsRefused`
 (arranger); `TestThePagesRatioIsTakenWithTheToolkitsScale` (window);
 `TestTheWindowTakesThePagesRatioOverGTKsScale`, `TestGTKsWindowScaleIsRead` (desktop, Linux);
-`pixelRatio.test.ts`.
+`pixelRatio.test.ts` (ribbonkit).
 
 **FR-408 Centre on an edge** (Must; Amendment 8). Both menus shall hold a `Position` submenu offering
 the two edges the ribbon runs along (`Centre on left edge`, `Centre on right edge` when vertical; top
@@ -681,7 +681,7 @@ measures only once the window has become the panel.
 Acceptance: five clocks on a work area 1400 DIP tall give a Settings 1064 DIP tall that does not
 scroll; removing a clock shortens it; a shorter work area caps it and it scrolls.
 Verified by: `TestFitPanelMakesTheOpenPanelAsTallAsItsContent`,
-`TestFitPanelLeavesTheRibbonAloneAndRefusesANegativeHeight`, `TestFitPanelAnswersWhatStoppedIt` (window); `TestSettingsOpenCentredOnTheRibbonsDisplay` (arranger); `panelFit.test.tsx`; by hand.
+`TestFitPanelLeavesTheRibbonAloneAndRefusesANegativeHeight`, `TestFitPanelAnswersWhatStoppedIt` (window); `TestSettingsOpenCentredOnTheRibbonsDisplay` (arranger); `panelFit.test.tsx` (ribbonkit); by hand.
 
 **FR-622 Opacity** (Should; Amendments 26, 30; OQ-26). Settings offers an Opacity slider in steps of
 5 from 20 to 100 percent. Only the ribbon's backgrounds take it (the ribbon, each dial's face, the
@@ -695,8 +695,8 @@ a restart keeps it; closed, the clocks are solid while the desktop shows through
 holding 5 draws the background at 20.
 Verified by: `TestOpacityIsHeldWithinItsBounds` (ribbon); `TestOpacityIsChosenSavedAndShown`
 (application); `TestSettingsRoundTrip` (store); `TestThePagesBackgroundReachesTheWindow`,
-`TestTheWindowIsPaintedClearBelowFullOpacity` (window); `opacity.test.tsx`,
-`panelOpacity.test.tsx`, `background.test.ts`; by hand.
+`TestTheWindowIsPaintedClearBelowFullOpacity` (window); `opacity.test.tsx`, `opacity.test.ts` (ribbonkit),
+`panelOpacity.test.tsx`, `background.test.ts` (ribbonkit); by hand.
 
 **FR-623 Resizing the clocks** (Should; Amendments 27, 31; OQ-27, OQ-28). A grip in the ribbon's
 corner, dragged outward or back, draws everything in the clocks (text, dials, padding, cells, the

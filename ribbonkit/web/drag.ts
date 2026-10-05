@@ -1,14 +1,21 @@
 import { useRef, type MouseEvent, type PointerEvent } from 'react'
-import { api, startDrag, type Refused, type Size } from './api'
+import { startDrag, type Refused, type WindowCalls } from './bridge'
+
+/** How far the pointer moves, in DIP, before a press becomes a drag; the desktop says (FR-401). */
+export interface Distance {
+  width: number
+  height: number
+}
 
 /**
  * showsTheMenu answers the right-click handler that shows the ribbon's own menu (FR-108). The ribbon
- * and the sun map share it, so a right-click on the map offers the same menu (Oliver, 2026-09-29).
+ * and the map beside it share it, so a right-click on the map offers the same menu (Oliver,
+ * 2026-09-29).
  */
-export function showsTheMenu(refused: Refused) {
+export function showsTheMenu(calls: Pick<WindowCalls, 'showContextMenu'>, refused: Refused) {
   return (event: MouseEvent<HTMLElement>) => {
     event.preventDefault()
-    void api.showContextMenu(refused)
+    void calls.showContextMenu(refused)
   }
 }
 
@@ -17,10 +24,10 @@ const controls = 'button, input, select, a, [data-control]'
 
 /**
  * useDrag answers the pointer handlers that move the whole window once a press on anything but a
- * control has moved past threshold (FR-401, FR-402). The ribbon and the sun map share them, so a
- * drag started on the map moves both (FR-909).
+ * control has moved past threshold (FR-401, FR-402). The ribbon and the map share them, so a drag
+ * started on the map moves both (FR-909).
  */
-export function useDrag(threshold: Size) {
+export function useDrag(threshold: Distance) {
   const pressed = useRef<{ x: number; y: number } | null>(null)
   return {
     onPointerDown: (event: PointerEvent<HTMLElement>) => {

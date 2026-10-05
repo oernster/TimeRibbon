@@ -3,8 +3,7 @@ import { api, type Refused, type Snapshot } from './api'
 import { ArtButton, addClockTip } from './ArtButton'
 import addClockArt from './assets/add-clock.png'
 import { Cell } from './Cell'
-import { showsTheMenu, useDrag } from './drag'
-import { percentOfWhole } from './opacity'
+import { percentOfWhole, showsTheMenu, useDrag } from '@oernster/ribbonkit'
 import { ScaleGrip } from './ScaleGrip'
 
 interface Props {
@@ -71,7 +70,7 @@ export function Ribbon({ snapshot, onAddClock, refused }: Props) {
       style={sizing}
       {...drag}
       onWheel={wheel}
-      onContextMenu={showsTheMenu(refused)}
+      onContextMenu={showsTheMenu(api, refused)}
     >
       {snapshot.notices.map((notice) => (
         <div key={notice} className="cell" role="alert">

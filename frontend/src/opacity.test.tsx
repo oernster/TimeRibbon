@@ -1,17 +1,12 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { installBridge, snapshot } from './fakeBridge'
-import { opacityProperty, percentOfWhole, showOpacity } from './opacity'
+import { opacityProperty, percentOfWhole } from '@oernster/ribbonkit'
 import { OpacitySlider } from './OpacitySlider'
 
 afterEach(() => document.documentElement.style.removeProperty(opacityProperty))
 
 describe('opacity (FR-622)', () => {
-  it('draws the window at the fraction of the percentage', () => {
-    showOpacity(40)
-    expect(document.documentElement.style.getPropertyValue(opacityProperty)).toBe('0.4')
-  })
-
   it('offers the least the setting allows up to wholly opaque, showing the chosen value', () => {
     installBridge()
     render(<OpacitySlider snapshot={snapshot({ opacity: 70, minOpacity: 20 })} refused={vi.fn()} then={vi.fn()} />)

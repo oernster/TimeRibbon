@@ -1,15 +1,11 @@
-// A stand-in for the Go facade in tests: every call is recorded, every answer is canned.
+// A stand-in for the Go facade in tests: every call is recorded, every answer is canned. The window's
+// half is ribbonkit's own stand-in; TimeRibbon's methods are added to it here.
 
+import { install, windowBridge } from '@oernster/ribbonkit/testing'
 import { vi } from 'vitest'
-import type { About, Cell, MenuChoice, Place, Snapshot } from './wire'
+import type { Cell, MenuChoice, Place, Snapshot } from './wire'
 
-export const about: About = {
-  name: 'Product', version: '0.1.0', author: 'The Author', copyright: '© The Author',
-  credits: [
-    { name: 'Go standard library', licence: 'BSD-3-Clause', role: 'the language and its runtime' },
-    { name: 'Wails v2', licence: 'MIT', role: 'the desktop shell' },
-  ],
-}
+export { about } from '@oernster/ribbonkit/testing'
 
 export function cell(overrides: Partial<Cell> = {}): Cell {
   return {
@@ -60,7 +56,8 @@ export const places: Place[] = [
 
 /** installBridge puts a recording facade on window and answers it. */
 export function installBridge() {
-  const bridge = {
+  return install({
+    ...windowBridge(),
     Snapshot: vi.fn(async () => snapshot()),
     AddClock: vi.fn(async () => 'new'),
     RenameClock: vi.fn(async () => undefined),
@@ -70,35 +67,8 @@ export function installBridge() {
     SetSize: vi.fn(async () => undefined),
     SetFormat: vi.fn(async () => undefined),
     SetDateFormat: vi.fn(async () => undefined),
-    SetTheme: vi.fn(async () => undefined),
-    StartWithWindows: vi.fn(async () => false),
-    SetStartWithWindows: vi.fn(async () => undefined),
     DismissNotices: vi.fn(async () => undefined),
-    SetScrollbar: vi.fn(async () => undefined),
-    SetOpacity: vi.fn(async () => undefined),
-    BeginScale: vi.fn(async () => undefined),
-    DragScale: vi.fn(async () => undefined),
-    EndScale: vi.fn(async () => undefined),
-    SetScale: vi.fn(async () => undefined),
     TextSamples: vi.fn(async () => ({ times: ['00:00', '23:59'], dates: ['Friday, 1 May', 'Wednesday, 30 September'] })),
     SetMeasured: vi.fn(async () => undefined),
-    SetPixelRatio: vi.fn(async () => undefined),
-    SetBackground: vi.fn(async () => undefined),
-    RibbonDrawn: vi.fn(async () => undefined),
-    TogglePullOut: vi.fn(async () => undefined),
-    ShowContextMenu: vi.fn(async () => undefined),
-    Choose: vi.fn(async () => undefined),
-    OpenPanel: vi.fn(async () => undefined),
-    FitPanel: vi.fn(async () => undefined),
-    ClosePanel: vi.fn(async () => undefined),
-    Hide: vi.fn(async () => undefined),
-    OpenDonation: vi.fn(async () => undefined),
-    OpenUpdate: vi.fn(async () => undefined),
-    SkipUpdate: vi.fn(async () => undefined),
-    About: vi.fn(async () => about),
-    Licence: vi.fn(async () => 'GNU GENERAL PUBLIC LICENSE\nVersion 3'),
-  }
-  window.go = { main: { App: bridge } }
-  window.WailsInvoke = vi.fn()
-  return bridge
+  })
 }

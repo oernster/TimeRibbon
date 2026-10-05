@@ -2,7 +2,7 @@ import { act, render, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { App } from './App'
 import { installBridge, snapshot } from './fakeBridge'
-import { opacityProperty } from './opacity'
+import { opacityProperty } from '@oernster/ribbonkit'
 
 afterEach(() => {
   document.documentElement.style.removeProperty(opacityProperty)

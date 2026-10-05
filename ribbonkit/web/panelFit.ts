@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { api, type Refused } from './api'
+import type { Refused, WindowCalls } from './bridge'
 
 /**
  * The attributes whose change can alter how tall a panel's content is. Style is left out: measuring
@@ -27,7 +27,7 @@ export function naturalHeight(panel: HTMLElement): number {
  * 750 wide against 1332 at the panel's 900), which then stood until something inside changed. It
  * also reached Go ahead of the opening, which put the window back to its opening height after it.
  */
-export function usePanelFit<T extends HTMLElement>(refused: Refused, ready = true) {
+export function usePanelFit<T extends HTMLElement>(calls: Pick<WindowCalls, 'fitPanel'>, refused: Refused, ready = true) {
   const panel = useRef<T>(null)
   useEffect(() => {
     const element = panel.current
@@ -39,7 +39,7 @@ export function usePanelFit<T extends HTMLElement>(refused: Refused, ready = tru
       const height = naturalHeight(element)
       if (height > 0 && height !== reported) {
         reported = height
-        void api.fitPanel(height, refused)
+        void calls.fitPanel(height, refused)
       }
     }
     fit()
@@ -52,6 +52,6 @@ export function usePanelFit<T extends HTMLElement>(refused: Refused, ready = tru
       watcher.disconnect()
       resized?.disconnect()
     }
-  }, [refused, ready])
+  }, [calls, refused, ready])
   return panel
 }

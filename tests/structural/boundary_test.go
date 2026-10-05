@@ -278,21 +278,30 @@ var frontendExtensions = map[string]bool{".ts": true, ".tsx": true, ".css": true
 // frontendFiles returns every source file under frontend/src.
 func frontendFiles(t *testing.T) []string {
 	t.Helper()
-	source := filepath.Join(repoRoot(t), "frontend", "src")
 	var found []string
-	err := filepath.WalkDir(source, func(path string, entry os.DirEntry, err error) error {
-		if err != nil {
-			return err
+	for _, source := range pageSources(t) {
+		before := len(found)
+		err := filepath.WalkDir(source, func(path string, entry os.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+			if !entry.IsDir() && frontendExtensions[filepath.Ext(path)] {
+				found = append(found, path)
+			}
+			return nil
+		})
+		if err != nil || len(found) == before {
+			t.Fatalf("no front-end source under %s (%v), the walk is wrong", source, err)
 		}
-		if !entry.IsDir() && frontendExtensions[filepath.Ext(path)] {
-			found = append(found, path)
-		}
-		return nil
-	})
-	if err != nil || len(found) == 0 {
-		t.Fatalf("no front-end source under %s (%v), the walk is wrong", source, err)
 	}
 	return found
+}
+
+// pageSources are the folders the page is written in: TimeRibbon's own and ribbonkit's half.
+func pageSources(t *testing.T) []string {
+	t.Helper()
+	root := repoRoot(t)
+	return []string{filepath.Join(root, "frontend", "src"), filepath.Join(root, kitTree, "web")}
 }
 
 // sourceFiles is every file the size rule governs: the Go, the page and the setup program's page.

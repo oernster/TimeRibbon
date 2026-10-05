@@ -205,6 +205,7 @@ check compares it with GitHub's latest release tag, so a development placeholder
 | `build.ps1`, `test.ps1`, `VERSION`, `stamp_version.py` | the Windows build; the gate; the version; the site stamp |
 | `builddmg.sh`, `build_flatpak.sh`, `cleanup_flatpak.sh` | the macOS DMG; the Flatpak and its removal |
 | `frontend/src`, `installer/` | the React page; the setup program, whose page has no build step |
+| `ribbonkit/web`, `ribbonkit/package.json` | ribbonkit's half of the page, an npm package the front end links as `file:../ribbonkit`: the bridge to the window, its wire, the drag, opacity, pixel ratio, scroll bar, background and panel fit; `web/testing` is its stand-in bridge |
 | `tests/structural`, `tools/`, `assets/`, `docs/` | the architecture's tests; generators; master artwork; the site |
 
 ## House rules worth knowing before a first change
@@ -222,7 +223,10 @@ check compares it with GitHub's latest release tag, so a development placeholder
 - **The product is named once,** in `internal/product/product.go`; the setup page is handed it. The
   former names stay retired (`retired_test.go`).
 - **The wire is written twice,** in `dto.go` with the window's `wire.go` and in
-  `frontend/src/wire.ts`; change both sides.
+  `frontend/src/wire.ts` with `ribbonkit/web/wire.ts`; change both sides.
+- **ribbonkit's half of the page is read through the front end's link** (`npm install` in
+  `frontend` makes it): run lint, the type check and the tests from `frontend` as usual; the lint
+  script runs from the repository root so the kit is linted too.
 - **The update check is the one network request** (`network_test.go`, `requests_test.go`).
 - **A page call Go can refuse takes a refusal handler** and answers null rather than rejecting.
 - **Every new guard is proved by planting a violation** ([TESTING.md](TESTING.md#keeping-this-honest)).

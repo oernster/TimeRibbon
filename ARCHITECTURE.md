@@ -6,10 +6,15 @@ latest release. The time zone rules are built in; macOS and Linux read their own
 ([Time](#time)). The domain and application are the same code everywhere; each platform's own half
 sits in files its build tags or names select.
 
-Its one network request is the update check (FR-509): only `ribbonkit/infrastructure/update` imports a
-network package; `requests_test.go` holds the other ways out (a program started, a Windows library
-loaded by name, a request from either page) to the ones it names. The donation page and a release's
-download go to the desktop's browser; a release's addresses are taken only as `https` on `github.com`.
+The ribbon itself (placing, dragging, the tab, the pull out, the grip, opacity, the tray and menus,
+sign-in start, the update check, setup) is [ribbonkit](https://github.com/oernster/ribbonkit), a Go
+module and npm package TimeRibbon depends on at one tag, shared with WeatherRibbon. Its own
+ARCHITECTURE.md describes how a ribbon works; this document describes what TimeRibbon puts in it and
+how the two are joined.
+
+Its one network request is the update check (FR-509), which is the kit's; TimeRibbon hands it
+`product.Repository`. No file of TimeRibbon's imports a network package, starts a program or asks a
+network from its page. The donation page and a release's download go to the desktop's browser.
 
 FR, NFR and CON numbers are those of [REQUIREMENTS.md](REQUIREMENTS.md).
 
@@ -17,171 +22,100 @@ FR, NFR and CON numbers are those of [REQUIREMENTS.md](REQUIREMENTS.md).
 
 `UI -> Application -> Domain <- Infrastructure`
 
-Dependencies point inward. Every rule below is a test under `tests/structural`; a guard not listed
-here does not exist.
+Dependencies point inward. Every rule below is a test; a guard not listed here does not exist. The
+structural tests run on the kit's `structure` package, the code that holds the kit to the same rules;
+the kit's own invariants are listed in its ARCHITECTURE.md.
 
 | Invariant | Enforcing test | File |
 |---|---|---|
-| Domain imports nothing from this module outside `internal/domain` | `TestDomainHasNoOutwardImports` | [`boundary_test.go`](tests/structural/boundary_test.go) |
-| `ribbonkit` imports nothing of TimeRibbon's, so it can leave this repository whole | `TestTheKitImportsNothingOfTimeRibbon` | [`boundary_test.go`](tests/structural/boundary_test.go) |
-| The kit's page reaches nothing outside the kit and imports only the packages `ribbonkit/package.json` depends on, plus its test tools | `TestTheKitPageReachesNothingOfTimeRibbon` | [`kitpage_test.go`](tests/structural/kitpage_test.go) |
+| Domain imports nothing of TimeRibbon or the kit outside a domain | `TestDomainHasNoOutwardImports` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | Domain is pure: no network, filesystem, process, random or tz package; no wall clock read, no zone loaded (FR-207, CON-5) | `TestDomainIsPure` | [`boundary_test.go`](tests/structural/boundary_test.go) |
-| Application never imports infrastructure or Wails | `TestApplicationDoesNotImportInfrastructure` | [`boundary_test.go`](tests/structural/boundary_test.go) |
+| Application never imports infrastructure (TimeRibbon's or the kit's) or Wails | `TestApplicationDoesNotImportInfrastructure` | [`boundary_test.go`](tests/structural/boundary_test.go) |
+| Neither application nor infrastructure imports a UI package | `TestNothingBelowTheUIImportsIt` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | Infrastructure never imports Wails | `TestWailsStaysOutOfInfrastructure` | [`boundary_test.go`](tests/structural/boundary_test.go) |
-| The kit's UI imports no infrastructure, its tests included: it reaches the desktop through `shell.Desktop` | `TestTheUIDependsOnTheApplicationOnly` | [`boundary_test.go`](tests/structural/boundary_test.go) |
-| Neither application nor infrastructure imports the UI | `TestNothingBelowTheUIImportsIt` | [`boundary_test.go`](tests/structural/boundary_test.go) |
-| Only `main.go` imports both application and infrastructure; the window reaches the desktop through `shell.Desktop` | `TestCompositionRootIsWhitelisted` | [`boundary_test.go`](tests/structural/boundary_test.go) |
-| No source file exceeds 400 lines: Go, the page's TypeScript and CSS (`frontend/src`, `ribbonkit/web`), the setup page | `TestNoFileExceedsLineLimit` | [`boundary_test.go`](tests/structural/boundary_test.go) |
-| No source file sits in the danger band of 381 to 400 lines | `TestNoFileInDangerBand` | [`boundary_test.go`](tests/structural/boundary_test.go) |
+| Only `main.go` imports both application and infrastructure, the kit's included | `TestCompositionRootIsWhitelisted` | [`boundary_test.go`](tests/structural/boundary_test.go) |
+| No Go file and no TypeScript or CSS file under `frontend/src` exceeds 400 lines | `TestNoFileExceedsLineLimit` | [`boundary_test.go`](tests/structural/boundary_test.go) |
+| No such file sits in the danger band of 381 to 400 lines | `TestNoFileInDangerBand` | [`boundary_test.go`](tests/structural/boundary_test.go) |
 | Every exported type carries a doc comment | `TestEveryExportedTypeIsDocumented` | [`boundary_test.go`](tests/structural/boundary_test.go) |
-| Lines are counted as an editor numbers them | `TestLineCountCountsTheLinesAnEditorShows` | [`linecount_test.go`](tests/structural/linecount_test.go) |
-| No Go file outside `ribbonkit/infrastructure/update` imports `net`, `crypto/tls` or `golang.org/x/net` (NFR-S-1) | `TestOnlyTheUpdateCheckImportsANetworkPackage` | [`network_test.go`](tests/structural/network_test.go) |
-| Only the files in `processStarters` start a program or hand an address to the desktop; no Go file names a Windows library outside `systemLibraries` (NFR-S-1) | `TestOnlyNamedFilesStartAProcess` | [`requests_test.go`](tests/structural/requests_test.go) |
-| Every file in `processStarters` exists | `TestEveryNamedProcessStarterExists` | [`requests_test.go`](tests/structural/requests_test.go) |
-| Neither page uses a request API or names a web address, the SVG namespace aside (NFR-S-1) | `TestThePageMakesNoRequest` | [`requests_test.go`](tests/structural/requests_test.go) |
-| Those checks recognise `os/exec`, `ShellExecute`, a library such as `WinHTTP.DLL`, `fetch`, `WebSocket` and an address, passing look-alikes such as `prefetch` | `TestRequestRecognitionIsExact` | [`requests_test.go`](tests/structural/requests_test.go) |
-| The network exemption names a directory that exists | `TestTheNetworkExemptionNamesTheUpdatePackage` | [`network_test.go`](tests/structural/network_test.go) |
-| The network check recognises `net`, `crypto/tls` and `golang.org/x/net` and passes look-alikes | `TestNetworkPackageRecognitionIsExact` | [`network_test.go`](tests/structural/network_test.go) |
-| The setup page loads every script beside it | `TestTheSetupPageLoadsEveryScript` | [`setup_test.go`](tests/structural/setup_test.go) |
-| No setup page file spells the product's name | `TestTheSetupPageNeverWritesTheProductsName` | [`setup_test.go`](tests/structural/setup_test.go) |
-| Each platform's About credits exactly the modules its build links (FR-607) | `TestEveryLinkedModuleIsCredited` | [`credits_test.go`](tests/structural/credits_test.go) |
+| `go.mod` and the front end's `package.json` name the same kit tag | `TestBothHalvesOfTheKitNameOneTag` | [`kittag_test.go`](tests/structural/kittag_test.go) |
+| No Go file of TimeRibbon's imports `net`, `crypto/tls` or `golang.org/x/net` (NFR-S-1) | `TestNothingOfTimeRibbonsImportsANetworkPackage` | [`network_test.go`](tests/structural/network_test.go) |
+| No Go file of TimeRibbon's starts a program or names a Windows library outside the kit's `SystemLibraries` (NFR-S-1) | `TestNothingOfTimeRibbonsStartsAProcess` | [`network_test.go`](tests/structural/network_test.go) |
+| The page uses no request API and names no web address, the SVG namespace aside (NFR-S-1) | `TestThePageMakesNoRequest` | [`network_test.go`](tests/structural/network_test.go) |
+| The kit's setup page never spells the product's name | `TestTheSetupPageNeverWritesTheProductsName` | [`setup_test.go`](tests/structural/setup_test.go) |
+| Each platform's About credits exactly the third-party modules its build links (FR-607) | `TestEveryLinkedModuleIsCredited` | [`credits_test.go`](tests/structural/credits_test.go) |
 | No platform credits a module twice | `TestAModuleIsCreditedOncePerPlatform` | [`credits_test.go`](tests/structural/credits_test.go) |
-| The wire is stated alike in `dto.go` with the window's `wire.go` and in `frontend/src/wire.ts` with `ribbonkit/web/wire.ts` | `TestTheWireIsStatedAlikeOnBothSides` | [`wire_test.go`](tests/structural/wire_test.go) |
-| The page listens for every event the window and `app.go` emit and keys every panel they name | `TestThePageNamesEveryEventGoEmits` | [`wire_test.go`](tests/structural/wire_test.go) |
+| TimeRibbon's half of the wire is stated alike in `dto.go` and `frontend/src/wire.ts` | `TestTheWireIsStatedAlikeOnBothSides` | [`wire_test.go`](tests/structural/wire_test.go) |
+| The page names the word `app.go` sends to open Add clock | `TestThePageNamesEveryEventAppEmits` | [`wire_test.go`](tests/structural/wire_test.go) |
 | Every method the page's `Bridge` calls is bound on `App`; none of the window's `Control` is | `TestEveryMethodThePageCallsIsBound`, `TestNothingOfTheControlIsBound` | [`page_api_test.go`](page_api_test.go) |
-| The setup page listens for every event the kit's setup facade (`ribbonkit/installer/facade.go`) emits | `TestTheSetupPageNamesEveryEventSetupEmits` | [`wire_test.go`](tests/structural/wire_test.go) |
-| `ribbonkit` holds its four layers, its page half (`web`) and its setup program (`installer`) and nothing else, so no folder escapes the layer rules | `TestTheKitHoldsOnlyItsLayersThePageAndTheSetupProgram` | [`kitinstaller_test.go`](tests/structural/kitinstaller_test.go) |
-| The kit's setup program imports nothing of the module but the install policy | `TestTheSetupProgramReachesOnlyTheInstallPolicy` | [`kitinstaller_test.go`](tests/structural/kitinstaller_test.go) |
-| Every picture the setup page shows is one `installer.Pictures` asks for; TimeRibbon's setup carries each | `TestPicturesNamesEveryPictureThePageShows`, `TestTimeRibbonCarriesEveryPictureTheSetupPageShows` | [`run_test.go`](ribbonkit/installer/run_test.go), [`main_test.go`](installer/main_test.go) |
+| TimeRibbon's setup carries every picture the kit's setup page shows | `TestTimeRibbonCarriesEveryPictureTheSetupPageShows` | [`main_test.go`](installer/main_test.go) |
 | Each `wails.json` names its executable as `internal/product` does | `TestEachWailsConfigNamesItsExecutableAsTheProductDoes` | [`names_test.go`](tests/structural/names_test.go) |
-| In each half of the palette (ribbonkit's `colours.css`, TimeRibbon's `dials.css`) every offered scheme has a block stating each of that half's Classic tokens (the problem colour aside); every block is offered (FR-611) | `TestEveryOfferedSchemeHasItsOwnCompleteBlock` | [`colours_test.go`](tests/structural/colours_test.go) |
-| Text, muted text and problem text meet 4.5:1 on the cell and the surface, every scheme, both themes (NFR-U-1) | `TestTextMeetsTheContrastFloorOnEverySchemeAndTheme` | [`contrast_test.go`](tests/structural/contrast_test.go) |
-| Classic's dark colours are the same under the system's dark mode as under a chosen dark theme | `TestClassicDarkIsTheSameUnderTheSystemAsWhenChosen` | [`contrast_test.go`](tests/structural/contrast_test.go) |
-| Contrast is computed as WCAG 2.x states it; an unreadable colour form is refused | `TestContrastIsComputedAsTheStandardStatesIt` | [`contrast_test.go`](tests/structural/contrast_test.go) |
+| In `dials.css` every offered scheme has a block stating each of Classic's tokens (the problem colour aside); every block is offered (FR-611) | `TestEveryOfferedSchemeHasItsOwnCompleteBlock` | [`colours_test.go`](tests/structural/colours_test.go) |
+| `dials.css` states Classic's dark the same under the system's dark mode as under a chosen dark theme | `TestClassicDarkIsTheSameUnderTheSystemAsWhenChosen` | [`colours_test.go`](tests/structural/colours_test.go) |
+| Text, muted text and problem text meet 4.5:1 on the cell and the surface, every scheme, both themes, over the kit's palette and `dials.css` together (NFR-U-1) | `TestTextMeetsTheContrastFloorOnEverySchemeAndTheme` | [`contrast_test.go`](tests/structural/contrast_test.go) |
 | The Licence panel is sized for the LICENSE's widest line | `TestTheLicencePanelIsSizedForTheLicencesWidestLine` | [`licence_test.go`](tests/structural/licence_test.go) |
+| The settings file of the first release is read whole (NFR-C-1) | `TestA1Point0SettingsFileIsReadWhole` | [`contract_test.go`](internal/infrastructure/store/contract_test.go) |
 | No tracked or new file holds the product's former name or the word its window went by before the ribbon, the npm lock file and Python's string method of that name aside | `TestNoTrackedFileHoldsTheRetiredWord` | [`retired_test.go`](tests/structural/retired_test.go) |
 | That word is found in any case and inside names while current names pass | `TestTheRetiredWordIsFoundInAnyCaseAndInsideNames` | [`retired_test.go`](tests/structural/retired_test.go) |
 
+The structural tests that read the kit's files (the palette, the Licence panel's width, the setup
+page) read the kit Go builds against, through `go list -m`; `page_api_test.go` reads the kit's
+`bridge.ts` as npm installed it, since that is what the page compiles.
+
 ## Layers
-
-The desktop behaviour shared with WeatherRibbon is being carved into `ribbonkit/`, which has the
-same layers (`ribbonkit/domain`, `ribbonkit/application`, `ribbonkit/infrastructure`) plus
-`ribbonkit/ui`, is held to every rule above and will leave this repository as a module of its own.
-It holds `placement`, `hover`, `ribbon` and `identity` in its domain; `menus` (the menu model and
-every ribbon's actions), `release`, `arranger` and `shell` (the desktop port, which `desktop`
-implements) in its application; `gtkmain`, `cocoamain`, `iconscale`, `system`, `monitors`, `appdata`,
-`runlog`, `startup`, `update`, `desktop`, `occupancy` and `setup` (the install policy) in its infrastructure;
-`window` (the ribbon's window as the page and the desktop see it) in its UI. Beside the layers it
-holds `web` (the page's half) plus `installer` (the setup program's window); no other folder
-(`TestTheKitHoldsOnlyItsLayersThePageAndTheSetupProgram`). It names no
-product: `identity.App` carries the name and app id, built once by `product.App()` and handed in by
-the composition root and setup. Each package is described below where it sits in the layering.
-
-The kit's half of the page is `ribbonkit/web`, an npm package (`@oernster/ribbonkit`, beside
-`ribbonkit/package.json`) that the front end links as `file:../ribbonkit` and imports from one entry,
-`web/index.ts`. It holds the bridge to the window's methods (`bridge.ts`: the window's 24 calls over
-a guarded call, which answers null where Go refused and tells a refusal handler why; the application
-adds its own over the same call), the window's half of the wire (`wire.ts`) and the page's machinery for the
-window: the drag and the right-click menu (`drag.ts`), the opacity, the `devicePixelRatio` watch, the
-scroll bar's measure, the background colour reported to Go, a panel fitting its content
-(`panelFit.ts`), plus two controls: the corner grip (`ScaleGrip.tsx`, its tooltip in the
-application's words) and the opacity slider (`OpacitySlider.tsx`), styled by `controls.css`, which the
-package exports beside its entry. The ribbon itself is the kit's too: `Band.tsx` is the band the
-application draws its content in, with the tab, the drag, the wheel, the menu, the grip and the
-report that an opening ribbon has been drawn; `PullOut.tsx` places the band and what is pulled out
-beside it at the boxes Go sends (`Box`, in the kit's wire), with the handle named in the
-application's words; `ribbon.css` styles both. `shell.ts` is the page's shell (`useShell`): it holds
-the application's snapshot, taken by a call the application passes in, routes the window's
-open-panel words to its panels, reloads on Go's refresh and draws the theme, colour scheme and
-opacity the snapshot names. Help, About and Licence are its panels (`Help.tsx`, `help.css`). Each component takes only the values it draws, never the
-application's snapshot. A module that reaches Go is handed the calls it needs rather than holding them.
-`web/testing` is its stand-in bridge, which TimeRibbon's `fakeBridge.ts` builds on. The front end
-reads the kit through the link: tsconfig's `preserveSymlinks` and Vite's `resolve.preserveSymlinks`
-make what it imports resolve from `frontend/node_modules`. The front end's lint runs from the
-repository root so the kit is linted with it; its Vitest run includes the kit's tests.
 
 - **Domain** (`internal/domain`), pure Go: time arrives as an argument and a zone already resolved.
   - `clock`: an instant and a zone become what a cell shows (time in either format, the date in the
     chosen `DateFormat`, the zone mark, the hand angles); `NextRefresh` names the next minute;
     `Samples` writes every time and date a cell can show, for the page to measure (FR-620).
-  - `placement`, in physical pixels: the default place, a stored placement restored at its monitor's
-    DPI, the least move into a work area (`Clamp`, `Recover`), the ribbon's length (`Fit`), centring
-    along a work area (`CentredAlong`) or against an edge (`AgainstEdge`), the tab (`Tab`, FR-614),
-    the edge a ribbon stands flush against (`FlushAgainst`) and the snap of a drop within `SnapReach`
-    (`Snapped`, FR-410). `pullout.go` puts the pull out, the sun map here, on the side away from the
-    ribbon's edge, else on the side it already has while that side has room (`PullOutSideOf`,
-    Amendment 35), else the side with more room (`InnerSide`); `PullOutBeside` sizes it; `PullOutHeld` keeps it still while the grip is
-    dragged (FR-623).
-  - `ribbon` (the kit's): the ribbon's own choices as one value, `Choices`: colour, orientation and
-    its home edge (FR-409), theme, Always on top, the pin and the pin in effect (`PinnedInEffect`,
-    FR-619), the stay-on-top rule (`OnTop`, FR-617), the skipped release, the placement, the last
-    edge (`LastEdge`, FR-411), the opacity bounds (20 to 100 percent, FR-622), the scale bounds (75
-    to 200, FR-623) and `ScaleAfter`, the scale a drag of the grip has reached.
-  - `settings`: the user's choices as one value, every operation answering a new one: the ribbon's
-    `Choices` embedded, so they read as its own fields, then the clocks' style, size, formats, sun
-    map, pull out and the clocks themselves. The settings file is written exactly as before the
+  - `settings`: the user's choices as one value, every operation answering a new one: the kit's
+    `ribbon.Choices` embedded, so they read as its own fields, then the clocks' style, size, formats,
+    sun map, pull out and the clocks themselves. The settings file is written exactly as before the
     split (NFR-C-1).
   - `sun`: the subsolar point from NOAA's equations (FR-906), checked against NOAA's values in
     `testdata`.
-  - `hover`: told the pointer arrived or left and the time, it answers whether an unpinned ribbon is
-    open and when to ask again (FR-615, FR-616).
-- **Application** (`internal/application`): one `Service` over eight ports (`Store`, `Zones`, `Clock`,
-  `IDs`, the kit's `arranger.Monitors` and `arranger.Neighbours`, `StartupEntry` and the kit's
-  `release.Source` in `ports.go`).
-  It builds the snapshot, edits clocks, searches places (`SearchPlaces`, FR-302), changes settings,
-  takes the page's measurements, checks for updates through `release.Check` with the release the
-  user skipped and answers the menus. It embeds the kit's `arranger.Arranger`, so arranging the
-  ribbon (`Launch`, `Rearrange`, `Moved`, `ToEdge`, `ToLastEdge`, `Centred`, `Collapsed`), the
-  page's scroll bar and scale and the grip's preview and kept scale (`PreviewScale`, `SetScale`) are
-  the service's own methods. The arranger asks its `Host` for the ribbon's choices and content read
-  together; the service answers through `host.go` (a cell per notice and per clock, the style's or
-  the prompt's size, the sun map's handle lane) and saves the arranger's changes through its one save
-  path, so they raise the same notice (FR-707). The arranger's lock is never held while it calls the
-  host. Every placement ends in `clearOfOthers` (`neighbours.go`), which slides the ribbon off any
-  other ribbon its `Neighbours` port reports, its own pull out included, else to the opposite edge,
-  never while the grip is dragged; the result is then held for the others (FR-412). A nil port is
-  `NoNeighbours`, a ribbon alone. The snapshot orders cells east from Greenwich (`eastFromGreenwich`): places
-  level with or ahead of UTC by offset, then those behind it, read at the snapshot's instant; ties keep
-  their stored order and an unshowable clock goes last. A change that cannot be saved stays in effect
-  with a notice (FR-707).
-- **Infrastructure** (`internal/infrastructure` and the kit's): on every platform `store`, `zones`,
-  `system` (wall clock, ids), `update` and `iconscale`; per platform `monitors`, `startup`,
-  `appdata`, `runlog` and `desktop` (tray, native menus, the ribbon's window, the end of a move, the desktop's broadcasts, the
-  pointer, the browser opener) and `occupancy` (the folder every running ribbon shares, an entry per
-  product held by a lock, FR-412). Windows only: `setup`. Linux only: `gtkmain`. macOS only: `cocoamain`.
-- **UI**: the React front end with the kit's half of it (`ribbonkit/web`), the kit's `window` and the Wails facade in package `main`, which
-  embeds the window and maps the service's answers about the clocks into `dto.go`.
-- **Outside the layers**: `internal/product` holds the name, app id, setup program's name, window
-  class, donation address, version, author, copyright line, sign-in label and credits. The domain and
-  application never read it. The kit's setup program, `ribbonkit/installer`, is a program's window
-  over `setup` rather than a layer; it imports nothing else of the module
-  (`TestTheSetupProgramReachesOnlyTheInstallPolicy`); `installer/main.go` is its composition root.
+- **Application** (`internal/application`): one `Service` over its ports in `ports.go` (`Store`,
+  `Zones`, `Clock`, `IDs`, the kit's `arranger.Monitors` and `arranger.Neighbours`, `StartupEntry`
+  and the kit's `release.Source`). It builds the snapshot, edits clocks, searches places
+  (`SearchPlaces`, FR-302), changes settings, takes the page's measurements, checks for updates
+  through the kit's `release.Check` with the release the user skipped and answers the menus. It
+  embeds the kit's `arranger.Arranger`, so arranging the ribbon is the service's own method set. The
+  arranger asks its `Host` for the ribbon's choices and content read together; the service answers
+  through `host.go` (a cell per notice and per clock, the style's or the prompt's size, the sun map's
+  handle lane) and saves the arranger's changes through its one save path, so they raise the same
+  notice (FR-707). The snapshot orders cells east from Greenwich (`eastFromGreenwich`): places level
+  with or ahead of UTC by offset, then those behind it, read at the snapshot's instant; ties keep
+  their stored order and an unshowable clock goes last. A change that cannot be saved stays in
+  effect with a notice (FR-707).
+- **Infrastructure** (`internal/infrastructure`): `store` (the settings file) and `zones` (the place
+  catalogue and the zone rules). Everything else it reaches (displays, sign-in, the log, the data
+  folder, the desktop, the shared ribbon folder, the update check) is the kit's.
+- **UI**: the React front end in `frontend/src` over the kit's page half; the Wails facade in
+  package `main`, which embeds the kit's window and maps the service's answers about the clocks into
+  `dto.go`.
+- **Outside the layers**: `internal/product` holds the name, app id, repository, setup program's name,
+  window class, donation address, version, author, copyright line, sign-in label and credits. The
+  domain and application never read it. `installer/main.go` is the setup program's composition root
+  over the kit's setup window.
 - **Tools**, never shipped: `genplaces` (the place catalogue), `payload` (the setup program's
   payload), `versioninfo` (each executable's version resource), `identity` (names for the Linux and
   macOS scripts), `linuxicons` (the Flatpak's icons) and `genicons.py` (every committed icon).
 
 ## Composition root
 
-`main.go` points standard error at the run log before anything can fail, builds the adapters,
-injects them into the service, prepares the platform, starts the tray and hands the facade to Wails.
-`preparePlatform` does nothing on Windows; on Linux and macOS it hands the desktop the icon and ends
-the run on SIGTERM or SIGINT (the window's `Control.ExitWhen`). `platform_linux.go` sends GTK through
-X11 and turns off the DMABUF renderer; `platform_darwin.go` links UniformTypeIdentifiers. The cell
-sizes (`layouts`) and panel sizes (`panels`) live there. No service is held in a global.
+`main.go` points standard error at the run log before anything can fail, builds the adapters (the
+kit's among them), injects them into the service, prepares the platform, starts the tray and hands
+the facade to Wails. `preparePlatform` does nothing on Windows; on Linux and macOS it hands the
+desktop the icon and ends the run on SIGTERM or SIGINT. `platform_linux.go` sends GTK through X11
+and turns off the DMABUF renderer. The cell sizes (`layouts`) and panel sizes (`panels`) live there.
+No service is held in a global.
 
-The facade Wails binds is `App` in `app.go`, in two halves. The window is the kit's: `ribbonkit/ui/window`
-holds everything about the ribbon itself (its life and the desktop's events in `window_life.go`,
-placing, the tab and the pull out in `unpinned.go` and `pullout.go`, the grip, opacity, panels, menu choices,
-the update check, the first showing, Help and the Wails options in `run.go`). It asks the application
-through its own `window.Service` port and the desktop through `shell.Desktop`; each call into Wails and
-the desktop is a field, so its tests stand in for both. `App` embeds the `*window.Window`, so every
-exported method of the window is page API: Wails binds the exported methods of what it is handed,
-those promoted from an embedded struct included. What is TimeRibbon's own stays in `app.go` (the
-clocks, their style, size and formats, the sun map, the Snapshot) and `measure.go`, over the
-`ribbonService` interface. TimeRibbon reaches its window through the `window.Control`, a named field
-that is never embedded and so never bound; menu actions the kit does not know reach TimeRibbon through
-the `Act` hook it hands the window. `kit.go` embeds the page and the LICENSE and adapts the service to
-the window's port; `dto.go` is TimeRibbon's half of the wire, the window's `wire.go` the other.
+The facade Wails binds is `App` in `app.go`, in two halves. The window is the kit's `window.Window`,
+embedded, so every exported method of the window is page API. What is TimeRibbon's own stays in
+`app.go` (the clocks, their style, size and formats, the sun map, the Snapshot) and `measure.go`,
+over the `ribbonService` interface. TimeRibbon reaches its window through the kit's `window.Control`,
+a named field that is never embedded and so never bound; menu actions the kit does not know reach
+TimeRibbon through the `Act` hook it hands the window. `kit.go` embeds the page and the LICENSE and
+adapts the service to the window's port; `dto.go` is TimeRibbon's half of the wire.
 `bindings_on.go` / `bindings_off.go` keep the binding-generation run from writing the log or showing a
 tray icon.
 
@@ -202,103 +136,32 @@ tray icon.
                      +--------------------------------+
 ```
 
-## One window
+The page half joins the same way: `frontend/src/api.ts` extends the kit's bridge with TimeRibbon's
+own calls over the kit's guarded call; `App.tsx` is the kit's shell (`useShell`) around the clocks;
+`Ribbon.tsx` draws them in the kit's `Band`; `Surface.tsx` pulls the sun map out beside it through
+the kit's `PullOut`. The front end extends the kit's `tsconfig.json`, uses its eslint rules and runs
+its suites under its test set-up.
 
-Wails v2 offers one window, so the ribbon, Settings, About, Licence and the update panel share it
-(CON-6). Opening a panel resizes the window to its size in `panels` (Settings 900 DIP wide, FR-625;
-the others 560), centred on the ribbon's display within its work area; closing returns the ribbon to
-where it was. While a panel is open a move is not recorded and a change of length waits for the close.
+## The window and the ribbon
 
-**Settings fits its content (FR-621).** Once `openPanel` has resolved, the kit's `panelFit.ts` measures the
-panel at its own width and hands the height to `FitPanel`, which centres it again at that height,
-capped by the work area. It measures again whenever the content or the panel's size changes. Measuring
-before the window became the panel took the ribbon's narrower window and could overtake the opening.
+How the window opens hidden, places itself, collapses to its tab, scales under the grip, fades with
+opacity and shares itself with panels and the pull out is the kit's (its ARCHITECTURE.md, "One
+window" and "Place and drag"). What TimeRibbon decides:
 
-**Opacity (FR-622).** On Windows the web view is transparent and the window translucent, since Wails
-otherwise paints the window solid behind the page; on macOS the web view is transparent; on Linux the
-window is translucent (the window's `run.go`). Everything is drawn inside `#root`. `app.css` mixes
-`--window-opacity` into the surface, the dial's face and the tab's accent, so only backgrounds fade
-and the clocks stay solid; `App` sets it to 1 while the window is a panel. The window's own paint
-shows behind anything less than opaque, so the window's `opacity.go` paints it the page's colour at full opacity
-(a window catching up with a new size then shows that colour, not white) and clear below it. The page
-reports that colour from a hidden `#surface-swatch`, since `#root`'s faded background is no colour to
-paint a window in.
-
-**Scale (FR-623).** Layouts stay in unscaled DIP; `ribbonSize` alone applies the scale, adding the
-scroll bar after, since zoom leaves the engine's bar its own thickness. The page draws the ribbon
-under CSS `zoom`. The grip sends `BeginScale`, `DragScale` and `EndScale`; Go turns the pointer's
-travel into a scale through `settings.ScaleAfter`, fractional while dragging (`PreviewScale`, never
-saved) and rounded when kept (`SetScale`). Go reads the cursor from the desktop (`desktop.Cursor`:
-`GetCursorPos`, `NSEvent mouseLocation`, GDK's seat pointer) in the units the ribbon is placed in,
-because the page's pointer events jumped backwards on Windows while the window resized under them;
-where the desktop cannot answer, it takes the page's reading. Each step refits the window and tells the page to
-redraw. A change of scale keeps the top-left corner: `lengthChanged` counts only a change of length at
-the same scale, so clocks re-centre the ribbon (FR-104) and scale does not. While dragging, the sun
-map is held at its size and its place from the ribbon's corner (`PullOutHeld`), so the window's corner
-stays still; it is resized once on release. A ribbon flush against the right or bottom edge still
-grows left or up (`KeptFlush`).
-
-**Hidden until placed.** The window opens hidden; `startup` finds it, takes it off the taskbar, fences
-its moves and places it first. On Windows it is found by its class and `HideFromTaskbar` swaps
-Wails' application-window style for a tool window's. A launched ribbon is shown once the page has
-reported its scale and widest text, else after `sizeWait` (a second): shown earlier it grew in view
-and at a fractional KDE scale often stayed cut off (8 of 16 launches, 2026-10-02). Once shown,
-`keepLaunchedPlace` compares where the window stands with where it was last put (`lastPlaced`,
-recorded by every placement) and places it again if they differ: GNOME may place a newly shown
-window by its own rule; its move, left to settle, was stored as the user's drag (measured
-2026-10-04). Placed again at once, that move cancels as a placement rather than a drag.
-
-**The unpinned ribbon.** The kit's window owns `hover`'s timer (`unpinned.go`). Opening tells the page first
-and grows the window once the page reports `RibbonDrawn` (else after `drawWait`); the open ribbon keeps
-the tab's frame; the window wears the page's colour (`SetBackground`). Each removed a flicker measured
-on Windows (REQUIREMENTS section 2.3). The pointer is read every 50 ms on Windows (against the
-window's cut shape) and macOS; Linux hears GTK's crossing events instead, since under XWayland
-neither the page nor the X server sees it leave.
-
-**The sun map** shares the window: placements are decided for the ribbon alone, `windowOf` adds the
-map and `ribbonFromWindow` reads a dragged window back. On Windows the window is cut to the two
-(`placement.Shape`, `desktop.Shape` over `SetWindowRgn`, FR-913) before every placing. On macOS and
-Linux it stays a rectangle; the surface showing beside a ribbon shorter than its map answers a
-right-click and a drag as the ribbon does (Amendment 33). The page lays
-them out (`Surface.tsx`, over the kit's `PullOut.tsx`) at boxes Go sends in the page's units, blends day and night by solar altitude
-(`sunLight.ts`) and stands labels clear (`labels.ts`, FR-914).
-
-## The ribbon's size and place
-
-**Size (FR-105, FR-106, FR-620).** `ribbonSize` sizes the ribbon from its notices and clocks (the Add
-clock prompt when there are none): cells plus padding along the orientation up to the work area,
-beyond which they scroll; one cell across, plus the scroll bar when scrolling and the handle's lane
-while the sun map is on. The page measures the scroll bar (`SetScrollbar`), its `devicePixelRatio`
-(`SetPixelRatio`) and the widest time and date its font draws (`measure.ts`, `SetMeasured`);
-`layoutFor` widens the size's cell to that width, so the cells drawn and the window sized cannot
-disagree. The ratio matters because Windows' text size enlarges the page without changing the DPI;
-AppKit sizes in points; on Linux a window takes the ratio over GTK's own scale
-(`desktop.PixelsPerDIP`), since KDE hands an X11 program a fractional scale as font DPI alone.
-
-**Refits.** Every change that can alter the cells refits the ribbon where it stands; a change of
-orientation sends it to that orientation's home edge instead (FR-409, `settings.HomeEdge`: top for
-horizontal, right for vertical). Where the length changed, the ribbon is centred along it with its
-position across kept (`placement.CentredAlong`) and that place stored (FR-104); the first arrangement
-of a run never counts. A failed save's notice is one more cell, fitted once and not saved again.
-Against the right or bottom edge the ribbon keeps the far edge flush (`placement.KeptFlush`), since
-it is placed by its top-left corner.
-
-**Position (FR-408)** puts the ribbon flush against an edge of the work area it overlaps most,
-centred along it (`placement.AgainstEdge`).
-
-**Place (FR-403 to FR-406).** On Windows coordinates are physical pixels on the virtual desktop.
-Wails' `WindowSetPosition` is relative to the current monitor's work area while `WindowGetPosition`
-is absolute; its screen list has no origin, device name or work area, so displays are read through
-`EnumDisplayMonitors` and `GetMonitorInfoW` and the window placed with `SetWindowPos`. A drag's end is
-heard through a WinEvent hook on `EVENT_SYSTEM_MOVESIZEEND`; the placement stores the monitor's device
-name, work area, DPI and the offset from its corner, restored at launch scaled by any change of DPI.
-With nothing stored (or the monitor gone) the ribbon goes to its home edge on the primary.
-
-**The drag (FR-401, FR-402).** A press on empty ribbon that moves past the desktop's drag distance
-(Windows' `SM_CXDRAG`/`SM_CYDRAG`, GTK's `gtk-dnd-drag-threshold`, Windows' 4 DIP on macOS) is handed
-to the platform's move loop through `window.WailsInvoke('drag')`, internal to Wails v2. On Windows a
-window procedure in front of Wails' (`desktop.KeepOnDisplays`) answers each `WM_MOVING` by keeping
-the rectangle inside the display under the pointer.
+- **Panels.** Settings opens 900 DIP wide (FR-625), the others 560 (`panels` in `main.go`).
+- **Opacity (FR-622).** `app.css` mixes `--window-opacity` into the surface, the dial's face and the
+  tab's accent, so only backgrounds fade and the clocks stay solid.
+- **Size (FR-105, FR-106, FR-620).** The ribbon is sized from its notices and clocks (the Add clock
+  prompt when there are none): cells plus padding along the orientation up to the work area, beyond
+  which they scroll; one cell across, plus the scroll bar when scrolling and the handle's lane while
+  the sun map is on. The page measures the widest time and date its font draws (`measure.ts`,
+  `SetMeasured`); `layoutFor` widens the size's cell to that width, so the cells drawn and the window
+  sized cannot disagree.
+- **Refits.** Every change that can alter the cells refits the ribbon where it stands; where the
+  length changed, the ribbon is centred along it with its position across kept and that place stored
+  (FR-104).
+- **The sun map** is the pull out. The page lays it out (`Surface.tsx`) at the boxes Go sends, blends
+  day and night by solar altitude (`sunLight.ts`) and stands labels clear (`labels.ts`, FR-914).
 
 ## Time
 
@@ -308,10 +171,8 @@ own first. The place catalogue, `internal/infrastructure/zones/places.tsv`, come
 `zone.tab` and `iso3166.tab` through `tools/genplaces` and holds 418 zones, each held to resolving by
 `TestEveryPlaceResolvesInTheEmbeddedDatabase`.
 
-Each snapshot carries the time to the next minute and the page takes the next one then (FR-208). On
-Windows the tray window hears `WM_TIMECHANGE` and `WM_POWERBROADCAST` resumes (FR-209). Linux and macOS
-broadcast neither, so `desktop/clockwatch.go` compares the wall clock with Go's monotonic clock every
-2 seconds; a drift over 2 seconds counts as a jump.
+Each snapshot carries the time to the next minute and the page takes the next one then (FR-208). A
+change of the system clock or a resume reaches the page through the kit's desktop (FR-209).
 
 ## The settings file
 
@@ -331,137 +192,58 @@ folder, flushes it and renames it over the old one (FR-702). Reading is tolerant
 
 **The file is a contract from the first release (NFR-C-1).** No key the first release writes is
 renamed, dropped or given another meaning; no stored word changes. Later keys (`size`, `colour`,
-`skippedUpdate`, `dateFormat`, `pinned`, `lastEdge`, `sunMap`, `pullOut`, `opacity`, `scale`) are
-written after the first release's (`store/decode.go`); a file without them reads as the defaults.
-`TestA1Point0SettingsFileIsReadWhole` reads the frozen fixture `store/testdata/settings-1.0.0.json`,
-every key set away from its default; it was proved by renaming a key and by changing a stored word.
-The fixture is never regenerated.
+`skippedUpdate`, `dateFormat`, `pinned`, `lastEdge`, `sunMap`, `pullOut`, `opacity`, `scale`,
+`pullOutSide`) are written after the first release's (`store/decode.go`); a file without them reads
+as the defaults. `TestA1Point0SettingsFileIsReadWhole` reads the frozen fixture
+`store/testdata/settings-1.0.0.json`, every key set away from its default; it was proved by renaming
+a key and by changing a stored word. The fixture is never regenerated.
 
 ## Colour
 
 Every colour has one home per scheme, in two halves keyed off the same theme and `data-colour`
-(FR-611). ribbonkit's half holds the ribbon's own tokens (surface, cell, divider, the texts, accent,
-problem, focus and Neon's glow): Classic in `ribbonkit/web/theme.css`, the others in its
-`colours.css`. TimeRibbon's half, `frontend/src/dials.css`, holds its content's: the analogue dials
-for every scheme, the sun map's marks and Neon's glow on the digits and hands. Each half states a
-scheme's token once as `light-dark(light, dark)`; no token is stated in both.
-A scheme's hue lives in the tokens the ribbon paints, because the accent reaches only Settings and the
-tab.
+(FR-611). The kit's half holds the ribbon's own tokens (surface, cell, divider, the texts, accent,
+problem, focus and Neon's glow): Classic in its `theme.css`, the others in its `colours.css`.
+TimeRibbon's half, `frontend/src/dials.css`, holds its content's: the analogue dials for every
+scheme, the sun map's marks and Neon's glow on the digits and hands. Each half states a scheme's
+token once as `light-dark(light, dark)`; no token is stated in both.
 
-## The desktop
+## Menus
 
-On Windows `desktop` owns a hidden top-level window on its own locked thread for the tray icon, the
-native menus and the broadcasts (a message-only window would not hear them). It re-adds the icon on
-`TaskbarCreated`. The desktop reports on a buffered channel, dropping an event with a log line rather
-than blocking Windows' thread; the window's `listen` loop acts on it. Both recover a panic and log it.
-
-Both menus are native popups, so the small window never clips them. Their items have one home,
-`internal/application/menus.go` and `menu_choices.go`, built from the kit's `ribbonkit/application/menus`
-(the `Item` type and the actions every ribbon offers); identifiers are numbered depth first
-(`desktop/menu.go`). Settings offers every menu choice from the same items: `Service.SettingsChoices`
-answers them, the page hands the chosen action to `Choose` (the window's `choices.go`), which refuses anything not
-offered (FR-624). The window carries out every ribbon's actions itself and hands any other, such as
-Add clock, Style or Sun map, to TimeRibbon's `actOn`. `TestEveryMenuChoiceIsOfferedBySettings` fails for a menu choice Settings lacks. On
-Windows a left click on the tray icon toggles the ribbon; on Linux the tray host's activation does;
-on macOS a click opens the menu. A tray icon that cannot be made is not fatal; closing then quits.
-
-## The desktop on Linux and macOS
-
-Both reach the desktop through cgo: GTK 3 and AppKit. What does not depend on the toolkit is written
-once in `_unix.go` files: the `Desktop`, its events, the move-end settling, the clock watch, the
-window registry, the browser opener, the sign-in file, the icon and signal handling.
-
-- **One thread.** `gtkmain.Do` and `cocoamain.Do` run a function on the toolkit's loop and wait,
-  raising a panic again on the caller.
-- **Finding and hiding (FR-101).** The ribbon is the top-level window titled with the product's name.
-  Linux marks it to skip the taskbar and switcher. macOS keeps its Dock icon (Amendment 36): Wails
-  makes the application regular as it launches; switching it to an accessory afterwards never
-  removed the icon on a real Mac, so `HideFromTaskbar` does nothing there.
-- **Coordinates.** Both count in DIP, every display reported at `placement.BaseDPI`; AppKit's
-  bottom-left origin is turned over into the domain's top-left reckoning (CON-7).
-- **Placing.** macOS uses one `setFrame`. Linux sets the size and awaits it (up to 500 ms) before
-  moving, since the window manager clamps a move by the size the window has when it arrives
-  (`TestTheRibbonReturnsFromAPanelToWhereItIsPlaced`). WebKit's DMABUF renderer is off unless the user
-  set it (`TestAChosenDMABUFSettingIsKept`); hardware acceleration is off (`WebviewGpuPolicyNever`),
-  as Wails would choose without Linux options.
-- **The end of a move (FR-404)** is the ribbon standing still for 300 ms (`moveSettle`), heard through
-  `configure-event` or `NSWindowDidMoveNotification`. A position `Place` chose is never a move
-  (`TestAPassingPositionOnTheWayToAPlacementIsNotAMove`). Nothing fences the drag; `Service.Moved`
-  brings back a ribbon left partly off every display.
-- **Menus.** The right-click menu is a GTK popup handed a button press stamped with the X server's
-  time; on macOS an `NSMenu`. The Linux tray is TimeRibbon's own StatusNotifierItem with a
-  `com.canonical.dbusmenu` menu over godbus, registered by object path so it needs no bus name or
-  sandbox permission; macOS uses an `NSStatusItem` rebuilt as it opens.
-- **Sign-in (FR-605).** Linux writes an XDG autostart entry (the real `~/.config/autostart` under the
-  Flatpak, running `flatpak run`); macOS a launchd agent. Each is removed when turned off.
+Both menus are the kit's native popups. Their items have one home,
+`internal/application/menus.go` and `menu_choices.go`, built from the kit's `menus` package (the
+`Item` type and the actions every ribbon offers). Settings offers every menu choice from the same
+items: `Service.SettingsChoices` answers them; `TestEveryMenuChoiceIsOfferedBySettings` fails for a
+menu choice Settings lacks. The window carries out every ribbon's actions itself and hands any other,
+such as Add clock, Style or Sun map, to TimeRibbon's `actOn`.
 
 ## Help, About and Licence
 
-About shows the icon, name and version, author, copyright line and a credit for every component this
-platform's build ships (FR-607), from one table in `internal/product/credits.go`;
-`TestEveryLinkedModuleIsCredited` holds each platform's credits to the modules its build links.
-Licence shows the embedded `LICENSE` exactly as written, its type sized so the widest line fits
-(FR-608). Both read themselves when they overflow (FR-609) through one script,
-`ribbonkit/installer/page/auto-scroll.js`, shared with the setup page, which can import nothing;
-`ribbonkit/web/autoScroll.ts` types it and wraps it in a React hook. The three panels are the kit's
-(`ribbonkit/web/Help.tsx`, styled by `help.css`): each takes the window calls it makes; About also
-takes the application's own picture for its head.
-
-## The update check
-
-`ribbonkit/infrastructure/update` asks GitHub's `releases/latest`, which answers only a published
-release, never a draft or prerelease. It is unauthenticated, times out after 5 seconds, never retries
-and reads at most a megabyte. The service compares the tag with the stamped version as dotted
-integers (anything else is never newer), picks this platform's asset by its ending and honours the
-skipped release except on a manual check. Addresses are taken only as `https` on `github.com` with no
-user or port (`onGitHub`). The window's `updates.go` checks 3 seconds after start, then every 24 hours, recovering
-any panic; a check with something to say shows the update panel. The addresses stay in Go: Download
-and Skip ask Go to act on what it offered.
+The three panels are the kit's. About shows TimeRibbon's picture, name and version, author,
+copyright line and a credit for every third-party component this platform's build ships (FR-607),
+from one table in `internal/product/credits.go`; the kit is TimeRibbon's author's own and is not
+credited. Licence shows the embedded `LICENSE` exactly as written (FR-608).
 
 ## Delivery
 
 **macOS and Linux** build with `go build` and Wails' `desktop,production` tags, the version from
-`VERSION` through `-ldflags`, names from `tools/identity`.
+`VERSION` through `-ldflags`, names from `tools/identity`. Every build script sets `GOWORK=off`, so
+what ships is the kit tag `go.mod` requires.
 
 - `builddmg.sh` builds for Apple Silicon, assembles and signs `TimeRibbon.app` with the hardened
   runtime, notarises and staples it, then the DMG. The minimum macOS is read from the Go toolchain and
   passed through the cgo flags; a link of code built for a newer macOS is refused.
 - `build_flatpak.sh` builds in the GNOME 50 SDK against WebKitGTK 4.1 (`-tags webkit2_41`). The
   sandbox gets X11 with IPC, the GPU, the tray host's bus name, the single-instance lock's bus name,
-  the autostart folder and the network for the update check alone. Both scripts first stop a copy
-  left running, which holds the single-instance lock (FR-506).
+  the autostart folder, the shared ribbon folder (`xdg-run/ribbonkit`) and the network for the update
+  check alone. Both scripts first stop a copy left running, which holds the single-instance lock
+  (FR-506).
 
 **The setup program** (Windows) is a second Wails application in `installer/`, embedding the built
-application as a zip. `build.ps1` packs it through `tools/payload`, builds setup, then writes the empty
-placeholder back whatever happened. The install policy lives in ribbonkit's `ribbonkit/infrastructure/setup`: the
-paths, the extraction with its fence against an entry leaving the install folder (every entry checked
-before any is written, FR-803), the version comparison, the Apps list record, the shortcuts (COM via
-go-ole), Start with Windows (through `startup`, the value Settings writes) and the step log. It names
-no product: `installer/main.go` hands it a `setup.Product` (the kit's identity and the publisher),
-from which the install folder, the executable, the shortcuts and the Apps list entry take their name.
-The window over it is ribbonkit's too: `ribbonkit/installer` holds the setup page (`page/`, no build
-step), the facade the page calls (`facade.go`) and `Run`, which opens the window. It sits outside
-the layers as a program of its own and imports nothing of the module but the install policy. What
-stays TimeRibbon's is the composition root, `installer/main.go`: it carries the payload, names the
-product, binds the facade by embedding it (so the page still reaches it as `main.App`) and hands in
-the page's pictures, which `tools/genicons.py` writes to `installer/frontend/dist` and the window
-serves over the page. `installer.Pictures` names the pictures the page asks for. Steps are weighted
-by measured time.
-
-| Reading of the machine | Screen |
-|---|---|
-| started with `-uninstall` | Uninstall |
-| nothing installed | Install |
-| the version carried is newer | Update |
-| the version carried is older | Go back |
-| the versions match | Installed: Repair, Reinstall, Uninstall |
-
-Everything written is per user (FR-810). Repair keeps the shortcuts and Start with Windows as they
-are. Uninstall deletes `%APPDATA%\TimeRibbon` only when **Also forget my settings** is ticked, then a
-hidden PowerShell deletes the install folder once setup has exited. Setup offers to close a running
-copy, waiting up to 5 seconds (FR-807). The setup page names nothing: the product's name arrives on
-its state. Its keyboard ring (`setup-ring.js`) is the window's model written again, held by
-`setupRing.test.ts`; each screen opens with nothing focused (FR-809).
+application as a zip. `build.ps1` packs it through `tools/payload`, builds setup, then writes the
+empty placeholder back whatever happened. The install policy and the setup window are the kit's;
+`installer/main.go` is the composition root: it carries the payload, names the product (a
+`setup.Product` from `internal/product`), binds the kit's facade by embedding it and hands in the
+page's pictures, which `tools/genicons.py` writes to `installer/frontend/dist`.
 
 ## Data locations
 
@@ -469,7 +251,8 @@ its state. Its keyboard ring (`setup-ring.js`) is the window's model written aga
 |---|---|
 | Settings | `settings.json`: `%APPDATA%\TimeRibbon` on Windows, `~/Library/Application Support/TimeRibbon` on macOS, `~/.var/app/uk.codecrafter.TimeRibbon/config/TimeRibbon` for the Flatpak, `$XDG_CONFIG_HOME/TimeRibbon` else `~/.config/TimeRibbon` outside it; kept-aside copies beside it |
 | Run log | `TimeRibbon.log` beside the settings, started afresh over 1 MiB |
-| Web view data on Windows | `%APPDATA%\TimeRibbon\WebView2`, named in the window's `run.go` so forgetting the settings removes it |
+| Web view data on Windows | `%APPDATA%\TimeRibbon\WebView2`, so forgetting the settings removes it |
+| Ribbons on this desktop | `uk.codecrafter.TimeRibbon.json` and `uk.codecrafter.TimeRibbon.lock` in `%LOCALAPPDATA%\ribbonkit`, `~/Library/Application Support/ribbonkit` or `$XDG_RUNTIME_DIR/ribbonkit` (FR-412) |
 | Time zone rules, place catalogue | built in; macOS and Linux read their own zone files first |
 | Installed files | Windows: `%LOCALAPPDATA%\Programs\TimeRibbon` with `uninstall.exe`; macOS: where the user drags the app; Linux: the user's Flatpak installation |
 | Start at sign-in | Windows: `TimeRibbon` under `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`, the quoted path and no arguments. macOS: `~/Library/LaunchAgents/uk.codecrafter.TimeRibbon.plist`. Linux: `~/.config/autostart/uk.codecrafter.TimeRibbon.desktop` |
@@ -482,39 +265,34 @@ Errors are wrapped with `%w` at each boundary, so `errors.Is` finds sentinels su
 `ErrNoSuchClock` beneath.
 
 - **Before the window** only a failure to run the window or to read the embedded catalogue ends the
-  run. Standard error goes to the log first (`runlog.Keep`), so even a runtime panic is kept. A
-  missing settings folder falls back to the temporary folder; unreadable settings, a failed tray icon
-  and a missing executable path are logged and the ribbon still opens.
+  run. Standard error goes to the log first (the kit's `runlog.Keep`), so even a runtime panic is
+  kept. A missing settings folder falls back to the temporary folder; unreadable settings, a failed
+  tray icon and a missing executable path are logged and the ribbon still opens.
 - **On the ribbon:** a kept-aside file and a failed save as notices; an invalid clock in words.
-- **Beneath the control pressed:** every page call Go can refuse. Each `api` wrapper takes a refusal
-  handler and answers null rather than rejecting, so a call without one does not compile.
-- **Logged and carried on:** a dropped desktop event, a panic in the desktop's thread or its handling,
-  a failure to place, hide from the taskbar or fence the ribbon.
+- **Beneath the control pressed:** every page call Go can refuse takes a refusal handler and answers
+  null rather than rejecting, so a call without one does not compile.
 
 ## Quality enforcement
 
-- The structural tests above run with the suite.
+- The structural tests above run with the suite; the kit's run in the kit's own gate.
 - `test.ps1` checks formatting, vet and staticcheck, runs the Go suite and the front end's lint, type
   check and tests, holds the domain and application to 100% and every other gated package to its
   measured floor ([TESTING.md](TESTING.md)).
-- `build.ps1` runs `test.ps1` first with no switch to skip it, cgo off for both.
+- `build.ps1` runs `test.ps1` first with no switch to skip it, cgo off and `GOWORK=off`.
 - The Linux and macOS code is checked on its own platform ([TESTING.md](TESTING.md#on-macos-and-linux)).
 
 ## Design decisions
 
 The architectural ones; the full set with their costs is in
-[DECISIONS-TRADEOFFS.md](DECISIONS-TRADEOFFS.md).
+[DECISIONS-TRADEOFFS.md](DECISIONS-TRADEOFFS.md). The ribbon's own (displays through each desktop's
+calls, one window, native menus, the cursor read from the desktop, the tray of its own, Linux on X11)
+are recorded in the kit's ARCHITECTURE.md.
 
 | Decision | Why | Rejected alternative |
 |---|---|---|
-| Displays and placement through each desktop's own calls | Wails' screen list lacks origin, device name and work area; its position calls mix relative and absolute coordinates (CON-7) | Wails' position calls |
-| One window for the ribbon and every panel | Wails v2 offers one | A second window per panel |
-| Native popup menus | A page-drawn menu would be clipped by the small window | A menu drawn in the page |
-| The page measures cells, scroll bar and scale | Only the page knows its font, its engine's bar and the ratio it is drawn at | Widths and thicknesses written into Go |
-| The grip's cursor read from the desktop | The page's pointer events jumped backwards while the window resized under them | The page's `screenX`, `screenY` |
+| The ribbon's desktop half in ribbonkit, a module of its own at one tag | WeatherRibbon needs the same ribbon; a fix lands once and reaches both | A copy of the desktop code per application |
+| One tag for both halves of the kit, held by a test | A page built from one release against a window from another breaks only at run time | Versioning the Go and npm halves apart |
+| The page measures cells and scale | Only the page knows its font and the ratio it is drawn at | Widths written into Go |
 | The web view's data inside the settings folder | Wails' default sat beside it, out of reach of forgetting the settings | Deleting Wails' folder by name |
-| Linux on X11; DMABUF and acceleration off | Wayland forbids choosing a position; NVIDIA's own driver drew blank | Wayland; per-driver detection |
-| A StatusNotifierItem of TimeRibbon's own | `fyne.io/systray` could not rebuild its menu as it opens and kept global state (v1.12.2) | `fyne.io/systray` |
-| Toolkit-free code shared in `_unix.go` | Linux and macOS cannot drift apart | A copy per platform |
 
 See also [TESTING.md](TESTING.md) and [DEVELOPMENT.md](DEVELOPMENT.md).

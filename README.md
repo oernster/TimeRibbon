@@ -81,7 +81,7 @@ anywhere on any monitor.
 | Front end | React and TypeScript, built with Vite |
 | Time zone rules | the tz database built in through Go's `time/tzdata`; macOS and Linux read their own first |
 | The desktop | Win32 on Windows; AppKit on macOS; GTK 3 with a D-Bus tray icon on Linux |
-| The ribbon itself | `ribbonkit`, the placing, dragging, tab, tray, scaling and setup every ribbon shares, held in this repository until it moves to its own |
+| The ribbon itself | [ribbonkit](https://github.com/oernster/ribbonkit), the placing, dragging, tab, tray, scaling and setup every ribbon shares, at one tag |
 | Delivery | a setup program on Windows, a signed and notarised DMG on macOS, a Flatpak on Linux |
 
 ## Getting it

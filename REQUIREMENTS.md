@@ -195,7 +195,7 @@ Measurements the design rests on, each taken on the date given:
 | ID | Constraint |
 |---|---|
 | CON-1 | The layering `UI to Application to Domain from Infrastructure` holds, enforced by `tests/structural`. |
-| CON-2 | Every Go source file and every TypeScript and CSS file under `frontend/src` and `ribbonkit/web` stays at or below 400 lines; one between 381 and 400 is reduced to 350 or fewer. Build and packaging scripts are not counted. |
+| CON-2 | Every Go source file and every TypeScript and CSS file under `frontend/src` stays at or below 400 lines (ribbonkit holds its own files to the same rule); one between 381 and 400 is reduced to 350 or fewer. Build and packaging scripts are not counted. |
 | CON-3 | Coverage over `internal/domain` and `internal/application` stays at 100 percent. |
 | CON-4 | `VERSION` is the single source of the version; no version literal elsewhere. |
 | CON-5 | Zones resolve through `time.LoadLocation` with `time/tzdata` embedded. On Windows the embedded rules are read (unless `ZONEINFO` names others); macOS and Linux read the system's zone files first. Measured 2026-09-27 with `ZONEINFO` pointed nowhere: `America/New_York` answered EST in January and EDT in July; `Not/AZone` an error. No DST rule is written by hand. |
@@ -851,7 +851,7 @@ Verified by: `TestWriteFailureIsReportedAndCleared`, `TestTheArrangersChangesAre
 | NFR-U-3 | Every control in Settings and the search is reachable and operable from the keyboard with a visible focus indicator. | `settings.test.tsx`; by hand |
 | NFR-U-4 | Every icon-only control carries an accessible name and a tooltip. | `a11y.test.tsx` |
 | NFR-U-5 | Targets are at least 24 by 24 DIP; the 8 DIP tab is exempt, rested on rather than pressed (Amendment 18, OQ-7). | Inspection; WCAG 2.2 criterion 2.5.8 |
-| NFR-S-1 | No network request but the update check: one unauthenticated request to GitHub's latest-release endpoint, sending nothing about the user (Amendment 15). | `TestOnlyTheUpdateCheckImportsANetworkPackage`, `TestTheNetworkExemptionNamesTheUpdatePackage` (structural) |
+| NFR-S-1 | No network request but the update check: one unauthenticated request to GitHub's latest-release endpoint, sending nothing about the user (Amendment 15). | `TestOnlyTheUpdateCheckImportsANetworkPackage` (ribbonkit); `TestNothingOfTimeRibbonsImportsANetworkPackage` (structural) |
 | NFR-S-2 | The system clock and time zone are never changed. | Inspection |
 | NFR-S-3 | Non-claim: where the system offers no rules (always on Windows), the built-in ones apply, so a government's change after a build shows only after a new release; the README says so. | Inspection of the README |
 | NFR-M-1 | The coverage floor (CON-3), size limit (CON-2) and layering (CON-1) are enforced by `test.ps1`, which `build.ps1` runs first with no switch to skip it. | `build.ps1` |
@@ -945,7 +945,7 @@ Verified by: `TestThePullOutHidesWithTheTab`, `TestAnOpeningRibbonIsDrawnWithIts
 
 **FR-911 The imagery is built in** (Should). Both images are carried inside and nothing is fetched
 (NFR-S-1); an unreadable image shows a notice naming it rather than a blank or partial map.
-Verified by: `TestOnlyTheUpdateCheckImportsANetworkPackage` (structural); the notice by inspection of
+Verified by: `TestOnlyTheUpdateCheckImportsANetworkPackage` (ribbonkit), `TestNothingOfTimeRibbonsImportsANetworkPackage` (structural); the notice by inspection of
 `SunMap.tsx`.
 
 **FR-912 The imagery is credited** (Should). About credits each image's source and licence (ASM-5).
@@ -982,7 +982,7 @@ DECISIONS-TRADEOFFS.md the decisions with their costs.
 
 `build.ps1` reads `VERSION`, runs `test.ps1` first with no switch to skip it, builds the application
 with `wails build`, then the setup program embedding it (OQ-3): a second Wails application in
-`installer/` whose policy lives in `ribbonkit/infrastructure/setup`, ported in shape from BridgeTalk's.
+`installer/` whose policy lives in ribbonkit's `infrastructure/setup`, ported in shape from BridgeTalk's.
 Setup and FR-801 to FR-811 are Windows only (Amendment 13). macOS ships as a DMG signed with a
 Developer ID and notarised (`builddmg.sh`); Linux as a Flatpak for the user (`build_flatpak.sh`),
 granted X11 with IPC, the GPU, the tray host's and single-instance lock's bus names, the autostart
@@ -1024,21 +1024,21 @@ Verified by: by hand.
 
 **FR-808 A failure says why** (Must). A failed step shows `Something went wrong` with the reason and
 Close.
-Verified by: `setupScreens.test.ts`.
+Verified by: `setupScreens.test.ts` (ribbonkit).
 
 **FR-809 Setup answers the keyboard** (Must; Amendment 5). Tab and Right move forward, Shift+Tab and
 Left back, wrapping and skipping disabled or hidden controls; Enter toggles a focused box as Space
 does; each screen opens with nothing focused, the first Tab or Right entering at the first control and
 Shift+Tab or Left at the last.
-Verified by: `setupRing.test.ts`, `setupScreens.test.ts`.
+Verified by: `setupRing.test.ts`, `setupScreens.test.ts` (ribbonkit).
 
 **FR-810 Per user, no elevation** (Must). Setup writes only under `%LOCALAPPDATA%`, `%APPDATA%`, the
 user's Desktop and `HKCU` (CON-8).
-Verified by: inspection of `ribbonkit/infrastructure/setup`; by hand.
+Verified by: inspection of ribbonkit's `infrastructure/setup`; by hand.
 
 **FR-811 Setup's licence reads itself** (Must; Amendment 2). Setup's overflowing Licence reads itself
 in the cycle of FR-609, from the same script, afresh each time it opens.
-Verified by: `setupScreens.test.ts`.
+Verified by: `setupScreens.test.ts` (ribbonkit).
 
 ---
 
@@ -1046,7 +1046,7 @@ Verified by: `setupScreens.test.ts`.
 
 The packages as built, their layering and the tests that hold it are in ARCHITECTURE.md, Layers. The
 sketch drawn before the first build had one `internal/infrastructure/windows` package, built as
-`desktop`, `monitors` and `startup`, which now live in `ribbonkit/infrastructure`.
+`desktop`, `monitors` and `startup`, which now live in ribbonkit's `infrastructure`.
 
 ---
 

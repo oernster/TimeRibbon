@@ -40,6 +40,9 @@ go mod download
 npm --prefix frontend install
 ```
 
+That fetches the kit's page half from GitHub at the tag `package.json` names, so it needs git on the
+path; `go mod download` fetched its Go half at the tag `go.mod` names.
+
 The application embeds the built page, which git does not hold, so build it once on a fresh clone;
 without it the gate stops at `pattern all:frontend/dist: no matching files found`:
 
@@ -57,7 +60,8 @@ It stops at the first failure:
 
 1. Reads `VERSION`, refusing anything but `major.minor.patch`; stamps the site's version tokens and
    asset hashes through `python stamp_version.py`; reads the module path and executable names.
-2. Pins `CGO_ENABLED=0`, so the tests exercise what ships.
+2. Pins `CGO_ENABLED=0`, so the tests exercise what ships; pins `GOWORK=off`, so what ships is the
+   kit tag `go.mod` requires rather than a working copy a local `go.work` names.
 3. Runs `test.ps1` ([TESTING.md](TESTING.md#running-it)), with no switch to skip it.
 4. Refuses to go on without the committed `build/windows/icon.ico` and `build/appicon.png`.
 5. Writes the version resource through `go run ./tools/versioninfo`, then runs `wails build` with the
@@ -93,6 +97,22 @@ runs per user: a second launch toggles the first ribbon and exits (FR-506). On m
 the page and use `go run` with the build's tags ([TESTING.md](TESTING.md#on-macos-and-linux)).
 
 Install what you built with `./dist-installer/TimeRibbonSetup.exe`. Neither executable is signed.
+
+## Changing the kit beside TimeRibbon
+
+The ribbon's desktop half is [ribbonkit](https://github.com/oernster/ribbonkit). To change it and see
+the change here before it is tagged, clone it beside this repository and give TimeRibbon a `go.work`
+(gitignored), from the repository root:
+
+```powershell
+go work init . ../ribbonkit
+```
+
+Go then builds TimeRibbon against `../ribbonkit`; `build.ps1` and the macOS and Linux scripts set
+`GOWORK=off`, so a release is always built from the tag. Once the kit is tagged, name the tag in
+`go.mod` (`go get github.com/oernster/ribbonkit@<tag>`) and in `frontend/package.json`, run
+`npm --prefix frontend install`, then delete `go.work`. `TestBothHalvesOfTheKitNameOneTag` fails
+while the two name different tags.
 
 ## Building on macOS
 
@@ -198,25 +218,22 @@ check compares it with GitHub's latest release tag, so a development placeholder
 | `kit.go`, `dto.go` | the page and the LICENSE embedded, the service adapted to the window's port; TimeRibbon's half of the wire |
 | `platform_*.go`, `bindings_*.go` | what each platform needs before Wails opens; keeping the bindings run quiet |
 | `*_test.go` in the root | TimeRibbon's half tested over a scripted service and a stand-in window (`fakes_test.go`); the page's calls checked against what is bound (`page_api_test.go`) |
-| `ribbonkit/ui/window` | the ribbon's window: its life and the desktop's events, the tab, the pull out beside it, panels, the grip, opacity, menu choices, the update check, Help, the first showing and the Wails options (`run.go`), each with its tests |
 | `internal/domain`, `internal/application` | TimeRibbon's pure rules (clocks, settings, the sun); its use cases over their ports |
 | `internal/infrastructure` | TimeRibbon's own adapters: the settings store and the time zones |
-| `ribbonkit/domain`, `ribbonkit/application` | ribbonkit's pure rules (placement, the ribbon's choices, hovering) and its use cases (arranging the ribbon, the menus, the update check, the desktop's port) |
-| `ribbonkit/infrastructure` | ribbonkit's adapters: the desktop, displays, sign-in start, the log, the data folder, the folder every running ribbon shares (`occupancy`), the update check and the install policy; a file's platform is in its name (`_windows`, `_linux`, `_darwin`, `_unix`) |
-| `internal/product` | names, version, donation address, author, sign-in label, credits |
+| `internal/product` | names, repository, version, donation address, author, sign-in label, credits |
 | `build.ps1`, `test.ps1`, `VERSION`, `stamp_version.py` | the Windows build; the gate; the version; the site stamp |
 | `builddmg.sh`, `build_flatpak.sh`, `cleanup_flatpak.sh` | the macOS DMG; the Flatpak and its removal |
 | `frontend/src`, `installer/` | the React page; the setup program's composition root, which carries the payload and the page's pictures (`installer/frontend/dist`, made by `tools/genicons.py`) |
-| `ribbonkit/installer` | ribbonkit's setup program: its page (`page/`, which has no build step), the facade the page calls and the window |
-| `ribbonkit/web`, `ribbonkit/package.json` | ribbonkit's half of the page, an npm package the front end links as `file:../ribbonkit`: the bridge to the window, its wire, the page's shell (`shell.ts`), the ribbon's band with its tab and the pull out with its handle (`Band.tsx`, `PullOut.tsx`, styled by `ribbon.css`), the drag, opacity, pixel ratio, scroll bar, background, panel fit, the Help panels with their self-reading cycle (`Help.tsx`, `autoScroll.ts`, `help.css`), the corner grip and the opacity slider with their styles (`controls.css`) and the ribbon's palette (`theme.css`, `colours.css`); `web/testing` is its stand-in bridge and Go's events; nothing in it reaches outside the kit (`kitpage_test.go`) |
 | `tests/structural`, `tools/`, `assets/`, `docs/` | the architecture's tests; generators; master artwork; the site |
 
 ## House rules worth knowing before a first change
 
-- **The layer direction is enforced:** the domain imports nothing outside itself and reads no clock;
-  the application imports neither infrastructure nor Wails; the kit's UI imports no infrastructure
-  (its tests included); nothing below the UI imports it; only `main.go` wires application to
-  infrastructure, handing the kit's window the desktop through the `shell.Desktop` port.
+- **The layer direction is enforced,** the kit's packages counting as layers too: the domain imports
+  nothing outside a domain and reads no clock; the application imports neither infrastructure nor
+  Wails; nothing below the UI imports it; only `main.go` wires application to infrastructure, handing
+  the kit's window the desktop through the `shell.Desktop` port.
+- **The ribbon's behaviour is the kit's.** A change to placing, dragging, the tab, the grip, the tray,
+  sign-in, the update check or setup is made in ribbonkit, tagged there, then named here.
 - **Every exported method of `window.Window` is page API,** since `App` embeds it and Wails binds
   promoted methods too. What TimeRibbon alone may call goes on `window.Control`, which is never
   embedded.
@@ -225,12 +242,12 @@ check compares it with GitHub's latest release tag, so a development placeholder
 - **No magic numbers:** a literal needing a comment is a named constant or derived from data.
 - **The product is named once,** in `internal/product/product.go`; the setup page is handed it. The
   former names stay retired (`retired_test.go`).
-- **The wire is written twice,** in `dto.go` with the window's `wire.go` and in
-  `frontend/src/wire.ts` with `ribbonkit/web/wire.ts`; change both sides.
-- **ribbonkit's half of the page is read through the front end's link** (`npm install` in
-  `frontend` makes it): run lint, the type check and the tests from `frontend` as usual; the lint
-  script runs from the repository root so the kit is linted too.
-- **The update check is the one network request** (`network_test.go`, `requests_test.go`).
+- **TimeRibbon's half of the wire is written twice,** in `dto.go` and in `frontend/src/wire.ts`;
+  change both sides.
+- **Both halves of the kit name one tag,** in `go.mod` and `frontend/package.json`
+  (`kittag_test.go`).
+- **The update check is the one network request,** and it is the kit's: nothing of TimeRibbon's
+  imports a network package, starts a program or asks a network from the page (`network_test.go`).
 - **A page call Go can refuse takes a refusal handler** and answers null rather than rejecting.
 - **Every new guard is proved by planting a violation** ([TESTING.md](TESTING.md#keeping-this-honest)).
 

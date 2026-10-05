@@ -111,7 +111,12 @@ Write-Host 'Measuring the rest of the tree...'
 foreach ($package in $measured.Keys) {
     $floorHere = $measured[$package]
     $reported = go test -count=1 -cover $package
-    if ($LASTEXITCODE -ne 0) { throw "$package failed with exit code $LASTEXITCODE" }
+    # The report is held to read the coverage from, so a failing test's own words would otherwise
+    # never reach the log; the gate named the package once and nothing else (2026-10-05).
+    if ($LASTEXITCODE -ne 0) {
+        $reported | ForEach-Object { Write-Host $_ }
+        throw "$package failed with exit code $LASTEXITCODE"
+    }
     $line = $reported | Where-Object { $_ -match 'coverage: ' } | Select-Object -First 1
     if ($line -notmatch 'coverage: ([0-9]+(?:\.[0-9]+)?)%') { throw "could not read a coverage figure for ${package}: $line" }
     $reached = [double]$Matches[1]

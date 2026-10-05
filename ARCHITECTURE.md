@@ -70,8 +70,10 @@ same layers (`ribbonkit/domain`, `ribbonkit/application`, `ribbonkit/infrastruct
 It holds `placement`, `hover`, `ribbon` and `identity` in its domain; `menus` (the menu model and
 every ribbon's actions), `release`, `arranger` and `shell` (the desktop port, which `desktop`
 implements) in its application; `gtkmain`, `cocoamain`, `iconscale`, `system`, `monitors`, `appdata`,
-`runlog`, `startup`, `update` and `desktop` in its infrastructure; `window` (the ribbon's window as
-the page and the desktop see it) in its UI. It names no
+`runlog`, `startup`, `update`, `desktop` and `setup` (the install policy) in its infrastructure;
+`window` (the ribbon's window as the page and the desktop see it) in its UI. Beside the layers it
+holds `web` (the page's half) plus `installer` (the setup program's window); no other folder
+(`TestTheKitHoldsOnlyItsLayersThePageAndTheSetupProgram`). It names no
 product: `identity.App` carries the name and app id, built once by `product.App()` and handed in by
 the composition root and setup. Each package is described below where it sits in the layering.
 
@@ -144,7 +146,9 @@ repository root so the kit is linted with it; its Vitest run includes the kit's 
   embeds the window and maps the service's answers about the clocks into `dto.go`.
 - **Outside the layers**: `internal/product` holds the name, app id, setup program's name, window
   class, donation address, version, author, copyright line, sign-in label and credits. The domain and
-  application never read it.
+  application never read it. The kit's setup program, `ribbonkit/installer`, is a program's window
+  over `setup` rather than a layer; it imports nothing else of the module
+  (`TestTheSetupProgramReachesOnlyTheInstallPolicy`); `installer/main.go` is its composition root.
 - **Tools**, never shipped: `genplaces` (the place catalogue), `payload` (the setup program's
   payload), `versioninfo` (each executable's version resource), `identity` (names for the Linux and
   macOS scripts), `linuxicons` (the Flatpak's icons) and `genicons.py` (every committed icon).

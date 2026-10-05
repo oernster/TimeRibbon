@@ -5,7 +5,7 @@
 // where focus goes. That the page loads the script at all is held by the structural suite.
 
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import ring from '../../installer/frontend/dist/setup-ring.js?raw'
+import ring from '../../ribbonkit/installer/page/setup-ring.js?raw'
 import { layOutByParent } from './setupPage'
 
 // An indirect eval runs the script in the global scope, as a script tag does: its key listener

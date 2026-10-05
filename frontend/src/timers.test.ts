@@ -19,7 +19,7 @@ import kit from '../../ribbonkit/package.json'
 // The sources are read as text the way setupPage.ts reads the setup page, so the test sees exactly
 // the files the build bundles.
 const sources = import.meta.glob<string>(
-  ['./**/*.{ts,tsx}', '../../ribbonkit/web/**/*.{ts,tsx}', '../../installer/frontend/dist/*.js'],
+  ['./**/*.{ts,tsx}', '../../ribbonkit/web/**/*.{ts,tsx}', '../../ribbonkit/installer/page/*.js'],
   {
     query: '?raw',
     import: 'default',
@@ -64,7 +64,7 @@ interface AllowedSite extends TimerSite {
 }
 
 /** HELP_CYCLE is the one module allowed a periodic timer: the self-reading cycle (FR-609). */
-const HELP_CYCLE = '../../installer/frontend/dist/auto-scroll.js'
+const HELP_CYCLE = '../../ribbonkit/installer/page/auto-scroll.js'
 
 /** HELP_CYCLE_USERS are the only page modules that may start the cycle: Help, while it is mounted. */
 const HELP_CYCLE_USERS = ['Help.tsx']

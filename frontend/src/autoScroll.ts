@@ -1,10 +1,10 @@
 // The window's side of the self-reading cycle (FR-609). The cycle itself has one home,
-// installer/frontend/dist/auto-scroll.js, which the setup page loads too; importing it here runs it,
+// ribbonkit/installer/page/auto-scroll.js, which the setup page loads too; importing it here runs it,
 // leaving window.AutoScroll behind. This file only states its shape for the type checker and gives
 // React a hook over it.
 
 import { useCallback, useEffect, useState } from 'react'
-import '../../installer/frontend/dist/auto-scroll.js'
+import '../../ribbonkit/installer/page/auto-scroll.js'
 
 export type AutoScrollPhase = 'down' | 'pauseBottom' | 'up' | 'pauseTop' | 'manual'
 

@@ -4,34 +4,34 @@
 //
 // It is a second Wails application in the module, carrying the built application as an embedded
 // payload. It installs, updates, goes back a version, repairs, reinstalls and uninstalls, all per
-// user with no administrator rights. The install policy lives in ribbonkit/infrastructure/setup,
-// which names no product; this is the window over it and the composition root that names it.
+// user with no administrator rights. The window, its page and the install policy are ribbonkit's
+// (ribbonkit/installer over ribbonkit/infrastructure/setup), which name no product; this is the
+// composition root that names it and carries what is TimeRibbon's own.
 package main
 
 import (
 	"embed"
 	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 
-	"github.com/wailsapp/wails/v2"
-	"github.com/wailsapp/wails/v2/pkg/options"
-	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
-	windowsoptions "github.com/wailsapp/wails/v2/pkg/options/windows"
 	"golang.org/x/sys/windows"
 
 	"github.com/oernster/timeribbon/internal/product"
 	"github.com/oernster/timeribbon/ribbonkit/infrastructure/setup"
+	"github.com/oernster/timeribbon/ribbonkit/installer"
 )
 
-//go:embed all:frontend/dist
-var assets embed.FS
-
-// sheet is the page's style sheet, read here only for the two ground colours it states.
+// pictures are the page's pictures, which tools/genicons.py makes from TimeRibbon's artwork: the
+// header mark and the theme switch's sun and moon.
 //
-//go:embed frontend/dist/setup.css
-var sheet string
+//go:embed all:frontend/dist
+var pictures embed.FS
+
+// picturesRoot is the folder pictures holds them under.
+const picturesRoot = "frontend/dist"
 
 // payload is the built application as a zip archive, embedded as a string so Go keeps it in the
 // read-only image rather than charging it to the process. build.ps1 writes the real one before it
@@ -40,19 +40,11 @@ var sheet string
 //go:embed payload.zip
 var payload string
 
-const (
-	// setupID names what is setup's own: its window class, its web view cache and its step log.
-	setupID = product.SetupName
-	// windowTitle is the setup window's title.
-	windowTitle = product.Name + " Setup"
-	// windowWidth and windowHeight fit the tallest screen at the sheet's type sizes (DIP). Measured
-	// on 2026-09-27 by laying the page out at 804 by 661, this size less a window frame: the tallest
-	// screen, Installed, took 341 of the body's 414 pixels and no screen overflowed.
-	windowWidth  = 820
-	windowHeight = 700
-	// opaque is a colour's alpha where nothing shows through it.
-	opaque = 255
-)
+// setupID names what is setup's own: its window class, its web view cache and its step log.
+const setupID = product.SetupName
+
+// App is what Wails binds, so the page reaches the kit's setup facade as main.App.
+type App struct{ *installer.Setup }
 
 func main() {
 	log, logErr := setup.OpenStepLog(filepath.Join(os.TempDir(), setupID+".log"))
@@ -64,8 +56,10 @@ func main() {
 	if problem != nil {
 		log.Record("reading the machine: " + problem.Error())
 	}
-	app := NewApp(Config{
+	facade := installer.New(installer.Config{
 		Product:     installs,
+		SetupID:     setupID,
+		RibbonClass: product.RibbonClass,
 		Machine:     setup.NewMachine(installs, places, setup.AppsList(installs), setup.StartWithWindows(installs.App), setup.DeleteAfterExit),
 		Processes:   setup.AppProcesses(installs),
 		Log:         log,
@@ -74,7 +68,7 @@ func main() {
 		PrefersDark: setup.SystemPrefersDark(),
 		Problem:     problem,
 	})
-	if err := run(app); err != nil {
+	if err := run(facade); err != nil {
 		log.Record(err.Error())
 		if logErr != nil {
 			fmt.Fprintln(os.Stderr, err)
@@ -83,36 +77,11 @@ func main() {
 	}
 }
 
-// run shows the window, painted the page's own ground before the page loads so it never flashes
-// the wrong one.
-func run(app *App) error {
-	light, dark, err := setup.Surfaces(sheet)
+// run shows the setup window with TimeRibbon's title and pictures.
+func run(facade *installer.Setup) error {
+	shown, err := fs.Sub(pictures, picturesRoot)
 	if err != nil {
-		return err
+		return fmt.Errorf("reading the setup pictures: %w", err)
 	}
-	surface := light
-	if app.prefersDark {
-		surface = dark
-	}
-	err = wails.Run(&options.App{
-		Title:            windowTitle,
-		Width:            windowWidth,
-		Height:           windowHeight,
-		DisableResize:    true,
-		BackgroundColour: &options.RGBA{R: surface.R, G: surface.G, B: surface.B, A: opaque},
-		AssetServer:      &assetserver.Options{Assets: assets},
-		OnStartup:        app.startup,
-		OnDomReady:       app.domReady,
-		Bind:             []any{app},
-		Windows: &windowsoptions.Options{
-			WindowClassName: setupID,
-			// Setup's own web view cache sits under TEMP, so running it leaves no folder beside the
-			// application's settings.
-			WebviewUserDataPath: filepath.Join(os.TempDir(), setupID),
-		},
-	})
-	if err != nil {
-		return fmt.Errorf("running the setup window: %w", err)
-	}
-	return nil
+	return installer.Run(&App{facade}, facade, installer.Window{Title: product.Name + " Setup", Pictures: shown})
 }

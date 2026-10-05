@@ -17,7 +17,7 @@ import (
 )
 
 // setupFrontendDir is the setup program's page.
-var setupFrontendDir = filepath.Join("installer", "frontend", "dist")
+var setupFrontendDir = filepath.Join(kitTree, "installer", "page")
 
 // setupFrontendExtensions are the files there the rules govern; the images beside them are artwork.
 var setupFrontendExtensions = map[string]bool{".html": true, ".css": true, ".js": true}

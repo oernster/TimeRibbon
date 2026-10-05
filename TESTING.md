@@ -51,16 +51,22 @@ figure with the fraction dropped, so it fails once cover is lost.
 | the root package (the Wails facade) | 66.1% | 66% |
 | `tools/genplaces` | 58.6% | 58% |
 | `ribbonkit/infrastructure/desktop` | 46.8% | 46% |
+| `ribbonkit/installer` | 11.8% | 11% |
 | `internal/product` | 100% | not gated |
-| `installer` | 0%, no tests | not gated |
+| `installer` | 0% | not gated |
 
-Every figure is the Windows build's, which `test.ps1` measures. That build compiles 419 Go test
+`ribbonkit/installer` is the setup program's window: its tests hold the pictures the page asks for
+and the layering of the page over them. The facade the page calls has never had tests of its own,
+before the move into the kit or since; that is the gap. TimeRibbon's `installer` is its composition
+root, whose one test reads the pictures it carries, which runs no statement.
+
+Every figure is the Windows build's, which `test.ps1` measures. That build compiles 425 Go test
 functions, counted from the test files `go list` selects, each running once with no subtests, plus
-one `TestMain` in `ribbonkit/infrastructure/setup`. Thirty-five are the structural tests, which read
+one `TestMain` in `ribbonkit/infrastructure/setup`. Thirty-seven are the structural tests, which read
 the source and are the same on every platform; [ARCHITECTURE.md](ARCHITECTURE.md) lists each against
 its rule. `TestA1Point0SettingsFileIsReadWhole` in `store` holds the settings file's promise
 (NFR-C-1); `contrast_test.go` holds NFR-U-1 in Go because Vitest hands a CSS import back empty. The
-macOS build compiles 392 and the Linux build 396 ([On macOS and Linux](#on-macos-and-linux)).
+macOS build compiles 394 and the Linux build 398 ([On macOS and Linux](#on-macos-and-linux)).
 
 ### The front end
 

@@ -83,7 +83,8 @@ try {
 # The rest of the tree, each package held at the number it reaches. TESTING.md names what each
 # shortfall is: error returns that only a failing disk, registry or display driver can produce. In
 # the root package it is the composition root; in the kit's window, the calls that reach Wails and
-# the start, listening and stop that only Wails runs.
+# the start, listening and stop that only Wails runs; in the kit's setup program, the facade the
+# page calls, which has never had tests of its own.
 $measured = [ordered]@{
     '.'                                  = 66
     './ribbonkit/ui/window'               = 93
@@ -93,6 +94,7 @@ $measured = [ordered]@{
     './ribbonkit/infrastructure/runlog'   = 77
     './ribbonkit/infrastructure/monitors' = 82
     './ribbonkit/infrastructure/setup'   = 84
+    './ribbonkit/installer'              = 11
     './ribbonkit/infrastructure/startup'  = 80
     './internal/infrastructure/store'    = 94
     './ribbonkit/infrastructure/system'   = 100

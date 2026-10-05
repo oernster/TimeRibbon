@@ -4,11 +4,11 @@
 // very files it ships and its scripts are run the way the page runs them. Every suite over the
 // page reads it from here, so no two of them can lay it out differently.
 
-import page from '../../installer/frontend/dist/index.html?raw'
-import ring from '../../installer/frontend/dist/setup-ring.js?raw'
-import reading from '../../installer/frontend/dist/auto-scroll.js?raw'
-import shell from '../../installer/frontend/dist/setup-shell.js?raw'
-import routes from '../../installer/frontend/dist/setup-routes.js?raw'
+import page from '../../ribbonkit/installer/page/index.html?raw'
+import ring from '../../ribbonkit/installer/page/setup-ring.js?raw'
+import reading from '../../ribbonkit/installer/page/auto-scroll.js?raw'
+import shell from '../../ribbonkit/installer/page/setup-shell.js?raw'
+import routes from '../../ribbonkit/installer/page/setup-routes.js?raw'
 
 /** State is the reading of the machine the setup program hands the page. */
 export interface State {

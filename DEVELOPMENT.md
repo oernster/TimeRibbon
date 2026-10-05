@@ -204,7 +204,8 @@ check compares it with GitHub's latest release tag, so a development placeholder
 | `internal/product` | names, version, donation address, author, sign-in label, credits |
 | `build.ps1`, `test.ps1`, `VERSION`, `stamp_version.py` | the Windows build; the gate; the version; the site stamp |
 | `builddmg.sh`, `build_flatpak.sh`, `cleanup_flatpak.sh` | the macOS DMG; the Flatpak and its removal |
-| `frontend/src`, `installer/` | the React page; the setup program, whose page has no build step |
+| `frontend/src`, `installer/` | the React page; the setup program's composition root, which carries the payload and the page's pictures (`installer/frontend/dist`, made by `tools/genicons.py`) |
+| `ribbonkit/installer` | ribbonkit's setup program: its page (`page/`, which has no build step), the facade the page calls and the window |
 | `ribbonkit/web`, `ribbonkit/package.json` | ribbonkit's half of the page, an npm package the front end links as `file:../ribbonkit`: the bridge to the window, its wire, the page's shell (`shell.ts`), the ribbon's band with its tab and the pull out with its handle (`Band.tsx`, `PullOut.tsx`, styled by `ribbon.css`), the drag, opacity, pixel ratio, scroll bar, background, panel fit, the corner grip and the opacity slider with their styles (`controls.css`) and the ribbon's palette (`theme.css`, `colours.css`); `web/testing` is its stand-in bridge and Go's events; nothing in it reaches the rest of the page (`kitpage_test.go`) |
 | `tests/structural`, `tools/`, `assets/`, `docs/` | the architecture's tests; generators; master artwork; the site |
 

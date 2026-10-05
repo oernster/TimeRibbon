@@ -49,7 +49,10 @@ here does not exist.
 | The wire is stated alike in `dto.go` with the window's `wire.go` and in `frontend/src/wire.ts` with `ribbonkit/web/wire.ts` | `TestTheWireIsStatedAlikeOnBothSides` | [`wire_test.go`](tests/structural/wire_test.go) |
 | The page listens for every event the window and `app.go` emit and keys every panel they name | `TestThePageNamesEveryEventGoEmits` | [`wire_test.go`](tests/structural/wire_test.go) |
 | Every method the page's `Bridge` calls is bound on `App`; none of the window's `Control` is | `TestEveryMethodThePageCallsIsBound`, `TestNothingOfTheControlIsBound` | [`page_api_test.go`](page_api_test.go) |
-| The setup page listens for every event `installer/app.go` emits | `TestTheSetupPageNamesEveryEventSetupEmits` | [`wire_test.go`](tests/structural/wire_test.go) |
+| The setup page listens for every event the kit's setup facade (`ribbonkit/installer/facade.go`) emits | `TestTheSetupPageNamesEveryEventSetupEmits` | [`wire_test.go`](tests/structural/wire_test.go) |
+| `ribbonkit` holds its four layers, its page half (`web`) and its setup program (`installer`) and nothing else, so no folder escapes the layer rules | `TestTheKitHoldsOnlyItsLayersThePageAndTheSetupProgram` | [`kitinstaller_test.go`](tests/structural/kitinstaller_test.go) |
+| The kit's setup program imports nothing of the module but the install policy | `TestTheSetupProgramReachesOnlyTheInstallPolicy` | [`kitinstaller_test.go`](tests/structural/kitinstaller_test.go) |
+| Every picture the setup page shows is one `installer.Pictures` asks for; TimeRibbon's setup carries each | `TestPicturesNamesEveryPictureThePageShows`, `TestTimeRibbonCarriesEveryPictureTheSetupPageShows` | [`run_test.go`](ribbonkit/installer/run_test.go), [`main_test.go`](installer/main_test.go) |
 | Each `wails.json` names its executable as `internal/product` does | `TestEachWailsConfigNamesItsExecutableAsTheProductDoes` | [`names_test.go`](tests/structural/names_test.go) |
 | In each half of the palette (ribbonkit's `colours.css`, TimeRibbon's `dials.css`) every offered scheme has a block stating each of that half's Classic tokens (the problem colour aside); every block is offered (FR-611) | `TestEveryOfferedSchemeHasItsOwnCompleteBlock` | [`colours_test.go`](tests/structural/colours_test.go) |
 | Text, muted text and problem text meet 4.5:1 on the cell and the surface, every scheme, both themes (NFR-U-1) | `TestTextMeetsTheContrastFloorOnEverySchemeAndTheme` | [`contrast_test.go`](tests/structural/contrast_test.go) |
@@ -386,7 +389,7 @@ platform's build ships (FR-607), from one table in `internal/product/credits.go`
 `TestEveryLinkedModuleIsCredited` holds each platform's credits to the modules its build links.
 Licence shows the embedded `LICENSE` exactly as written, its type sized so the widest line fits
 (FR-608). Both read themselves when they overflow (FR-609) through one script,
-`installer/frontend/dist/auto-scroll.js`, shared with the setup page, which can import nothing;
+`ribbonkit/installer/page/auto-scroll.js`, shared with the setup page, which can import nothing;
 `frontend/src/autoScroll.ts` types it and wraps it in a React hook.
 
 ## The update check
@@ -421,7 +424,14 @@ before any is written, FR-803), the version comparison, the Apps list record, th
 go-ole), Start with Windows (through `startup`, the value Settings writes) and the step log. It names
 no product: `installer/main.go` hands it a `setup.Product` (the kit's identity and the publisher),
 from which the install folder, the executable, the shortcuts and the Apps list entry take their name.
-`installer/app.go` is a facade over it. Steps are weighted by measured time.
+The window over it is ribbonkit's too: `ribbonkit/installer` holds the setup page (`page/`, no build
+step), the facade the page calls (`facade.go`) and `Run`, which opens the window. It sits outside
+the layers as a program of its own and imports nothing of the module but the install policy. What
+stays TimeRibbon's is the composition root, `installer/main.go`: it carries the payload, names the
+product, binds the facade by embedding it (so the page still reaches it as `main.App`) and hands in
+the page's pictures, which `tools/genicons.py` writes to `installer/frontend/dist` and the window
+serves over the page. `installer.Pictures` names the pictures the page asks for. Steps are weighted
+by measured time.
 
 | Reading of the machine | Screen |
 |---|---|

@@ -1,6 +1,10 @@
 //go:build windows
 
-package main
+// Package installer is a ribbon's setup program (FR-801 to FR-810): the window, its page and the
+// facade the page calls, over the install policy in ribbonkit/infrastructure/setup. It names no
+// product. The application's own setup command is its composition root: it carries the payload and
+// the pictures the page shows, binds Setup by embedding it in a type of its own and calls Run.
+package installer
 
 import (
 	"context"
@@ -9,7 +13,6 @@ import (
 
 	wailsruntime "github.com/wailsapp/wails/v2/pkg/runtime"
 
-	"github.com/oernster/timeribbon/internal/product"
 	"github.com/oernster/timeribbon/ribbonkit/infrastructure/setup"
 )
 
@@ -23,7 +26,12 @@ const (
 // Config is what the setup window is built over.
 type Config struct {
 	// Product is the application this setup program installs.
-	Product     setup.Product
+	Product setup.Product
+	// SetupID names what is setup's own: its window class, its web view cache and its step log.
+	SetupID string
+	// RibbonClass is the class the application's ribbon window is created with, which setup waits
+	// for after starting it.
+	RibbonClass string
 	Machine     setup.Machine
 	Processes   setup.Processes
 	Log         *setup.StepLog
@@ -34,11 +42,13 @@ type Config struct {
 	Problem error
 }
 
-// App is the Wails facade: everything the page can do goes through a method here. Each one hands
-// straight to the setup package, which owns the install policy.
-type App struct {
+// Setup is the facade the page calls: everything it can do goes through a method here. Each one
+// hands straight to the setup package, which owns the install policy.
+type Setup struct {
 	ctx         context.Context
 	product     setup.Product
+	setupID     string
+	ribbonClass string
 	machine     setup.Machine
 	processes   setup.Processes
 	log         *setup.StepLog
@@ -48,10 +58,12 @@ type App struct {
 	problem     error
 }
 
-// NewApp builds the facade. Started with -uninstall, setup opens on the Uninstall screen (FR-801).
-func NewApp(config Config) *App {
-	return &App{
+// New builds the facade. Started with -uninstall, setup opens on the Uninstall screen (FR-801).
+func New(config Config) *Setup {
+	return &Setup{
 		product:     config.Product,
+		setupID:     config.SetupID,
+		ribbonClass: config.RibbonClass,
 		machine:     config.Machine,
 		processes:   config.Processes,
 		log:         config.Log,
@@ -62,16 +74,16 @@ func NewApp(config Config) *App {
 	}
 }
 
-func (a *App) startup(ctx context.Context) { a.ctx = ctx }
+func (s *Setup) startup(ctx context.Context) { s.ctx = ctx }
 
 // domReady gives the page the keyboard once it exists, since a cold launch can lose the race that
 // would otherwise hand it over.
-func (a *App) domReady(context.Context) { a.TakeKeyboard() }
+func (s *Setup) domReady(context.Context) { s.TakeKeyboard() }
 
 // TakeKeyboard gives the web view the keyboard; the page calls it when it finds it has none.
-func (a *App) TakeKeyboard() {
-	if !setup.TakeFocus(setupID) && a.ctx != nil {
-		wailsruntime.WindowShow(a.ctx)
+func (s *Setup) TakeKeyboard() {
+	if !setup.TakeFocus(s.setupID) && s.ctx != nil {
+		wailsruntime.WindowShow(s.ctx)
 	}
 }
 
@@ -110,104 +122,105 @@ type ProgressDTO struct {
 }
 
 // DetectState reads the machine once and decides the route (FR-801).
-func (a *App) DetectState() StateDTO {
+func (s *Setup) DetectState() StateDTO {
 	state := StateDTO{
-		AppName:     a.product.App.Name,
-		Uninstall:   a.uninstall,
-		ThisVersion: a.carried.Version,
-		PrefersDark: a.prefersDark,
-		LogPath:     a.log.Path(),
+		AppName:     s.product.App.Name,
+		Uninstall:   s.uninstall,
+		ThisVersion: s.carried.Version,
+		PrefersDark: s.prefersDark,
+		LogPath:     s.log.Path(),
 	}
-	if a.problem != nil {
-		state.Problem = a.problem.Error()
+	if s.problem != nil {
+		state.Problem = s.problem.Error()
 		return state
 	}
-	existing, err := a.machine.Read()
+	existing, err := s.machine.Read()
 	if err != nil {
-		a.log.Record("reading the machine: " + err.Error())
+		s.log.Record("reading the machine: " + err.Error())
 		state.Problem = err.Error()
 		return state
 	}
 	offered := setup.Offered(existing)
-	state.Route = string(setup.RouteFor(existing, a.carried.Version))
+	state.Route = string(setup.RouteFor(existing, s.carried.Version))
 	state.InstalledVersion = existing.Version
 	state.StartMenu, state.Desktop, state.StartWithWindows = offered.StartMenu, offered.Desktop, offered.StartWithWindows
-	a.log.Record("route " + state.Route + ", installed " + existing.Version + ", carried " + a.carried.Version)
+	s.log.Record("route " + state.Route + ", installed " + existing.Version + ", carried " + s.carried.Version)
 	return state
 }
 
-// AppRunning reports whether TimeRibbon is open, asked before any file is touched (FR-807).
-func (a *App) AppRunning() bool { return a.processes.Running() }
+// AppRunning reports whether the application is open, asked before any file is touched (FR-807).
+func (s *Setup) AppRunning() bool { return s.processes.Running() }
 
 // CloseRunningApp ends every running copy by image name and waits for them to go (FR-807).
-func (a *App) CloseRunningApp() error {
-	a.log.Record("closing the running copy")
-	err := a.processes.Close()
+func (s *Setup) CloseRunningApp() error {
+	s.log.Record("closing the running copy")
+	err := s.processes.Close()
 	if err != nil {
-		a.log.Record(err.Error())
+		s.log.Record(err.Error())
 	}
 	return err
 }
 
 // Install performs an install, an update, a going back or a reinstall: all the same act (FR-802).
-func (a *App) Install(choices ChoicesDTO) error {
-	return a.perform("install", func() ([]setup.Step, error) {
-		return a.machine.InstallSteps(a.carried, choices.choices()), nil
+func (s *Setup) Install(choices ChoicesDTO) error {
+	return s.perform("install", func() ([]setup.Step, error) {
+		return s.machine.InstallSteps(s.carried, choices.choices()), nil
 	})
 }
 
 // Repair writes the files again, keeping every box as it stands on the machine (FR-804).
-func (a *App) Repair() error {
-	return a.perform("repair", func() ([]setup.Step, error) { return a.machine.RepairSteps(a.carried) })
+func (s *Setup) Repair() error {
+	return s.perform("repair", func() ([]setup.Step, error) { return s.machine.RepairSteps(s.carried) })
 }
 
-// Uninstall removes TimeRibbon, forgetting the settings only when asked (FR-806).
-func (a *App) Uninstall(forget bool) error {
-	return a.perform("uninstall", func() ([]setup.Step, error) { return a.machine.UninstallSteps(forget), nil })
+// Uninstall removes the application, forgetting the settings only when asked (FR-806).
+func (s *Setup) Uninstall(forget bool) error {
+	return s.perform("uninstall", func() ([]setup.Step, error) { return s.machine.UninstallSteps(forget), nil })
 }
 
 // Apply applies the boxes at once, as each changes on the Installed screen.
-func (a *App) Apply(choices ChoicesDTO) error {
-	a.log.Record("applying the boxes")
-	return setup.Run(a.machine.ChoiceSteps(choices.choices()), a.log, func(setup.Progress) {})
+func (s *Setup) Apply(choices ChoicesDTO) error {
+	s.log.Record("applying the boxes")
+	return setup.Run(s.machine.ChoiceSteps(choices.choices()), s.log, func(setup.Progress) {})
 }
 
 // perform checks nothing is running, then runs the steps with the bar and the step log.
-func (a *App) perform(name string, steps func() ([]setup.Step, error)) error {
-	a.log.Record(name + " asked for")
-	if a.processes.Running() {
-		refusal := a.processes.Refusal()
-		a.log.Record(refusal.Error())
+func (s *Setup) perform(name string, steps func() ([]setup.Step, error)) error {
+	s.log.Record(name + " asked for")
+	if s.processes.Running() {
+		refusal := s.processes.Refusal()
+		s.log.Record(refusal.Error())
 		return refusal
 	}
 	list, err := steps()
 	if err != nil {
-		a.log.Record(err.Error())
+		s.log.Record(err.Error())
 		return err
 	}
-	return setup.Run(list, a.log, a.progress)
+	return setup.Run(list, s.log, s.progress)
 }
 
-// LaunchApp starts TimeRibbon and waits for the ribbon to come forward, so setup closes behind it.
-func (a *App) LaunchApp() error {
-	a.log.Record("starting " + a.product.App.Name)
-	err := setup.Launch(a.machine.Places().Program(), product.RibbonClass, launchWait)
+// LaunchApp starts the application and waits for the ribbon to come forward, so setup closes
+// behind it.
+func (s *Setup) LaunchApp() error {
+	s.log.Record("starting " + s.product.App.Name)
+	err := setup.Launch(s.machine.Places().Program(), s.ribbonClass, launchWait)
 	if err != nil {
-		a.log.Record(err.Error())
+		s.log.Record(err.Error())
 	}
 	return err
 }
 
 // Licence answers the licence setup carries, for the Licence screen.
-func (a *App) Licence() (string, error) { return setup.Licence(a.carried.Payload) }
+func (s *Setup) Licence() (string, error) { return setup.Licence(s.carried.Payload) }
 
 // Quit closes the setup program.
-func (a *App) Quit() {
-	a.log.Record("closed")
-	wailsruntime.Quit(a.ctx)
+func (s *Setup) Quit() {
+	s.log.Record("closed")
+	wailsruntime.Quit(s.ctx)
 }
 
 // progress reports how far the work has got.
-func (a *App) progress(p setup.Progress) {
-	wailsruntime.EventsEmit(a.ctx, progressEvent, ProgressDTO{Pct: p.Percent, Msg: p.Step})
+func (s *Setup) progress(p setup.Progress) {
+	wailsruntime.EventsEmit(s.ctx, progressEvent, ProgressDTO{Pct: p.Percent, Msg: p.Step})
 }

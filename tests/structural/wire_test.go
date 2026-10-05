@@ -3,7 +3,7 @@ package structural
 // The wire is stated twice: Go structs with json tags in wireFiles and TypeScript interfaces in
 // frontend/src/wire.ts. The type checker sees only the TypeScript and the marshaller sees only the
 // Go, so this test compares them, field for field in both directions. It also holds the event words
-// the window, app.go and installer/app.go emit to their pages, which each page must name exactly.
+// the window, app.go and the setup facade emit to their pages, which each page must name exactly.
 
 import (
 	"fmt"
@@ -34,9 +34,12 @@ var wireFiles = []string{"dto.go", filepath.Join("ribbonkit", "ui", "window", "w
 // windowFile is where the kit's window states the words it sends the page.
 var windowFile = filepath.Join("ribbonkit", "ui", "window", "facade.go")
 
+// setupFacade is where the kit's setup program states the words it sends its page.
+var setupFacade = filepath.Join("ribbonkit", "installer", "facade.go")
+
 // windowWords names each constant the window sends the page with the shape the page must state its
 // value in: a listener for an event and a key of panelFor for a panel. appWords does the same for
-// app.go, setupWords for installer/app.go and the setup page. The shape rather than the bare quoted
+// app.go, setupWords for the setup facade and the setup page. The shape rather than the bare quoted
 // word, since a view, a panel or a test may share the word and would hide a listener or a key that
 // no longer matches.
 var (
@@ -139,9 +142,9 @@ func TestThePageNamesEveryEventGoEmits(t *testing.T) {
 	requirePageNamesEveryWord(t, "app.go", appWords, frontendFiles(t))
 }
 
-// The setup program's progress bar moves only on the word installer/app.go emits.
+// The setup program's progress bar moves only on the word the kit's setup facade emits.
 func TestTheSetupPageNamesEveryEventSetupEmits(t *testing.T) {
-	requirePageNamesEveryWord(t, filepath.Join("installer", "app.go"), setupWords, setupFrontendFiles(t))
+	requirePageNamesEveryWord(t, setupFacade, setupWords, setupFrontendFiles(t))
 }
 
 // requirePageNamesEveryWord fails for each string constant in goFile whose value no file of the

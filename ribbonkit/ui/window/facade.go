@@ -70,14 +70,16 @@ func (a *Window) SetScrollbar(dip int) error { return a.refitted(a.service.SetSc
 
 // SetPixelRatio takes the page's devicePixelRatio, which it reports once it has loaded and again
 // whenever it changes, then fits the window to the page as it is really drawn. Windows' text size
-// enlarges the page without changing the display's DPI, so the DPI alone left the page cut off.
+// enlarges the page without changing the display's DPI, so the DPI alone left the page cut off. The
+// refit can move the pull out to the ribbon's other side, as when a drag carries the window onto a
+// display at other scaling, so the page draws again (measured 2026-10-05).
 func (a *Window) SetPixelRatio(ratio float64) error {
 	perDIP := a.perDIPOf(ratio, a.toolkitScale())
 	err := a.service.SetPixelsPerDIP(perDIP)
 	if err == nil {
 		a.pixelsPerDIP.Store(math.Float64bits(perDIP))
 	}
-	err = a.refitted(err)
+	err = a.redrawn(a.refitted(err))
 	if err == nil {
 		a.pageScaled()
 	}

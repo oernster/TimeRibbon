@@ -78,6 +78,31 @@ func TestADropThatMovesThePullOutTellsThePage(t *testing.T) {
 	}
 }
 
+// FR-407, FR-909: a new pixel ratio, as when a drag carries the window onto a display at other
+// scaling, refits the ribbon, which can move the pull out to its other side; the page is told to draw
+// again. Measured 2026-10-05: crossing onto a display at 250 percent mid-drag drew the old layout in
+// the window cut for the new one until the drop.
+func TestANewPixelRatioTellsThePage(t *testing.T) {
+	t.Parallel()
+	app, service, seen, _ := newTestApp(t)
+	service.arrangement = withPullOut
+	if err := app.placeLaunched(); err != nil {
+		t.Fatal(err)
+	}
+	app.show()
+	above := withPullOut
+	above.PullOutSide = placement.Top
+	above.PullOut = placement.Rect{Left: -80, Top: -220, Right: 400, Bottom: 20}
+	service.arrangement = above
+	seen.events = nil
+	if err := app.SetPixelRatio(2.5); err != nil {
+		t.Fatal(err)
+	}
+	if !seen.sawEvent(eventRefresh) || app.shown().PullOutSide != placement.Top {
+		t.Errorf("a new ratio sent %v with the pull out at %q, want the page told to draw it on top", seen.events, app.shown().PullOutSide)
+	}
+}
+
 // FR-910: the page is told where to draw the pull out only while the full ribbon shows, never with a
 // tab.
 func TestThePullOutHidesWithTheTab(t *testing.T) {

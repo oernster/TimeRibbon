@@ -397,7 +397,7 @@ over GTK's window scale, since KDE hands an X11 program a fractional scale as fo
 Verified by: by hand; `TestTheRibbonIsSizedByTheScaleThePageIsDrawnAt`,
 `TestTheReportedScaleHoldsOnADisplayAtAnotherDPI`, `TestAPanelIsSizedByTheScaleThePageIsDrawnAt`,
 `TestAScaledRibbonFitsTheRoomTheDisplayOffersAtThatScale`, `TestAnUnusableScaleIsRefused`
-(arranger); `TestThePagesRatioIsTakenWithTheToolkitsScale` (window);
+(arranger); `TestThePagesRatioIsTakenWithTheToolkitsScale`, `TestANewPixelRatioTellsThePage` (window);
 `TestTheWindowTakesThePagesRatioOverGTKsScale`, `TestGTKsWindowScaleIsRead` (desktop, Linux);
 `pixelRatio.test.ts` (ribbonkit).
 

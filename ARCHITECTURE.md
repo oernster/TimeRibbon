@@ -167,7 +167,8 @@ window" and "Place and drag"). What TimeRibbon decides:
 
 ## Time
 
-Zones resolve through `time.LoadLocation` with `time/tzdata` built in (CON-5); an empty id is refused.
+Zones resolve through the kit's `zones.Resolver`: `time.LoadLocation` with `time/tzdata` built in
+(CON-5), each zone loaded once; an empty id and `Local` are refused.
 Windows has no zone files Go reads, so there the built-in rules are used; macOS and Linux read their
 own first. The place catalogue, `internal/infrastructure/zones/places.tsv`, comes from tz 2025b's
 `zone.tab` and `iso3166.tab` through `tools/genplaces` and holds 418 zones, each held to resolving by

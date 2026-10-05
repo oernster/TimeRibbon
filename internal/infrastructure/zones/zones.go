@@ -1,8 +1,5 @@
-// Package zones resolves zone ids through Go's time.LoadLocation and lists the places the search
-// offers (CON-5, FR-302). The tz database is built into the binary through time/tzdata. Windows has
-// no zone files of its own, so there the built-in rules are the only ones read; on macOS and Linux
-// LoadLocation reads the system's zone files first and falls back to the built-in rules only when a
-// zone is missing there.
+// Package zones lists the places the search offers and resolves zone ids (CON-5, FR-302). Resolving
+// is the kit's, with the tz database built into the binary; see ribbonkit's infrastructure/zones.
 package zones
 
 import (
@@ -10,10 +7,9 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
-	_ "time/tzdata"
 
+	kitzones "github.com/oernster/ribbonkit/infrastructure/zones"
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/sun"
@@ -28,7 +24,7 @@ var places string
 // Zones is the application's Zones port.
 type Zones struct {
 	catalogue []application.Place
-	resolved  sync.Map
+	resolver  kitzones.Resolver
 }
 
 // New parses the embedded catalogue. A failure is a defect in the build rather than on the
@@ -46,22 +42,9 @@ func fromText(text string) (*Zones, error) {
 	return &Zones{catalogue: catalogue}, nil
 }
 
-// Resolve answers the location for zone as the package comment describes, caching each zone once
-// loaded. An empty id is refused rather than read as UTC, which is what Go would make of it.
-func (z *Zones) Resolve(zone string) (*time.Location, error) {
-	if cached, ok := z.resolved.Load(zone); ok {
-		return cached.(*time.Location), nil
-	}
-	if zone == "" || strings.EqualFold(zone, "Local") {
-		return nil, fmt.Errorf("%q is not a time zone id", zone)
-	}
-	location, err := time.LoadLocation(zone)
-	if err != nil {
-		return nil, err
-	}
-	z.resolved.Store(zone, location)
-	return location, nil
-}
+// Resolve answers the location for zone through the kit's resolver: cached once loaded, with an empty
+// id and "Local" refused (FR-705).
+func (z *Zones) Resolve(zone string) (*time.Location, error) { return z.resolver.Resolve(zone) }
 
 // Catalogue answers every place, in the catalogue's order.
 func (z *Zones) Catalogue() []application.Place {

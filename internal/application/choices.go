@@ -3,9 +3,9 @@ package application
 import (
 	"fmt"
 
+	"github.com/oernster/ribbonkit/domain/ribbon"
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
-	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // SetStyle chooses digital or analogue presentation (FR-601 to FR-604).

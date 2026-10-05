@@ -7,12 +7,12 @@ package main
 // promise.
 
 import (
+	"github.com/oernster/ribbonkit/application/menus"
+	"github.com/oernster/ribbonkit/ui/window"
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
 	"github.com/oernster/timeribbon/internal/product"
-	"github.com/oernster/timeribbon/ribbonkit/application/menus"
-	"github.com/oernster/timeribbon/ribbonkit/ui/window"
 )
 
 // openAtAddClock asks the page to open Settings on the place search (FR-301).

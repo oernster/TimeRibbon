@@ -41,6 +41,10 @@ Write-Host "Building $appName $version"
 # set before the gate as well, so the tests exercise the configuration that ships.
 $env:CGO_ENABLED = '0'
 
+# What ships is built from the ribbonkit tag go.mod requires, never from a working copy a local
+# go.work points at while the kit is being changed beside TimeRibbon.
+$env:GOWORK = 'off'
+
 # Verify before building, with no way past it (NFR-M-1). A gate that can be skipped is skipped on
 # the day it would have caught something: run test.ps1 directly while working; let the build insist.
 & (Join-Path $root 'test.ps1')

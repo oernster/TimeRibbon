@@ -1,8 +1,8 @@
 package application
 
 import (
-	"github.com/oernster/timeribbon/ribbonkit/application/menus"
-	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
+	"github.com/oernster/ribbonkit/application/menus"
+	"github.com/oernster/ribbonkit/domain/ribbon"
 )
 
 // TimeRibbon's own actions; every ribbon's are ribbonkit's menus package's. The words shown for each

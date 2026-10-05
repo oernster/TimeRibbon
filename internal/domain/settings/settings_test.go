@@ -5,8 +5,8 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/oernster/ribbonkit/domain/ribbon"
 	"github.com/oernster/timeribbon/internal/domain/clock"
-	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 func withClocks(ids ...string) Settings {

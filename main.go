@@ -13,22 +13,22 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/oernster/ribbonkit/application/menus"
+	"github.com/oernster/ribbonkit/application/release"
+	"github.com/oernster/ribbonkit/domain/placement"
+	"github.com/oernster/ribbonkit/infrastructure/appdata"
+	"github.com/oernster/ribbonkit/infrastructure/desktop"
+	"github.com/oernster/ribbonkit/infrastructure/monitors"
+	"github.com/oernster/ribbonkit/infrastructure/occupancy"
+	"github.com/oernster/ribbonkit/infrastructure/runlog"
+	"github.com/oernster/ribbonkit/infrastructure/startup"
+	"github.com/oernster/ribbonkit/infrastructure/system"
+	"github.com/oernster/ribbonkit/infrastructure/update"
+	"github.com/oernster/ribbonkit/ui/window"
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/internal/infrastructure/store"
 	"github.com/oernster/timeribbon/internal/infrastructure/zones"
 	"github.com/oernster/timeribbon/internal/product"
-	"github.com/oernster/timeribbon/ribbonkit/application/menus"
-	"github.com/oernster/timeribbon/ribbonkit/application/release"
-	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
-	"github.com/oernster/timeribbon/ribbonkit/infrastructure/appdata"
-	"github.com/oernster/timeribbon/ribbonkit/infrastructure/desktop"
-	"github.com/oernster/timeribbon/ribbonkit/infrastructure/monitors"
-	"github.com/oernster/timeribbon/ribbonkit/infrastructure/occupancy"
-	"github.com/oernster/timeribbon/ribbonkit/infrastructure/runlog"
-	"github.com/oernster/timeribbon/ribbonkit/infrastructure/startup"
-	"github.com/oernster/timeribbon/ribbonkit/infrastructure/system"
-	"github.com/oernster/timeribbon/ribbonkit/infrastructure/update"
-	"github.com/oernster/timeribbon/ribbonkit/ui/window"
 )
 
 // The empty ribbon's one cell, the padding round the cells and the pull out handle's lane, in DIP,
@@ -145,7 +145,7 @@ func run(log io.Writer) error {
 		Monitors:   monitors.Monitors{},
 		Neighbours: neighbours,
 		Startup:    startup.New(product.App(), program),
-		Releases:   update.New(),
+		Releases:   update.New(product.Repository),
 		Build:      release.Build{Version: product.Version, Platform: release.PlatformKeyFor(runtime.GOOS)},
 	}, layouts)
 	if err := service.Start(); err != nil {

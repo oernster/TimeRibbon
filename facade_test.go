@@ -5,13 +5,13 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/oernster/ribbonkit/application/menus"
+	"github.com/oernster/ribbonkit/domain/placement"
+	"github.com/oernster/ribbonkit/ui/window"
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/internal/domain/settings"
 	"github.com/oernster/timeribbon/internal/domain/sun"
 	"github.com/oernster/timeribbon/internal/product"
-	"github.com/oernster/timeribbon/ribbonkit/application/menus"
-	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
-	"github.com/oernster/timeribbon/ribbonkit/ui/window"
 )
 
 // Every change to the clocks is followed by fitting the ribbon, whether or not it saved: a change

@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/oernster/ribbonkit/domain/ribbon"
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
-	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // FR-102, FR-202: cells in order, each with its own zone's day.

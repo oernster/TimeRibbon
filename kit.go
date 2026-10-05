@@ -6,8 +6,8 @@ package main
 import (
 	"embed"
 
+	"github.com/oernster/ribbonkit/domain/ribbon"
 	"github.com/oernster/timeribbon/internal/application"
-	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // assets is the built page the window serves.

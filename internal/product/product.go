@@ -2,7 +2,7 @@
 // the settings folder, the log, the Start with Windows value and the setup program.
 package product
 
-import "github.com/oernster/timeribbon/ribbonkit/domain/identity"
+import "github.com/oernster/ribbonkit/domain/identity"
 
 // Name is the product's name as a reader sees it.
 const Name = "TimeRibbon"
@@ -14,6 +14,10 @@ const SetupName = Name + "Setup"
 // AppID is the reverse-domain id the Linux desktop knows TimeRibbon by: the Flatpak's id and the
 // name of its start-at-sign-in entry.
 const AppID = "uk.codecrafter." + Name
+
+// Repository is TimeRibbon's GitHub repository as owner/name: the one the update check asks for
+// its latest release (FR-509).
+const Repository = "oernster/" + Name
 
 // RibbonClass is the class the ribbon's window is created with, so it can be found by it (CON-7).
 // Setup looks for it to know the ribbon is up before it closes.

@@ -6,7 +6,7 @@ import (
 	"io/fs"
 	"testing"
 
-	"github.com/oernster/timeribbon/ribbonkit/installer"
+	"github.com/oernster/ribbonkit/installer"
 )
 
 // The setup page shows TimeRibbon's pictures; one the build does not carry shows broken.

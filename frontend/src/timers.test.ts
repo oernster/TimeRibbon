@@ -14,21 +14,20 @@
 // reason it cannot wake the page more often than once a minute.
 
 import { describe, expect, it } from 'vitest'
-import kit from '../../ribbonkit/package.json'
+import kit from '../node_modules/@oernster/ribbonkit/package.json'
 
-// The sources are read as text the way setupPage.ts reads the setup page, so the test sees exactly
-// the files the build bundles.
-const sources = import.meta.glob<string>(
-  ['./**/*.{ts,tsx}', '../../ribbonkit/web/**/*.{ts,tsx}', '../../ribbonkit/installer/page/*.js'],
-  {
-    query: '?raw',
-    import: 'default',
-    eager: true,
-  },
+// The sources are read as text, so the test sees exactly the files the build bundles. The kit is
+// globbed on its own: given beside './**', Vite's glob left out everything under node_modules
+// (measured: 28 files and none of the kit's; alone, the kit's pattern found its 33).
+const ownSources = import.meta.glob<string>('./**/*.{ts,tsx}', { query: '?raw', import: 'default', eager: true })
+const kitSources = import.meta.glob<string>(
+  ['../node_modules/@oernster/ribbonkit/web/**/*.{ts,tsx}', '../node_modules/@oernster/ribbonkit/installer/page/*.js'],
+  { query: '?raw', import: 'default', eager: true },
 )
+const sources = { ...ownSources, ...kitSources }
 
-/** KIT_ROOT is the kit package's folder as the glob keys it; its exports are relative to it. */
-const KIT_ROOT = '../../ribbonkit'
+/** KIT_ROOT is the kit package's folder as npm installed it and the glob keys it; its exports are relative to it. */
+const KIT_ROOT = '../node_modules/@oernster/ribbonkit'
 
 /** KIT_SOURCE is the kit's half of the page, which is shipped source exactly as frontend/src is. */
 const KIT_SOURCE = `${KIT_ROOT}/web/`
@@ -42,9 +41,10 @@ const SCRIPT_EXTENSIONS = ['.ts', '.tsx', '.js']
 /** TEST_SUPPORT is source that only tests import, with why it is not part of the page. */
 const TEST_SUPPORT: Record<string, string> = {
   'fakeBridge.ts': 'stands in for Go in the suites',
-  'setupPage.ts': 'lays out the setup page for its suites',
   'test-setup.ts': "Vitest's setup file",
   [`${KIT_SOURCE}testing/index.ts`]: "the kit's stand-in bridge for the suites",
+  [`${KIT_SOURCE}testing/setup.ts`]: "the kit's set-up for every suite, which test-setup.ts loads",
+  [`${KIT_SOURCE}setup/setupPage.ts`]: "lays out the setup page for the kit's own suites",
 }
 
 const TIMER_APIS = ['setInterval', 'setTimeout', 'requestAnimationFrame'] as const

@@ -1,23 +1,5 @@
 {
-  "compilerOptions": {
-    "target": "ES2020",
-    "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "skipLibCheck": true,
-    "preserveSymlinks": true,
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx",
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-    "types": ["vite/client", "vitest/globals"]
-  },
-  "include": ["src", "node_modules/@oernster/ribbonkit/web"],
+  "extends": "@oernster/ribbonkit/tsconfig.json",
+  "include": ["src"],
   "exclude": []
 }

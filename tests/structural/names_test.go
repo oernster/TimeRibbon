@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/oernster/ribbonkit/structure"
+
 	"github.com/oernster/timeribbon/internal/product"
 )
 
@@ -27,7 +29,7 @@ type wailsIdentity struct {
 
 func TestEachWailsConfigNamesItsExecutableAsTheProductDoes(t *testing.T) {
 	for file, want := range wailsNames {
-		raw, err := os.ReadFile(filepath.Join(repoRoot(t), file))
+		raw, err := os.ReadFile(filepath.Join(structure.Root(t), file))
 		if err != nil {
 			t.Fatalf("reading %s: %v", filepath.ToSlash(file), err)
 		}

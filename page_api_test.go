@@ -8,7 +8,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/oernster/timeribbon/ribbonkit/ui/window"
+	"github.com/oernster/ribbonkit/ui/window"
 )
 
 // The page states the facade in two halves: TimeRibbon's Bridge in api.ts, which extends the
@@ -19,10 +19,11 @@ var (
 	bridgeMethod    = regexp.MustCompile(`(?m)^\s+(\w+)\(`)
 )
 
-// pageHalves names each file stating a half of the facade with the pattern that finds it.
+// pageHalves names each file stating a half of the facade with the pattern that finds it: the
+// window's half is read from the kit the page is built from, as npm installed it.
 var pageHalves = map[string]*regexp.Regexp{
-	filepath.Join("frontend", "src", "api.ts"):     bridgeInterface,
-	filepath.Join("ribbonkit", "web", "bridge.ts"): windowInterface,
+	filepath.Join("frontend", "src", "api.ts"):                                              bridgeInterface,
+	filepath.Join("frontend", "node_modules", "@oernster", "ribbonkit", "web", "bridge.ts"): windowInterface,
 }
 
 // pageCalls answers every method the page calls on the facade, as its two halves state them.

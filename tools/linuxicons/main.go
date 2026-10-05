@@ -13,7 +13,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/oernster/timeribbon/ribbonkit/infrastructure/iconscale"
+	"github.com/oernster/ribbonkit/infrastructure/iconscale"
 )
 
 // themeSizes are the hicolor sizes installed: the freedesktop icon theme's usual set.

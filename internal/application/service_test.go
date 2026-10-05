@@ -6,9 +6,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/oernster/ribbonkit/domain/ribbon"
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
-	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // FR-704: the store's notice reaches the ribbon.

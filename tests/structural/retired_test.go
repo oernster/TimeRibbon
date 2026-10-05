@@ -18,6 +18,8 @@ import (
 	"slices"
 	"strings"
 	"testing"
+
+	"github.com/oernster/ribbonkit/structure"
 )
 
 // retiredWord is the word no tracked file may hold, compared without regard to case. The old
@@ -34,7 +36,7 @@ var thirdPartyFiles = []string{"frontend/package-lock.json"}
 // leaves behind, holds nothing and is left out too.
 func trackedTextFiles(t *testing.T) []string {
 	t.Helper()
-	root := repoRoot(t)
+	root := structure.Root(t)
 	command := exec.Command("git", "ls-files", "-z", "--cached", "--others", "--exclude-standard")
 	command.Dir = root
 	listing, err := command.Output()
@@ -72,7 +74,7 @@ func holdsRetiredWord(text string) bool {
 }
 
 func TestNoTrackedFileHoldsTheRetiredWord(t *testing.T) {
-	root := repoRoot(t)
+	root := structure.Root(t)
 	files := trackedTextFiles(t)
 	if len(files) == 0 {
 		t.Fatal("git listed no tracked text files, so nothing was checked")

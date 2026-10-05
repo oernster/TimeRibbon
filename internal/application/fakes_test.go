@@ -7,8 +7,8 @@ import (
 	"time"
 	_ "time/tzdata"
 
+	"github.com/oernster/ribbonkit/domain/placement"
 	"github.com/oernster/timeribbon/internal/domain/settings"
-	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // errPlanted is the failure a fake answers when a test asks it to fail.

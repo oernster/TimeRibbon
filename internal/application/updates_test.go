@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/oernster/ribbonkit/application/release"
 	"github.com/oernster/timeribbon/internal/domain/settings"
-	"github.com/oernster/timeribbon/ribbonkit/application/release"
 )
 
 // fakeReleases answers every check with info.
@@ -15,7 +15,7 @@ func (f fakeReleases) LatestRelease(context.Context) (release.Info, error) { ret
 
 var newerRelease = release.Info{Version: "v2.1.0", PageURL: "https://example.test/release"}
 
-// FR-509: skipping keeps the version in the settings, saved, and the service hands the kept skip to
+// FR-509: skipping keeps the version in the settings, saved; the service hands the kept skip to
 // the check, so the automatic check no longer offers it. The check's own rules are ribbonkit's
 // release package's tests.
 func TestSkippingKeepsTheVersion(t *testing.T) {

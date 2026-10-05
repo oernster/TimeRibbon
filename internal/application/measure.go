@@ -3,9 +3,9 @@ package application
 import (
 	"fmt"
 
+	"github.com/oernster/ribbonkit/domain/placement"
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
-	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // Measured is the width in DIP a cell needs to show its widest time and date whole, as the page

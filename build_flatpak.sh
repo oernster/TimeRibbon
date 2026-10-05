@@ -137,6 +137,8 @@ build-options:
     GOPATH: /run/build/${BIN_NAME}/gopath
     GOCACHE: /run/build/${BIN_NAME}/gocache
     GOFLAGS: -buildvcs=false
+    # What ships is built from the ribbonkit tag go.mod requires, never a local go.work's copy.
+    GOWORK: "off"
     npm_config_cache: /run/build/${BIN_NAME}/npm-cache
 modules:
   - name: ${BIN_NAME}

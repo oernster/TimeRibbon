@@ -6,11 +6,11 @@ package main
 // TypeScript and the marshaller sees only these.
 
 import (
+	"github.com/oernster/ribbonkit/application/menus"
+	"github.com/oernster/ribbonkit/domain/placement"
+	"github.com/oernster/ribbonkit/ui/window"
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/internal/product"
-	"github.com/oernster/timeribbon/ribbonkit/application/menus"
-	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
-	"github.com/oernster/timeribbon/ribbonkit/ui/window"
 )
 
 // sizeDTO is a width and a height in DIP.

@@ -16,8 +16,8 @@ import (
 	"io"
 	"os"
 
+	"github.com/oernster/ribbonkit/infrastructure/setup"
 	"github.com/oernster/timeribbon/internal/product"
-	"github.com/oernster/timeribbon/ribbonkit/infrastructure/setup"
 )
 
 const (

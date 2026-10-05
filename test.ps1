@@ -17,7 +17,7 @@ Set-Location $root
 
 # Domain and application are the layers a test reaches with no filesystem, clock or display, so
 # anything short of 100 percent there is a decision nobody made (CON-3).
-$gated = './internal/domain/...', './internal/application/...', './ribbonkit/domain/...', './ribbonkit/application/...'
+$gated = './internal/domain/...', './internal/application/...'
 
 # The Go tools are pointed at this list rather than at ./..., which would reach into
 # frontend/node_modules once the front end exists.
@@ -81,25 +81,11 @@ try {
 }
 
 # The rest of the tree, each package held at the number it reaches. TESTING.md names what each
-# shortfall is: error returns that only a failing disk, registry or display driver can produce. In
-# the root package it is the composition root; in the kit's window, the calls that reach Wails and
-# the start, listening and stop that only Wails runs; in the kit's setup program, the facade the
-# page calls, which has never had tests of its own.
+# shortfall is: error returns that only a failing disk can produce; in the root package, the
+# composition root. ribbonkit's packages are held by the kit's own gate.
 $measured = [ordered]@{
     '.'                                  = 66
-    './ribbonkit/ui/window'               = 93
-    './ribbonkit/infrastructure/appdata'  = 100
-    './ribbonkit/infrastructure/desktop'  = 46
-    './ribbonkit/infrastructure/iconscale' = 100
-    './ribbonkit/infrastructure/runlog'   = 77
-    './ribbonkit/infrastructure/monitors' = 82
-    './ribbonkit/infrastructure/occupancy' = 90
-    './ribbonkit/infrastructure/setup'   = 84
-    './ribbonkit/installer'              = 11
-    './ribbonkit/infrastructure/startup'  = 80
     './internal/infrastructure/store'    = 94
-    './ribbonkit/infrastructure/system'   = 100
-    './ribbonkit/infrastructure/update'   = 100
     './internal/infrastructure/zones'    = 100
     './tools/genplaces'                  = 58
     './tools/identity'                   = 75

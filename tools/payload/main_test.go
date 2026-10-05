@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/oernster/timeribbon/ribbonkit/infrastructure/setup"
+	"github.com/oernster/ribbonkit/infrastructure/setup"
 )
 
 // put writes body at path.

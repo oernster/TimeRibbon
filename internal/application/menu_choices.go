@@ -4,9 +4,9 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/oernster/ribbonkit/application/menus"
+	"github.com/oernster/ribbonkit/domain/ribbon"
 	"github.com/oernster/timeribbon/internal/domain/settings"
-	"github.com/oernster/timeribbon/ribbonkit/application/menus"
-	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // The actions of the Style and Orientation submenus (FR-108, FR-502).

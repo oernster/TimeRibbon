@@ -19,9 +19,9 @@ import (
 
 	"golang.org/x/sys/windows"
 
+	"github.com/oernster/ribbonkit/infrastructure/setup"
+	"github.com/oernster/ribbonkit/installer"
 	"github.com/oernster/timeribbon/internal/product"
-	"github.com/oernster/timeribbon/ribbonkit/infrastructure/setup"
-	"github.com/oernster/timeribbon/ribbonkit/installer"
 )
 
 // pictures are the page's pictures, which tools/genicons.py makes from TimeRibbon's artwork: the

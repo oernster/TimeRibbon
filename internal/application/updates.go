@@ -6,8 +6,8 @@ package application
 import (
 	"context"
 
+	"github.com/oernster/ribbonkit/application/release"
 	"github.com/oernster/timeribbon/internal/domain/settings"
-	"github.com/oernster/timeribbon/ribbonkit/application/release"
 )
 
 // CheckForUpdate answers the update status of the running build. The automatic check passes manual

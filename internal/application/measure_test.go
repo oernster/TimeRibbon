@@ -5,10 +5,10 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/oernster/ribbonkit/domain/placement"
+	"github.com/oernster/ribbonkit/domain/ribbon"
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
-	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
-	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // measuredFor answers a measurement of width taken under current's choices.

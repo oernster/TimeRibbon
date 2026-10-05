@@ -8,8 +8,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/oernster/timeribbon/ribbonkit/infrastructure/desktop"
-	"github.com/oernster/timeribbon/ribbonkit/ui/window"
+	"github.com/oernster/ribbonkit/infrastructure/desktop"
+	"github.com/oernster/ribbonkit/ui/window"
 )
 
 // trayIcon is the application's icon, which the tray on Linux and the menu bar on macOS are handed

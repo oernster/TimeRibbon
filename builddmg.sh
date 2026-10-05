@@ -185,7 +185,8 @@ export CGO_CFLAGS="${CGO_CFLAGS:--O2 -g} ${VERSION_FLAG}"
 export CGO_LDFLAGS="${CGO_LDFLAGS:-} ${VERSION_FLAG}"
 EXECUTABLE="${WORK_DIR}/${APP_NAME}"
 BUILD_LOG="${WORK_DIR}/build.log"
-go build -tags desktop,production -ldflags "-s -w -X ${MODULE}/internal/product.Version=${VERSION}" -o "${EXECUTABLE}" . 2>&1 | tee "${BUILD_LOG}"
+# What ships is built from the ribbonkit tag go.mod requires, never a local go.work's working copy.
+GOWORK=off go build -tags desktop,production -ldflags "-s -w -X ${MODULE}/internal/product.Version=${VERSION}" -o "${EXECUTABLE}" . 2>&1 | tee "${BUILD_LOG}"
 # Linking code built for a newer macOS succeeds with only a warning, leaving an executable that
 # claims an older macOS than its code was built for. That is refused rather than shipped.
 if grep -q 'was built for newer' "${BUILD_LOG}"; then

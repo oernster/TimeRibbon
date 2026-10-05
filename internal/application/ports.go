@@ -8,10 +8,10 @@ package application
 import (
 	"time"
 
+	"github.com/oernster/ribbonkit/application/arranger"
+	"github.com/oernster/ribbonkit/application/release"
 	"github.com/oernster/timeribbon/internal/domain/settings"
 	"github.com/oernster/timeribbon/internal/domain/sun"
-	"github.com/oernster/timeribbon/ribbonkit/application/arranger"
-	"github.com/oernster/timeribbon/ribbonkit/application/release"
 )
 
 // Loaded is what the store answers at launch.

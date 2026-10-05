@@ -12,6 +12,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/oernster/ribbonkit/structure"
 	"github.com/oernster/timeribbon/internal/product"
 )
 
@@ -31,14 +32,18 @@ var shippedBuilds = map[string]shippedBuild{
 	product.MacOS:   {"desktop,production", "1", []string{"."}},
 }
 
-// linkedModules answers every module goos's shipped executables link, this one left out. Listing
-// needs no C compiler, so every platform is listed from any machine.
+// ownModules are the author's own modules, which About does not credit as third-party components:
+// TimeRibbon and the ribbonkit it is built on.
+var ownModules = []string{module, kitModule}
+
+// linkedModules answers every module goos's shipped executables link, the author's own left out.
+// Listing needs no C compiler, so every platform is listed from any machine.
 func linkedModules(t *testing.T, goos string) []string {
 	t.Helper()
 	build := shippedBuilds[goos]
 	args := append([]string{"list", "-tags", build.tags, "-deps", "-f", "{{with .Module}}{{.Path}}{{end}}"}, build.packages...)
 	command := exec.Command("go", args...)
-	command.Dir = repoRoot(t)
+	command.Dir = structure.Root(t)
 	command.Env = append(os.Environ(), "GOOS="+goos, "CGO_ENABLED="+build.cgo)
 	out, err := command.Output()
 	if err != nil {
@@ -46,9 +51,8 @@ func linkedModules(t *testing.T, goos string) []string {
 	}
 	var modules []string
 	for _, line := range strings.Split(strings.TrimSpace(string(out)), "\n") {
-		module := strings.TrimSpace(line)
-		if module != "" && module+"/" != modulePath && !slices.Contains(modules, module) {
-			modules = append(modules, module)
+		if linked := strings.TrimSpace(line); linked != "" && !slices.Contains(ownModules, linked) && !slices.Contains(modules, linked) {
+			modules = append(modules, linked)
 		}
 	}
 	if len(modules) == 0 {

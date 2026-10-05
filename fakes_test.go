@@ -4,11 +4,11 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/oernster/ribbonkit/application/menus"
+	"github.com/oernster/ribbonkit/ui/window"
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
-	"github.com/oernster/timeribbon/ribbonkit/application/menus"
-	"github.com/oernster/timeribbon/ribbonkit/ui/window"
 )
 
 // errPlanted is the failure a stand-in answers when a test asks it to fail.

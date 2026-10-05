@@ -5,9 +5,9 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/oernster/ribbonkit/application/menus"
+	"github.com/oernster/ribbonkit/domain/ribbon"
 	"github.com/oernster/timeribbon/internal/domain/settings"
-	"github.com/oernster/timeribbon/ribbonkit/application/menus"
-	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 func labels(items []menus.Item) []string {

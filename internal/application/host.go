@@ -1,9 +1,9 @@
 package application
 
 import (
+	"github.com/oernster/ribbonkit/application/arranger"
+	"github.com/oernster/ribbonkit/domain/ribbon"
 	"github.com/oernster/timeribbon/internal/domain/settings"
-	"github.com/oernster/timeribbon/ribbonkit/application/arranger"
-	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // host is the service as the arranger's host: the clocks are the ribbon's content and the ribbon's

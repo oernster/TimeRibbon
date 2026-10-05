@@ -4,8 +4,8 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/oernster/ribbonkit/domain/ribbon"
 	"github.com/oernster/timeribbon/internal/domain/settings"
-	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // FR-622: an opacity within the bounds is chosen, saved and shown with the least allowed; one

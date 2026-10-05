@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/oernster/ribbonkit/application/arranger"
+	"github.com/oernster/ribbonkit/domain/placement"
 	"github.com/oernster/timeribbon/internal/domain/settings"
-	"github.com/oernster/timeribbon/ribbonkit/application/arranger"
-	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // ErrUnknownZone is answered when a clock is set to a zone the tz database does not know.

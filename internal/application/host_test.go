@@ -4,10 +4,10 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/oernster/ribbonkit/application/arranger"
+	"github.com/oernster/ribbonkit/domain/placement"
+	"github.com/oernster/ribbonkit/domain/ribbon"
 	"github.com/oernster/timeribbon/internal/domain/settings"
-	"github.com/oernster/timeribbon/ribbonkit/application/arranger"
-	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
-	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // clocks answers horizontal settings holding n London clocks; the arithmetic below is worked for

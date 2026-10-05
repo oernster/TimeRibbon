@@ -4,9 +4,9 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/oernster/ribbonkit/application/menus"
+	"github.com/oernster/ribbonkit/domain/ribbon"
 	"github.com/oernster/timeribbon/internal/domain/settings"
-	"github.com/oernster/timeribbon/ribbonkit/application/menus"
-	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // commandLabels are the menu items that choose nothing, so Settings does not offer them (FR-624).

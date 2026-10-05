@@ -9,8 +9,8 @@ import (
 	"errors"
 	"slices"
 
+	"github.com/oernster/ribbonkit/domain/ribbon"
 	"github.com/oernster/timeribbon/internal/domain/clock"
-	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // Style is how every cell presents its time (FR-603, FR-604).

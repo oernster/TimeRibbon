@@ -5,9 +5,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/oernster/timeribbon/ribbonkit/domain/identity"
-	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
-	"github.com/oernster/timeribbon/ribbonkit/infrastructure/occupancy"
+	"github.com/oernster/ribbonkit/domain/identity"
+	"github.com/oernster/ribbonkit/domain/placement"
+	"github.com/oernster/ribbonkit/infrastructure/occupancy"
 )
 
 // FR-412: TimeRibbon takes its place in the folder the environment names, where another product

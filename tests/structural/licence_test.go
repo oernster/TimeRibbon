@@ -1,7 +1,8 @@
 package structural
 
 // The Licence panel shows the LICENSE as written, unwrapped, with its type sized so the widest line
-// fits (help.css). That holds only while the width help.css states is the file's widest line.
+// fits (ribbonkit's help.css). That holds only while the width help.css states is the widest line of
+// the LICENSE TimeRibbon hands it.
 
 import (
 	"os"
@@ -11,14 +12,16 @@ import (
 	"strings"
 	"testing"
 	"unicode/utf8"
+
+	"github.com/oernster/ribbonkit/structure"
 )
 
 // licenceColumns reads the width help.css sizes the licence's type for.
 var licenceColumns = regexp.MustCompile(`--licence-columns:\s*(\d+);`)
 
 func TestTheLicencePanelIsSizedForTheLicencesWidestLine(t *testing.T) {
-	root := repoRoot(t)
-	sheet, err := os.ReadFile(filepath.Join(root, kitTree, "web", "help.css"))
+	root := structure.Root(t)
+	sheet, err := os.ReadFile(filepath.Join(kitDir(t), "web", "help.css"))
 	if err != nil {
 		t.Fatal(err)
 	}

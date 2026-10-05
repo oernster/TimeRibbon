@@ -5,9 +5,9 @@ import (
 	"slices"
 	"time"
 
+	"github.com/oernster/ribbonkit/domain/ribbon"
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
-	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // Words an invalid clock is shown with (FR-705, FR-706). They say what is wrong rather than

@@ -21,7 +21,7 @@ func TestOpacityIsChosenSavedAndShown(t *testing.T) {
 		t.Errorf("%d percent was not chosen, saved and shown: %v", chosen, err)
 	}
 	for _, outside := range []int{ribbon.MinOpacity - 1, ribbon.MaxOpacity + 1} {
-		if err := r.service.SetOpacity(outside); !errors.Is(err, ErrUnknownChoice) || r.service.Snapshot().Opacity != chosen {
+		if err := r.service.SetOpacity(outside); !errors.Is(err, ribbon.ErrUnknownChoice) || r.service.Snapshot().Opacity != chosen {
 			t.Errorf("%d percent answered %v and left %d", outside, err, r.service.Snapshot().Opacity)
 		}
 	}

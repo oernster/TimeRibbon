@@ -1,6 +1,12 @@
 package placement
 
-import "math"
+import (
+	"errors"
+	"math"
+)
+
+// ErrNegativeLength is answered when a length that cannot be negative is given as one.
+var ErrNegativeLength = errors.New("a length cannot be negative")
 
 // The page the ribbon shows is laid out in DIP and drawn at some number of window pixels to each
 // DIP. That number is usually the display's DPI over BaseDPI; not always, though. Windows' text size

@@ -246,7 +246,7 @@ Acceptance: given a vertical ribbon dragged near the top of its display, when a 
 it is centred top to bottom with its left edge where it was; it opens there next time.
 Verified by: `TestARibbonWhoseLengthChangesIsRecentredAndKept`, `TestAHorizontalRibbonIsRecentredLeftToRight`,
 `TestNothingButAChangeOfLengthRecentresTheRibbon`, `TestARecentringThatCannotBeSavedMakesRoomForItsNotice`,
-`TestAChangeOfScaleKeepsTheCorner`, `TestAChangeOfClocksAfterAScaleStillRecentres` (application).
+`TestAChangeOfScaleKeepsTheCorner`, `TestAChangeOfClocksAfterAScaleStillRecentres` (arranger).
 
 **FR-105 Sized to its clocks** (Must). The ribbon's length shall be the sum of its cells plus padding
 while that fits its monitor's work area.
@@ -368,12 +368,12 @@ top-left, the desktop's own choice, which was then stored as a drag. A window sh
 where it was placed is now placed again at once (measured the same day after `cleanup_flatpak.sh`
 and `build_flatpak.sh`: shown at 80,0, placed again at 1252,358, nothing stored).
 Verified by: `TestDefaultPlacementIsRightEdgeCentred` (domain);
-`TestLaunchWithNothingStoredGoesToTheDefaultPlace` (application);
+`TestLaunchWithNothingStoredGoesToTheDefaultPlace` (arranger);
 `TestALaunchedRibbonShownElsewhereIsPlacedAgain` (facade); by hand on GNOME.
 
 **FR-404 Placement persisted** (Must). When a drag ends, the placement shall be stored: the monitor's
 device name, its work area, its DPI and the offset from the work area's top-left corner.
-Verified by: `TestPlacementIsStoredRelativeToItsMonitor` (application).
+Verified by: `TestPlacementIsStoredRelativeToItsMonitor` (arranger).
 
 **FR-405 Placement restored or recovered** (Must). At launch the ribbon is restored to its monitor,
 the offset scaled by any change of DPI; with that monitor gone, the default placement on the primary;
@@ -396,7 +396,7 @@ over GTK's window scale, since KDE hands an X11 program a fractional scale as fo
 Verified by: by hand; `TestTheRibbonIsSizedByTheScaleThePageIsDrawnAt`,
 `TestTheReportedScaleHoldsOnADisplayAtAnotherDPI`, `TestAPanelIsSizedByTheScaleThePageIsDrawnAt`,
 `TestAScaledRibbonFitsTheRoomTheDisplayOffersAtThatScale`, `TestAnUnusableScaleIsRefused`
-(application); `TestThePagesRatioIsTakenWithTheToolkitsScale` (facade);
+(arranger); `TestThePagesRatioIsTakenWithTheToolkitsScale` (facade);
 `TestTheWindowTakesThePagesRatioOverGTKsScale`, `TestGTKsWindowScaleIsRead` (desktop, Linux);
 `pixelRatio.test.ts`.
 
@@ -410,8 +410,8 @@ Acceptance: a vertical ribbon 196 DIP long on a work area 1032 DIP tall, sent to
 at the work area's left edge 418 DIP down; it opens there next time.
 Verified by: `TestAgainstEdgeIsFlushAndCentredAlongTheEdge` (domain);
 `TestToEdgePutsAVerticalRibbonFlushAndKeepsIt`, `TestToEdgeUsesTheDisplayTheRibbonIsOn`,
-`TestToEdgeThatCannotBeSavedMakesRoomForItsNotice`, `TestPositionOffersTheEdgesAlongTheOrientation`,
-`TestAPlaceKeptAgainstTheEdgeIsSaved` (application); `TestAPositionItemPutsTheRibbonAgainstItsEdge`
+`TestToEdgeThatCannotBeSavedMakesRoomForItsNotice`, `TestAPlaceKeptAgainstTheEdgeIsSaved` (arranger);
+`TestPositionOffersTheEdgesAlongTheOrientation` (application); `TestAPositionItemPutsTheRibbonAgainstItsEdge`
 (facade); by hand.
 
 **FR-409 An orientation's home edge** (Must; Amendment 9). Choosing an orientation puts the ribbon
@@ -432,7 +432,7 @@ to 1920 with its top unmoved; at 1900 it stays; at 1930 with most of it on the l
 moves to 1920.
 Verified by: `TestADropNearAnEdgeSnapsFlush`, `TestTheNearerEdgeWinsWhenBothAreInReach`,
 `TestTheEdgesAlongEachOrientation` (domain); `TestADropNearAnEdgeSnapsFlushAndIsStored`,
-`TestAVerticalRibbonNeverSnapsToTheTop` (application); by hand.
+`TestAVerticalRibbonNeverSnapsToTheTop` (arranger); by hand.
 
 **FR-411 The last edge is remembered** (Should; Amendment 19). Whenever the ribbon is placed flush
 against an edge along its orientation, however it got there, the settings file shall remember that
@@ -440,7 +440,7 @@ edge and its display; placed anywhere else it keeps the last one.
 Acceptance: a vertical ribbon flush against the left edge of `\\.\DISPLAY2`, dragged to the middle of
 `\\.\DISPLAY1`, still has the left edge of `\\.\DISPLAY2` remembered.
 Verified by: `TestAnUnknownRememberedEdgeIsForgotten` (ribbon); `TestTheLastEdgeIsRemembered`,
-`TestRearrangingClampsAndSavesNothing` (application); `TestSettingsRoundTrip`,
+`TestRearrangingClampsAndSavesNothing` (arranger); `TestSettingsRoundTrip`,
 `TestAnUnreadableLastEdgeIsNone` (store).
 
 ### 3.5 Tray and window behaviour
@@ -562,8 +562,8 @@ floors that FR-620 widens. A ribbon flush against an edge stays there when the s
 Acceptance: two small analogue clocks in a vertical ribbon at 100 percent with 6 DIP padding make it
 158 DIP wide and 244 long.
 Verified by: `TestUnknownChoicesAreNormalisedToDefaults`, `TestKeptFlushHoldsTheFarEdgeNotTheCorner`
-(domain); `TestTheSmallSizeFitsTheRibbonToSmallCells`, `TestShrinkingKeepsTheRibbonAgainstItsEdge`
-(application); `TestA1Point0SettingsFileIsReadWhole`, `TestSettingsRoundTrip` (store);
+(domain); `TestTheSmallSizeFitsTheRibbonToSmallCells` (application);
+`TestShrinkingKeepsTheRibbonAgainstItsEdge` (arranger); `TestA1Point0SettingsFileIsReadWhole`, `TestSettingsRoundTrip` (store);
 `ribbon.test.tsx`, `settings.test.tsx`; the fit of the text by hand.
 
 **FR-611 Colour schemes** (Should; Amendments 12, 14, 18). Every clock is drawn in the scheme held:
@@ -602,8 +602,8 @@ pinned vertical ribbon mid-display whose remembered edge is the left of `\\.\DIS
 centred, when unpinned; with nothing remembered, to the right edge; with the remembered display
 unplugged, to the left edge of `\\.\DISPLAY1`.
 Verified by: `TestDefaultsAreDigitalTwentyFourHourVerticalAndNotOnTop` (domain);
-`TestBothMenusOfferPinAfterAlwaysOnTop`, `TestUnpinningAwayFromAnEdgeGoesToTheLastEdge`,
-`TestUnpinningGoesToTheRememberedDisplay` (application); `TestPinningAndUnpinning`,
+`TestBothMenusOfferPinAfterAlwaysOnTop` (application); `TestUnpinningAwayFromAnEdgeGoesToTheLastEdge`,
+`TestUnpinningGoesToTheRememberedDisplay` (arranger); `TestPinningAndUnpinning`,
 `TestUnpinningAwayFromAnEdgeMovesItToTheLastEdge`,
 `TestUnpinningOnAnEdgeMovesNothingAndRecentringKeepsThePin` (facade);
 `TestA1Point0SettingsFileIsReadWhole`, `TestSettingsRoundTrip` (store); by hand.
@@ -615,7 +615,7 @@ Acceptance: a vertical ribbon 196 DIP long flush right collapses to an 8 by 196 
 edge; a horizontal one flush against the bottom of the upper of two stacked displays collapses along
 that edge.
 Verified by: `TestTheTabCoversTheFlushSide` (domain); `TestCollapsingKeepsThePlacement`,
-`TestARibbonAgainstNoEdgeHasNoTab` (application); `ribbon.test.tsx`; by hand.
+`TestARibbonAgainstNoEdgeHasNoTab` (arranger); `ribbon.test.tsx`; by hand.
 
 **FR-615 Opens on a resting pointer** (Should; Amendment 18). When the pointer has rested on the tab
 for 0.3 s, the ribbon expands at its placement without taking keyboard focus; a pointer leaving sooner
@@ -684,7 +684,7 @@ Acceptance: five clocks on a work area 1400 DIP tall give a Settings 1064 DIP ta
 scroll; removing a clock shortens it; a shorter work area caps it and it scrolls.
 Verified by: `TestFitPanelMakesTheOpenPanelAsTallAsItsContent`,
 `TestFitPanelLeavesTheRibbonAloneAndRefusesANegativeHeight`, `TestFitPanelAnswersWhatStoppedIt`
-(facade); `TestSettingsOpenCentredOnTheRibbonsDisplay` (application); `panelFit.test.tsx`; by hand.
+(facade); `TestSettingsOpenCentredOnTheRibbonsDisplay` (arranger); `panelFit.test.tsx`; by hand.
 
 **FR-622 Opacity** (Should; Amendments 26, 30; OQ-26). Settings offers an Opacity slider in steps of
 5 from 20 to 100 percent. Only the ribbon's backgrounds take it (the ribbon, each dial's face, the
@@ -721,7 +721,8 @@ Verified by: `TestScaleIsHeldWithinItsBounds`, `TestScaleAfterFollowsTheFarSide`
 `TestTheMapIsHeldWhileTheRibbonIsResized` (placement); `TestAScaledRibbonGrowsInBothDirections`,
 `TestAPreviewIsDrawnButNotKept`, `TestAChangeOfScaleKeepsTheCorner`,
 `TestAChangeOfClocksAfterAScaleStillRecentres`, `TestTheScrollBarIsNotScaled`,
-`TestTheSunMapIsHeldWhileTheGripIsDragged` (application); `TestSettingsRoundTrip` (store);
+`TestTheSunMapIsHeldWhileTheGripIsDragged` (arranger); `TestTheSnapshotShowsTheScaleTheRibbonIsDrawnAt`
+(application); `TestSettingsRoundTrip` (store);
 `TestAChangeOfScaleTellsThePageToDrawAgain`, `TestEveryChangeFitsTheRibbonAndAnswersTheServicesError`,
 `TestTheGripFollowsTheDesktopsPointerOverThePages`,
 `TestTheGripFollowsThePagesPointerWhereTheDesktopCannotReadIt`, `TestAPressThatMovesNothingKeepsNothing`
@@ -788,7 +789,8 @@ Verified by: `ribbon.test.tsx`; `TestInvalidClockIsNeverGivenAnotherZone` (appli
 
 **FR-707 Write failure** (Must). A failed write keeps the change in effect and shows `Settings could
 not be saved:` with the reason until a later write succeeds.
-Verified by: `TestWriteFailureIsReportedAndCleared` (application).
+Verified by: `TestWriteFailureIsReportedAndCleared`, `TestTheArrangersChangesAreSavedWithTheSettings`
+(application).
 
 ### 3.8 Non-functional
 
@@ -834,7 +836,7 @@ when equal.
 Acceptance: flush against the top, the map's top meets the ribbon's bottom along its length; flush
 against the bottom, the map's bottom meets its top.
 Verified by: `TestTheMapAdjoinsTheSideAwayFromTheEdge` (placement);
-`TestAHorizontalRibbonsMapGoesBelowIt` (application); by hand.
+`TestAHorizontalRibbonsMapGoesBelowIt` (arranger); by hand.
 
 **FR-903 The pull out** (Should; OQ-14; Amendments 22, 23; OQ-21 to OQ-23). While on and in full, the
 ribbon shows a handle half way along its long side facing away from its edge (against no edge, the side
@@ -846,7 +848,8 @@ handle is clicked, hides it on a second click and keeps it after a restart; a ho
 shows a downward arrow and no map until clicked; with the map on, either ribbon is deeper by the lane
 alone and the handle overlaps no text.
 Verified by: `TestAVerticalRibbonsMapWaitsForThePullOut`, `TestAHorizontalRibbonsMapWaitsForThePullOut`,
-`TestTheHandlesLaneDeepensTheRibbon` (application); `TestTheSunMapItemAndTheHandleFlipTheirChoices`
+`TestTheHandlesLaneDeepensTheRibbon` (arranger); `TestTheServiceHandsTheArrangerItsContent`
+(application); `TestTheSunMapItemAndTheHandleFlipTheirChoices`
 (facade); `surface.test.tsx`; by hand.
 
 **FR-904 The map's size** (Should; OQ-15). The map is twice as long as deep, as long as the ribbon and

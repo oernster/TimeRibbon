@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/oernster/timeribbon/internal/application"
+	"github.com/oernster/timeribbon/ribbonkit/application/arranger"
 	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 	"github.com/oernster/timeribbon/ribbonkit/domain/hover"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
@@ -35,7 +35,7 @@ func fire(t *testing.T, seen *window) {
 	do()
 }
 
-func lastPlaced(t *testing.T, seen *window) application.Arrangement {
+func lastPlaced(t *testing.T, seen *window) arranger.Arrangement {
 	t.Helper()
 	if len(seen.placed) == 0 {
 		t.Fatal("nothing was placed")
@@ -77,7 +77,7 @@ func TestTheTabOpensAfterTheRestAndCollapsesOnceAway(t *testing.T) {
 		t.Errorf("grew to %+v before the page had drawn", got)
 	}
 	app.RibbonDrawn()
-	if got := lastPlaced(t, seen); got != (application.Arrangement{At: testArrange.At, Size: testArrange.Size}) {
+	if got := lastPlaced(t, seen); got != (arranger.Arrangement{At: testArrange.At, Size: testArrange.Size}) {
 		t.Errorf("opened at %+v, want the full ribbon", got)
 	}
 	app.handleSafely(desktop.Event{Kind: desktop.EventPointerLeft})

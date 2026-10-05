@@ -4,7 +4,6 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
@@ -39,7 +38,7 @@ func TestFitPanelLeavesTheRibbonAloneAndRefusesANegativeHeight(t *testing.T) {
 	if err := app.FitPanel(0); err != nil || len(seen.placed) != 0 {
 		t.Errorf("no height: %v, placed %+v", err, seen.placed)
 	}
-	if err := app.FitPanel(-1); !errors.Is(err, application.ErrNegativeLength) {
+	if err := app.FitPanel(-1); !errors.Is(err, placement.ErrNegativeLength) {
 		t.Errorf("a negative height answered %v", err)
 	}
 }

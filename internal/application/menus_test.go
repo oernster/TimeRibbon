@@ -181,7 +181,7 @@ func TestBothMenusOfferEveryColourWithTheCurrentTicked(t *testing.T) {
 			t.Errorf("%q was taken for a colour", other)
 		}
 	}
-	if err := r.service.SetColour("mauve"); !errors.Is(err, ErrUnknownChoice) {
+	if err := r.service.SetColour("mauve"); !errors.Is(err, ribbon.ErrUnknownChoice) {
 		t.Errorf("an unknown colour answered %v", err)
 	}
 	if err := r.service.SetColour(ribbon.Neon); err != nil || r.store.last(t).Colour != ribbon.Neon || r.service.Snapshot().Colour != ribbon.Neon {
@@ -195,5 +195,35 @@ func TestCloseRequestHidesRatherThanQuits(t *testing.T) {
 	r := newRig(t, settings.Defaults())
 	if got := r.service.CloseRequested(); got != menus.Hide {
 		t.Errorf("got %s", got)
+	}
+}
+
+// FR-613: both menus hold Pin ribbon directly after Always on top, ticked while pinned; the choice
+// is kept.
+func TestBothMenusOfferPinAfterAlwaysOnTop(t *testing.T) {
+	t.Parallel()
+	r := newRig(t, settings.Defaults())
+	for name, menu := range map[string][]menus.Item{"tray": r.service.TrayMenu(true), "context": r.service.ContextMenu()} {
+		index := -1
+		for position, item := range menu {
+			if item.Action == menus.AlwaysOnTop {
+				index = position
+			}
+		}
+		if index < 0 || index+1 >= len(menu) {
+			t.Fatalf("%s: no item follows Always on top", name)
+		}
+		if pin := menu[index+1]; pin.Action != menus.Pin || pin.Label != labelPin || !pin.Checkable || !pin.Checked {
+			t.Errorf("%s: after Always on top came %+v, want Pin ribbon ticked", name, pin)
+		}
+	}
+	if err := r.service.SetPinned(false); err != nil {
+		t.Fatal(err)
+	}
+	if find(t, r.service.ContextMenu(), labelPin).Checked {
+		t.Error("Pin ribbon is still ticked once unpinned")
+	}
+	if saved := r.store.saved[len(r.store.saved)-1]; saved.Pinned {
+		t.Error("unpinning was not saved")
 	}
 }

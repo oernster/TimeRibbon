@@ -10,6 +10,7 @@ import (
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 	"github.com/oernster/timeribbon/ribbonkit/infrastructure/desktop"
 )
 
@@ -182,8 +183,8 @@ func TestChoosingAnOrientationGoesToItsHomeEdge(t *testing.T) {
 		}
 	}
 	app, service, seen, _ := newTestApp(t)
-	service.changeErr = application.ErrUnknownChoice
-	if err := app.SetOrientation("diagonal"); !errors.Is(err, application.ErrUnknownChoice) {
+	service.changeErr = ribbon.ErrUnknownChoice
+	if err := app.SetOrientation("diagonal"); !errors.Is(err, ribbon.ErrUnknownChoice) {
 		t.Errorf("a refused orientation answered %v", err)
 	}
 	if !slices.Equal(service.calls, []string{"SetOrientation", "Rearrange"}) || len(seen.placed) != 1 {

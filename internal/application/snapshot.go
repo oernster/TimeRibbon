@@ -126,7 +126,7 @@ func (s *Service) Snapshot() Snapshot {
 		AlwaysOnTop: current.AlwaysOnTop,
 		Opacity:     current.Opacity,
 		MinOpacity:  ribbon.MinOpacity,
-		Scale:       s.scaleOf(current),
+		Scale:       s.DrawnScale(current.Scale),
 		MinScale:    ribbon.MinScale,
 		MaxScale:    ribbon.MaxScale,
 		Layout:      s.layoutFor(current),

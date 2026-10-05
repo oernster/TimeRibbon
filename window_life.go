@@ -8,6 +8,7 @@ import (
 
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/internal/product"
+	"github.com/oernster/timeribbon/ribbonkit/application/arranger"
 	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 	"github.com/oernster/timeribbon/ribbonkit/infrastructure/desktop"
@@ -158,7 +159,7 @@ func (a *App) actOnChoice(action menus.Action) {
 // open the window is that panel, so the place is kept and the ribbon goes there as the panel closes.
 // Before startup has found the ribbon there is nothing to move.
 func (a *App) toEdge(edge placement.Edge) {
-	placed := a.placeBy("putting the ribbon against an edge", func(at placement.Point) (application.Arrangement, error) {
+	placed := a.placeBy("putting the ribbon against an edge", func(at placement.Point) (arranger.Arrangement, error) {
 		return a.service.ToEdge(at, edge)
 	})
 	if placed {
@@ -169,7 +170,7 @@ func (a *App) toEdge(edge placement.Edge) {
 // placeBy places the ribbon where arrange answers for it as it stands, answering whether the window
 // was placed. While a panel is open the window is that panel, so the place is kept and the ribbon goes
 // there as the panel closes. Before startup has found the ribbon there is nothing to move.
-func (a *App) placeBy(doing string, arrange func(placement.Point) (application.Arrangement, error)) bool {
+func (a *App) placeBy(doing string, arrange func(placement.Point) (arranger.Arrangement, error)) bool {
 	if a.ribbon == 0 {
 		return false
 	}

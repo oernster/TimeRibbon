@@ -7,6 +7,7 @@ import (
 
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // FR-102, FR-202: cells in order, each with its own zone's day.
@@ -125,5 +126,21 @@ func TestSnapshotCarriesTheNextRefreshTheChoicesAndTheLayout(t *testing.T) {
 	}
 	if snapshot.Layout != testLayout || snapshot.Style != settings.Digital || len(snapshot.Cells) != 0 {
 		t.Errorf("snapshot %+v", snapshot)
+	}
+}
+
+// FR-623: the snapshot shows the scale the ribbon is drawn at, the preview while the grip is dragged
+// and the kept scale once it is chosen, with the bounds the grip may reach; the kept one is saved.
+func TestTheSnapshotShowsTheScaleTheRibbonIsDrawnAt(t *testing.T) {
+	t.Parallel()
+	r := newRig(t, clocks(2))
+	if err := r.service.PreviewScale(ribbon.MaxScale); err != nil {
+		t.Fatal(err)
+	}
+	if got := r.service.Snapshot(); got.Scale != ribbon.MaxScale || got.MinScale != ribbon.MinScale || got.MaxScale != ribbon.MaxScale {
+		t.Errorf("previewing shows %v within %d to %d", got.Scale, got.MinScale, got.MaxScale)
+	}
+	if err := r.service.SetScale(ribbon.MinScale); err != nil || r.service.Snapshot().Scale != ribbon.MinScale || r.store.last(t).Scale != ribbon.MinScale {
+		t.Errorf("keeping a scale shows %v (%v)", r.service.Snapshot().Scale, err)
 	}
 }

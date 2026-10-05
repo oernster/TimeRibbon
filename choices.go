@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/ribbonkit/application/menus"
+	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // Choose carries out one of the menus' choices from Settings (FR-624), exactly as the menu item
@@ -13,7 +13,7 @@ import (
 func (a *App) Choose(action string) error {
 	chosen := menus.Action(action)
 	if !slices.Contains(choiceActions(a.service.SettingsChoices()), chosen) {
-		return fmt.Errorf("%w: a choice named %q", application.ErrUnknownChoice, action)
+		return fmt.Errorf("%w: a choice named %q", ribbon.ErrUnknownChoice, action)
 	}
 	a.act(chosen)
 	return nil

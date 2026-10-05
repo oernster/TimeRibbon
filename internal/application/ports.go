@@ -10,8 +10,8 @@ import (
 
 	"github.com/oernster/timeribbon/internal/domain/settings"
 	"github.com/oernster/timeribbon/internal/domain/sun"
+	"github.com/oernster/timeribbon/ribbonkit/application/arranger"
 	"github.com/oernster/timeribbon/ribbonkit/application/release"
-	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // Loaded is what the store answers at launch.
@@ -60,11 +60,6 @@ type IDs interface {
 	NewID() string
 }
 
-// Monitors answers the displays as Windows reports them now.
-type Monitors interface {
-	Monitors() ([]placement.Monitor, error)
-}
-
 // StartupEntry is the Start with Windows value (FR-605).
 type StartupEntry interface {
 	Enabled() (bool, error)
@@ -78,7 +73,7 @@ type Ports struct {
 	Zones    Zones
 	Clock    Clock
 	IDs      IDs
-	Monitors Monitors
+	Monitors arranger.Monitors
 	Startup  StartupEntry
 	Releases release.Source
 	// Build is not a collaborator but the facts about the running build the update check compares

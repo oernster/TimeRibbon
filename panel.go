@@ -5,8 +5,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
+	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // panelSizes are the sizes in DIP the window opens at as a panel: Settings wide enough to lay its
@@ -25,7 +25,7 @@ func (p panelSizes) of(panel string) (placement.Size, error) {
 	case openAtAbout, openAtLicence, openAtUpdate:
 		return p.other, nil
 	}
-	return placement.Size{}, fmt.Errorf("%w: a panel named %q", application.ErrUnknownChoice, panel)
+	return placement.Size{}, fmt.Errorf("%w: a panel named %q", ribbon.ErrUnknownChoice, panel)
 }
 
 // OpenPanel turns the window into panel, centred on the ribbon's display (CON-6). A panel holds an
@@ -56,7 +56,7 @@ func (a *App) OpenPanel(panel string) error {
 // (FR-621). With no panel open there is nothing to fit, nor with no height; a negative one is refused.
 func (a *App) FitPanel(height int) error {
 	if height < 0 {
-		return fmt.Errorf("%w: a panel %d tall", application.ErrNegativeLength, height)
+		return fmt.Errorf("%w: a panel %d tall", placement.ErrNegativeLength, height)
 	}
 	if !a.panelOpen.Load() || height == 0 {
 		return nil

@@ -5,8 +5,8 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/ribbonkit/application/menus"
+	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
 // testChoices is a Colour group of two schemes, Neon ticked, then Pin ribbon on its own.
@@ -48,7 +48,7 @@ func TestChooseCarriesOutOnlyTheChoicesSettingsOffers(t *testing.T) {
 	for _, refused := range []string{"", "exit", "colour-sunset"} {
 		app, service, _, _ := newTestApp(t)
 		service.choices = testChoices
-		if err := app.Choose(refused); !errors.Is(err, application.ErrUnknownChoice) || len(service.calls) != 0 {
+		if err := app.Choose(refused); !errors.Is(err, ribbon.ErrUnknownChoice) || len(service.calls) != 0 {
 			t.Errorf("Choose(%q) answered %v with calls %v; want it refused and nothing done", refused, err, service.calls)
 		}
 	}
@@ -71,7 +71,7 @@ func TestSettingsOpensAndFitsAtItsOwnWidth(t *testing.T) {
 		}
 	}
 	app, service, seen, _ := newTestApp(t)
-	if err := app.OpenPanel("sideboard"); !errors.Is(err, application.ErrUnknownChoice) || app.panelOpen.Load() || len(seen.placed) != 0 || len(service.at) != 0 {
+	if err := app.OpenPanel("sideboard"); !errors.Is(err, ribbon.ErrUnknownChoice) || app.panelOpen.Load() || len(seen.placed) != 0 || len(service.at) != 0 {
 		t.Errorf("an unknown panel answered %v, open %v, placed %d times", err, app.panelOpen.Load(), len(seen.placed))
 	}
 }

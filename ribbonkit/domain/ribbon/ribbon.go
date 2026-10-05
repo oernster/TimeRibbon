@@ -7,10 +7,15 @@
 package ribbon
 
 import (
+	"errors"
 	"slices"
 
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
+
+// ErrUnknownChoice is answered when a choice is given a value it does not offer: one Normalised
+// would replace.
+var ErrUnknownChoice = errors.New("not one of the values this setting offers")
 
 // Colour is the colour scheme the ribbon is drawn in (FR-611).
 type Colour string

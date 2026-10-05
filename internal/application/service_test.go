@@ -102,7 +102,7 @@ func TestAValueASettingDoesNotOfferIsRefused(t *testing.T) {
 		"orientation": r.service.SetOrientation("diagonal"),
 		"theme":       r.service.SetTheme("sepia"),
 	} {
-		if !errors.Is(err, ErrUnknownChoice) {
+		if !errors.Is(err, ribbon.ErrUnknownChoice) {
 			t.Errorf("%s: got %v", name, err)
 		}
 	}

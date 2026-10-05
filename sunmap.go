@@ -5,13 +5,13 @@ package main
 // Every placement is decided for the ribbon alone; this file turns it into the window's and back.
 
 import (
-	"github.com/oernster/timeribbon/internal/application"
+	"github.com/oernster/timeribbon/ribbonkit/application/arranger"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // windowOf answers the window's place and size for the ribbon arranged as full, shown in full: the
 // ribbon with its map where one shows. offset is where the ribbon's corner lies inside the window.
-func windowOf(full application.Arrangement) (at placement.Point, size placement.Size, offset placement.Point) {
+func windowOf(full arranger.Arrangement) (at placement.Point, size placement.Size, offset placement.Point) {
 	ribbon := placement.Rect{Left: full.At.X, Top: full.At.Y, Right: full.At.X + full.Size.Width, Bottom: full.At.Y + full.Size.Height}
 	whole := ribbon
 	if full.Map != (placement.Rect{}) {

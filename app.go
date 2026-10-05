@@ -15,6 +15,7 @@ import (
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
 	"github.com/oernster/timeribbon/internal/product"
+	"github.com/oernster/timeribbon/ribbonkit/application/arranger"
 	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 	"github.com/oernster/timeribbon/ribbonkit/application/release"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
@@ -73,13 +74,13 @@ type ribbonService interface {
 	ContextMenu() []menus.Item
 	SettingsChoices() []menus.Item
 	CloseRequested() menus.Action
-	Launch() (application.Arrangement, error)
-	Rearrange(at placement.Point) (application.Arrangement, error)
-	Moved(at placement.Point) (application.Arrangement, error)
-	ToEdge(at placement.Point, edge placement.Edge) (application.Arrangement, error)
-	ToLastEdge(at placement.Point) (application.Arrangement, error)
-	Centred(at placement.Point, size placement.Size) (application.Arrangement, error)
-	Collapsed(full application.Arrangement) (application.Arrangement, error)
+	Launch() (arranger.Arrangement, error)
+	Rearrange(at placement.Point) (arranger.Arrangement, error)
+	Moved(at placement.Point) (arranger.Arrangement, error)
+	ToEdge(at placement.Point, edge placement.Edge) (arranger.Arrangement, error)
+	ToLastEdge(at placement.Point) (arranger.Arrangement, error)
+	Centred(at placement.Point, size placement.Size) (arranger.Arrangement, error)
+	Collapsed(full arranger.Arrangement) (arranger.Arrangement, error)
 	CheckForUpdate(ctx context.Context, manual bool) release.Status
 	SkipUpdate(version string) error
 }

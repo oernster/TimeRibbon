@@ -10,6 +10,7 @@ import (
 	"github.com/oernster/timeribbon/internal/application"
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/ribbonkit/application/arranger"
 	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 	"github.com/oernster/timeribbon/ribbonkit/application/release"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
@@ -27,11 +28,11 @@ type scriptedService struct {
 	places      []application.Place
 	menu        []menus.Item
 	choices     []menus.Item
-	arrangement application.Arrangement
+	arrangement arranger.Arrangement
 	// measured is the last measurement SetMeasured was handed.
 	measured application.Measured
 	// lastEdge, when set, is what ToLastEdge answers.
-	lastEdge *application.Arrangement
+	lastEdge *arranger.Arrangement
 	// changeErr answers every change; arrangeErr and movedErr answer the arranging calls.
 	changeErr  error
 	arrangeErr error
@@ -90,7 +91,7 @@ func (s *scriptedService) SetDateFormat(clock.DateFormat) error { return s.chang
 // SetOrientation takes the choice unless it is refused as one the setting does not offer, as the
 // service does: a save that fails still leaves the choice in effect.
 func (s *scriptedService) SetOrientation(orientation ribbon.Orientation) error {
-	if !errors.Is(s.changeErr, application.ErrUnknownChoice) {
+	if !errors.Is(s.changeErr, ribbon.ErrUnknownChoice) {
 		s.settings.Orientation = orientation
 	}
 	return s.change("SetOrientation")
@@ -129,9 +130,9 @@ func (s *scriptedService) SetPullOut(open bool) error {
 }
 
 // Collapsed answers the tab as a band 8 wide against the arrangement's right side (FR-614).
-func (s *scriptedService) Collapsed(full application.Arrangement) (application.Arrangement, error) {
+func (s *scriptedService) Collapsed(full arranger.Arrangement) (arranger.Arrangement, error) {
 	s.record("Collapsed")
-	return application.Arrangement{
+	return arranger.Arrangement{
 		At:   placement.Point{X: full.At.X + full.Size.Width - placement.TabThickness, Y: full.At.Y},
 		Size: placement.Size{Width: placement.TabThickness, Height: full.Size.Height},
 	}, s.arrangeErr
@@ -180,12 +181,12 @@ func (s *scriptedService) SettingsChoices() []menus.Item { return s.choices }
 
 func (s *scriptedService) CloseRequested() menus.Action { return menus.Hide }
 
-func (s *scriptedService) Launch() (application.Arrangement, error) {
+func (s *scriptedService) Launch() (arranger.Arrangement, error) {
 	s.record("Launch")
 	return s.arrangement, s.arrangeErr
 }
 
-func (s *scriptedService) Rearrange(at placement.Point) (application.Arrangement, error) {
+func (s *scriptedService) Rearrange(at placement.Point) (arranger.Arrangement, error) {
 	if s.panicOnRearrange {
 		panic("planted panic")
 	}
@@ -194,13 +195,13 @@ func (s *scriptedService) Rearrange(at placement.Point) (application.Arrangement
 	return s.arrangement, s.arrangeErr
 }
 
-func (s *scriptedService) Moved(at placement.Point) (application.Arrangement, error) {
+func (s *scriptedService) Moved(at placement.Point) (arranger.Arrangement, error) {
 	s.record("Moved")
 	s.at = append(s.at, at)
 	return s.arrangement, s.movedErr
 }
 
-func (s *scriptedService) ToEdge(at placement.Point, edge placement.Edge) (application.Arrangement, error) {
+func (s *scriptedService) ToEdge(at placement.Point, edge placement.Edge) (arranger.Arrangement, error) {
 	s.record("ToEdge")
 	s.at = append(s.at, at)
 	s.edges = append(s.edges, edge)
@@ -209,7 +210,7 @@ func (s *scriptedService) ToEdge(at placement.Point, edge placement.Edge) (appli
 
 // ToLastEdge answers the arrangement against the last edge: lastEdge where a test set one, else the
 // scripted arrangement.
-func (s *scriptedService) ToLastEdge(at placement.Point) (application.Arrangement, error) {
+func (s *scriptedService) ToLastEdge(at placement.Point) (arranger.Arrangement, error) {
 	s.record("ToLastEdge")
 	s.at = append(s.at, at)
 	if s.lastEdge != nil {
@@ -218,7 +219,7 @@ func (s *scriptedService) ToLastEdge(at placement.Point) (application.Arrangemen
 	return s.arrangement, s.arrangeErr
 }
 
-func (s *scriptedService) Centred(at placement.Point, size placement.Size) (application.Arrangement, error) {
+func (s *scriptedService) Centred(at placement.Point, size placement.Size) (arranger.Arrangement, error) {
 	s.record("Centred")
 	s.at = append(s.at, at)
 	s.centred = size
@@ -252,11 +253,11 @@ var (
 	testRibbonAt = placement.Point{X: 40, Y: 60}
 	// testArrange stands flush against its right edge, so an unpinned ribbon arranged there is unpinned
 	// in effect (FR-619); testAway is the same ribbon standing against no edge.
-	testArrange = application.Arrangement{
+	testArrange = arranger.Arrangement{
 		At: placement.Point{X: 10, Y: 20}, Size: placement.Size{Width: 300, Height: 90}, Scrolls: true,
 		Edge: placement.Right,
 	}
-	testAway = application.Arrangement{At: placement.Point{X: 400, Y: 300}, Size: testArrange.Size}
+	testAway = arranger.Arrangement{At: placement.Point{X: 400, Y: 300}, Size: testArrange.Size}
 	// testPanel is every panel's size but Settings', which is testSettingsPanel.
 	testPanel         = placement.Size{Width: 560, Height: 760}
 	testSettingsPanel = placement.Size{Width: 900, Height: 760}
@@ -294,7 +295,7 @@ func newTestApp(t *testing.T) (*App, *scriptedService, *window, *bytes.Buffer) {
 		return seen.ribbonAt, seen.readErr
 	}
 	app.place = func(at placement.Point, size placement.Size) error {
-		seen.placed = append(seen.placed, application.Arrangement{At: at, Size: size})
+		seen.placed = append(seen.placed, arranger.Arrangement{At: at, Size: size})
 		return seen.placeErr
 	}
 	app.shape = func(parts []placement.Rect) error {

@@ -68,7 +68,7 @@ func choose[T comparable](s *Service, value T, field func(*settings.Settings) *T
 		*field(&next) = value
 		normalised := next.Normalised()
 		if *field(&normalised) != value {
-			return current, fmt.Errorf("%w: %v", ErrUnknownChoice, value)
+			return current, fmt.Errorf("%w: %v", ribbon.ErrUnknownChoice, value)
 		}
 		return next, nil
 	})

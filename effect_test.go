@@ -4,7 +4,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/oernster/timeribbon/internal/application"
+	"github.com/oernster/timeribbon/ribbonkit/application/arranger"
 	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 	"github.com/oernster/timeribbon/ribbonkit/domain/hover"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
@@ -34,7 +34,7 @@ func lastOnTop(t *testing.T, seen *window) bool {
 }
 
 // dropAt ends a drag with the ribbon arranged as arranged.
-func dropAt(app *App, service *scriptedService, arranged application.Arrangement) {
+func dropAt(app *App, service *scriptedService, arranged arranger.Arrangement) {
 	service.arrangement = arranged
 	app.handleSafely(desktop.Event{Kind: desktop.EventMoveEnded})
 }
@@ -97,7 +97,7 @@ func TestUnpinningAwayFromAnEdgeMovesItToTheLastEdge(t *testing.T) {
 	}
 	app.show()
 	app.act(menus.Pin)
-	if !slices.Contains(service.calls, "ToLastEdge") || lastPlaced(t, seen) != (application.Arrangement{At: testArrange.At, Size: testArrange.Size}) {
+	if !slices.Contains(service.calls, "ToLastEdge") || lastPlaced(t, seen) != (arranger.Arrangement{At: testArrange.At, Size: testArrange.Size}) {
 		t.Fatalf("calls %v, placed %+v; want the last edge", service.calls, lastPlaced(t, seen))
 	}
 	if seen.waited != hover.Away {

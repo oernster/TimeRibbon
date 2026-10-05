@@ -6,7 +6,7 @@ package main
 import (
 	"time"
 
-	"github.com/oernster/timeribbon/internal/application"
+	"github.com/oernster/timeribbon/ribbonkit/application/arranger"
 	"github.com/oernster/timeribbon/ribbonkit/application/menus"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
@@ -26,7 +26,7 @@ type window struct {
 	onTop     []bool
 	browsed   []string
 	menus     [][]menus.Item
-	placed    []application.Arrangement
+	placed    []arranger.Arrangement
 	shapes    [][]placement.Rect
 	ribbonAt  placement.Point
 	readErr   error

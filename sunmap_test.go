@@ -6,13 +6,14 @@ import (
 	"testing"
 
 	"github.com/oernster/timeribbon/internal/application"
+	"github.com/oernster/timeribbon/ribbonkit/application/arranger"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 	"github.com/oernster/timeribbon/ribbonkit/infrastructure/desktop"
 )
 
 // withMap is testArrange, a ribbon at (10, 20) 300 by 90, with a 480 by 240 map below it centred on
 // it: the window runs from x -80 to 400 and y 20 to 350, the ribbon's corner 90 in from its left.
-var withMap = func() application.Arrangement {
+var withMap = func() arranger.Arrangement {
 	arranged := testArrange
 	arranged.MapSide = placement.Bottom
 	arranged.Map = placement.Rect{Left: -80, Top: 110, Right: 400, Bottom: 350}
@@ -132,7 +133,7 @@ func TestTheShapeFollowsEveryRefit(t *testing.T) {
 		if len(seen.shapes) != len(seen.placed)+1 {
 			t.Errorf("placed after %d cuts, want the cut first", len(seen.shapes))
 		}
-		seen.placed = append(seen.placed, application.Arrangement{At: at, Size: size})
+		seen.placed = append(seen.placed, arranger.Arrangement{At: at, Size: size})
 		return nil
 	}
 	lastShape := func() []placement.Rect { return seen.shapes[len(seen.shapes)-1] }
@@ -163,7 +164,7 @@ func TestTheShapeFollowsEveryRefit(t *testing.T) {
 	app.shape = func([]placement.Rect) error { return errPlanted }
 	placedBefore := len(seen.placed)
 	app.place = func(at placement.Point, size placement.Size) error {
-		seen.placed = append(seen.placed, application.Arrangement{At: at, Size: size})
+		seen.placed = append(seen.placed, arranger.Arrangement{At: at, Size: size})
 		return nil
 	}
 	if err := app.ClosePanel(); err != nil || len(seen.placed) == placedBefore {

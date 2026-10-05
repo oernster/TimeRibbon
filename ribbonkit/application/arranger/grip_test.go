@@ -1,4 +1,4 @@
-package application
+package arranger
 
 import (
 	"errors"
@@ -11,30 +11,38 @@ import (
 // doubled is a scale that draws everything twice as large, so every length is exact.
 const doubled = 2 * ribbon.WholeScale
 
+// mapPulledOut answers n cells with their map on and pulled out.
+func mapPulledOut(n int) Content {
+	content := cells(n)
+	content.Lane, content.Map, content.PullOut = testLane, true, true
+	return content
+}
+
 // FR-623: at twice the scale a ribbon is twice as long and twice as thick, whichever way it runs;
-// the scale is kept and shown.
+// the scale is kept and drawn.
 func TestAScaledRibbonGrowsInBothDirections(t *testing.T) {
 	t.Parallel()
 	for _, orientation := range []ribbon.Orientation{ribbon.Horizontal, ribbon.Vertical} {
-		initial := clocks(2)
-		initial.Orientation = orientation
-		r := newRig(t, initial)
-		whole, err := r.service.Launch()
+		choices := ribbon.Defaults()
+		choices.Orientation = orientation
+		r := newRig(choices, cells(2))
+		whole, err := r.arranger.Launch()
 		if err != nil {
 			t.Fatal(err)
 		}
-		if err := r.service.SetScale(doubled); err != nil {
+		if err := r.arranger.SetScale(doubled); err != nil {
 			t.Fatal(err)
 		}
-		got, err := r.service.Launch()
+		got, err := r.arranger.Launch()
 		if err != nil {
 			t.Fatal(err)
 		}
 		if want := (placement.Size{Width: 2 * whole.Size.Width, Height: 2 * whole.Size.Height}); got.Size != want {
 			t.Errorf("%s: %+v, want %+v", orientation, got.Size, want)
 		}
-		if r.store.last(t).Scale != doubled || r.service.Snapshot().Scale != doubled {
-			t.Errorf("%s: the scale was not kept and shown", orientation)
+		kept := r.host.last(t).Scale
+		if kept != doubled || r.arranger.DrawnScale(kept) != doubled {
+			t.Errorf("%s: the scale was not kept and drawn", orientation)
 		}
 	}
 }
@@ -43,25 +51,25 @@ func TestAScaledRibbonGrowsInBothDirections(t *testing.T) {
 // a scale ends the preview; a scale outside the bounds is refused either way.
 func TestAPreviewIsDrawnButNotKept(t *testing.T) {
 	t.Parallel()
-	r := newRig(t, clocks(2))
-	saves := len(r.store.saved)
-	if err := r.service.PreviewScale(ribbon.MaxScale); err != nil {
+	r := newRig(horizontal(), cells(2))
+	saves := r.host.saves()
+	if err := r.arranger.PreviewScale(ribbon.MaxScale); err != nil {
 		t.Fatal(err)
 	}
-	if got := r.service.Snapshot(); got.Scale != ribbon.MaxScale || got.MinScale != ribbon.MinScale || got.MaxScale != ribbon.MaxScale {
-		t.Errorf("previewing shows %v within %d to %d", got.Scale, got.MinScale, got.MaxScale)
+	if got := r.arranger.DrawnScale(r.host.current().Scale); got != ribbon.MaxScale {
+		t.Errorf("previewing draws %v", got)
 	}
-	if len(r.store.saved) != saves {
+	if r.host.saves() != saves {
 		t.Error("a preview was saved")
 	}
-	if err := r.service.SetScale(ribbon.MinScale); err != nil || r.service.Snapshot().Scale != ribbon.MinScale {
-		t.Errorf("keeping a scale left %v (%v)", r.service.Snapshot().Scale, err)
+	if err := r.arranger.SetScale(ribbon.MinScale); err != nil || r.arranger.DrawnScale(r.host.current().Scale) != ribbon.MinScale {
+		t.Errorf("keeping a scale draws %v (%v)", r.arranger.DrawnScale(r.host.current().Scale), err)
 	}
 	for _, outside := range []int{ribbon.MinScale - 1, ribbon.MaxScale + 1} {
-		if err := r.service.PreviewScale(float64(outside)); !errors.Is(err, ErrUnknownChoice) {
+		if err := r.arranger.PreviewScale(float64(outside)); !errors.Is(err, ribbon.ErrUnknownChoice) {
 			t.Errorf("previewing %d answered %v", outside, err)
 		}
-		if err := r.service.SetScale(outside); !errors.Is(err, ErrUnknownChoice) || r.service.Snapshot().Scale != ribbon.MinScale {
+		if err := r.arranger.SetScale(outside); !errors.Is(err, ribbon.ErrUnknownChoice) || r.host.current().Scale != ribbon.MinScale {
 			t.Errorf("keeping %d answered %v", outside, err)
 		}
 	}
@@ -73,20 +81,20 @@ func TestAPreviewIsDrawnButNotKept(t *testing.T) {
 func TestAChangeOfScaleKeepsTheCorner(t *testing.T) {
 	t.Parallel()
 	dragged := placement.Point{X: 1500, Y: 40}
-	r := newRig(t, draggedTo(2, ribbon.Vertical, dragged))
-	if _, err := r.service.Launch(); err != nil {
+	r := newRig(draggedTo(ribbon.Vertical, dragged), cells(2))
+	if _, err := r.arranger.Launch(); err != nil {
 		t.Fatal(err)
 	}
 	steps := []func() error{
-		func() error { return r.service.PreviewScale(ribbon.WholeScale + ribbon.WholeScale/4) },
-		func() error { return r.service.PreviewScale(ribbon.WholeScale + ribbon.WholeScale/2) },
-		func() error { return r.service.SetScale(doubled) },
+		func() error { return r.arranger.PreviewScale(ribbon.WholeScale + ribbon.WholeScale/4) },
+		func() error { return r.arranger.PreviewScale(ribbon.WholeScale + ribbon.WholeScale/2) },
+		func() error { return r.arranger.SetScale(doubled) },
 	}
 	for index, step := range steps {
 		if err := step(); err != nil {
 			t.Fatal(err)
 		}
-		got, err := r.service.Rearrange(dragged)
+		got, err := r.arranger.Rearrange(dragged)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -96,31 +104,29 @@ func TestAChangeOfScaleKeepsTheCorner(t *testing.T) {
 	}
 }
 
-// FR-623: while the grip is dragged the sun map keeps the size it had when the drag began, still
+// FR-623: while the grip is dragged the map keeps the size it had when the drag began, still
 // adjoining the ribbon, so the window's corner holds still; once the scale is kept it is sized again.
 func TestTheSunMapIsHeldWhileTheGripIsDragged(t *testing.T) {
 	t.Parallel()
-	initial := clocks(6)
-	initial.Orientation, initial.SunMap, initial.PullOut = ribbon.Vertical, true, true
-	r := newRig(t, initial)
-	before, err := r.service.Launch()
+	r := newRig(vertical(), mapPulledOut(6))
+	before, err := r.arranger.Launch()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := r.service.PreviewScale(ribbon.WholeScale + ribbon.WholeScale/2); err != nil {
+	if err := r.arranger.PreviewScale(ribbon.WholeScale + ribbon.WholeScale/2); err != nil {
 		t.Fatal(err)
 	}
-	during, err := r.service.Rearrange(before.At)
+	during, err := r.arranger.Rearrange(before.At)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if during.Map.Width() != before.Map.Width() || during.Map.Height() != before.Map.Height() || during.Map.Right != during.At.X {
 		t.Errorf("during the drag the map is %+v beside a ribbon at %+v; want %+v's size adjoining it", during.Map, during.At, before.Map)
 	}
-	if err := r.service.SetScale(ribbon.WholeScale + ribbon.WholeScale/2); err != nil {
+	if err := r.arranger.SetScale(ribbon.WholeScale + ribbon.WholeScale/2); err != nil {
 		t.Fatal(err)
 	}
-	kept, err := r.service.Rearrange(during.At)
+	kept, err := r.arranger.Rearrange(during.At)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -129,24 +135,22 @@ func TestTheSunMapIsHeldWhileTheGripIsDragged(t *testing.T) {
 	}
 }
 
-// FR-104: a change of clocks at the same scale still centres the ribbon along its new length.
+// FR-104: a change of content at the same scale still centres the ribbon along its new length.
 func TestAChangeOfClocksAfterAScaleStillRecentres(t *testing.T) {
 	t.Parallel()
 	dragged := placement.Point{X: 1500, Y: 40}
-	r := newRig(t, draggedTo(2, ribbon.Vertical, dragged))
-	if _, err := r.service.Launch(); err != nil {
+	r := newRig(draggedTo(ribbon.Vertical, dragged), cells(2))
+	if _, err := r.arranger.Launch(); err != nil {
 		t.Fatal(err)
 	}
-	if err := r.service.SetScale(doubled); err != nil {
+	if err := r.arranger.SetScale(doubled); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := r.service.Rearrange(dragged); err != nil {
+	if _, err := r.arranger.Rearrange(dragged); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := r.service.AddClock("Asia/Kolkata"); err != nil {
-		t.Fatal(err)
-	}
-	got, err := r.service.Rearrange(dragged)
+	r.host.edit(func(c *Content) { c.Cells++ })
+	got, err := r.arranger.Rearrange(dragged)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -160,18 +164,17 @@ func TestAChangeOfClocksAfterAScaleStillRecentres(t *testing.T) {
 func TestTheScrollBarIsNotScaled(t *testing.T) {
 	t.Parallel()
 	const bar = 12
-	crowded := clocks(40)
-	crowded.Orientation = ribbon.Horizontal
+	crowded := horizontal()
 	crowded.Scale = doubled
-	r := newRig(t, crowded)
-	if err := r.service.SetScrollbar(bar); err != nil {
+	r := newRig(crowded, cells(40))
+	if err := r.arranger.SetScrollbar(bar); err != nil {
 		t.Fatal(err)
 	}
-	got, err := r.service.Launch()
+	got, err := r.arranger.Launch()
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := doubled*(testLayout.Digital.Height+2*testLayout.Padding)/ribbon.WholeScale + bar
+	want := doubled*(digitalCell.Height+2*testPadding)/ribbon.WholeScale + bar
 	if !got.Scrolls || got.Size.Height != want {
 		t.Errorf("scrolls %v at %d thick, want %d", got.Scrolls, got.Size.Height, want)
 	}

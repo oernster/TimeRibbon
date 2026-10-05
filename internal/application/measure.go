@@ -5,6 +5,7 @@ import (
 
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
 
 // Measured is the width in DIP a cell needs to show its widest time and date whole, as the page
@@ -29,7 +30,7 @@ func (s *Service) TextSamples() (times, dates []string) {
 // zero is refused. Arranging the window afterwards gives the cells that width (FR-620).
 func (s *Service) SetMeasured(measured Measured) error {
 	if measured.CellWidth < 0 {
-		return fmt.Errorf("%w: a cell of %d", ErrNegativeLength, measured.CellWidth)
+		return fmt.Errorf("%w: a cell of %d", placement.ErrNegativeLength, measured.CellWidth)
 	}
 	s.mutex.Lock()
 	defer s.mutex.Unlock()

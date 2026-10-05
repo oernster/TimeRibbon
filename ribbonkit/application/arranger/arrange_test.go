@@ -1,32 +1,22 @@
-package application
+package arranger
 
 import (
 	"errors"
 	"testing"
 
-	"github.com/oernster/timeribbon/internal/domain/settings"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
-// clocks answers horizontal settings holding n London clocks; the arithmetic below is worked for
-// horizontal cells, whatever the default orientation is.
-func clocks(n int) settings.Settings {
-	s := settings.Defaults()
-	s.Orientation = ribbon.Horizontal
-	for range n {
-		s = s.WithClockAdded(settings.Entry{ID: "x", Zone: "Europe/London"})
-	}
-	return s
-}
+// unchanged is an edit that changes nothing, which still saves.
+func unchanged(current ribbon.Choices) ribbon.Choices { return current }
 
 // FR-403, FR-409: two digital cells at 100 percent, 2 x 160 + 2 x 8 = 336 along and
 // 90 + 2 x 8 = 106 across, go to their orientation's home edge: flush against the top, centred left
 // to right, when horizontal; flush against the right, centred top to bottom, when vertical.
 func TestLaunchWithNothingStoredGoesToTheDefaultPlace(t *testing.T) {
 	t.Parallel()
-	r := newRig(t, clocks(2))
-	got, err := r.service.Launch()
+	got, err := newRig(horizontal(), cells(2)).arranger.Launch()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -37,10 +27,8 @@ func TestLaunchWithNothingStoredGoesToTheDefaultPlace(t *testing.T) {
 	if got != want {
 		t.Errorf("horizontal: got %+v, want %+v", got, want)
 	}
-	vertical := clocks(2)
-	vertical.Orientation = ribbon.Vertical
 	// Vertical, the same two cells are 160 + 2 x 8 = 176 across and 2 x 90 + 2 x 8 = 196 along.
-	if got, _ := newRig(t, vertical).service.Launch(); got.At != (placement.Point{X: 1920 - 176, Y: (1032 - 196) / 2}) {
+	if got, _ := newRig(vertical(), cells(2)).arranger.Launch(); got.At != (placement.Point{X: 1920 - 176, Y: (1032 - 196) / 2}) {
 		t.Errorf("vertical: got %+v", got)
 	}
 }
@@ -48,10 +36,9 @@ func TestLaunchWithNothingStoredGoesToTheDefaultPlace(t *testing.T) {
 // FR-405, FR-407: the stored monitor at 150 percent sizes the ribbon in its pixels.
 func TestLaunchRestoresTheStoredMonitorAtItsScaling(t *testing.T) {
 	t.Parallel()
-	initial := clocks(2)
+	initial := horizontal()
 	initial.Placement = &placement.Stored{Device: secondaryMonitor.Device, DPI: 144, Offset: placement.Point{X: 180, Y: 300}}
-	r := newRig(t, initial)
-	got, err := r.service.Launch()
+	got, err := newRig(initial, cells(2)).arranger.Launch()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -64,47 +51,34 @@ func TestLaunchRestoresTheStoredMonitorAtItsScaling(t *testing.T) {
 // FR-103: three analogue cells stacked: 160 + 16 across, 3 x 150 + 16 along.
 func TestVerticalRibbonsStackTheirCells(t *testing.T) {
 	t.Parallel()
-	initial := clocks(3)
-	initial.Orientation = ribbon.Vertical
-	initial.Style = settings.Analogue
-	r := newRig(t, initial)
-	got, _ := r.service.Launch()
+	content := cells(3)
+	content.Cell = analogueCell
+	got, _ := newRig(vertical(), content).arranger.Launch()
 	if got.Size != (placement.Size{Width: 176, Height: 466}) || got.Scrolls {
 		t.Errorf("got %+v", got)
 	}
 }
 
-// draggedTo answers settings holding n London clocks in orientation, stored where a drag left the
-// ribbon at at on the primary monitor.
-func draggedTo(n int, orientation ribbon.Orientation, at placement.Point) settings.Settings {
-	s := clocks(n)
-	s.Orientation = orientation
-	s.Placement = &placement.Stored{Device: primaryMonitor.Device, DPI: placement.BaseDPI, Offset: at}
-	return s
-}
-
-// FR-104: a vertical ribbon dragged near the top gains a clock. Its length changes from
+// FR-104: a vertical ribbon dragged near the top gains a cell. Its length changes from
 // 2 x 90 + 8 = 188 to 3 x 90 + 2 x 8 = 286, so it is centred top to bottom, (1032 - 286) / 2,
 // its left edge kept; the place is saved, so the next launch finds it there.
 func TestARibbonWhoseLengthChangesIsRecentredAndKept(t *testing.T) {
 	t.Parallel()
 	dragged := placement.Point{X: 1700, Y: 40}
-	r := newRig(t, draggedTo(2, ribbon.Vertical, dragged))
-	if got, _ := r.service.Launch(); got.At != dragged {
+	r := newRig(draggedTo(ribbon.Vertical, dragged), cells(2))
+	if got, _ := r.arranger.Launch(); got.At != dragged {
 		t.Fatalf("launched at %+v, want where the drag left it", got.At)
 	}
-	if _, err := r.service.AddClock("Asia/Kolkata"); err != nil {
-		t.Fatal(err)
-	}
+	r.host.edit(func(c *Content) { c.Cells++ })
 	centred := placement.Point{X: 1700, Y: (1032 - 286) / 2}
-	got, err := r.service.Rearrange(dragged)
+	got, err := r.arranger.Rearrange(dragged)
 	if err != nil || got.At != centred {
 		t.Errorf("rearranged to %+v (%v), want %+v", got.At, err, centred)
 	}
-	if stored := r.store.last(t).Placement; stored == nil || stored.Offset != centred {
+	if stored := r.host.last(t).Placement; stored == nil || stored.Offset != centred {
 		t.Errorf("stored %+v, want the centred place", stored)
 	}
-	if got, _ := r.service.Launch(); got.At != centred {
+	if got, _ := r.arranger.Launch(); got.At != centred {
 		t.Errorf("relaunched at %+v, want the centred place", got.At)
 	}
 }
@@ -113,89 +87,55 @@ func TestARibbonWhoseLengthChangesIsRecentredAndKept(t *testing.T) {
 func TestAHorizontalRibbonIsRecentredLeftToRight(t *testing.T) {
 	t.Parallel()
 	dragged := placement.Point{X: 30, Y: 800}
-	r := newRig(t, draggedTo(2, ribbon.Horizontal, dragged))
-	_, _ = r.service.Launch()
-	_, _ = r.service.AddClock("Asia/Kolkata")
-	got, _ := r.service.Rearrange(dragged)
+	r := newRig(draggedTo(ribbon.Horizontal, dragged), cells(2))
+	_, _ = r.arranger.Launch()
+	r.host.edit(func(c *Content) { c.Cells++ })
+	got, _ := r.arranger.Rearrange(dragged)
 	if want := (placement.Point{X: (1920 - (3*160 + 2*8)) / 2, Y: 800}); got.At != want {
 		t.Errorf("got %+v, want %+v", got.At, want)
 	}
 }
 
 // FR-104, FR-404: only a change of length re-centres the ribbon; a rearrange or a move with the
-// same clocks leaves it where it was put. Nothing is saved but the move.
+// same cells leaves it where it was put. Nothing is saved but the move.
 func TestNothingButAChangeOfLengthRecentresTheRibbon(t *testing.T) {
 	t.Parallel()
 	dragged := placement.Point{X: 1700, Y: 40}
-	r := newRig(t, draggedTo(2, ribbon.Vertical, dragged))
-	_, _ = r.service.Launch()
-	if got, _ := r.service.Rearrange(dragged); got.At != dragged || len(r.store.saved) != 0 {
-		t.Errorf("rearranged to %+v with %d saves, want it left alone", got.At, len(r.store.saved))
+	r := newRig(draggedTo(ribbon.Vertical, dragged), cells(2))
+	_, _ = r.arranger.Launch()
+	if got, _ := r.arranger.Rearrange(dragged); got.At != dragged || r.host.saves() != 0 {
+		t.Errorf("rearranged to %+v with %d saves, want it left alone", got.At, r.host.saves())
 	}
 	moved := placement.Point{X: 1700, Y: 500}
-	if got, _ := r.service.Moved(moved); got.At != moved || r.store.last(t).Placement.Offset != moved {
+	if got, _ := r.arranger.Moved(moved); got.At != moved || r.host.last(t).Placement.Offset != moved {
 		t.Errorf("a drag was moved to %+v, want it kept where it was let go", got.At)
-	}
-}
-
-// FR-107: an empty ribbon is sized for its prompt, whatever the style: 160 + 16 by 190 + 16.
-func TestAnEmptyRibbonIsSizedForItsPrompt(t *testing.T) {
-	t.Parallel()
-	r := newRig(t, clocks(0))
-	got, _ := r.service.Launch()
-	if got.Size != (placement.Size{Width: 176, Height: 206}) {
-		t.Errorf("got %+v", got.Size)
 	}
 }
 
 // FR-106.
 func TestARibbonThatWillNotFitScrollsAtTheWidthOfTheWorkArea(t *testing.T) {
 	t.Parallel()
-	r := newRig(t, clocks(12))
-	got, _ := r.service.Launch()
+	got, _ := newRig(horizontal(), cells(12)).arranger.Launch()
 	if got.Size.Width != 1920 || !got.Scrolls || got.At.X != 0 {
 		t.Errorf("got %+v", got)
 	}
 }
 
-// FR-106, FR-707: a notice is drawn as one more cell, so the ribbon makes room for it; two clocks and
-// a notice are 3 x 160 + 2 x 8 = 496 along. Once the notice is dismissed the ribbon is 336 again.
-func TestTheRibbonMakesRoomForANotice(t *testing.T) {
-	t.Parallel()
-	r := newRig(t, clocks(2))
-	r.store.saveErr = errPlanted
-	if err := r.service.SetTheme(ribbon.Dark); !errors.Is(err, errPlanted) {
-		t.Fatalf("the save did not fail: %v", err)
-	}
-	got, _ := r.service.Launch()
-	if got.Size.Width != 496 || got.Scrolls {
-		t.Errorf("with a notice: got %+v", got)
-	}
-	r.store.saveErr = nil
-	r.service.DismissNotices()
-	got, _ = r.service.Launch()
-	if got.Size.Width != 336 {
-		t.Errorf("after dismissing: got %+v", got)
-	}
-}
-
-// FR-104, FR-707: a ribbon re-centred where its place cannot be saved raises the notice again, so it
-// is arranged once more with room for that cell rather than left too short for it.
+// FR-104, FR-707: a ribbon re-centred where its place cannot be saved has the host raise a notice,
+// one more cell, so it is arranged once more with room for that cell rather than left too short
+// for it: 3 x 160 + 2 x 8 = 496 along.
 func TestARecentringThatCannotBeSavedMakesRoomForItsNotice(t *testing.T) {
 	t.Parallel()
-	r := newRig(t, clocks(2))
-	r.store.saveErr = errPlanted
-	_ = r.service.SetTheme(ribbon.Dark)
-	if _, err := r.service.Launch(); err != nil {
+	r := newRig(horizontal(), cells(2))
+	r.host.failSaves(errPlanted)
+	_ = r.host.ChangeRibbon(unchanged)
+	if _, err := r.arranger.Launch(); err != nil {
 		t.Fatal(err)
 	}
-	r.service.DismissNotices()
-	got, err := r.service.Launch()
+	r.host.dismiss()
+	got, err := r.arranger.Launch()
 	if err != nil || got.Size.Width != 496 {
 		t.Errorf("got %+v (%v), want room for the notice the failed save raised", got, err)
-	}
-	if notices := r.service.Snapshot().Notices; len(notices) != 1 {
-		t.Errorf("notices %v, want the failed save's", notices)
 	}
 }
 
@@ -203,23 +143,23 @@ func TestARecentringThatCannotBeSavedMakesRoomForItsNotice(t *testing.T) {
 // covers the cells; one that fits is not. 12 cells overflow the primary: 90 + 16 + 15 = 121 across.
 func TestAScrollingRibbonMakesRoomForItsScrollBar(t *testing.T) {
 	t.Parallel()
-	r := newRig(t, clocks(12))
+	r := newRig(horizontal(), cells(12))
 	const bar = 15
-	if err := r.service.SetScrollbar(bar); err != nil {
+	if err := r.arranger.SetScrollbar(bar); err != nil {
 		t.Fatal(err)
 	}
-	got, _ := r.service.Launch()
-	if !got.Scrolls || got.Size.Height != 90+2*testLayout.Padding+bar {
+	got, _ := r.arranger.Launch()
+	if !got.Scrolls || got.Size.Height != 90+2*testPadding+bar {
 		t.Errorf("scrolling: got %+v", got)
 	}
-	fits := newRig(t, clocks(2))
-	if err := fits.service.SetScrollbar(bar); err != nil {
+	fits := newRig(horizontal(), cells(2))
+	if err := fits.arranger.SetScrollbar(bar); err != nil {
 		t.Fatal(err)
 	}
-	if got, _ := fits.service.Launch(); got.Size.Height != 90+2*testLayout.Padding {
+	if got, _ := fits.arranger.Launch(); got.Size.Height != 90+2*testPadding {
 		t.Errorf("fitting: got %+v", got)
 	}
-	if err := r.service.SetScrollbar(-1); !errors.Is(err, ErrNegativeLength) {
+	if err := r.arranger.SetScrollbar(-1); !errors.Is(err, placement.ErrNegativeLength) {
 		t.Errorf("a negative bar: got %v", err)
 	}
 }
@@ -227,12 +167,12 @@ func TestAScrollingRibbonMakesRoomForItsScrollBar(t *testing.T) {
 // FR-404.
 func TestPlacementIsStoredRelativeToItsMonitor(t *testing.T) {
 	t.Parallel()
-	r := newRig(t, clocks(2))
-	got, err := r.service.Moved(placement.Point{X: 2100, Y: 300})
+	r := newRig(horizontal(), cells(2))
+	got, err := r.arranger.Moved(placement.Point{X: 2100, Y: 300})
 	if err != nil {
 		t.Fatal(err)
 	}
-	stored := r.store.last(t).Placement
+	stored := r.host.last(t).Placement
 	want := placement.Stored{Device: secondaryMonitor.Device, Work: secondaryMonitor.Work, DPI: 144, Offset: placement.Point{X: 180, Y: 300}}
 	if stored == nil || *stored != want || got.At != (placement.Point{X: 2100, Y: 300}) {
 		t.Errorf("stored %+v at %+v", stored, got.At)
@@ -243,13 +183,13 @@ func TestPlacementIsStoredRelativeToItsMonitor(t *testing.T) {
 // against the primary's top (FR-403, FR-409), 336 x 106; the place it comes back to is stored.
 func TestADragOffEveryDisplayIsBroughtBack(t *testing.T) {
 	t.Parallel()
-	r := newRig(t, clocks(2))
-	got, err := r.service.Moved(placement.Point{X: 9000, Y: 300})
+	r := newRig(horizontal(), cells(2))
+	got, err := r.arranger.Moved(placement.Point{X: 9000, Y: 300})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.At != (placement.Point{X: (1920 - 336) / 2, Y: 0}) || r.store.last(t).Placement.Device != primaryMonitor.Device {
-		t.Errorf("got %+v, stored %+v", got, r.store.last(t).Placement)
+	if got.At != (placement.Point{X: (1920 - 336) / 2, Y: 0}) || r.host.last(t).Placement.Device != primaryMonitor.Device {
+		t.Errorf("got %+v, stored %+v", got, r.host.last(t).Placement)
 	}
 }
 
@@ -257,15 +197,15 @@ func TestADragOffEveryDisplayIsBroughtBack(t *testing.T) {
 // bottom edge, the horizontal ribbon now stands flush against it, which is remembered (FR-411).
 func TestRearrangingClampsAndSavesNothing(t *testing.T) {
 	t.Parallel()
-	r := newRig(t, clocks(2))
-	got, err := r.service.Rearrange(placement.Point{X: 1500, Y: 1000})
+	r := newRig(horizontal(), cells(2))
+	got, err := r.arranger.Rearrange(placement.Point{X: 1500, Y: 1000})
 	if err != nil {
 		t.Fatal(err)
 	}
 	if got.At != (placement.Point{X: 1500, Y: 1032 - 106}) || got.Edge != placement.Bottom {
 		t.Errorf("got %+v", got)
 	}
-	if last := r.store.last(t); last.Placement != nil || last.LastEdge == nil || *last.LastEdge != (placement.Against{Device: primaryMonitor.Device, Edge: placement.Bottom}) {
+	if last := r.host.last(t); last.Placement != nil || last.LastEdge == nil || *last.LastEdge != (placement.Against{Device: primaryMonitor.Device, Edge: placement.Bottom}) {
 		t.Errorf("rearranging saved placement %+v, edge %+v", last.Placement, last.LastEdge)
 	}
 }
@@ -274,8 +214,7 @@ func TestRearrangingClampsAndSavesNothing(t *testing.T) {
 // pixels (504 by 159 at 150 percent) and clamped onto it.
 func TestARibbonLandingOnAnotherDisplayIsSizedForIt(t *testing.T) {
 	t.Parallel()
-	r := newRig(t, clocks(2))
-	got, err := r.service.Rearrange(placement.Point{X: 1800, Y: 1000})
+	got, err := newRig(horizontal(), cells(2)).arranger.Rearrange(placement.Point{X: 1800, Y: 1000})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -288,8 +227,8 @@ func TestARibbonLandingOnAnotherDisplayIsSizedForIt(t *testing.T) {
 // CON-6: Settings opens centred on the ribbon's display, sized in its pixels.
 func TestSettingsOpenCentredOnTheRibbonsDisplay(t *testing.T) {
 	t.Parallel()
-	r := newRig(t, clocks(1))
-	got, err := r.service.Centred(placement.Point{X: 2100, Y: 300}, placement.Size{Width: 400, Height: 300})
+	r := newRig(horizontal(), cells(1))
+	got, err := r.arranger.Centred(placement.Point{X: 2100, Y: 300}, placement.Size{Width: 400, Height: 300})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -297,10 +236,10 @@ func TestSettingsOpenCentredOnTheRibbonsDisplay(t *testing.T) {
 	if got != want {
 		t.Errorf("got %+v, want %+v", got, want)
 	}
-	if len(r.store.saved) != 0 {
+	if r.host.saves() != 0 {
 		t.Error("centring saved something")
 	}
-	tall, _ := r.service.Centred(placement.Point{X: 10, Y: 10}, placement.Size{Width: 400, Height: 2000})
+	tall, _ := r.arranger.Centred(placement.Point{X: 10, Y: 10}, placement.Size{Width: 400, Height: 2000})
 	if tall.Size.Height != 1032 || tall.At.Y != 0 {
 		t.Errorf("a surface taller than the work area is not capped to it: %+v", tall)
 	}
@@ -308,23 +247,23 @@ func TestSettingsOpenCentredOnTheRibbonsDisplay(t *testing.T) {
 
 func TestNoDisplaysOrAFaultReadingThemIsAnswered(t *testing.T) {
 	t.Parallel()
-	r := newRig(t, clocks(1))
-	r.service.ports.Monitors = fakeMonitors{}
-	if _, err := r.service.Launch(); !errors.Is(err, ErrNoMonitors) {
+	r := newRig(horizontal(), cells(1))
+	r.monitors.monitors = nil
+	if _, err := r.arranger.Launch(); !errors.Is(err, ErrNoMonitors) {
 		t.Errorf("no monitors: got %v", err)
 	}
-	r.service.ports.Monitors = fakeMonitors{err: errPlanted}
-	if _, err := r.service.Rearrange(placement.Point{}); !errors.Is(err, errPlanted) {
+	r.monitors.err = errPlanted
+	if _, err := r.arranger.Rearrange(placement.Point{}); !errors.Is(err, errPlanted) {
 		t.Errorf("a fault: got %v", err)
 	}
-	if _, err := r.service.Moved(placement.Point{}); !errors.Is(err, errPlanted) {
+	if _, err := r.arranger.Moved(placement.Point{}); !errors.Is(err, errPlanted) {
 		t.Errorf("a fault while moving: got %v", err)
 	}
-	if _, err := r.service.Centred(placement.Point{}, placement.Size{}); !errors.Is(err, errPlanted) {
+	if _, err := r.arranger.Centred(placement.Point{}, placement.Size{}); !errors.Is(err, errPlanted) {
 		t.Errorf("a fault while centring: got %v", err)
 	}
-	r.service.ports.Monitors = fakeMonitors{}
-	if _, err := r.service.Centred(placement.Point{}, placement.Size{}); !errors.Is(err, ErrNoMonitors) {
+	r.monitors.err = nil
+	if _, err := r.arranger.Centred(placement.Point{}, placement.Size{}); !errors.Is(err, ErrNoMonitors) {
 		t.Errorf("centring with no monitors: got %v", err)
 	}
 }

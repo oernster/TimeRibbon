@@ -7,6 +7,7 @@ import (
 
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 	"github.com/oernster/timeribbon/ribbonkit/domain/ribbon"
 )
 
@@ -93,7 +94,7 @@ func TestAMeasurementCountsOnlyForItsOwnChoices(t *testing.T) {
 	if got := a.service.Snapshot().Layout; got.Analogue.Width != wider || got.Digital.Width != testLayout.Digital.Width {
 		t.Errorf("analogue: %+v", got)
 	}
-	if err := r.service.SetMeasured(measuredFor(initial, -1)); !errors.Is(err, ErrNegativeLength) {
+	if err := r.service.SetMeasured(measuredFor(initial, -1)); !errors.Is(err, placement.ErrNegativeLength) {
 		t.Errorf("a negative width: %v", err)
 	}
 }

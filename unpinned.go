@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/oernster/timeribbon/internal/application"
+	"github.com/oernster/timeribbon/ribbonkit/application/arranger"
 	"github.com/oernster/timeribbon/ribbonkit/domain/hover"
 	"github.com/oernster/timeribbon/ribbonkit/domain/placement"
 )
@@ -25,7 +25,7 @@ type unpinned struct {
 	stopDraw func() bool
 	// full is the full ribbon's last arrangement, which the tab is cut from and opening returns to.
 	// placed is false until the first arrangement, before which there is nothing to compare with.
-	full   application.Arrangement
+	full   arranger.Arrangement
 	placed bool
 	// holds counts what keeps the ribbon as it is: an open panel, the ribbon's own menu.
 	holds    int
@@ -44,7 +44,7 @@ func (a *App) pinned() bool { return a.service.Settings().Pinned }
 
 // pinnedAt answers whether a ribbon arranged as full behaves as pinned: chosen so; else standing
 // flush against no edge along its orientation (FR-619). Pinned in effect, it shows in full.
-func (a *App) pinnedAt(full application.Arrangement) bool {
+func (a *App) pinnedAt(full arranger.Arrangement) bool {
 	return a.service.Settings().PinnedInEffect(full.Edge != "")
 }
 
@@ -69,7 +69,7 @@ func (a *App) endDrawing() {
 // in effect is read afresh after each (FR-619). A ribbon that has just become unpinned in effect, as
 // one dragged back onto an edge, starts from full: it collapses once the pointer has been off it for
 // hover.Away rather than under the pointer.
-func (a *App) arrangeWindow(full application.Arrangement) error {
+func (a *App) arrangeWindow(full arranger.Arrangement) error {
 	a.unpin.guard.Lock()
 	becameUnpinned := a.unpin.placed && a.pinnedAt(a.unpin.full) && !a.pinnedAt(full)
 	// Standing onto or off an edge changes whether an unpinned ribbon is kept on top (FR-617).
@@ -96,7 +96,7 @@ func (a *App) arrangeWindow(full application.Arrangement) error {
 // keeps the tab's frame when full as well: giving Wails' frame back as it opened had Windows paint a
 // caption and a close button over it for a frame or two (measured 2026-09-29), so only a ribbon
 // pinned in effect and a panel wear Wails' frame.
-func (a *App) showArranged(full application.Arrangement, open bool) error {
+func (a *App) showArranged(full arranger.Arrangement, open bool) error {
 	if open {
 		a.report("framing the full ribbon", a.tabFrame(!a.pinnedAt(full)))
 		at, size, _ := windowOf(full)

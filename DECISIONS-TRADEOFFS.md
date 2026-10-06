@@ -320,6 +320,18 @@ theme and opacity are in Settings alone; commands stay on the menus.
 - **Gains:** the menus and Settings cannot disagree.
 - **Costs:** a new choice has to fit both.
 
+### A Position choice that would not move the ribbon is greyed
+
+Beside another ribbon, centring on an edge can leave the ribbon exactly where it stands. That choice
+is greyed in both menus and in Settings; a choice that would move it stays offered, even where the
+centre itself is taken.
+
+- **Rather than:** offering a press that does nothing; greying every edge whose centre is taken,
+  which would hide moves that still work.
+- **Gains:** the ribbon never offers what cannot happen.
+- **Costs:** whether a press would move it is worked out afresh as each menu opens and as Settings
+  refreshes.
+
 ### Settings is wide and as tall as its content
 
 - **Rather than:** a fixed height that scrolled on a large display; a tall narrow panel.
@@ -380,8 +392,8 @@ settings, web view data included, are removed only when asked.
 - **Rather than:** a machine-wide install; a generic installer.
 - **Gains:** nothing asks for administrator rights; a hostile payload writes nothing; forgetting the
   settings leaves nothing behind.
-- **Costs:** each account installs separately; the setup window's side acts on the machine and has
-  no tests.
+- **Costs:** each account installs separately; the setup window itself and its first reading of the
+  machine are checked by hand, though every decision behind them is tested.
 
 ### macOS: Apple Silicon only, signed and notarised
 

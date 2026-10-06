@@ -44,7 +44,8 @@ anywhere on any monitor.
   it is night, each clock's city marked in red. The pictures are NASA's Blue Marble and Black Marble,
   built in, so nothing is fetched.
 - **Goes where you put it** on any monitor and opens there next time; Position centres it on an
-  edge. It re-centres along its length when a clock or notice comes or goes.
+  edge, greying an edge that would leave it where it stands. It re-centres along its length when a
+  clock or notice comes or goes.
 - **Fits its clocks, then scrolls,** each cell as wide as the widest time and date its font can
   draw, so nothing is cut short.
 - **Choices that apply at once:** digital or analogue, large or small, ten colour schemes, 12-hour or

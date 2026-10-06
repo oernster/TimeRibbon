@@ -45,6 +45,7 @@ where they apply.
 | 35 | 2026-10-05 | A ribbon against no edge keeps the side its map is on, across drags, displays and restarts, rather than taking the side with more room each time; Oliver found the clocks swapping sides as the ribbon crossed displays (FR-902, FR-903). |
 | 36 | 2026-10-05 | On macOS TimeRibbon keeps its Dock icon: Wails makes the application a regular one as it launches; switching it to an accessory afterwards never removed the icon on a real Mac (FR-101). Oliver's ruling. |
 | 37 | 2026-10-05 | A Position item that would leave the ribbon where it stands is greyed in both menus and in Settings (FR-408). Oliver found Centre on right edge doing nothing beside another ribbon; his ruling: grey only a press that would not move it, not every edge whose centre is taken. |
+| 38 | 2026-10-06 | The setup facade's own tests in ribbonkit are cited where they hold FR-801, FR-807 and FR-808; FR-701 lists `pullOutSide`, which the file has held since Amendment 35. No requirement changes in meaning. |
 
 Source: the initial product specification of 2026-09-27, written under the product's former name,
 plus Oliver's rulings of 2026-09-27: Go with Wails; both orientations in the first release; a setup
@@ -818,7 +819,7 @@ Verified by: `settings.test.tsx`; by hand.
 
 **FR-701 Settings file** (Must). Settings are kept as indented JSON: the format `version`, style,
 size, colour, format, orientation, theme, Always on top, placement, `skippedUpdate`, `dateFormat`,
-`pinned`, `lastEdge`, `sunMap`, `pullOut`, `opacity`, `scale` and the clocks (a stable id, zone id,
+`pinned`, `lastEdge`, `sunMap`, `pullOut`, `opacity`, `scale`, `pullOutSide` and the clocks (a stable id, zone id,
 label and position each). Derived values are never stored.
 Verified by: `TestSettingsRoundTrip`, `TestNoDerivedValueIsStored` (store).
 
@@ -1007,7 +1008,9 @@ folder, the occupancy folder of FR-412 and the network for FR-509.
 otherwise Install where nothing is installed, Installed (Repair, Reinstall, Uninstall) over the same
 version, Update or Go back over another, the changing button leading. Versions compare by major, minor
 then patch as numbers, ignoring anything after a hyphen; a missing or non-numeric field is zero.
-Verified by: `TestCompareOrdersVersions` (setup); by hand.
+Verified by: `TestCompareOrdersVersions` (setup); `TestTheRouteComesFromOneReadingOfTheMachine`,
+`TestUninstallOpensOnTheUninstallScreen`, `TestAMachineThatCouldNotBeReadIsTheVerdict` (ribbonkit's
+installer); by hand.
 
 **FR-802 Every install writes the same way** (Must). Install, Update, Go back and Reinstall write the
 files into `%LOCALAPPDATA%\Programs\TimeRibbon`, copy setup there as `uninstall.exe`, record the
@@ -1035,11 +1038,12 @@ Verified by: `TestForgettingRemovesOnlyTheSettingsFolder` (setup); by hand.
 
 **FR-807 A running copy is closed first** (Must). Setup says TimeRibbon is running and offers to close
 it; still running after 5 seconds, it asks for it to be closed by hand.
-Verified by: by hand.
+Verified by: `TestNothingIsTouchedWhileTheApplicationRuns`, `TestClosingTheRunningCopyIsLogged`
+(ribbonkit's installer); by hand.
 
 **FR-808 A failure says why** (Must). A failed step shows `Something went wrong` with the reason and
 Close.
-Verified by: `setupScreens.test.ts` (ribbonkit).
+Verified by: `TestAFailedStepStopsTheWork` (ribbonkit's installer); `setupScreens.test.ts` (ribbonkit).
 
 **FR-809 Setup answers the keyboard** (Must; Amendment 5). Tab and Right move forward, Shift+Tab and
 Left back, wrapping and skipping disabled or hidden controls; Enter toggles a focused box as Space

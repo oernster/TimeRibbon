@@ -180,12 +180,14 @@ What macOS and Linux share is written once for both.
 ### No taskbar button; native menus
 
 On Windows and Linux the window's taskbar button is removed before it is first shown; on macOS the
-Dock icon stays (Amendment 36). Both menus are the system's own, built from one shared list.
+application has no Dock icon and is reached from its menu-bar icon (Amendment 39). Both menus are
+the system's own, built from one shared list.
 
 - **Rather than:** accepting the button; a menu drawn in the page.
 - **Gains:** the ribbon stays out of the way; its small window never clips a menu.
 - **Costs:** it rests on Wails' internals, so it is checked by hand on any Wails upgrade. On macOS
-  Wails makes the application a regular one as it launches, which nothing afterwards undid.
+  Wails makes the application a regular one as it launches, so ribbonkit undoes that once launching
+  has finished; with no Dock icon there is no app switcher entry either.
 
 ### A home edge per orientation; vertical on the right at first
 

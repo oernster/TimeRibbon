@@ -46,6 +46,7 @@ where they apply.
 | 36 | 2026-10-05 | On macOS TimeRibbon keeps its Dock icon: Wails makes the application a regular one as it launches; switching it to an accessory afterwards never removed the icon on a real Mac (FR-101). Oliver's ruling. |
 | 37 | 2026-10-05 | A Position item that would leave the ribbon where it stands is greyed in both menus and in Settings (FR-408). Oliver found Centre on right edge doing nothing beside another ribbon; his ruling: grey only a press that would not move it, not every edge whose centre is taken. |
 | 38 | 2026-10-06 | The setup facade's own tests in ribbonkit are cited where they hold FR-801, FR-807 and FR-808; FR-701 lists `pullOutSide`, which the file has held since Amendment 35. No requirement changes in meaning. |
+| 39 | 2026-10-06 | On macOS TimeRibbon has no Dock icon, reversing Amendment 36: it becomes an accessory once Wails has finished launching it, a switch the revert behind Amendment 36 never ran on a real Mac (FR-101). It quits when macOS asks, at log out, restart or shut down, where it had interrupted a restart (FR-507). On Linux the window Wails shows before the ribbon is placed is kept invisible, where the Flatpak showed it black over most of the screen at login (FR-101). From ribbonkit v0.15.1; Oliver's findings of the same day. |
 
 Source: the initial product specification of 2026-09-27, written under the product's former name,
 plus Oliver's rulings of 2026-09-27: Go with Wails; both orientations in the first release; a setup
@@ -224,9 +225,11 @@ build.
 
 ### 3.1 The ribbon
 
-**FR-101 Frameless ribbon** (Must; Amendment 36). The ribbon shall be a window with no title bar, no
-system border and no taskbar button on Windows or Linux. On macOS TimeRibbon keeps its Dock icon.
-Verified by: `TestTheRibbonIsKeptOffTheTaskbar` (desktop, Linux); by hand.
+**FR-101 Frameless ribbon** (Must; Amendments 36, 39). The ribbon shall be a window with no title
+bar, no system border and no taskbar button on Windows or Linux; on macOS the application shall have
+no Dock icon, its menu-bar icon staying. No window of it shall be seen before the ribbon is placed.
+Verified by: `TestTheRibbonIsKeptOffTheTaskbar` (desktop, Linux and macOS);
+`TestAWindowMappedBeforeTheLoopIsVeiledUntilItIsShown` (desktop, Linux); by hand.
 
 **FR-102 Cells in time order** (Must; Amendment 6). The ribbon shall show one cell per clock, left to
 right or top to bottom, running east from Greenwich: places level with or ahead of UTC by ascending
@@ -538,8 +541,11 @@ counts as shown.
 Acceptance: launching again hides a shown ribbon; launching once more shows it.
 Verified by: `TestASecondLaunchTogglesTheRibbon` (window); by hand.
 
-**FR-507 Alt+F4 hides** (Must; OQ-4). Alt+F4 on the ribbon hides it and the application keeps running.
-Verified by: `TestCloseRequestHidesRatherThanQuits` (application); by hand.
+**FR-507 Alt+F4 hides** (Must; OQ-4, Amendment 39). Alt+F4 on the ribbon hides it and the application
+keeps running. On macOS a request from the system to quit, as at log out, restart or shut down,
+quits it.
+Verified by: `TestCloseRequestHidesRatherThanQuits` (application); `TestTheApplicationQuitsWhenMacOSAsks`
+(desktop, macOS); by hand.
 
 **FR-508 Help submenu** (Must; Amendments 2, 15). Both menus shall hold `Help` with `About`,
 `Licence` and `Check for updates`; About and Licence show the window as that panel.

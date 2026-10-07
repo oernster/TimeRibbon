@@ -31,12 +31,14 @@ anywhere on any monitor.
 - **Finds places by city, zone or country** among the 418 zones of the tz database, matching the start
   of a word, so `l` finds London but never Adelaide. A label can be anything up to 32 characters, so
   Manchester can wear London's clock.
-- **Stays out of the way.** No title bar, border or taskbar button; its icon sits in the notification
-  area, menu bar or tray. The icon's menu and the ribbon's right-click menu offer Add clock,
-  Settings, style, colour, orientation, Position, Always on top, Pin ribbon, Sun map, Help, Hide and
-  Exit; while the ribbon is hidden the icon offers Show in place of Hide. Hiding the ribbon leaves
-  TimeRibbon running. Launching it again shows or hides the ribbon, so one
-  launcher button (a Stream Deck's, say) does both.
+- **Stays out of the way.** No title bar, border, taskbar button or Dock icon; its icon sits in the
+  notification area, menu bar or tray. The icon's menu and the ribbon's right-click menu offer Add
+  clock, Settings, style, colour, orientation, Position, Always on top, Pin ribbon, Sun map, Help,
+  Hide and Exit; while the ribbon is hidden the icon offers Show in place of Hide. Hiding the ribbon
+  leaves TimeRibbon running. Launching it again shows or hides the ribbon, so one launcher button (a
+  Stream Deck's, say) does both.
+- **Never holds up a restart.** On macOS it quits when the system asks at log out, restart or shut
+  down; on Linux it leaves as soon as a shutdown or restart is announced.
 - **Unpinned, it waits as a thin tab** against the edge it stands on, opening when the pointer rests
   on it without taking the keyboard. Dragged away from every edge it stays in full; dropped near one
   it snaps flush.
@@ -160,7 +162,7 @@ measured floors. [TESTING.md](TESTING.md) has the figures.
 gives the decisions with what each costs; [TECH_DEBT.md](TECH_DEBT.md) lists what is still open, what
 is deliberately left and what only looks like debt.
 
-## Supporting TimeRibbon
+## Supporting the project
 
 TimeRibbon is free and stays free: no paid tier, no licence key, no feature held back behind a
 donation. If it earns its place on your screen, a donation is welcome. The same button sits at the

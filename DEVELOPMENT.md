@@ -149,7 +149,8 @@ It stops at the first failure:
 3. Reads the oldest macOS the Go toolchain supports from an empty Go program and hands it to cgo.
 4. Builds with `go build -tags desktop,production`, refusing a link of code built for a newer macOS.
 5. Makes `iconfile.icns` with `sips` and `iconutil`.
-6. Assembles `build/bin/TimeRibbon.app` with its `Info.plist`.
+6. Assembles `build/bin/TimeRibbon.app` with its `Info.plist`, which declares `LSUIElement` so the
+   Dock never records the application as a recent app.
 7. Signs it with the hardened runtime, notarises and staples it.
 8. Makes, signs, notarises and staples the DMG, then runs `stapler validate` and `spctl --assess`.
 

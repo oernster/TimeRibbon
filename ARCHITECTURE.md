@@ -1,8 +1,8 @@
 # TimeRibbon Architecture
 
 A desktop application for Windows, macOS and Linux showing a ribbon of clocks, one per chosen place.
-It reads the system clock, its settings file, the desktop (displays, tray, sign-in entry) and GitHub's
-latest release. The time zone rules are built in; macOS and Linux read their own zone files first
+It reads the system clock, its settings file, the desktop (displays, tray, sign-in entry; on Linux
+logind's notice of a shutdown) and GitHub's latest release. The time zone rules are built in; macOS and Linux read their own zone files first
 ([Time](#time)). The domain and application are the same code everywhere; each platform's own half
 sits in files its build tags or names select.
 
@@ -109,7 +109,8 @@ page) read the kit Go builds against, through `go list -m`; `page_api_test.go` r
 kit's among them), injects them into the service, prepares the platform, starts the tray and hands
 the facade to Wails. What it does for the platform is the kit's `platform` package: on Linux and
 macOS `platform.Prepare` hands the desktop the icon and ends the run on SIGTERM or SIGINT; on Linux
-importing it sends GTK through X11 and turns off the DMABUF renderer. TimeRibbon says only where its
+it also ends the run when logind announces a shutdown or restart (FR-507). On Linux importing it
+sends GTK through X11 and turns off the DMABUF renderer. TimeRibbon says only where its
 tray icon lies (`trayicon_unix.go`; none on Windows, whose tray reads the executable's). The cell
 sizes (`layouts`) and panel sizes (`panels`) live there.
 No service is held in a global.
@@ -243,11 +244,15 @@ what ships is the kit tag `go.mod` requires.
 
 - `builddmg.sh` builds for Apple Silicon, assembles and signs `TimeRibbon.app` with the hardened
   runtime, notarises and staples it, then the DMG. The minimum macOS is read from the Go toolchain and
-  passed through the cgo flags; a link of code built for a newer macOS is refused.
+  passed through the cgo flags; a link of code built for a newer macOS is refused. The bundle's
+  `Info.plist` declares `LSUIElement`, so the application checks in with macOS as an agent and the
+  Dock never records it as a recent app (FR-101); the kit refuses Wails' later switch to a regular
+  application, so both are needed.
 - `build_flatpak.sh` builds in the GNOME 50 SDK against WebKitGTK 4.1 (`-tags webkit2_41`). The
   sandbox gets X11 with IPC, the GPU, the tray host's bus name, the single-instance lock's bus name,
-  the autostart folder, the shared ribbon folder (`xdg-run/ribbonkit`) and the network for the update
-  check alone. Both scripts first stop a copy left running, which holds the single-instance lock
+  logind on the system bus (`org.freedesktop.login1`, so the ribbon leaves before a shutdown or
+  restart, FR-507), the autostart folder, the shared ribbon folder (`xdg-run/ribbonkit`) and the
+  network for the update check alone. Both scripts first stop a copy left running, which holds the single-instance lock
   (FR-506).
 
 **The setup program** (Windows) is a second Wails application in `installer/`, embedding the built

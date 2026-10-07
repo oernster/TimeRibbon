@@ -186,8 +186,8 @@ the system's own, built from one shared list.
 - **Rather than:** accepting the button; a menu drawn in the page.
 - **Gains:** the ribbon stays out of the way; its small window never clips a menu.
 - **Costs:** it rests on Wails' internals, so it is checked by hand on any Wails upgrade. On macOS
-  Wails makes the application a regular one as it launches, so ribbonkit undoes that once launching
-  has finished; with no Dock icon there is no app switcher entry either.
+  Wails tries to make the application a regular one as it launches, so ribbonkit refuses that switch;
+  with no Dock icon there is no app switcher entry either.
 
 ### A home edge per orientation; vertical on the right at first
 
@@ -240,7 +240,11 @@ Go sizes the window from that.
 
 ### Closing hides; one copy runs; a launch toggles
 
-- **Rather than:** a second launch only showing it; several copies.
+Closing the ribbon hides it. The system ending the session is another matter: on macOS a request to
+quit at log out, restart or shut down quits it; on Linux a shutdown or restart announced ends it.
+
+- **Rather than:** a second launch only showing it; several copies; hiding even when the system asks
+  it to go, which interrupted a restart.
 - **Gains:** a single launcher button both shows and hides the ribbon.
 - **Costs:** a copy left running makes a newer build's first launch only toggle the old ribbon.
 
@@ -403,12 +407,34 @@ settings, web view data included, are removed only when asked.
 - **Gains:** Gatekeeper lets it open; the stated minimum macOS is one the executable meets.
 - **Costs:** Intel Macs are not served; signing needs a Terminal at the Mac itself.
 
+### macOS: the bundle declares an agent
+
+The application's bundle says it is an agent, so macOS never treats it as a regular application,
+even for the moment before any of its code runs.
+
+- **Rather than:** relying on the switch away from a regular application alone, which still left a
+  tile in the Dock's recent apps at every launch.
+- **Gains:** the Dock records nothing of TimeRibbon; the ribbon lives in the menu bar alone.
+- **Costs:** the declaration lives in the build script, apart from the code that does the switch;
+  both are needed, so a bundle built another way would bring the tile back.
+
 ### A Flatpak with a narrow sandbox
 
 - **Rather than:** a native package; wider access.
 - **Gains:** the application holds only what it uses.
 - **Costs:** Linux users need Flatpak; the network is granted to the whole application for the update
   check.
+
+### The Flatpak may speak to logind
+
+The sandbox is allowed to talk to logind on the system bus, so the ribbon hears a shutdown or
+restart coming and leaves while the desktop is still well.
+
+- **Rather than:** a sandbox with no system bus, where a restart with the ribbon running often hung
+  GNOME Shell until it was killed.
+- **Gains:** restarts and shutdowns complete cleanly.
+- **Costs:** one more permission in the sandbox, used only for that notice; without it the ribbon
+  carries on as before.
 
 ## Engineering
 

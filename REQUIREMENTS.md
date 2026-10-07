@@ -47,6 +47,7 @@ where they apply.
 | 37 | 2026-10-05 | A Position item that would leave the ribbon where it stands is greyed in both menus and in Settings (FR-408). Oliver found Centre on right edge doing nothing beside another ribbon; his ruling: grey only a press that would not move it, not every edge whose centre is taken. |
 | 38 | 2026-10-06 | The setup facade's own tests in ribbonkit are cited where they hold FR-801, FR-807 and FR-808; FR-701 lists `pullOutSide`, which the file has held since Amendment 35. No requirement changes in meaning. |
 | 39 | 2026-10-06 | On macOS TimeRibbon has no Dock icon, reversing Amendment 36: it becomes an accessory once Wails has finished launching it, a switch the revert behind Amendment 36 never ran on a real Mac (FR-101). It quits when macOS asks, at log out, restart or shut down, where it had interrupted a restart (FR-507). On Linux the window Wails shows before the ribbon is placed is kept invisible, where the Flatpak showed it black over most of the screen at login (FR-101). From ribbonkit v0.15.1; Oliver's findings of the same day. |
+| 40 | 2026-10-07 | On Linux TimeRibbon ends when logind announces a shutdown or restart, holding a delay lock until then, so GNOME Shell no longer hangs at restart; the Flatpak may talk to logind on the system bus; without that the ribbon carries on as before (FR-507, section 5). Measured by Oliver: 6 of 8 restarts with the ribbons running hung GNOME Shell before, 3 of 3 were clean after. On macOS the bundle declares `LSUIElement` and Wails' switch to a regular application during launch is refused, so the Dock no longer records TimeRibbon as a recent app at every launch (FR-101); proven on notarised builds across log out, log in and restart. From ribbonkit v0.15.2 and v0.15.3. |
 
 Source: the initial product specification of 2026-09-27, written under the product's former name,
 plus Oliver's rulings of 2026-09-27: Go with Wails; both orientations in the first release; a setup
@@ -225,10 +226,12 @@ build.
 
 ### 3.1 The ribbon
 
-**FR-101 Frameless ribbon** (Must; Amendments 36, 39). The ribbon shall be a window with no title
-bar, no system border and no taskbar button on Windows or Linux; on macOS the application shall have
-no Dock icon, its menu-bar icon staying. No window of it shall be seen before the ribbon is placed.
+**FR-101 Frameless ribbon** (Must; Amendments 36, 39, 40). The ribbon shall be a window with no
+title bar, no system border and no taskbar button on Windows or Linux; on macOS the application shall
+have no Dock icon while its menu-bar icon stays; nor shall the Dock record it as a recent app. No
+window of it shall be seen before the ribbon is placed.
 Verified by: `TestTheRibbonIsKeptOffTheTaskbar` (desktop, Linux and macOS);
+`TestWailsCannotMakeTheRibbonRegularAsItLaunches` (desktop, macOS);
 `TestAWindowMappedBeforeTheLoopIsVeiledUntilItIsShown` (desktop, Linux); by hand.
 
 **FR-102 Cells in time order** (Must; Amendment 6). The ribbon shall show one cell per clock, left to
@@ -541,11 +544,12 @@ counts as shown.
 Acceptance: launching again hides a shown ribbon; launching once more shows it.
 Verified by: `TestASecondLaunchTogglesTheRibbon` (window); by hand.
 
-**FR-507 Alt+F4 hides** (Must; OQ-4, Amendment 39). Alt+F4 on the ribbon hides it and the application
-keeps running. On macOS a request from the system to quit, as at log out, restart or shut down,
-quits it.
+**FR-507 Alt+F4 hides** (Must; OQ-4, Amendments 39, 40). Alt+F4 on the ribbon hides it and the
+application keeps running. On macOS a request from the system to quit, as at log out, restart or shut
+down, quits it. On Linux logind announcing a shutdown or restart ends it; a cancelled shutdown does
+not.
 Verified by: `TestCloseRequestHidesRatherThanQuits` (application); `TestTheApplicationQuitsWhenMacOSAsks`
-(desktop, macOS); by hand.
+(desktop, macOS); `TestOnlyAShutdownStartingEndsTheRibbon` (platform, Linux); by hand.
 
 **FR-508 Help submenu** (Must; Amendments 2, 15). Both menus shall hold `Help` with `About`,
 `Licence` and `Check for updates`; About and Licence show the window as that panel.
@@ -1007,8 +1011,9 @@ with `wails build`, then the setup program embedding it (OQ-3): a second Wails a
 `installer/` whose policy lives in ribbonkit's `infrastructure/setup`, ported in shape from BridgeTalk's.
 Setup and FR-801 to FR-811 are Windows only (Amendment 13). macOS ships as a DMG signed with a
 Developer ID and notarised (`builddmg.sh`); Linux as a Flatpak for the user (`build_flatpak.sh`),
-granted X11 with IPC, the GPU, the tray host's and single-instance lock's bus names, the autostart
-folder, the occupancy folder of FR-412 and the network for FR-509.
+granted X11 with IPC, the GPU, the tray host's and single-instance lock's bus names, logind on the
+system bus for FR-507, the autostart folder, the occupancy folder of FR-412 and the network for
+FR-509.
 
 **FR-801 The screen the machine calls for** (Must). With `-uninstall` setup opens on Uninstall;
 otherwise Install where nothing is installed, Installed (Repair, Reinstall, Uninstall) over the same

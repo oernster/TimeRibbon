@@ -217,11 +217,11 @@ h2 {
 
 .feature p { margin: 0; color: var(--muted); font-size: 0.95rem; }
 
-/* The screenshot beside what it shows */
+/* The screenshot beside what it shows, on the right, where a vertical ribbon stands on the desktop */
 
 .shot {
     display: grid;
-    grid-template-columns: auto 1fr;
+    grid-template-columns: 1fr auto;
     gap: 40px;
     align-items: start;
     margin-top: 28px;

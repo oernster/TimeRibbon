@@ -50,12 +50,12 @@ figure with the fraction dropped, so it fails once cover is lost.
 which runs no statement. The four tools are mains that hand `internal/product` to the kit's
 `delivery` package, where their work and its tests live.
 
-Every figure is the Windows build's, which `test.ps1` measures. That build compiles 127 Go test
+Every figure is the Windows build's, which `test.ps1` measures. That build compiles 128 Go test
 functions, counted from the test files `go list` selects, each running once with no subtests.
 Twenty-five are the structural tests, which read the source and are the same on every platform;
 [ARCHITECTURE.md](ARCHITECTURE.md) lists each against its rule. `TestA1Point0SettingsFileIsReadWhole`
 in `store` holds the settings file's promise (NFR-C-1); `contrast_test.go` holds NFR-U-1 in Go because
-Vitest hands a CSS import back empty. The macOS and Linux builds compile 126
+Vitest hands a CSS import back empty. The macOS and Linux builds compile 127
 ([On macOS and Linux](#on-macos-and-linux)).
 
 ### The front end
@@ -110,7 +110,7 @@ says, with the page built. The kit's own macOS and Linux checks are in its TESTI
 | What | macOS | Linux |
 |---|---|---|
 | Tags | `desktop,production` | `desktop,production,webkit2_41` |
-| Go test functions | 126 | 126 |
+| Go test functions | 127 | 127 |
 
 With the platform's tags in `TAGS`, run each and read its exit code:
 

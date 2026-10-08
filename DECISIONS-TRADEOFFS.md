@@ -111,7 +111,9 @@ the meridian its offset keeps. Ties keep the order they were added. Oliver's rul
   New York ahead of London; east from Greenwich by offset, which ran London first and New York last
   while the map drew New York on the left, so the cells and the dots read in different orders.
 - **Gains:** the ribbon reads the same way as the map and never needs tidying.
-- **Costs:** clocks cannot be arranged by hand.
+- **Costs:** clocks cannot be arranged by hand; the order follows the place rather than the hour, so
+  two clocks showing the same time can stand apart (Madrid keeps Paris's time yet stands west of
+  London).
 
 ### A zone's letters where it has them, else its offset
 

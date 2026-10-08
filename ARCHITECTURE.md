@@ -67,14 +67,14 @@ page) read the kit Go builds against, through `go list -m`; `page_api_test.go` r
   - `clock`: an instant and a zone become what a cell shows (the time and the zone mark as the
     kit's `localtime` writes them, the date in the chosen `DateFormat`, the hand angles); a label's
     default from its zone, capped by the kit's `ribbon.Label`; `Samples` writes every time and date a
-    cell can show, for the page to measure (FR-620). The next minute boundary and the order east from
-    Greenwich are `localtime`'s too.
+    cell can show, for the page to measure (FR-620). The next minute boundary is `localtime`'s too.
   - `settings`: the user's choices as one value, every operation answering a new one: the kit's
     `ribbon.Choices` embedded, so they read as its own fields, then the clocks' style, size, formats,
     sun map, pull out and the clocks themselves. The settings file is written exactly as before the
     split (NFR-C-1).
   - `sun`: the subsolar point from NOAA's equations (FR-906), checked against NOAA's values in
-    `testdata`.
+    `testdata`; `Meridian`, the longitude a UTC offset keeps, for ordering a zone with no city
+    (FR-102).
 - **Application** (`internal/application`): one `Service` over its ports in `ports.go` (`Store`,
   `Zones`, `Clock`, `IDs`, the kit's `arranger.Monitors` and `arranger.Neighbours`, `StartupEntry`
   and the kit's `release.Source`). It builds the snapshot, edits clocks, searches places
@@ -87,8 +87,7 @@ page) read the kit Go builds against, through `go list -m`; `page_api_test.go` r
   notice (FR-707). The snapshot orders cells west to east (`westToEast`) by the longitude of each
   clock's city in the catalogue, the same city the sun map marks; a zone with no city stands at the
   meridian its offset keeps (`sun.Meridian`). Ties keep their stored order and an unshowable clock
-  goes last. A change that cannot be saved stays in
-  effect with a notice (FR-707).
+  goes last (FR-102). A change that cannot be saved stays in effect with a notice (FR-707).
 - **Infrastructure** (`internal/infrastructure`): `store` (the settings file) and `zones` (the place
   catalogue and the zone rules). Everything else it reaches (displays, sign-in, the log, the data
   folder, the desktop, the shared ribbon folder, the update check) is the kit's.

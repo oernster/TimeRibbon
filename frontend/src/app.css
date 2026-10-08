@@ -89,6 +89,8 @@ button:focus-visible {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
+  text-align: center;
   gap: 2px;
   overflow: hidden;
 }
@@ -102,6 +104,7 @@ button:focus-visible {
 }
 
 .place {
+  max-width: 100%;
   font-size: 13px;
   color: var(--text-muted);
   white-space: nowrap;
@@ -126,11 +129,6 @@ button:focus-visible {
   font-size: 13px;
   color: var(--text);
   white-space: nowrap;
-}
-
-.analogue {
-  align-items: center;
-  text-align: center;
 }
 
 .dial {

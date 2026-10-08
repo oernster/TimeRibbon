@@ -1,6 +1,7 @@
 package application
 
 import (
+	"cmp"
 	"slices"
 	"time"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/oernster/ribbonkit/domain/ribbon"
 	"github.com/oernster/timeribbon/internal/domain/clock"
 	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/internal/domain/sun"
 )
 
 // Words an invalid clock is shown with (FR-705, FR-706). They say what is wrong rather than
@@ -63,41 +65,43 @@ type Snapshot struct {
 	SunMap SunMap
 }
 
-// timedCell is a cell with its zone's offset from UTC at the snapshot's instant; shown is false for
-// a cell that cannot be shown, which has no offset to order by.
+// timedCell is a cell with the longitude it is ordered by; shown is false for a cell that cannot be
+// shown, which has no longitude.
 type timedCell struct {
-	cell          Cell
-	offsetSeconds int
-	shown         bool
+	cell      Cell
+	longitude float64
+	shown     bool
 }
 
-// eastFromGreenwich orders cells starting at Greenwich and going east round the world: London,
-// then Berlin, Tokyo, Melbourne, with New York last, by ribbonkit's rule for every ribbon of places
-// (FR-102). A cell that cannot be shown goes after every one that can.
-func eastFromGreenwich(a, b timedCell) int {
+// westToEast orders cells as their places run across the sun map, west to east: New York, London,
+// Shanghai, Sydney (FR-102). A cell that cannot be shown goes after every one that can.
+func westToEast(a, b timedCell) int {
 	if a.shown != b.shown {
 		if a.shown {
 			return -1
 		}
 		return 1
 	}
-	return localtime.EastFromGreenwich(a.offsetSeconds, b.offsetSeconds)
+	return cmp.Compare(a.longitude, b.longitude)
 }
 
-// Snapshot answers what the ribbon shows now, one cell per clock ordered east from Greenwich, the
-// reference; clocks keeping the same time keep the order they were added in (FR-102, FR-201 to
-// FR-206, FR-612). The order is worked out at each snapshot, since daylight saving moves it. One clock
-// that cannot be shown leaves every other one working (FR-705).
+// Snapshot answers what the ribbon shows now, one cell per clock ordered west to east as the sun map
+// draws their places; clocks at the same longitude keep the order they were added in (FR-102, FR-201
+// to FR-206, FR-612). One clock that cannot be shown leaves every other one working (FR-705).
 func (s *Service) Snapshot() Snapshot {
 	now := s.ports.Clock.Now()
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 	current := s.current.Normalised()
+	places := map[string]sun.Point{}
+	if len(current.Clocks) > 0 {
+		places = s.places()
+	}
 	timed := make([]timedCell, 0, len(current.Clocks))
 	for _, entry := range current.Clocks {
-		timed = append(timed, s.cell(entry, now, current.Format, current.DateFormat))
+		timed = append(timed, s.cell(entry, now, current.Format, current.DateFormat, places))
 	}
-	slices.SortStableFunc(timed, eastFromGreenwich)
+	slices.SortStableFunc(timed, westToEast)
 	cells := make([]Cell, 0, len(timed))
 	for _, each := range timed {
 		cells = append(cells, each.cell)
@@ -121,12 +125,13 @@ func (s *Service) Snapshot() Snapshot {
 		Now:         now,
 		NextRefresh: localtime.NextRefresh(now),
 		Notices:     s.notices(),
-		SunMap:      s.sunMap(current, cells, now),
+		SunMap:      s.sunMap(current, cells, places, now),
 	}
 }
 
-// cell answers one clock's cell at now, with the offset it is ordered by.
-func (s *Service) cell(entry settings.Entry, now time.Time, format localtime.Format, dateFormat clock.DateFormat) timedCell {
+// cell answers one clock's cell at now, with the longitude it is ordered by: its city's where the
+// catalogue has one, else the meridian its offset keeps.
+func (s *Service) cell(entry settings.Entry, now time.Time, format localtime.Format, dateFormat clock.DateFormat, places map[string]sun.Point) timedCell {
 	label := entry.Label
 	if label == "" {
 		label = entry.Zone
@@ -139,6 +144,10 @@ func (s *Service) cell(entry settings.Entry, now time.Time, format localtime.For
 		return timedCell{cell: Cell{ID: entry.ID, Label: label, Zone: entry.Zone, Problem: unknownZonePrefix + entry.Zone}}
 	}
 	reading := clock.Read(now, location, format, dateFormat)
+	longitude := sun.Meridian(time.Duration(reading.OffsetSeconds) * time.Second)
+	if at, ok := places[entry.Zone]; ok {
+		longitude = at.Longitude
+	}
 	return timedCell{
 		cell: Cell{
 			ID:          entry.ID,
@@ -150,7 +159,7 @@ func (s *Service) cell(entry settings.Entry, now time.Time, format localtime.For
 			HourAngle:   reading.HourAngle,
 			MinuteAngle: reading.MinuteAngle,
 		},
-		offsetSeconds: reading.OffsetSeconds,
-		shown:         true,
+		longitude: longitude,
+		shown:     true,
 	}
 }

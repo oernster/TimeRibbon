@@ -25,17 +25,19 @@ type Mark struct {
 	At    sun.Point
 }
 
-// sunMap answers the sun map for cells at now: a mark for each cell whose zone's city the catalogue
-// knows, none for a zone with no place there (such as UTC) or a clock that cannot be shown.
-func (s *Service) sunMap(current settings.Settings, cells []Cell, now time.Time) SunMap {
-	marks := []Mark{}
-	if len(cells) == 0 {
-		return SunMap{On: current.SunMap, PullOut: current.PullOut, Subsolar: sun.Subsolar(now), Marks: marks}
-	}
+// places answers each catalogued zone's city, by zone.
+func (s *Service) places() map[string]sun.Point {
 	places := map[string]sun.Point{}
 	for _, place := range s.ports.Zones.Catalogue() {
 		places[place.Zone] = place.At
 	}
+	return places
+}
+
+// sunMap answers the sun map for cells at now: a mark for each cell whose zone's city is in places,
+// none for a zone with no place there (such as UTC) or a clock that cannot be shown.
+func (s *Service) sunMap(current settings.Settings, cells []Cell, places map[string]sun.Point, now time.Time) SunMap {
+	marks := []Mark{}
 	for _, cell := range cells {
 		if at, ok := places[cell.Zone]; ok && cell.Problem == "" {
 			marks = append(marks, Mark{Label: cell.Label, At: at})

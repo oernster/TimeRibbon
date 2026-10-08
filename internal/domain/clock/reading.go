@@ -59,8 +59,8 @@ type Reading struct {
 	HourAngle float64
 	// MinuteAngle is the minute hand's angle in degrees clockwise from twelve.
 	MinuteAngle float64
-	// OffsetSeconds is the zone's offset from UTC at the instant, daylight saving included: what
-	// the ribbon is ordered by, east from Greenwich (FR-102).
+	// OffsetSeconds is the zone's offset from UTC at the instant, daylight saving included: where
+	// a zone with no city stands in the ribbon's west to east order (FR-102).
 	OffsetSeconds int
 }
 

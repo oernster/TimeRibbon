@@ -84,9 +84,10 @@ page) read the kit Go builds against, through `go list -m`; `page_api_test.go` r
   arranger asks its `Host` for the ribbon's choices and content read together; the service answers
   through `host.go` (a cell per notice and per clock, the style's or the prompt's size, the sun map's
   handle lane) and saves the arranger's changes through its one save path, so they raise the same
-  notice (FR-707). The snapshot orders cells east from Greenwich (`eastFromGreenwich`): places level
-  with or ahead of UTC by offset, then those behind it, read at the snapshot's instant; ties keep
-  their stored order and an unshowable clock goes last. A change that cannot be saved stays in
+  notice (FR-707). The snapshot orders cells west to east (`westToEast`) by the longitude of each
+  clock's city in the catalogue, the same city the sun map marks; a zone with no city stands at the
+  meridian its offset keeps (`sun.Meridian`). Ties keep their stored order and an unshowable clock
+  goes last. A change that cannot be saved stays in
   effect with a notice (FR-707).
 - **Infrastructure** (`internal/infrastructure`): `store` (the settings file) and `zones` (the place
   catalogue and the zone rules). Everything else it reaches (displays, sign-in, the log, the data

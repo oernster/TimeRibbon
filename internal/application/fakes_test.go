@@ -9,6 +9,7 @@ import (
 
 	"github.com/oernster/ribbonkit/domain/placement"
 	"github.com/oernster/timeribbon/internal/domain/settings"
+	"github.com/oernster/timeribbon/internal/domain/sun"
 )
 
 // errPlanted is the failure a fake answers when a test asks it to fail.
@@ -122,8 +123,22 @@ type rig struct {
 	startup *fakeStartup
 }
 
+// rigPlaces is the catalogue a rig searches and marks from, each city where the real one puts it.
+var rigPlaces = []Place{
+	{Zone: "America/New_York", Label: "New York", Country: "United States", At: sun.Point{Latitude: 40.7142, Longitude: -74.0064}},
+	{Zone: "Asia/Kolkata", Label: "Kolkata", Country: "India", At: sun.Point{Latitude: 22.5333, Longitude: 88.3667}},
+	{Zone: "Europe/London", Label: "London", Country: "Britain (UK)", At: londonAt},
+	{Zone: "America/Indiana/Indianapolis", Label: "Indianapolis", Country: "United States", At: sun.Point{Latitude: 39.7683, Longitude: -86.1581}},
+}
+
 // newRig answers a service at 2026-09-27T20:37:00Z over both monitors, loaded from initial.
 func newRig(t *testing.T, initial settings.Settings) rig {
+	t.Helper()
+	return newRigOver(t, initial, rigPlaces)
+}
+
+// newRigOver is newRig with places as its catalogue.
+func newRigOver(t *testing.T, initial settings.Settings, places []Place) rig {
 	t.Helper()
 	now, err := time.Parse(time.RFC3339, "2026-09-27T20:37:00Z")
 	if err != nil {
@@ -132,13 +147,8 @@ func newRig(t *testing.T, initial settings.Settings) rig {
 	store := &fakeStore{loaded: Loaded{Settings: initial}}
 	startup := &fakeStartup{}
 	service := New(Ports{
-		Store: store,
-		Zones: realZones{places: []Place{
-			{Zone: "America/New_York", Label: "New York", Country: "United States"},
-			{Zone: "Asia/Kolkata", Label: "Kolkata", Country: "India"},
-			{Zone: "Europe/London", Label: "London", Country: "Britain (UK)", At: londonAt},
-			{Zone: "America/Indiana/Indianapolis", Label: "Indianapolis", Country: "United States"},
-		}},
+		Store:    store,
+		Zones:    realZones{places: places},
 		Clock:    fixedClock{now: now},
 		IDs:      &countingIDs{},
 		Monitors: fakeMonitors{monitors: []placement.Monitor{primaryMonitor, secondaryMonitor}},

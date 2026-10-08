@@ -48,6 +48,7 @@ where they apply.
 | 38 | 2026-10-06 | The setup facade's own tests in ribbonkit are cited where they hold FR-801, FR-807 and FR-808; FR-701 lists `pullOutSide`, which the file has held since Amendment 35. No requirement changes in meaning. |
 | 39 | 2026-10-06 | On macOS TimeRibbon has no Dock icon, reversing Amendment 36: it becomes an accessory once Wails has finished launching it, a switch the revert behind Amendment 36 never ran on a real Mac (FR-101). It quits when macOS asks, at log out, restart or shut down, where it had interrupted a restart (FR-507). On Linux the window Wails shows before the ribbon is placed is kept invisible, where the Flatpak showed it black over most of the screen at login (FR-101). From ribbonkit v0.15.1; Oliver's findings of the same day. |
 | 40 | 2026-10-07 | On Linux TimeRibbon ends when logind announces a shutdown or restart, holding a delay lock until then, so GNOME Shell no longer hangs at restart; the Flatpak may talk to logind on the system bus; without that the ribbon carries on as before (FR-507, section 5). Measured by Oliver: 6 of 8 restarts with the ribbons running hung GNOME Shell before, 3 of 3 were clean after. On macOS the bundle declares `LSUIElement` and Wails' switch to a regular application during launch is refused, so the Dock no longer records TimeRibbon as a recent app at every launch (FR-101); proven on notarised builds across log out, log in and restart. From ribbonkit v0.15.2 and v0.15.3. |
+| 41 | 2026-10-07 | The ribbon runs west to east as the sun map draws the places, replacing east from Greenwich (Amendment 6), so the cells and the map's dots read the same way (FR-102, FR-306). Oliver's ruling. |
 
 Source: the initial product specification of 2026-09-27, written under the product's former name,
 plus Oliver's rulings of 2026-09-27: Go with Wails; both orientations in the first release; a setup
@@ -71,7 +72,7 @@ Oliver Ernster as author and decision owner; contributors to the open source pro
 
 **In scope:** a frameless ribbon of clocks, vertical by default, centred on an edge when asked; each
 clock's place, local time, weekday, date and zone mark from real time zone rules; adding, editing and
-removing clocks through a place search, ordered by time; digital or analogue, large or small,
+removing clocks through a place search, ordered west to east; digital or analogue, large or small,
 12-hour or 24-hour; dragging onto any monitor, restoring and recovering its place; a tray icon with a
 menu, Always on top, start at sign-in; an unpinned ribbon waiting as a tab (FR-613 to FR-619, FR-410);
 a sun map (FR-901 to FR-914); light, dark and system themes in ten schemes (FR-611); an update check,
@@ -234,15 +235,17 @@ Verified by: `TestTheRibbonIsKeptOffTheTaskbar` (desktop, Linux and macOS);
 `TestWailsCannotMakeTheRibbonRegularAsItLaunches` (desktop, macOS);
 `TestAWindowMappedBeforeTheLoopIsVeiledUntilItIsShown` (desktop, Linux); by hand.
 
-**FR-102 Cells in time order** (Must; Amendment 6). The ribbon shall show one cell per clock, left to
-right or top to bottom, running east from Greenwich: places level with or ahead of UTC by ascending
-offset, then places behind UTC by ascending offset. Offsets are those at the snapshot's instant, so
-daylight saving can move a clock; clocks keeping the same time keep their stored order; a clock that
-cannot be shown goes last.
-Acceptance: given New York, Melbourne, Tokyo, Berlin and London added in that order, the ribbon shows
-London, Berlin, Tokyo, Melbourne, New York.
-Verified by: `TestTheRibbonRunsEastFromGreenwich`, `TestSnapshotFollowsClockOrderWithEachZonesDate`
-(application); `ribbon.test.tsx`.
+**FR-102 Cells in map order** (Must; Amendments 6, 41; Oliver's ruling). The ribbon shall show one
+cell per clock, left to right or top to bottom, west to east by the longitude of the clock's city in
+the place catalogue, the city the sun map marks (FR-908), so the cells read in the same order as the
+map's dots. A zone with no city (such as UTC) stands at the meridian its offset keeps at the
+snapshot's instant, wrapped into -180 to 180. Clocks at the same longitude keep their stored order; a
+clock that cannot be shown goes last.
+Acceptance: given London, Amsterdam, Shanghai, Sydney and Toronto added in that order, the ribbon
+shows Toronto, London, Amsterdam, Shanghai, Sydney; across the date line Tonga comes before Honolulu.
+Verified by: `TestTheRibbonRunsWestToEastLikeTheMap`, `TestTheDateLineFollowsTheMap`,
+`TestSnapshotFollowsClockOrderWithEachZonesDate` (application); `TestAnOffsetStandsAtItsMeridian`
+(domain); `ribbon.test.tsx`.
 
 **FR-103 Orientation** (Must; OQ-5; Amendments 1, 9, 28). The ribbon shall lay its cells out in the
 orientation held in settings, vertical when none is held, chosen from the Orientation submenu of both
@@ -351,7 +354,7 @@ Verified by: `TestChangingZoneKeepsACustomLabel` (domain).
 closed.
 Verified by: `TestRemovingAClockClosesTheGap` (domain); `settings.test.tsx`.
 
-**FR-306 Reorder clocks.** Withdrawn by Amendment 6: the order follows the time.
+**FR-306 Reorder clocks.** Withdrawn by Amendment 6: the order follows the map (FR-102).
 
 **FR-307 Label length** (Should). A label holds at most 32 characters; a cell too narrow ends it with
 an ellipsis and shows it whole as a tooltip.

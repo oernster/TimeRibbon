@@ -102,14 +102,15 @@ their own first.
 
 ## Clocks and time
 
-### East from Greenwich, never by hand
+### West to east like the map, never by hand
 
-London first, then places ahead of UTC by how far ahead, then those behind it. The order is worked out
-at every refresh; ties keep the order they were added.
+Each clock stands where its city stands on the sun map, west to east; a zone with no city stands at
+the meridian its offset keeps. Ties keep the order they were added. Oliver's ruling.
 
 - **Rather than:** ordering by hand, built first then withdrawn; earliest local time first, which put
-  New York ahead of London.
-- **Gains:** the ribbon reads round the world one way and never needs tidying.
+  New York ahead of London; east from Greenwich by offset, which ran London first and New York last
+  while the map drew New York on the left, so the cells and the dots read in different orders.
+- **Gains:** the ribbon reads the same way as the map and never needs tidying.
 - **Costs:** clocks cannot be arranged by hand.
 
 ### A zone's letters where it has them, else its offset

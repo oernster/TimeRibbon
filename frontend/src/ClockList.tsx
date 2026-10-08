@@ -9,9 +9,9 @@ interface Props {
 }
 
 /**
- * ClockList is the configured clocks in the ribbon's order, east from Greenwich (FR-102,
- * FR-303 to FR-305). The order follows the time, so rows are not moved by hand; Remove asks first,
- * naming the clock.
+ * ClockList is the configured clocks in the ribbon's order, west to east as the sun map draws them
+ * (FR-102, FR-303 to FR-305). The order follows the map, so rows are not moved by hand; Remove asks
+ * first, naming the clock.
  */
 export function ClockList({ cells, onRename, onChangePlace, onRemove }: Props) {
   const [confirming, setConfirming] = useState<Cell | null>(null)

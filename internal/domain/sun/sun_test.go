@@ -57,6 +57,18 @@ func TestTheZoneOfTheInstantDoesNotMatter(t *testing.T) {
 	}
 }
 
+// FR-102: a zone with no city stands at the meridian its offset keeps; past the date line it wraps.
+func TestAnOffsetStandsAtItsMeridian(t *testing.T) {
+	t.Parallel()
+	for offset, want := range map[time.Duration]float64{
+		0: 0, 5*time.Hour + 30*time.Minute: 82.5, -5 * time.Hour: -75, 14 * time.Hour: -150, -12 * time.Hour: -180,
+	} {
+		if got := Meridian(offset); math.Abs(got-want) > 1e-9 {
+			t.Errorf("%v: got %v, want %v", offset, got, want)
+		}
+	}
+}
+
 func TestLongitudesWrapIntoOneCircle(t *testing.T) {
 	t.Parallel()
 	for in, want := range map[float64]float64{180: -180, -180: -180, 190: -170, -190: 170, 540: -180, 0: 0} {

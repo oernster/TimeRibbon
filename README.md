@@ -26,8 +26,8 @@ anywhere on any monitor.
 
 - **Each place's own time and date,** with its zone's abbreviation (EDT) or its offset where the zone
   has no letters (UTC+5:45). Daylight saving follows the tz rules; nothing is set by hand.
-- **Runs east from Greenwich:** London, Berlin, Tokyo, Melbourne, then New York, since places behind
-  UTC come last. The order is worked out at every refresh.
+- **Runs west to east like the map:** New York, London, Berlin, Tokyo, Melbourne, each clock where its
+  city stands on the sun map, so the cells and the map's dots read the same way.
 - **Finds places by city, zone or country** among the 418 zones of the tz database, matching the start
   of a word, so `l` finds London but never Adelaide. A label can be anything up to 32 characters, so
   Manchester can wear London's clock.

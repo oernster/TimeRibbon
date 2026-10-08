@@ -43,6 +43,13 @@ func Subsolar(instant time.Time) Point {
 	return Point{Latitude: declination, Longitude: wrapLongitude(longitude)}
 }
 
+// Meridian answers the longitude whose mean solar time runs offset ahead of UTC, within [-180, 180):
+// where a zone with no city of its own stands on the map, so it is still ordered with the rest
+// (FR-102). UTC+14 lands at -150, west of the date line, where its islands are.
+func Meridian(offset time.Duration) float64 {
+	return wrapLongitude(offset.Minutes() / minutesPerDegree)
+}
+
 func julianDay(utc time.Time) float64 {
 	return float64(utc.UnixNano())/float64(time.Second)/secondsPerDay + unixEpochJulianDay
 }

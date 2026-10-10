@@ -1,0 +1,5 @@
+# robots.txt for TimeRibbon (https://timeribbon.world/)
+User-agent: *
+Allow: /
+
+Sitemap: https://timeribbon.world/sitemap.xml

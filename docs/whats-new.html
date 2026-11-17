@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>What's new in TimeRibbon: release history</title>
+    <meta name="description" content="TimeRibbon's release history: clocks in the same order as the sun map, a menu-bar home on macOS, clean restarts on Linux, ribbonkit shared with WeatherRibbon, resizing by hand, a see-through ribbon, the sun map, ten colour schemes and TimeRibbon on macOS and Linux.">
+    <meta name="theme-color" content="#111418">
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="What's new in TimeRibbon: release history">
+    <meta property="og:description" content="TimeRibbon's release history: clocks in the same order as the sun map, a menu-bar home on macOS, clean restarts on Linux, ribbonkit shared with WeatherRibbon, resizing by hand, a see-through ribbon, the sun map, ten colour schemes and TimeRibbon on macOS and Linux.">
+    <meta property="og:image" content="https://timeribbon.world/icon.png">
+    <meta property="og:url" content="https://timeribbon.world/whats-new.html">
+    <link rel="canonical" href="https://timeribbon.world/whats-new.html">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta property="og:site_name" content="TimeRibbon">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="256">
+    <meta property="og:image:height" content="256">
+    <meta property="og:image:alt" content="TimeRibbon app icon">
+    <meta property="og:locale" content="en_GB">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="What's new in TimeRibbon: release history">
+    <meta name="twitter:description" content="TimeRibbon's release history: clocks in the same order as the sun map, a menu-bar home on macOS, clean restarts on Linux, ribbonkit shared with WeatherRibbon, resizing by hand, a see-through ribbon, the sun map, ten colour schemes and TimeRibbon on macOS and Linux.">
+    <meta name="twitter:image" content="https://timeribbon.world/icon.png">
+    <meta name="twitter:image:alt" content="TimeRibbon app icon">
+    <link rel="stylesheet" href="styles.css?v=0dc8e4abd8">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "What's new in TimeRibbon: release history",
+        "description": "TimeRibbon's release history: clocks in the same order as the sun map, a menu-bar home on macOS, clean restarts on Linux, ribbonkit shared with WeatherRibbon, resizing by hand, a see-through ribbon, the sun map, ten colour schemes and TimeRibbon on macOS and Linux.",
+        "url": "https://timeribbon.world/whats-new.html",
+        "isPartOf": {"@type": "WebSite", "name": "TimeRibbon", "url": "https://timeribbon.world/"},
+        "inLanguage": "en-GB"
+    }
+    </script>
+<script>window.goatcounter = {path: function (p) { return location.host + p }}</script>
+<script data-goatcounter="https://oernster.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</head>
+<body>
+
+<header class="wrap site-head">
+    <a class="brand" href="./"><img src="icon.png" alt="" width="34" height="34"> TimeRibbon</a>
+    <nav aria-label="Sections">
+        <a href="features.html" class="hide-sm">Features</a>
+        <a href="whats-new.html" class="hide-sm" aria-current="page">What's New</a>
+        <a href="download.html">Download</a>
+        <a href="https://github.com/oernster/TimeRibbon">GitHub</a>
+    </nav>
+</header>
+
+<main id="top">
+
+    <section class="wrap" id="whats-new">
+        <p class="kicker">Changelog</p>
+        <h2>What's new</h2>
+        <div class="prose">
+            <p>Recent releases have settled the ribbon into each desktop: its clocks now run west
+                to east in the same order as the sun map, macOS keeps it in the menu bar alone and a
+                Linux restart no longer hangs on it. Before that, TimeRibbon moved onto ribbonkit, the
+                library it shares with WeatherRibbon, so two ribbons on one desktop never land on each
+                other. Earlier releases brought resizing by hand, a see-through ribbon, the sun map,
+                ten colour schemes, an update check and TimeRibbon itself on macOS and Linux under its
+                new name.</p>
+        </div>
+
+        <div class="releases">
+
+            <div class="card release">
+                <span class="ver-tag pill">v<!--VERSION-->2.10.0<!--/VERSION--></span>
+                <h3>The clocks run in the same order as the map</h3>
+                <ul>
+                    <li>The ribbon orders its clocks west to east by where their cities sit on the sun map, so the cells and the map's red dots read the same way round</li>
+                    <li>It used to start at London and run east, putting the Americas at the end while the map drew them on the left</li>
+                    <li>A clock with no city of its own, such as UTC, stands where its offset would put it on the map; across the date line the map decides, so Tonga comes before Hawaii</li>
+                    <li>The order follows the place rather than the hour: Madrid keeps Paris's time but sits west of London</li>
+                    <li>A digital clock's place, time and date now sit in the middle of its cell, as an analogue clock's already did</li>
+                    <li>Your settings file is read and written as before; the clocks take their new places with nothing to change</li>
+                </ul>
+            </div>
+
+            <div class="card release">
+                <span class="ver-tag pill">v2.9.0</span>
+                <h3>At home in the menu bar; clean restarts on Linux</h3>
+                <ul>
+                    <li>On macOS TimeRibbon lives in the menu bar alone: no Dock icon, no place in the app switcher and no tile left in the Dock's recent apps at each launch</li>
+                    <li>On macOS it now quits when the system asks at log out, restart or shut down instead of holding them up; closing the ribbon yourself still leaves it in the menu bar</li>
+                    <li>On Linux a restart with the ribbon running often left GNOME Shell hung. TimeRibbon now hears the shutdown coming and leaves at once: in testing 6 of 8 restarts had hung, after the change 3 of 3 were clean</li>
+                    <li>To hear that notice the Flatpak asks for one more permission, talking to logind; without it TimeRibbon carries on as before</li>
+                    <li>The Flatpak no longer flashes a large black window over the screen at sign-in</li>
+                </ul>
+            </div>
+
+            <div class="card release">
+                <span class="ver-tag pill">v2.8.0</span>
+                <h3>Position never offers a move that does nothing</h3>
+                <ul>
+                    <li>A Position choice that would leave the ribbon exactly where it stands, beside another ribbon, is now greyed in both menus and in Settings</li>
+                    <li>A race at start between the ribbon's window and Wails, found by the race detector, is fixed; so is the same race in the Windows setup program, whose decisions are now covered by tests</li>
+                    <li>More of the ribbon now comes from ribbonkit, the library shared with WeatherRibbon; nothing about how TimeRibbon looks or behaves changes</li>
+                </ul>
+            </div>
+
+            <div class="card release">
+                <span class="ver-tag pill">v2.7.0</span>
+                <h3>Built on ribbonkit; two ribbons never land on each other</h3>
+                <ul>
+                    <li>TimeRibbon is now built on ribbonkit, an open source library shared with WeatherRibbon, so a fix to how a ribbon behaves reaches both at once; TimeRibbon keeps only what makes it a clock</li>
+                    <li>A ribbon being placed moves along its edge to the nearest free space, then tries the opposite edge; a ribbon already in place never moves because another arrived, moved or grew</li>
+                    <li>With the ribbon in open space, away from every edge, the sun map keeps the side it was on while there is room there, remembered across restarts</li>
+                    <li>Dragging between displays at different scales no longer leaves the map drawn on one side while the window was shaped for the other</li>
+                    <li>The documents now say that TimeRibbon shows in the Dock on macOS, as it always had on a real Mac</li>
+                    <li>The Flatpak asks for access to one private folder, ribbonkit, in your session's runtime folder; your settings gain one key, pullOutSide</li>
+                </ul>
+            </div>
+
+            <div class="card release">
+                <span class="ver-tag pill">v2.6.0</span>
+                <h3>Smooth resizing; opacity that fades only the background</h3>
+                <ul>
+                    <li>Dragging the corner grip grows and shrinks the ribbon from its top-left corner, so the corner stays under the pointer; the size follows it pixel by pixel on Windows, macOS and Linux</li>
+                    <li>The Opacity slider fades only the ribbon's background, each dial's face and the unpinned tab; the times, dates, hands and sun map stay solid. Settings and the other panels are always fully opaque</li>
+                    <li>On Windows a lowered opacity now shows the desktop behind the ribbon rather than grey</li>
+                    <li>On macOS and Linux the spare area beside a short ribbon with its map out now answers a right-click and a drag as the clocks do</li>
+                    <li>On GNOME a first launch opens against the right edge rather than the top-left corner</li>
+                    <li>Settings opens at the right height for its content</li>
+                </ul>
+            </div>
+
+            <div class="card release">
+                <span class="ver-tag pill">v2.5.0</span>
+                <h3>Your settings are safer</h3>
+                <ul>
+                    <li>A settings file that is there but cannot be read raises a notice and nothing is saved over it, so your clocks are never replaced by the defaults</li>
+                    <li>Every damaged settings file kept aside now gets a name of its own, so no kept copy is lost</li>
+                    <li>A settings file with a byte order mark, as Notepad or older PowerShell save it, now reads; two clocks given the same id by hand are told apart</li>
+                    <li>Every place behind UTC now comes after every place level with or ahead of it</li>
+                    <li>An update's page and download are taken only as secure GitHub addresses, so an update offer cannot send your browser anywhere unexpected</li>
+                </ul>
+            </div>
+
+            <div class="card release">
+                <span class="ver-tag pill">v2.4.0</span>
+                <h3>The ribbon fits on a scaled KDE desktop</h3>
+                <ul>
+                    <li>On a Linux desktop scaled to a fraction, such as KDE Plasma at 150 percent, the ribbon no longer comes up cut off and Settings keeps its full layout</li>
+                    <li>The ribbon is shown only once the page has sized it, so it no longer stays cut off until a clock next changes</li>
+                    <li>On Linux the web view's hardware acceleration is now off, as Wails intends</li>
+                    <li>cleanup_flatpak.sh removes the folder a failed Flatpak build leaves behind</li>
+                    <li>DECISIONS-TRADEOFFS.md records every deliberate choice the product makes with what it gains and costs</li>
+                </ul>
+            </div>
+
+            <div class="card release">
+                <span class="ver-tag pill">v2.3.2</span>
+                <h3>No more blank window with NVIDIA on Linux</h3>
+                <ul>
+                    <li>With NVIDIA's own driver on Linux the window could open as a plain dark panel. TimeRibbon now turns off WebKitGTK's DMABUF renderer before its window opens, keeping your own WEBKIT_DISABLE_DMABUF_RENDERER if you set one</li>
+                    <li>The README now says to choose Exit from the menu before installing a newer release on Linux, since a copy left running carries on with the old one</li>
+                </ul>
+            </div>
+
+            <div class="card release">
+                <span class="ver-tag pill">v2.3.1</span>
+                <h3>Linux build fixes</h3>
+                <ul>
+                    <li>Fixes to the Linux build and cleanup scripts</li>
+                </ul>
+            </div>
+
+            <div class="card release">
+                <span class="ver-tag pill">v2.3.0</span>
+                <h3>Resize by hand; a see-through ribbon</h3>
+                <ul>
+                    <li>A grip in the ribbon's corner resizes the clocks from 75 to 200 percent of the size chosen in Settings; double-click it to return them to their own size</li>
+                    <li>A new Opacity slider in Settings fades the window as low as 20 percent, so the ribbon can sit over your work without hiding it</li>
+                    <li>Settings now offers every choice the menus do, in columns side by side; it opens as tall as what it holds and scrolls only on a display too short for it</li>
+                    <li>The place search matches the start of a word, listing cities whose names begin with what you typed first</li>
+                    <li>The sun map's arrow has a lane of its own, so it no longer covers a clock</li>
+                    <li>Clocks are as wide as the widest time and date they can show in your machine's font, so dates are no longer cut short</li>
+                    <li>An unpinned ribbon with the sun map on draws whole every time it opens, keeps its place across a restart and shrinks a second after the pointer leaves</li>
+                </ul>
+            </div>
+
+            <div class="card release">
+                <span class="ver-tag pill">v2.2.0</span>
+                <h3>A sun map, date formats and a ribbon that waits as a tab</h3>
+                <ul>
+                    <li>Tick Sun map and a world map slides out from the ribbon, lit where it is day and dark with city lights where it is night, each clock's city marked in red; the pictures are NASA's Blue Marble and Black Marble, built in so nothing is fetched</li>
+                    <li>Settings gains a Date format choice: the weekday with the month in words, day first or month first; a short weekday with the date in numbers, day, month or year first</li>
+                    <li>Untick Pin ribbon and a ribbon against an edge shrinks to a thin tab; rest the pointer on it and the ribbon opens without taking the keyboard from what you are typing in</li>
+                    <li>Launching TimeRibbon while it runs now shows or hides the ribbon, so one Stream Deck button can bring the clocks up and put them away</li>
+                    <li>The donate button's message no longer names Windows on macOS and Linux</li>
+                </ul>
+            </div>
+
+            <div class="card release">
+                <span class="ver-tag pill">v2.1.0</span>
+                <h3>Ten colour schemes and an update check</h3>
+                <ul>
+                    <li>Amber, Ruby, Indigo, Berry and Contrast join the first five schemes, each with a light and a dark side that follow the theme</li>
+                    <li>Ocean is now deep teal with aqua text; Neon gains a light side</li>
+                    <li>The whole clock shows when Windows text is enlarged</li>
+                    <li>A few seconds after it starts and once a day, TimeRibbon asks GitHub for the latest release and offers Download, Skip this version or Later; Help gains Check for updates</li>
+                    <li>This is TimeRibbon's one network request: it sends nothing about you or your clocks and never installs anything by itself. The Linux Flatpak gains network access for it alone</li>
+                </ul>
+            </div>
+
+            <div class="card release">
+                <span class="ver-tag pill">v2.0.0</span>
+                <h3>TimeRibbon on macOS and Linux, under a new name</h3>
+                <ul>
+                    <li>TimeRibbon now runs on macOS (Apple Silicon with macOS 12 or later, signed and notarised by Apple) and on Linux (a Flatpak for your own account), doing everything the Windows ribbon does</li>
+                    <li>TimeStrip is now TimeRibbon, renamed over a trademark concern. It is a fresh install that carries nothing over, so uninstall TimeStrip first or both will run</li>
+                    <li>A new Position submenu centres the ribbon against an edge of its display; each orientation has a home edge it opens against</li>
+                    <li>A new Size choice draws every clock large or small</li>
+                    <li>A new Colour submenu offers five schemes: Classic, Neon, Ocean, Sunset and Forest</li>
+                    <li>Style and Orientation move into submenus of both menus; Settings keeps its title and Close button in view while the rest scrolls</li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div class="cta releases-more">
+            <a class="btn" href="https://github.com/oernster/TimeRibbon/releases">View all releases on GitHub</a>
+        </div>
+    </section>
+
+</main>
+
+<footer class="wrap site-foot">
+    <span>&copy; Oliver Ernster. GPL-3.0.
+        <a href="https://ernster.dev/commercial-licensing.html">Commercial licences</a> available.</span>
+    <span><a href="./">Home</a> &middot;
+        <a href="features.html">Features</a> &middot;
+        <a href="whats-new.html">What's New</a> &middot;
+        <a href="download.html">Download</a> &middot;
+        <a href="https://github.com/oernster/TimeRibbon">Source</a> &middot;
+        <a href="https://ernster.dev">More of my work</a></span>
+</footer>
+
+</body>
+</html>
